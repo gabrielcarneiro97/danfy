@@ -117,8 +117,7 @@ export default {
           nome: nome,
           dominio: dominio
         })
-
-
+        console.log(store.getState())
         this.$router.push('/')
 
       })
