@@ -1,5 +1,5 @@
 <template>
-  <md-toolbar class="md-accent">
+  <md-toolbar class="md-primary">
     <h3 class="md-title">DANFY</h3>
   </md-toolbar>
 </template>
