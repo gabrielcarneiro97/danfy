@@ -14,7 +14,8 @@
         </md-card-content>
 
         <md-card-actions>
-          <md-button @click="enter">LOGIN</md-button>
+          <md-button @click="registrar">REGISTRAR</md-button>
+          <md-button @click="entrar">LOGIN</md-button>          
         </md-card-actions>
       </md-card>
     </div>
@@ -27,33 +28,43 @@ import store from '../store'
 import { sair, autenticar } from '../store/actions'
 
 let db = firebase.database()
+let auth = firebase.auth()
 
 export default {
   name: 'login',
+  created () {
+    if(auth.currentUser) {
+      this.$router.push('/perfil')
+    }
+  },
   data () {
     return {
       login: 'gabriel@andreacontabilidade.com',
-      senha: 'ga102030'
+      senha: '123456'
     }
   },
   methods: {
-    enter () {
+    entrar () {
       let login = this.$data.login
       let senha = this.$data.senha
       
-      firebase.auth().signInWithEmailAndPassword(login, senha).then(user => {
-        console.log(user)
-        store.dispatch(autenticar({email: login, token: user.getIdToken(), id: user.uid}))
-        console.log(store.getState())
-        let empresa = db.ref('Empresas').once('value').then(value => {
-          console.log(value.key)
-          console.log(value.val())
+      auth.signInWithEmailAndPassword(login, senha).then(user => {
+        db.ref('Usuarios/' + user.uid).once('value').then(value => {
+
+          let usuario = value.val()
+  
+          store.dispatch(autenticar({email: login, token: user.getIdToken(), id: user.uid, nome: usuario.nome, dominio: usuario.dominio}))
+
+          this.$router.push('/perfil')      
+          
         })
-        // this.$router.push('/')        
       }, err => {
         console.error(err)
       })
 
+    },
+    registrar () {
+      this.$router.push('/registrar')
     }
   }
 }

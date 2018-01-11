@@ -61,8 +61,14 @@ import store from '../store'
 import { autenticar } from '../store/actions'
 
 var db = firebase.database()
+var auth = firebase.auth()
 
 export default {
+  created () {
+    if(auth.currentUser) {
+      this.$router.push('/perfil')
+    }
+  },
   data () {
     return {
       nome: 'Gabriel Carneiro',
@@ -117,7 +123,6 @@ export default {
           nome: nome,
           dominio: dominio
         })
-        console.log(store.getState())
         this.$router.push('/')
 
       })
