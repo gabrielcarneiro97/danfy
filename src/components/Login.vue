@@ -22,7 +22,9 @@
   </div>
 </template>
 <script>
-import * as firebase from "firebase"
+import * as firebase from 'firebase'
+import store from '../store'
+import { sair, autenticar } from '../store/actions'
 
 export default {
   name: 'login',
@@ -36,13 +38,14 @@ export default {
     enter () {
       let login = this.$data.login
       let senha = this.$data.senha
-      firebase.auth().signInWithEmailAndPassword(login, senha).catch(function(error) {
-        // Handle Errors here.
-        var errorCode = error.code;
-        var errorMessage = error.message;
-        console.error(error)
-        // ...
-      });
+
+      store.dispatch(autenticar({email: login}))
+
+      console.log(store.getState())
+
+      store.dispatch(sair())
+
+      console.log(store.getState())
 
     }
   }
