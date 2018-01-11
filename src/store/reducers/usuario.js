@@ -12,6 +12,8 @@ export default function usuario (state = {}, action) {
       }
     case SAIR:
       return {
+        name: undefined,
+        dominio: undefined,
         email: undefined,
         token: undefined,
         id: undefined
