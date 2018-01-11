@@ -26,26 +26,33 @@ import * as firebase from 'firebase'
 import store from '../store'
 import { sair, autenticar } from '../store/actions'
 
+let db = firebase.database()
+
 export default {
   name: 'login',
   data () {
     return {
-      login: null,
-      senha: null
+      login: 'gabriel@andreacontabilidade.com',
+      senha: 'ga102030'
     }
   },
   methods: {
     enter () {
       let login = this.$data.login
       let senha = this.$data.senha
-
-      store.dispatch(autenticar({email: login}))
-
-      console.log(store.getState())
-
-      store.dispatch(sair())
-
-      console.log(store.getState())
+      
+      firebase.auth().signInWithEmailAndPassword(login, senha).then(user => {
+        console.log(user)
+        store.dispatch(autenticar({email: login, token: user.getIdToken(), id: user.uid}))
+        console.log(store.getState())
+        let empresa = db.ref('Empresas').once('value').then(value => {
+          console.log(value.key)
+          console.log(value.val())
+        })
+        // this.$router.push('/')        
+      }, err => {
+        console.error(err)
+      })
 
     }
   }
