@@ -57,18 +57,20 @@
 
 <script>
 import * as firebase from 'firebase'
+import store from '../store'
+import { autenticar } from '../store/actions'
 
 var db = firebase.database()
 
 export default {
   data () {
     return {
-      nome: null,
-      login: null,
-      confirmaLogin: null,
-      senha: null,
-      confirmaSenha: null,
-      dominio: null,
+      nome: 'Gabriel Carneiro',
+      login: 'gabriel@andreacontabilidade.com',
+      confirmaLogin: 'gabriel@andreacontabilidade.com',
+      senha: '123456',
+      confirmaSenha: '123456',
+      dominio: 'andreacont',
       showSnackbar: false,
       duration: 3000,
       erro: "null"
@@ -105,9 +107,19 @@ export default {
         return 0
       }
 
-      firebase.auth().createUserWithEmailAndPassword(login, password).then(user => {
+      firebase.auth().createUserWithEmailAndPassword(login, senha).then(user => { 
 
-        store.dispatch(autenticar({email: login, token: user.getIdToken(), id: user.uid}))
+        store.dispatch(autenticar({nome: nome, dominio: dominio, email: login, token: user.getIdToken(), id: user.uid}))
+
+        let usuario = store.getState().usuario
+
+        db.ref('Usuarios/' + usuario.id).set({
+          nome: nome,
+          dominio: dominio
+        })
+
+
+        this.$router.push('/')
 
       })
 
