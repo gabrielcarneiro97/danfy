@@ -7,7 +7,7 @@
 
 <script>
 import Navbar from './components/Navbar'
-import * as firebase from "firebase"
+import * as firebase from 'firebase'
 
 var config = {
   apiKey: "apiKey",
