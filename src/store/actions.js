@@ -65,3 +65,10 @@ export function limparPessoas () {
   }
 }
 // FIM REDUCER PESSOAS
+
+// INÍCIO REDUCER DOMÍNIO
+
+export const CARREGAR_DOMINIO = 'CARREGAR_DOMINIO'
+export const ADICIONAR_EMPRESA = 'ADICIONAR_EMPRESA'
+export const LIMPAR_DOMINIO = 'LIMPAR_DOMINIO'
+// FIM REDUCER DOMÍNIO
