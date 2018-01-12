@@ -65,28 +65,3 @@ export function limparPessoas () {
   }
 }
 // FIM REDUCER PESSOAS
-
-// INÍCIO REDUCER EMPRESAS
-export const ADICIONAR_EMPRESA = 'ADICIONAR_EMPRESA'
-export const REMOVER_EMPRESA = 'REMOVER_EMPRESA'
-export const LIMPAR_EMPRESAS = 'LIMPAR_EMPRESAS'
-
-export function adicionarEmpresa (id, empresa) {
-  return {
-    type: ADICIONAR_EMPRESA,
-    id: id,
-    empresa: empresa
-  }
-}
-export function removerEmpresa (id) {
-  return {
-    type: REMOVER_EMPRESA,
-    id: id
-  }
-}
-export function limparEmpresas () {
-  return {
-    type: LIMPAR_EMPRESAS
-  }
-}
-// FIM REDUCER EMPRESAS

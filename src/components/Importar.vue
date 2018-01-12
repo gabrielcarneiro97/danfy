@@ -19,10 +19,8 @@
 
         <md-table-cell md-numeric>{{nota.geral.numero}}</md-table-cell>
 
-        <md-table-cell>{{empresas[nota.emitente].nome}}</md-table-cell>
-
-        <md-table-cell v-if="nota.destinatario.length == 11">{{pessoas[nota.destinatario].nome}}</md-table-cell>
-        <md-table-cell v-else>{{empresas[nota.destinatario].nome}}</md-table-cell>
+        <md-table-cell>{{pessoas[nota.emitente].nome}}</md-table-cell>
+        <md-table-cell>{{pessoas[nota.destinatario].nome}}</md-table-cell>
 
         <md-table-cell>{{nota.geral.naturezaOperacao}}</md-table-cell>
         <md-table-cell>{{nota.valor.total}}</md-table-cell>
@@ -36,7 +34,7 @@ import _ from 'lodash'
 import { xml2js } from 'xml-js'
 import { usuarioAtivo } from './services/firebase.service'
 import store from '../store'
-import { adicionarNota, adicionarPessoa, adicionarEmpresa, limparNotas, limparPessoas, limparEmpresas } from '../store/actions'
+import { adicionarNota, adicionarPessoa, limparNotas, limparPessoas } from '../store/actions'
 
 var jaLeu = 0
 var todosArquivos = undefined
@@ -47,7 +45,6 @@ export default {
       status: 0,
       arquivos: null,
       notas: {},
-      empresas: {},
       pessoas: {}
     }
   },
@@ -69,8 +66,6 @@ export default {
       store.dispatch(limparNotas())
       this.$data.pessoas = {}
       store.dispatch(limparPessoas())
-      this.$data.empresas = {}
-      store.dispatch(limparEmpresas())
 
       let arquivos = this.$data.arquivos
       todosArquivos = arquivos.length
@@ -216,30 +211,16 @@ export default {
           }
           store.dispatch(adicionarNota(notaId, nota))
           
-          this.$data.empresas = {
-            ...this.$data.empresas,
-            [emitenteId]: emitente
+
+          this.$data.pessoas = {
+            ...this.$data.pessoas,
+            [emitenteId]: emitente,
+            [destinatarioId]: destinatario
           }
 
-          store.dispatch(adicionarEmpresa(emitenteId, emitente))
+          store.dispatch(adicionarPessoa(emitenteId, emitente))          
+          store.dispatch(adicionarPessoa(destinatarioId, destinatario))
 
-          if(destinatarioId.length === 11) {
-            this.$data.pessoas = {
-              ...this.$data.pessoas,
-              [destinatarioId]: destinatario
-            }
-
-            store.dispatch(adicionarPessoa(destinatarioId, destinatario))
-
-          } else {
-            this.$data.empresas = {
-              ...this.$data.empresas,
-              [destinatarioId]: destinatario
-            }
-
-            store.dispatch(adicionarEmpresa(destinatarioId, destinatarios))
-            
-          }
         console.log(store.getState())
         //  FINAL leitor.onload
         }
