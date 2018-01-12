@@ -1,13 +1,13 @@
 <template>
 <div>
   <md-field>
-    <label>Multiple</label>
-    <md-file multiple @change="mudou" accept=".xml"/>
+    <label>Notas</label>
+    <md-file multiple @change="ler" accept=".xml" />
   </md-field>
-  <md-button @click="importar">TOP</md-button>
+  <md-progress-bar md-mode="determinate" :md-value="status"></md-progress-bar>
 
   <md-table>
-      <md-table-row>
+      <md-table-row v-if="!semNotas">
         <md-table-head md-numeric>Número</md-table-head>
         <md-table-head>Emitente</md-table-head>
         <md-table-head>Destinatário</md-table-head>
@@ -34,22 +34,46 @@
 <script>
 import _ from 'lodash'
 import { xml2js } from 'xml-js'
+import * as firebase from 'firebase'
+
+var auth = firebase.auth()
+var db = firebase.database()
+
+var jaLeu = 0
+var todosArquivos = undefined
 
 export default {
   data () {
     return {
+      status: 0,
       arquivos: null,
       notas: {},
       empresas: {},
       pessoas: {}
     }
   },
+  created () {
+    if(!auth.currentUser) {
+      this.$router.push('/login')
+    }
+  },
+  updated () {
+    if(todosArquivos) this.$data.status = jaLeu/todosArquivos * 100
+  },
   methods: {
-    importar () {
-      let arquivos = this.$data.arquivos
-      let tamanho = arquivos.length
+    ler (e) {
+      this.$data.arquivos = e.target.files
 
-      for (let index = 0; index < tamanho; index++) {
+      jaLeu = 0
+
+      this.$data.notas = {}
+      this.$data.pessoas = {}
+      this.$data.empresas = {}
+
+      let arquivos = this.$data.arquivos
+      todosArquivos = arquivos.length
+
+      for (let index = 0; index < todosArquivos; index++) {
         let leitor = new FileReader()
 
         let arquivo = arquivos[index]       
@@ -57,6 +81,9 @@ export default {
         leitor.readAsText(arquivo)
           
         leitor.onload = () => {
+          
+          jaLeu++
+
           let dados = leitor.result
           let obj = xml2js(dados, {compact: true})
 
@@ -65,6 +92,8 @@ export default {
           if(!obj.nfeProc.NFe.Signature) return 0
 
           let info = obj.nfeProc.NFe.infNFe
+
+          if(!info.ide.tpAmb['_text'] === '1') return 0
 
           let notaId = info['_attributes'].Id.split('NFe')[1]
 
@@ -198,18 +227,20 @@ export default {
               ...this.$data.empresas,
               [destinatarioId]: destinatario
             }
-          }     
+          }
+
+        //  FINAL leitor.onload
         }
       }
 
-    },
-    mudou (e) {
-      this.$data.arquivos = e.target.files
     }
   },
   computed: {
     ordenarNotas () {
       return _.orderBy(this.notas, 'geral.numero')
+    },
+    semNotas () {
+      return _.isEmpty(this.notas)
     }
 }
 }
