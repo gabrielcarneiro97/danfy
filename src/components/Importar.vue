@@ -35,6 +35,8 @@
 import _ from 'lodash'
 import { xml2js } from 'xml-js'
 import { usuarioAtivo } from './services/firebase.service'
+import store from '../store'
+import { adicionarNota, adicionarPessoa, adicionarEmpresa, limparNotas, limparPessoas, limparEmpresas } from '../store/actions'
 
 var jaLeu = 0
 var todosArquivos = undefined
@@ -51,7 +53,7 @@ export default {
   },
   created () {
     usuarioAtivo(ativo => {
-      if(!ativo) this.$router.push('login')
+      if(!ativo) this.$router.push('/login')
     })
   },
   updated () {
@@ -64,8 +66,11 @@ export default {
       jaLeu = 0
 
       this.$data.notas = {}
+      store.dispatch(limparNotas())
       this.$data.pessoas = {}
+      store.dispatch(limparPessoas())
       this.$data.empresas = {}
+      store.dispatch(limparEmpresas())
 
       let arquivos = this.$data.arquivos
       todosArquivos = arquivos.length
@@ -209,23 +214,33 @@ export default {
             ...this.$data.notas,
             [notaId]: nota
           }
+          store.dispatch(adicionarNota(notaId, nota))
+          
           this.$data.empresas = {
             ...this.$data.empresas,
             [emitenteId]: emitente
           }
+
+          store.dispatch(adicionarEmpresa(emitenteId, emitente))
 
           if(destinatarioId.length === 11) {
             this.$data.pessoas = {
               ...this.$data.pessoas,
               [destinatarioId]: destinatario
             }
+
+            store.dispatch(adicionarPessoa(destinatarioId, destinatario))
+
           } else {
             this.$data.empresas = {
               ...this.$data.empresas,
               [destinatarioId]: destinatario
             }
-          }
 
+            store.dispatch(adicionarEmpresa(destinatarioId, destinatarios))
+            
+          }
+        console.log(store.getState())
         //  FINAL leitor.onload
         }
       }
