@@ -58,8 +58,20 @@ export default {
       this.$data.email = usuario.email
       this.$data.id = usuario.id
     }
+  },
+  methods: {
+    change () {
+      let usuario = store.getState().usuario
+
+      if(this.$data.nome !== usuario.nome || 
+      this.$data.email !== usuario.email || 
+      this.$data.dominio !== usuario.dominio) {
+        
+      }
+
+    }
   }
-  
+
 }
 </script>
 
