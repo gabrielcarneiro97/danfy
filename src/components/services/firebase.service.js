@@ -1,7 +1,7 @@
 import * as firebase from 'firebase'
 import { xml2js } from 'xml-js'
 import store from '../../store'
-import { sair, autenticar, limparPessoas, limparNotas, adicionarPessoa, adicionarNota } from '../../store/actions'
+import { sair, autenticar, adicionarPessoa, adicionarNota } from '../../store/actions'
 
 var config = {
   apiKey: 'apiKey',
@@ -73,8 +73,6 @@ export function usuarioAtivo (callback) {
 // FIM DAS FUNÇÕES RELACIONADAS A AUTENTICAÇÃO
 
 export function lerNotasInput (files, callback) {
-  store.dispatch(limparNotas())
-  store.dispatch(limparPessoas())
 
   let arquivos = files
   let todosArquivos = arquivos.length

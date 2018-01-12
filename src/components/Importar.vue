@@ -30,9 +30,7 @@
 
 <script>
 import _ from 'lodash'
-import { usuarioAtivo, lerNotasInput, gravarNotas } from './services/firebase.service'
-import store from '../store'
-import { adicionarNota, adicionarPessoa, limparNotas, limparPessoas } from '../store/actions'
+import { usuarioAtivo, lerNotasInput } from './services/firebase.service'
 
 export default {
   data () {
@@ -50,12 +48,11 @@ export default {
     
   },
   methods: {
-    ler (e) {      
+    ler (e) {
       if(e.target.files)
         lerNotasInput (e.target.files, (notas, pessoas) => {
           this.$data.notas = notas
           this.$data.pessoas = pessoas
-          gravarNotas()
         })
       
     }
