@@ -20,6 +20,9 @@
           <label>DOMÍNIO</label>
           <md-input v-model="dominio"></md-input>
         </md-field>
+        <div class="md-layout md-alignment-top-right">
+          <md-button class="md-layout-item md-size-45 trocar">ATUALIZAR</md-button>                  
+        </div>
       </md-content>
     </div>
   </div>
@@ -68,6 +71,5 @@ export default {
   #infos {
     margin-left: .5%;
   }
-  
 
 </style>
