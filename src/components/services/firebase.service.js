@@ -15,6 +15,7 @@ firebase.initializeApp(config)
 var auth = firebase.auth()
 var db = firebase.database()
 
+//  INICIO FUNÇÕES RELACIONADAS A AUTENTICAÇÃO
 export function entrar (login, senha, callback) {
   auth.signInWithEmailAndPassword(login, senha).then(user => {
     db.ref('Usuarios/' + user.uid).once('value').then(value => {
@@ -36,7 +37,7 @@ export function deslogar (callback) {
   })
 }
 
-export function criaUsuario (dados, callback) {
+export function criarUsuario (dados, callback) {
   firebase.auth().createUserWithEmailAndPassword(dados.login, dados.senha).then(user => {
     store.dispatch(autenticar({ nome: dados.nome, dominio: dados.dominio, email: dados.login, token: user.getIdToken(), id: user.uid }))
 
@@ -68,3 +69,4 @@ export function usuarioAtivo (callback) {
     }
   })
 }
+// FIM DAS FUNÇÕES RELACIONADAS A AUTENTICAÇÃO

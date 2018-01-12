@@ -110,7 +110,7 @@ export default {
         return 0
       }
 
-      criaUsuario({nome: nome, dominio: dominio, login: login, senha: senha}, (err, usuario) => {
+      criarUsuario({nome: nome, dominio: dominio, login: login, senha: senha}, (err, usuario) => {
         this.$router.push('/perfil')        
       })
 
