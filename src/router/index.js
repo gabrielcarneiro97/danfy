@@ -32,7 +32,7 @@ export default new VueRouter({
     },
     {
       path: '/importar',
-      name: 'Movimento',
+      name: 'Importar',
       component: Importar
     }
   ]

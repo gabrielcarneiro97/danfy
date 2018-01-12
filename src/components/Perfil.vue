@@ -30,12 +30,7 @@
 
 <script>
 import store from '../store'
-import * as firebase from 'firebase'
-
-var db = firebase.database()
-var auth = firebase.auth()
-
-console.log(store.getState())
+import { usuarioAtivo } from './services/autenticacao'
 
 export default {
   data () {
@@ -48,16 +43,17 @@ export default {
     }
   },
   created () {
-    if(!auth.currentUser) {
-      this.$router.push('/login')
-    }
-    else {
-      let usuario = store.getState().usuario
-      this.$data.nome = usuario.nome
-      this.$data.dominio = usuario.dominio
-      this.$data.email = usuario.email
-      this.$data.id = usuario.id
-    }
+    usuarioAtivo((ativo, usuario) => {
+      if (!ativo) {
+        this.$router.push('/login')
+      }
+      else {
+        this.$data.nome = usuario.nome
+        this.$data.dominio = usuario.dominio
+        this.$data.email = usuario.email
+        this.$data.id = usuario.id
+      }
+    })
   },
   methods: {
     change () {
