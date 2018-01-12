@@ -5,17 +5,43 @@
     <md-file multiple @change="mudou" accept=".xml"/>
   </md-field>
   <md-button @click="importar">TOP</md-button>
-    
+
+  <md-table>
+      <md-table-row>
+        <md-table-head md-numeric>Número</md-table-head>
+        <md-table-head>Emitente</md-table-head>
+        <md-table-head>Destinatário</md-table-head>
+        <md-table-head>Natureza Operação</md-table-head>
+        <md-table-head>Valor</md-table-head>
+      </md-table-row>
+
+      <md-table-row v-for="nota in ordenarNotas" v-bind:key="nota.emitente + nota.geral.numero">
+
+        <md-table-cell md-numeric>{{nota.geral.numero}}</md-table-cell>
+
+        <md-table-cell>{{empresas[nota.emitente].nome}}</md-table-cell>
+
+        <md-table-cell v-if="nota.destinatario.length == 11">{{pessoas[nota.destinatario].nome}}</md-table-cell>
+        <md-table-cell v-else>{{empresas[nota.destinatario].nome}}</md-table-cell>
+
+        <md-table-cell>{{nota.geral.naturezaOperacao}}</md-table-cell>
+        <md-table-cell>{{nota.valor.total}}</md-table-cell>
+      </md-table-row>
+  </md-table>
 </div>
 </template>
 
 <script>
+import _ from 'lodash'
 import { xml2js } from 'xml-js'
 
 export default {
   data () {
     return {
-      arquivos: null
+      arquivos: null,
+      notas: {},
+      empresas: {},
+      pessoas: {}
     }
   },
   methods: {
@@ -42,9 +68,6 @@ export default {
 
           let notaId = info['_attributes'].Id.split('NFe')[1]
 
-          console.log(notaId)
-
-
           let emit = info.emit
           let emitenteId = emit.CNPJ['_text']
           let emitente = {
@@ -67,10 +90,8 @@ export default {
             }
           }
 
-          console.log(emitente)
-
           let dest = info.dest
-          let destId = dest.CPF ? dest.CPF['_text'] : dest.CNPJ['_text']
+          let destinatarioId = dest.CPF ? dest.CPF['_text'] : dest.CNPJ['_text']
           let destinatario = {
             nome: dest.xNome['_text'],
             endereco: {
@@ -91,9 +112,93 @@ export default {
             }
           }
 
-          console.log(destinatario)
+          let nota = {
+            emitente: emitenteId,
+            destinatario: destinatarioId,
+            geral: {
+              dataHora: info.ide.dhSaiEnt['_text'],
+              naturezaOperacao: info.ide.natOp['_text'],
+              numero: info.ide.cNF['_text'],
+              tipo: info.ide.tpNF['_text']
+            },
+            valor: {
+              total: info.total.ICMSTot.vNF['_text']
+            }
+          }
 
+          let det = info.det
+          let produtos = {}
 
+          if(!Array.isArray(det)){
+            let prod = det.prod
+            let codigo = prod.cProd['_text']
+
+            let produto = {
+              descricao: prod.xProd['_text'],
+              quantidade: {
+                numero: prod.qCom['_text'],
+                tipo: prod.uCom['_text']
+              },
+              valor: {
+                total: prod.vProd['_text']
+              }
+            }
+
+            produtos = {
+              ...produtos, 
+              [codigo]: produto
+            }
+
+          }
+          else {
+            det.forEach(val => {
+              let prod = val.prod
+              let codigo = prod.cProd['_text']
+
+              let produto = {
+                descricao: prod.xProd['_text'],
+                quantidade: {
+                  numero: prod.qCom['_text'],
+                  tipo: prod.uCom['_text']
+                },
+                valor: {
+                  total: prod.vProd['_text']
+                }
+              }
+
+              produtos = {
+                ...produtos, 
+                [codigo]: produto
+              }
+            })
+          }
+
+          nota.produtos = produtos
+
+          nota.complementar = {
+            notaReferencia: info.ide.NFref ? info.ide.NFref.refNFe['_text'] : undefined
+          }
+
+          this.$data.notas = {
+            ...this.$data.notas,
+            [notaId]: nota
+          }
+          this.$data.empresas = {
+            ...this.$data.empresas,
+            [emitenteId]: emitente
+          }
+
+          if(destinatarioId.length === 11) {
+            this.$data.pessoas = {
+              ...this.$data.pessoas,
+              [destinatarioId]: destinatario
+            }
+          } else {
+            this.$data.empresas = {
+              ...this.$data.empresas,
+              [destinatarioId]: destinatario
+            }
+          }     
         }
       }
 
@@ -101,7 +206,12 @@ export default {
     mudou (e) {
       this.$data.arquivos = e.target.files
     }
-  }
+  },
+  computed: {
+    ordenarNotas () {
+      return _.orderBy(this.notas, 'geral.numero')
+    }
+}
 }
 </script>
 
