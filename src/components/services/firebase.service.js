@@ -257,3 +257,7 @@ export function gravarNotas () {
     })
   })
 }
+
+// export function pegarDominio () {
+//   let dominio = store.getState().usuario.dominio
+// }
