@@ -210,7 +210,7 @@ export function lerNotasInput (files, callback) {
       nota.produtos = produtos
 
       nota.complementar = {
-        notaReferencia: info.ide.NFref ? info.ide.NFref.refNFe['_text'] : undefined
+        notaReferencia: info.ide.NFref ? info.ide.NFref.refNFe['_text'] : null
       }
 
       notas = {
@@ -243,9 +243,19 @@ export function lerNotasInput (files, callback) {
 }
 
 export function gravarPessoas () {
-
+  let pessoas = store.getState().pessoas
+  Object.keys(pessoas).forEach(key => {
+    db.ref('Pessoas/' + key).set(pessoas[key], err => {
+      if (err) console.error(err)
+    })
+  })
 }
 
 export function gravarNotas () {
-
+  let notas = store.getState().notas
+  Object.keys(notas).forEach(key => {
+    db.ref('Notas/' + key).set(notas[key], err => {
+      if (err) console.error(err)
+    })
+  })
 }
