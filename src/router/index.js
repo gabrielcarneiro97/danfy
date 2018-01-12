@@ -4,6 +4,7 @@ import Hello from '../components/Hello'
 import Login from '../components/Login'
 import Registrar from '../components/Registrar'
 import Perfil from '../components/Perfil'
+import Movimento from '../components/Movimento'
 
 Vue.use(VueRouter)
 
@@ -28,6 +29,11 @@ export default new VueRouter({
       path: '/perfil',
       name: 'Perfil',
       component: Perfil
+    },
+    {
+      path: '/movimento',
+      name: 'Movimento',
+      component: Movimento
     }
   ]
 })

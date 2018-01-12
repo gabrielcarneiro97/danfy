@@ -1,5 +1,5 @@
 <template>
-  <h1>XIA PAI</h1>  
+  <h1>MAIN</h1>  
 </template>
 <script>
 export default {
