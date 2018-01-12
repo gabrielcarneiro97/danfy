@@ -34,10 +34,7 @@
 <script>
 import _ from 'lodash'
 import { xml2js } from 'xml-js'
-import * as firebase from 'firebase'
-
-var auth = firebase.auth()
-var db = firebase.database()
+import { usuarioAtivo } from './services/firebase.service'
 
 var jaLeu = 0
 var todosArquivos = undefined
@@ -53,9 +50,9 @@ export default {
     }
   },
   created () {
-    if(!auth.currentUser) {
-      this.$router.push('/login')
-    }
+    usuarioAtivo(ativo => {
+      if(!ativo) this.$router.push('login')
+    })
   },
   updated () {
     if(todosArquivos) this.$data.status = jaLeu/todosArquivos * 100

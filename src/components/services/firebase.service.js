@@ -36,6 +36,23 @@ export function deslogar (callback) {
   })
 }
 
+export function criaUsuario (dados, callback) {
+  firebase.auth().createUserWithEmailAndPassword(dados.login, dados.senha).then(user => {
+    store.dispatch(autenticar({ nome: dados.nome, dominio: dados.dominio, email: dados.login, token: user.getIdToken(), id: user.uid }))
+
+    let usuario = store.getState().usuario
+
+    db.ref('Usuarios/' + usuario.id).set({
+      nome: dados.nome,
+      dominio: dados.dominio
+    }, err => {
+      callback(err, usuario)
+    })
+  }, err => {
+    callback(err, null)
+  })
+}
+
 export function usuarioAtivo (callback) {
   auth.onAuthStateChanged(user => {
     if (user) {
