@@ -23,19 +23,18 @@
   </div>
 </template>
 <script>
-import * as firebase from 'firebase'
 import store from '../store'
 import { sair, autenticar } from '../store/actions'
-
-let db = firebase.database()
-let auth = firebase.auth()
+import { entrar, usuarioAtivo } from './services/autenticacao'
 
 export default {
   name: 'login',
   created () {
-    if(auth.currentUser) {
-      this.$router.push('/perfil')
-    }
+    usuarioAtivo((ativo, usuario) => {
+      if (ativo) {
+        this.$router.push('/perfil')
+      }
+    })
   },
   data () {
     return {
@@ -48,18 +47,11 @@ export default {
       let login = this.$data.login
       let senha = this.$data.senha
       
-      auth.signInWithEmailAndPassword(login, senha).then(user => {
-        db.ref('Usuarios/' + user.uid).once('value').then(value => {
-
-          let usuario = value.val()
-  
-          store.dispatch(autenticar({email: login, token: user.getIdToken(), id: user.uid, nome: usuario.nome, dominio: usuario.dominio}))
-
-          this.$router.push('/perfil')      
-          
-        })
-      }, err => {
-        console.error(err)
+      entrar(login, senha, (err, usuario) => {
+        if(err) console.error(err)
+        else {
+          this.$router.push('/perfil')
+        }
       })
 
     },

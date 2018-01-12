@@ -6,21 +6,8 @@
 </template>
 
 <script>
-import * as firebase from 'firebase'
 import store from '../store'
-import { sair } from '../store/actions'
-
-var config = {
-  apiKey: 'apiKey',
-  authDomain: 'danfy-4d504.firebaseapp.com',
-  databaseURL: 'https://danfy-4d504.firebaseio.com',
-  projectId: 'danfy-4d504',
-  storageBucket: 'danfy-4d504.appspot.com',
-  messagingSenderId: 'messagingSenderId'
-}
-firebase.initializeApp(config)
-
-var auth = firebase.auth()
+import { deslogar, usuarioAtivo } from './services/autenticacao'
 
 export default {
   name: "navbar",
@@ -30,20 +17,19 @@ export default {
     }
   },
   created () {
-    auth.onAuthStateChanged(user => {
-      if (user) {
+    usuarioAtivo(ativo => {
+      if (ativo) {
         this.$data.texto = 'SAIR'
       } else {
         this.$data.texto = 'ENTRAR'
       }
-    });
+    })
   },
   methods: {
     click () {
-      if(this.$data.texto === 'SAIR'){
-        auth.signOut().then(value => {
+      if(this.$data.texto === 'SAIR') {
+        deslogar (() => {
           this.$router.push('/login')
-          store.dispatch(sair())
         })
       }
       else {
