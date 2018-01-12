@@ -56,18 +56,15 @@
 </template>
 
 <script>
-import * as firebase from 'firebase'
-import store from '../store'
-import { autenticar } from '../store/actions'
-
-var db = firebase.database()
-var auth = firebase.auth()
+import { criaUsuario, usuarioAtivo } from './services/firebase.service'
 
 export default {
   created () {
-    if(auth.currentUser) {
-      this.$router.push('/perfil')
-    }
+    usuarioAtivo((ativo, usuario) => {
+      if (ativo) {
+        this.$router.push('/perfil')
+      }
+    })
   },
   data () {
     return {
@@ -113,18 +110,8 @@ export default {
         return 0
       }
 
-      firebase.auth().createUserWithEmailAndPassword(login, senha).then(user => { 
-
-        store.dispatch(autenticar({nome: nome, dominio: dominio, email: login, token: user.getIdToken(), id: user.uid}))
-
-        let usuario = store.getState().usuario
-
-        db.ref('Usuarios/' + usuario.id).set({
-          nome: nome,
-          dominio: dominio
-        })
-        this.$router.push('/')
-
+      criaUsuario({nome: nome, dominio: dominio, login: login, senha: senha}, (err, usuario) => {
+        this.$router.push('/perfil')        
       })
 
     }

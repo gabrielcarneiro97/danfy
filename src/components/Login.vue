@@ -25,7 +25,7 @@
 <script>
 import store from '../store'
 import { sair, autenticar } from '../store/actions'
-import { entrar, usuarioAtivo } from './services/autenticacao'
+import { entrar, usuarioAtivo } from './services/firebase.service'
 
 export default {
   name: 'login',

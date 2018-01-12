@@ -7,7 +7,7 @@
 
 <script>
 import store from '../store'
-import { deslogar, usuarioAtivo } from './services/autenticacao'
+import { deslogar, usuarioAtivo } from './services/firebase.service'
 
 export default {
   name: "navbar",
