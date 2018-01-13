@@ -5,7 +5,7 @@ import Login from '../components/Login'
 import Registrar from '../components/Registrar'
 import Perfil from '../components/Perfil'
 import Importar from '../components/Importar'
-import AdicionarEmpresa from '../components/AdicionarEmpresa'
+import ConciliarMovimento from '../components/ConciliarMovimento'
 
 Vue.use(VueRouter)
 
@@ -39,7 +39,7 @@ export default new VueRouter({
     {
       path: '/adicionarEmpresa',
       name: 'AdicionarEmpresa',
-      component: AdicionarEmpresa
+      component: ConciliarMovimento
     }
   ]
 })

@@ -7,7 +7,7 @@
           <md-file multiple @change="ler" accept=".xml" />
         </md-field>
         <div class="md-layout md-layout-item md-size-100 md-alignment-top-right">
-          <md-button class="md-layout-item md-size-25 md-primary" @click="enviar" :disabled="!proximo">ENVIAR</md-button>
+          <md-button class="md-layout-item md-size-25 md-primary" @click="enviar" :disabled="!clicaEnviar">ENVIAR</md-button>
         </div>
         
     </div>
@@ -61,8 +61,7 @@
       </md-dialog-content>  
 
       <md-dialog-actions>
-        <md-button class="md-primary" @click="mostra = false">Close</md-button>
-        <md-button class="md-primary" @click="mostra = false">Save</md-button>
+        <md-button class="md-primary" @click="proximo">PRÓXIMO</md-button>
       </md-dialog-actions>
     </md-dialog>
 </div>
@@ -71,17 +70,17 @@
 <script>
 import _ from 'lodash'
 import store from '../store'
-import { usuarioAtivo, lerNotasInput } from './services/firebase.service'
+import { usuarioAtivo, lerNotasInput, adicionarEmpresaDominio } from './services/firebase.service'
 
 export default {
   data () {
     return {
       notas: {},
       pessoas: {},
-      foraDominio: [{cnpj: "06914971000123", num: 0}],
+      foraDominio: [],
       adicionarDominio: [],
       mostra: false,
-      proximo: false
+      clicaEnviar: false
     }
   },
   created () {
@@ -98,7 +97,11 @@ export default {
         lerNotasInput (e.target.files, (notas, pessoas) => {
           this.$data.notas = notas
           this.$data.pessoas = pessoas
-          this.$data.proximo = true
+          this.$data.clicaEnviar = true
+          this.$data.foraDominio = []
+          this.$data.adicionarDominio = []
+
+          console.log(store.getState())
 
           let dominio = store.getState().dominio
 
@@ -119,11 +122,13 @@ export default {
 
           })
 
+          console.log(this.$data.foraDominio)
+
         })
     },
     enviar () {
       if (this.$data.foraDominio.length === 0) {
-        this.$router.push('/conciliaNotas')
+        this.$router.push('/conciliarNotas')
       } else {
         this.$data.mostra = true
       }
@@ -139,6 +144,19 @@ export default {
     },
     selecaoTabela (items) {
       this.$data.adicionarDominio = items
+    },
+    proximo () {
+      console.log(this.$data.adicionarDominio)
+      let adicionar = this.$data.adicionarDominio
+
+      adicionar.forEach((empresa, index) => {
+        if(empresa.num != 0) 
+          adicionarEmpresaDominio(empresa, (err, dominio) => {
+            console.log(dominio)
+            if(index === adicionar.length - 1)
+              this.$router.push('/conciliarNotas')
+          })
+      })
     }
   },
   computed: {

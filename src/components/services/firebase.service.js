@@ -1,7 +1,7 @@
 import * as firebase from 'firebase'
 import { xml2js } from 'xml-js'
 import store from '../../store'
-import { sair, autenticar, adicionarPessoa, adicionarNota, carregarDominio } from '../../store/actions'
+import { sair, autenticar, adicionarPessoa, adicionarNota, carregarDominio, adicionarEmpresa } from '../../store/actions'
 
 var config = {
   apiKey: 'apiKey',
@@ -269,5 +269,14 @@ export function pegarDominio (callback) {
     callback(null, dominio)
   }, err => {
     callback(err, null)
+  })
+}
+
+export function adicionarEmpresaDominio (empresa, callback) {
+  let dominioId = store.getState().usuario.dominio
+
+  db.ref('Dominios/' + dominioId + '/empresas/' + empresa.num).set(empresa.cnpj, err => {
+    store.dispatch(adicionarEmpresa(empresa.num, empresa.cnpj))
+    callback(err, store.getState().dominio)
   })
 }

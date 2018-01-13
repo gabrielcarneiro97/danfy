@@ -6,7 +6,7 @@
 
 <script>
 import store from '../store'
-import { pegarDominio } from './services/firebase.service'
+import { pegarDominio, usuarioAtivo } from './services/firebase.service'
 
 export default {
   data () {
@@ -15,10 +15,14 @@ export default {
       }
   },
   created () {
-      pegarDominio(dominio => {
+    usuarioAtivo(ativo => {
+      if(!ativo) 
+        this.$router.push('/login')
+      else   
+        pegarDominio(dominio => {
           console.log(dominio)
-          console.log(store.getState().dominio)
-      })
+        })
+    })
   }
 }
 </script>
