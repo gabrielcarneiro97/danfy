@@ -1,7 +1,7 @@
 import * as firebase from 'firebase'
 import { xml2js } from 'xml-js'
 import store from '../../store'
-import { sair, autenticar, adicionarPessoa, adicionarNota } from '../../store/actions'
+import { sair, autenticar, adicionarPessoa, adicionarNota, carregarDominio } from '../../store/actions'
 
 var config = {
   apiKey: 'AIzaSyDj9qOI4GtZwLhX7T9Cm0GZgYp_8E7Qsps',
@@ -63,7 +63,10 @@ export function usuarioAtivo (callback) {
 
         store.dispatch(autenticar({ email: user.email, token: user.getIdToken(), id: user.uid, nome: usuario.nome, dominio: usuario.dominio }))
 
-        callback(user, store.getState().usuario)
+        pegarDominio(err => {
+          if (err) console.error(err)
+          callback(user, store.getState().usuario)
+        })
       })
     } else {
       callback(user, store.getState().usuario)
@@ -73,7 +76,6 @@ export function usuarioAtivo (callback) {
 // FIM DAS FUNÇÕES RELACIONADAS A AUTENTICAÇÃO
 
 export function lerNotasInput (files, callback) {
-
   let arquivos = files
   let todosArquivos = arquivos.length
   let lidos = 0
@@ -240,24 +242,32 @@ export function lerNotasInput (files, callback) {
   }
 }
 
-export function gravarPessoas () {
+export function gravarPessoas (callback) {
   let pessoas = store.getState().pessoas
   Object.keys(pessoas).forEach(key => {
     db.ref('Pessoas/' + key).set(pessoas[key], err => {
-      if (err) console.error(err)
+      callback(err)
     })
   })
 }
 
-export function gravarNotas () {
+export function gravarNotas (callback) {
   let notas = store.getState().notas
   Object.keys(notas).forEach(key => {
     db.ref('Notas/' + key).set(notas[key], err => {
-      if (err) console.error(err)
+      callback(err)
     })
   })
 }
 
-// export function pegarDominio () {
-//   let dominio = store.getState().usuario.dominio
-// }
+export function pegarDominio (callback) {
+  let dominioId = store.getState().usuario.dominio
+  let dominio
+  db.ref('Dominios/' + dominioId).once('value').then(value => {
+    dominio = value.val()
+    store.dispatch(carregarDominio(dominio))
+    callback(null, dominio)
+  }, err => {
+    callback(err, null)
+  })
+}
