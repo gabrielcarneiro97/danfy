@@ -71,4 +71,25 @@ export function limparPessoas () {
 export const CARREGAR_DOMINIO = 'CARREGAR_DOMINIO'
 export const ADICIONAR_EMPRESA = 'ADICIONAR_EMPRESA'
 export const LIMPAR_DOMINIO = 'LIMPAR_DOMINIO'
+
+export function carregarDominio (dominio) {
+  return {
+    type: CARREGAR_DOMINIO,
+    dominio: dominio
+  }
+}
+
+export function adicionarEmpresa (num, cnpj) {
+  return {
+    type: ADICIONAR_EMPRESA,
+    empresaNum: num,
+    empresaCnpj: cnpj
+  }
+}
+
+export function limparDominio () {
+  return {
+    type: LIMPAR_DOMINIO
+  }
+}
 // FIM REDUCER DOMÍNIO

@@ -5,6 +5,7 @@ import Login from '../components/Login'
 import Registrar from '../components/Registrar'
 import Perfil from '../components/Perfil'
 import Importar from '../components/Importar'
+import AdicionarEmpresa from '../components/AdicionarEmpresa'
 
 Vue.use(VueRouter)
 
@@ -34,6 +35,11 @@ export default new VueRouter({
       path: '/importar',
       name: 'Importar',
       component: Importar
+    },
+    {
+      path: '/adicionarEmpresa',
+      name: 'AdicionarEmpresa',
+      component: AdicionarEmpresa
     }
   ]
 })
