@@ -21,6 +21,7 @@
         <md-table-head>Destinatário</md-table-head>
         <md-table-head>Natureza Operação</md-table-head>
         <md-table-head>Valor</md-table-head>
+        <md-table-head>Status</md-table-head>        
       </md-table-row>
 
       <md-table-row v-for="nota in ordenarNotas" v-bind:key="nota.emitente + nota.geral.numero">
@@ -32,6 +33,7 @@
 
         <md-table-cell>{{nota.geral.naturezaOperacao}}</md-table-cell>
         <md-table-cell>{{nota.valor.total}}</md-table-cell>
+        <md-table-cell>{{nota.geral.status}}</md-table-cell>        
       </md-table-row>
     </md-table>
   </div>
@@ -101,9 +103,9 @@ export default {
           this.$data.foraDominio = []
           this.$data.adicionarDominio = []
 
-          console.log(store.getState())
-
           let dominio = store.getState().dominio
+
+          console.log(store.getState())
 
           Object.keys(pessoas).forEach(keyPessoa => {
             
