@@ -21,7 +21,7 @@
           <md-input v-model="dominio"></md-input>
         </md-field>
         <div class="md-layout md-alignment-top-right">
-          <md-button class="md-layout-item md-size-45 trocar">ATUALIZAR</md-button>                  
+          <md-button class="md-layout-item md-size-45 trocar">ATUALIZAR</md-button>
         </div>
       </md-content>
     </div>
@@ -39,15 +39,13 @@ export default {
       dominio: null,
       email: null,
       id: null
-  
     }
   },
   created () {
     usuarioAtivo((ativo, usuario) => {
       if (!ativo) {
         this.$router.push('/login')
-      }
-      else {
+      } else {
         this.$data.nome = usuario.nome
         this.$data.dominio = usuario.dominio
         this.$data.email = usuario.email
@@ -59,12 +57,10 @@ export default {
     change () {
       let usuario = store.getState().usuario
 
-      if(this.$data.nome !== usuario.nome || 
-      this.$data.email !== usuario.email || 
+      if (this.$data.nome !== usuario.nome ||
+      this.$data.email !== usuario.email ||
       this.$data.dominio !== usuario.dominio) {
-        
       }
-
     }
   }
 
@@ -72,7 +68,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-  
+
   #main {
     margin-top: 6%;
   }

@@ -5,23 +5,22 @@
 </template>
 
 <script>
-import store from '../store'
 import { pegarDominio, usuarioAtivo } from './services/firebase.service'
 
 export default {
   data () {
-      return {
+    return {
 
-      }
+    }
   },
   created () {
     usuarioAtivo(ativo => {
-      if(!ativo) 
-        this.$router.push('/login')
-      else   
+      if (!ativo) this.$router.push('/login')
+      else {
         pegarDominio(dominio => {
           console.log(dominio)
         })
+      }
     })
   }
 }
