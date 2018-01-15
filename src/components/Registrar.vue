@@ -56,7 +56,7 @@
 </template>
 
 <script>
-import { criaUsuario, usuarioAtivo } from './services/firebase.service'
+import { criarUsuario, usuarioAtivo } from './services/firebase.service'
 
 export default {
   created () {
@@ -76,12 +76,11 @@ export default {
       dominio: 'andreacont',
       showSnackbar: false,
       duration: 3000,
-      erro: "null"
+      erro: 'null'
     }
   },
   methods: {
     registrar () {
-
       let login = this.$data.login
       let confirmaLogin = this.$data.confirmaLogin
       let senha = this.$data.senha
@@ -111,9 +110,8 @@ export default {
       }
 
       criarUsuario({nome: nome, dominio: dominio, login: login, senha: senha}, (err, usuario) => {
-        this.$router.push('/perfil')        
+        this.$router.push('/perfil')
       })
-
     }
   }
 }
