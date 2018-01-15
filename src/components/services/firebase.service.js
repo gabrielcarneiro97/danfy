@@ -300,10 +300,21 @@ export function pegarTodasNotasPessoa (id, callback) {
   let notas = {}
   db.ref('Notas/').orderByChild('emitente').equalTo(id).once('value').then(value => {
     notas = value.val()
-    Object.keys(notas).forEach(id => {
-      store.dispatch(adicionarNota(id, notas[id]))
+
+    db.ref('Notas/').orderByChild('destinatario').equalTo(id).once('value').then(value2 => {
+      let v2 = value2.val()
+      notas = {
+        ...notas,
+        v2
+      }
+
+      Object.keys(notas).forEach(id => {
+        store.dispatch(adicionarNota(id, notas[id]))
+      })
+      callback(null, notas)
+    }, err => {
+      callback(err, null)
     })
-    callback(null, notas)
   }, err => {
     callback(err, null)
   })
