@@ -81,6 +81,24 @@
       </md-dialog-actions>
     </md-dialog>
     <md-dialog :md-active.sync="mostraAdicionarNota">
+      <md-dialog-content>
+        <md-toolbar :md-elevation="1">
+          <span class="md-title">ADICIONAR NOTA AO MOVIMENTO ID {{movimentoParaAdicionarId+1}}</span>
+        </md-toolbar>
+        <md-list>
+          <md-list-item md-expand>
+            <span class="md-list-item-text">Adicionar por chave</span>
+            <md-list slot="md-expand">
+              <md-list-item>
+                <md-field md-clearable>
+                  <label>CHAVE</label>
+                  <md-input></md-input>
+                </md-field>
+              </md-list-item>
+            </md-list>
+          </md-list-item>
+        </md-list>
+      </md-dialog-content>
       <md-dialog-actions>
         <md-button class="md-primary" @click="mostraAdicionarNota = false">FECHAR</md-button>
       </md-dialog-actions>
