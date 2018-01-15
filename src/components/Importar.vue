@@ -105,8 +105,6 @@ export default {
 
           let dominio = store.getState().dominio
 
-          console.log(store.getState())
-
           Object.keys(pessoas).forEach(keyPessoa => {
             
             if(keyPessoa.length === 11) return 0
@@ -123,8 +121,6 @@ export default {
             }
 
           })
-
-          console.log(this.$data.foraDominio)
 
         })
     },
@@ -148,13 +144,11 @@ export default {
       this.$data.adicionarDominio = items
     },
     proximo () {
-      console.log(this.$data.adicionarDominio)
       let adicionar = this.$data.adicionarDominio
 
       adicionar.forEach((empresa, index) => {
         if(empresa.num != 0) 
           adicionarEmpresaDominio(empresa, (err, dominio) => {
-            console.log(dominio)
             if(index === adicionar.length - 1)
               this.$router.push('/conciliarNotas')
           })
