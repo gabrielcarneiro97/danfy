@@ -39,40 +39,40 @@
   </div>
 
   <md-dialog :md-active.sync="mostra">
-      <md-dialog-content>
+    <md-dialog-content>
 
-        <md-table v-model="foraDominio" md-card @md-selected="selecaoTabela">
-          <md-table-toolbar>
-            <h1 class="md-title">Selecione as empresas que você deseja adicionar ao domínio e informe um número</h1>
-          </md-table-toolbar>
+      <md-table v-model="foraDominio" md-card @md-selected="selecaoTabela">
+        <md-table-toolbar>
+          <h1 class="md-title">Selecione as empresas que você deseja adicionar ao domínio e informe um número</h1>
+        </md-table-toolbar>
 
-          <md-table-toolbar slot="md-table-alternate-header" slot-scope="{ count }">
-            <div class="md-toolbar-section-start">{{ mensagemTabela(count) }}</div>
-          </md-table-toolbar>
+        <md-table-toolbar slot="md-table-alternate-header" slot-scope="{ count }">
+          <div class="md-toolbar-section-start">{{ mensagemTabela(count) }}</div>
+        </md-table-toolbar>
 
-          <md-table-row slot="md-table-row" slot-scope="{ item }" md-selectable="multiple" md-auto-select>
-            <md-table-cell md-label="CNPJ" md-sort-by="nome">{{ item.cnpj }}</md-table-cell>
-            <md-table-cell md-label="Nome" md-sort-by="cnpj">{{ pessoas[item.cnpj].nome }}</md-table-cell>
-            <md-table-cell md-label="Número" md-sort-by="numero">
-              <md-field>
-                <md-input v-model="item.num"></md-input>
-              </md-field>
-            </md-table-cell>
-          </md-table-row>
-        </md-table>
-      </md-dialog-content>
+        <md-table-row slot="md-table-row" slot-scope="{ item }" md-selectable="multiple" md-auto-select>
+          <md-table-cell md-label="CNPJ" md-sort-by="nome">{{ item.cnpj }}</md-table-cell>
+          <md-table-cell md-label="Nome" md-sort-by="cnpj">{{ pessoas[item.cnpj].nome }}</md-table-cell>
+          <md-table-cell md-label="Número" md-sort-by="numero">
+            <md-field>
+              <md-input v-model="item.num"></md-input>
+            </md-field>
+          </md-table-cell>
+        </md-table-row>
+      </md-table>
+    </md-dialog-content>
 
-      <md-dialog-actions>
-        <md-button class="md-primary" @click="proximo">PRÓXIMO</md-button>
-      </md-dialog-actions>
-    </md-dialog>
+    <md-dialog-actions>
+      <md-button class="md-primary" @click="proximo">PRÓXIMO</md-button>
+    </md-dialog-actions>
+  </md-dialog>
 </div>
 </template>
 
 <script>
 import _ from 'lodash'
 import store from '../store'
-import { usuarioAtivo, lerNotasInput, adicionarEmpresaDominio } from './services/firebase.service'
+import { usuarioAtivo, lerNotasInput, adicionarEmpresaDominio, gravarPessoas, gravarNotas } from './services/firebase.service'
 
 export default {
   data () {
@@ -123,7 +123,15 @@ export default {
     },
     enviar () {
       if (this.$data.foraDominio.length === 0) {
-        this.$router.push('/conciliarNotas')
+        gravarPessoas(err => {
+          if (err) console.error(err)
+          else {
+            gravarNotas(err => {
+              if (err) console.error(err)
+              else this.$router.push('/conciliarNotas')
+            })
+          }
+        })
       } else {
         this.$data.mostra = true
       }
@@ -142,26 +150,37 @@ export default {
     },
     proximo () {
       let adicionar = this.$data.adicionarDominio
+      if (adicionar.length > 0) {
+        adicionar.forEach((empresa, index) => {
+          if (empresa.num !== 0) {
+            adicionarEmpresaDominio(empresa, (err, dominio) => {
+              if (err) console.error(err)
 
-      adicionar.forEach((empresa, index) => {
-        if (empresa.num !== 0) {
-          adicionarEmpresaDominio(empresa, (err, dominio) => {
-            if (err) console.error(err)
-
-            if (index === adicionar.length - 1) {
-              this.$router.push('/conciliarNotas')
-            }
-          })
-        }
-      })
+              if (index === adicionar.length - 1) {
+                gravarPessoas(err => {
+                  if (err) console.error(err)
+                  else {
+                    gravarNotas(err => {
+                      if (err) console.error(err)
+                      else this.$router.push('/conciliarNotas')
+                    })
+                  }
+                })
+              }
+            })
+          }
+        })
+      } else {
+        this.$router.push('/conciliarNotas')
+      }
     }
   },
   computed: {
     ordenarNotas () {
-      return _.orderBy(this.notas, 'geral.numero')
+      return _.orderBy(this.$data.notas, 'geral.numero')
     },
     semNotas () {
-      return _.isEmpty(this.notas)
+      return _.isEmpty(this.$data.notas)
     }
   }
 }

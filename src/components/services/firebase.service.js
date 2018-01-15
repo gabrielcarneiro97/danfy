@@ -246,8 +246,10 @@ export function lerNotasInput (files, callback) {
 
       if (lidos === todosArquivos) {
         Object.keys(canceladas).forEach(id => {
-          notas[id].geral.status = 'CANCELADA'
-          store.dispatch(adicionarNota(notas[id]))
+          if (notas[id]) {
+            notas[id].geral.status = 'CANCELADA'
+            store.dispatch(adicionarNota(id, notas[id]))
+          }
         })
 
         callback(notas, pessoas)
