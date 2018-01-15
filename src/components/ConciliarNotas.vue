@@ -73,11 +73,15 @@
         <md-button class="md-primary" @click="mostra = false">FECHAR</md-button>
       </md-dialog-actions>
     </md-dialog>
+    <md-dialog-alert
+      :md-active.sync="erro.mostra"
+      :md-content="erro.mensagem"
+      md-confirm-text="Ok" />
   </div>
 </template>
 
 <script>
-import { pegarDominio, usuarioAtivo } from './services/firebase.service'
+import { pegarDominio, usuarioAtivo, pegarNotaChave, pegarTodasNotasPessoa } from './services/firebase.service'
 import store from '../store'
 
 export default {
@@ -87,10 +91,15 @@ export default {
       notaDialogo: null,
       notas: {},
       pessoas: {},
-      movimentos: []
+      movimentos: [],
+      erro: {
+        mensagem: '',
+        mostra: false
+      }
     }
   },
   created () {
+    pegarTodasNotasPessoa('17990858000143')
     usuarioAtivo(ativo => {
       if (!ativo) this.$router.push('/login')
       else {
@@ -117,12 +126,24 @@ export default {
   },
   methods: {
     abrirNota (notaId) {
-      this.$data.notaDialogo = {
-        ...this.$data.notas[notaId],
-        id: notaId
+      let nota = this.$data.notas[notaId]
+      if (nota) {
+        this.$data.notaDialogo = {
+          ...nota,
+          id: notaId
+        }
+        this.$data.mostra = true
+      } else {
+        pegarNotaChave(notaId, (err, nota) => {
+          if (err) {
+            console.error(err)
+          }
+          if (!nota) {
+            this.$data.erro.mensagem = 'Nota não localizada!'
+            this.$data.erro.mostra = true
+          }
+        })
       }
-      console.log(this.$data.notaDialogo)
-      this.$data.mostra = true
     }
   },
   computed: {

@@ -267,12 +267,45 @@ export function gravarPessoas (callback) {
   })
 }
 
+export function pegarPessoaId (id, callback) {
+  let pessoa
+  db.ref('Pessoas/' + id).once('value').then(value => {
+    pessoa = value.val()
+    callback(null, pessoa)
+  }, err => {
+    callback(err, null)
+  })
+}
+
 export function gravarNotas (callback) {
   let notas = store.getState().notas
   Object.keys(notas).forEach(key => {
     db.ref('Notas/' + key).set(notas[key], err => {
       callback(err)
     })
+  })
+}
+
+export function pegarNotaChave (chave, callback) {
+  let nota
+  db.ref('Notas/' + chave).once('value').then(value => {
+    nota = value.val()
+    callback(null, nota)
+  }, err => {
+    callback(err, null)
+  })
+}
+
+export function pegarTodasNotasPessoa (id, callback) {
+  let notas = {}
+  db.ref('Notas/').orderByChild('emitente').equalTo(id).once('value').then(value => {
+    notas = value.val()
+    Object.keys(notas).forEach(id => {
+      store.dispatch(adicionarNota(id, notas[id]))
+    })
+    callback(null, notas)
+  }, err => {
+    callback(err, null)
   })
 }
 
