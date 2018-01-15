@@ -171,7 +171,15 @@ export default {
           }
         })
       } else {
-        this.$router.push('/conciliarNotas')
+        gravarPessoas(err => {
+          if (err) console.error(err)
+          else {
+            gravarNotas(err => {
+              if (err) console.error(err)
+              else this.$router.push('/conciliarNotas')
+            })
+          }
+        })
       }
     }
   },

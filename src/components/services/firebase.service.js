@@ -219,7 +219,8 @@ export function lerNotasInput (files, callback) {
       nota.produtos = produtos
 
       nota.complementar = {
-        notaReferencia: info.ide.NFref ? info.ide.NFref.refNFe['_text'] : null
+        notaReferencia: info.ide.NFref ? info.ide.NFref.refNFe['_text'] : null,
+        textoComplementar: info.infAdic ? info.infAdic.infCpl['_text'] : null
       }
 
       notas = {
@@ -305,12 +306,8 @@ export function pegarTodasNotasPessoa (id, callback) {
       let v2 = value2.val()
       notas = {
         ...notas,
-        v2
+        ...v2
       }
-
-      Object.keys(notas).forEach(id => {
-        store.dispatch(adicionarNota(id, notas[id]))
-      })
       callback(null, notas)
     }, err => {
       callback(err, null)

@@ -14,7 +14,7 @@
 
           <md-table-cell>
             <md-button v-if="movimento.notaEntrada" @click="abrirNota(movimento.notaEntrada)">{{movimento.notaEntrada}}</md-button>
-            <md-button v-else>ADICIONAR ENTRADA</md-button>
+            <md-button v-else @click="abrirAdicionarNota(movimentos.indexOf(movimento))">ADICIONAR ENTRADA</md-button>
           </md-table-cell>
           <md-table-cell><md-button @click="abrirNota(movimento.notaSaida)">{{movimento.notaSaida}}</md-button></md-table-cell>
         </md-table-row>
@@ -65,12 +65,24 @@
               <span>{{notaDialogo.destinatario}}</span>
             </md-list-item>
             <md-divider></md-divider>
+            <md-list-item>
+              <h4>Informações Complementares</h4>
+            </md-list-item>
+            <md-list-item class="md-triple-line">
+              <span class="md-list-item-text">{{notaDialogo.complementar.textoComplementar}}</span>
+            </md-list-item>
+            <md-divider></md-divider>
           </md-list>
         </div>
       </md-dialog-content>
 
       <md-dialog-actions>
         <md-button class="md-primary" @click="mostra = false">FECHAR</md-button>
+      </md-dialog-actions>
+    </md-dialog>
+    <md-dialog :md-active.sync="mostraAdicionarNota">
+      <md-dialog-actions>
+        <md-button class="md-primary" @click="mostraAdicionarNota = false">FECHAR</md-button>
       </md-dialog-actions>
     </md-dialog>
     <md-dialog-alert
@@ -81,13 +93,15 @@
 </template>
 
 <script>
-import { pegarDominio, usuarioAtivo, pegarNotaChave, pegarTodasNotasPessoa } from './services/firebase.service'
+import { pegarDominio, usuarioAtivo, pegarNotaChave } from './services/firebase.service'
 import store from '../store'
 
 export default {
   data () {
     return {
       mostra: false,
+      mostraAdicionarNota: false,
+      movimentoParaAdicionarId: null,
       notaDialogo: null,
       notas: {},
       pessoas: {},
@@ -99,7 +113,6 @@ export default {
     }
   },
   created () {
-    pegarTodasNotasPessoa('17990858000143')
     usuarioAtivo(ativo => {
       if (!ativo) this.$router.push('/login')
       else {
@@ -144,6 +157,10 @@ export default {
           }
         })
       }
+    },
+    abrirAdicionarNota (id) {
+      this.$data.mostraAdicionarNota = true
+      this.$data.movimentoParaAdicionarId = id
     }
   },
   computed: {
