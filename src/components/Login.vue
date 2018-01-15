@@ -15,16 +15,14 @@
 
         <md-card-actions>
           <md-button @click="registrar">REGISTRAR</md-button>
-          <md-button @click="entrar">LOGIN</md-button>          
+          <md-button @click="entrar">LOGIN</md-button>
         </md-card-actions>
       </md-card>
     </div>
-    
+
   </div>
 </template>
 <script>
-import store from '../store'
-import { sair, autenticar } from '../store/actions'
 import { entrar, usuarioAtivo } from './services/firebase.service'
 
 export default {
@@ -46,14 +44,13 @@ export default {
     entrar () {
       let login = this.$data.login
       let senha = this.$data.senha
-      
+
       entrar(login, senha, (err, usuario) => {
-        if(err) console.error(err)
+        if (err) console.error(err)
         else {
           this.$router.push('/perfil')
         }
       })
-
     },
     registrar () {
       this.$router.push('/registrar')

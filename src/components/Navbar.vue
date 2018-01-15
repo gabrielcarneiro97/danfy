@@ -1,16 +1,15 @@
 <template>
   <md-toolbar class="md-primary">
     <h3 class="md-title" style="flex: 1">DANFY</h3>
-    <md-button @click="click">{{texto}}</md-button>    
+    <md-button @click="click">{{texto}}</md-button>
   </md-toolbar>
 </template>
 
 <script>
-import store from '../store'
 import { deslogar, usuarioAtivo } from './services/firebase.service'
 
 export default {
-  name: "navbar",
+  name: 'navbar',
   data () {
     return {
       texto: 'ENTRAR'
@@ -27,12 +26,11 @@ export default {
   },
   methods: {
     click () {
-      if(this.$data.texto === 'SAIR') {
-        deslogar (() => {
+      if (this.$data.texto === 'SAIR') {
+        deslogar(() => {
           this.$router.push('/login')
         })
-      }
-      else {
+      } else {
         this.$router.push('/login')
       }
     }
