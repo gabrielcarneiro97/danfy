@@ -81,6 +81,7 @@ export function lerNotasInput (files, callback) {
   let lidos = 0
 
   let pessoas = {}
+  let canceladas = {}
   let notas = {}
 
   for (let index = 0; index < todosArquivos; index++) {
@@ -93,6 +94,13 @@ export function lerNotasInput (files, callback) {
     leitor.onload = () => {
       let dados = leitor.result
       let obj = xml2js(dados, { compact: true })
+
+      if (obj.envEvento) {
+        if (obj.envEvento.evento.Signature) {
+          canceladas[obj.envEvento.evento.infEvento.chNFe['_text']] = true
+          return 0
+        }
+      }
 
       if (!obj.nfeProc) return 0
       if (!obj.nfeProc.NFe) return 0
@@ -155,7 +163,8 @@ export function lerNotasInput (files, callback) {
           dataHora: info.ide.dhSaiEnt['_text'],
           naturezaOperacao: info.ide.natOp['_text'],
           numero: info.ide.cNF['_text'],
-          tipo: info.ide.tpNF['_text']
+          tipo: info.ide.tpNF['_text'],
+          status: canceladas[notaId] ? 'CANCELADA' : 'NORMAL'
         },
         valor: {
           total: info.total.ICMSTot.vNF['_text']
@@ -236,6 +245,11 @@ export function lerNotasInput (files, callback) {
       lidos++
 
       if (lidos === todosArquivos) {
+        Object.keys(canceladas).forEach(id => {
+          notas[id].geral.status = 'CANCELADA'
+          store.dispatch(adicionarNota(notas[id]))
+        })
+
         callback(notas, pessoas)
       }
     }
