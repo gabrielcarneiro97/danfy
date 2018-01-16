@@ -170,8 +170,7 @@ export default {
             console.error(err)
           }
           if (!nota) {
-            this.$data.erro.mensagem = 'Nota não localizada!'
-            this.$data.erro.mostra = true
+            this.chamarErro('Nota não localizada!')
           }
         })
       }
@@ -179,6 +178,10 @@ export default {
     abrirAdicionarNota (id) {
       this.$data.mostraAdicionarNota = true
       this.$data.movimentoParaAdicionarId = id
+    },
+    chamarErro (mensagem) {
+      this.$data.erro.mensagem = mensagem
+      this.$data.erro.mostra = true
     }
   },
   computed: {
