@@ -322,10 +322,18 @@ export function pegarTodasNotasPessoa (id, callback) {
 }
 
 export function compararCFOP (notaInicial, notaFinal) {
-  if ((notaFinal.geral.cfop === '5102' || notaFinal.geral.cfop === '5102') && (notaInicial.geral.cfop === '1102')) {
+  if ((notaFinal.geral.cfop === '5102' || notaFinal.geral.cfop === '6102' || notaFinal.geral.cfop === '6108') && (notaInicial.geral.cfop === '1102')) {
     return true
   } else if ((notaFinal.geral.cfop === '5115' || notaFinal.geral.cfop === '6115') && (notaInicial.geral.cfop === '1113')) {
-
+    return true
+  } else if (notaFinal.geral.cfop === '1113' && notaInicial.geral.cfop === '1917') {
+    return true
+  } else if (notaFinal.geral.cfop === '5918' && notaInicial.geral.cfop === '1917') {
+    return true
+  } else if ((notaFinal.emitente !== notaInicial.emitente) && (notaFinal.geral.cfop === '5102' || notaFinal.geral.cfop === '6102' || notaFinal.geral.cfop === '6108') && (notaInicial.geral.cfop === '5102' || notaInicial.geral.cfop === '6102' || notaInicial.geral.cfop === '6108')) {
+    return true
+  } else {
+    return false
   }
 }
 
