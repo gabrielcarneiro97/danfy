@@ -111,7 +111,7 @@
 </template>
 
 <script>
-import { pegarDominio, usuarioAtivo, pegarNotaChave, estaNoDominio } from './services/firebase.service'
+import { pegarDominio, usuarioAtivo, pegarNotaChave, estaNoDominio, validarMovimento } from './services/firebase.service'
 import store from '../store'
 
 export default {
@@ -187,12 +187,19 @@ export default {
       chave = chave.toString()
       let notas = this.$data.notas
       let movimentoId = this.$data.movimentoParaAdicionarId
-      let notaFinal = this.$data.movimentos[movimentoId].notaFinal
+      let notaFinal = notas[this.$data.movimentos[movimentoId].notaFinal]
       let notaInicial
 
-      if (chave.lenght === 44) {
+      console.log(chave.length)
+
+      if (chave.length === 44) {
         if (notas[chave]) {
           notaInicial = notas[chave]
+          if (compararCFOP(notaInicial, notaFinal)) {
+            this.$data.movimentos[movimentoId].notaInicial = chave
+          } else {
+            this.chamarErro(`O CFOP da Nota Inicial ${notaInicial.geral.cfop} não é valido para o CFOP da Nota Final ${notaFinal.geral.cfop}`)            
+          }
         } else {
           pegarNotaChave(chave, (err, nota) => {
             if (err) {
@@ -202,6 +209,12 @@ export default {
               this.chamarErro('Nota não localizada!')
             } else {
               notaInicial = nota
+              if (compararCFOP(notaInicial, notaFinal)) {
+                this.$data.movimentos[movimentoId].notaInicial = chave
+                this.$data.notas = store.getState().notas
+              } else {
+                this.chamarErro(`O CFOP da Nota Inicial ${notaInicial.geral.cfop} não é valido para o CFOP da Nota Final ${notaFinal.geral.cfop}`)
+              }
             }
           })
         }
