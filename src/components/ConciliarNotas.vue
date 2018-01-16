@@ -3,9 +3,10 @@
     <div class="md-layout md-alignment-top-center">
       <md-table class="md-layout-item md-size-90">
         <md-table-row>
-          <md-table-head md-numeric>Número</md-table-head>
-          <md-table-head>Nota Entrada</md-table-head>
-          <md-table-head>Nota Saída</md-table-head>
+          <md-table-head>Número</md-table-head>
+          <md-table-head>Nota Inicial</md-table-head>
+          <md-table-head>Nota Final</md-table-head>
+          <md-table-head>Confirmar Movimento</md-table-head>
         </md-table-row>
 
         <md-table-row v-for="movimento in movimentos" v-bind:key="movimentos.indexOf(movimento)">
@@ -14,9 +15,14 @@
 
           <md-table-cell>
             <md-button v-if="movimento.notaInicial" @click="abrirNota(movimento.notaInicial)">{{movimento.notaInicial}}</md-button>
-            <md-button v-else @click="abrirAdicionarNota(movimentos.indexOf(movimento))">ADICIONAR ENTRADA</md-button>
+            <md-button v-else @click="abrirAdicionarNota(movimentos.indexOf(movimento))">ADICIONAR INICIAL</md-button>
           </md-table-cell>
-          <md-table-cell><md-button @click="abrirNota(movimento.notaFinal)">{{movimento.notaFinal}}</md-button></md-table-cell>
+          <md-table-cell>
+            <md-button @click="abrirNota(movimento.notaFinal)">{{movimento.notaFinal}}</md-button>
+          </md-table-cell>
+          <md-table-cell  md-numeric>
+            <md-checkbox v-model="movimento.conferido"></md-checkbox>
+          </md-table-cell>
         </md-table-row>
       </md-table>
     </div>
@@ -140,6 +146,18 @@
         <md-button class="md-primary" @click="mostraAdicionarNota = false">FECHAR</md-button>
       </md-dialog-actions>
     </md-dialog>
+    <md-dialog :md-active.sync="mostraAdicionarNotaConhecida">
+      <md-dialog-title>Nota não encontrada! Selecione o XML para importa-la.</md-dialog-title>
+      <md-dialog-content>
+        <md-field>
+          <label>Nota</label>
+          <md-file @change="adicionarXml" accept=".xml" />
+        </md-field>
+      </md-dialog-content>
+      <md-dialog-actions>
+        <md-button class="md-primary" @click="mostraAdicionarNotaConhecida = false">FECHAR</md-button>
+      </md-dialog-actions>
+    </md-dialog>
     <md-dialog-alert
       :md-active.sync="erro.mostra"
       :md-content="erro.mensagem"
@@ -157,6 +175,8 @@ export default {
       mostra: false,
       mostraAdicionarNota: false,
       movimentoParaAdicionarId: null,
+      notaParaAdicionarXml: null,
+      mostraAdicionarNotaConhecida: false,
       notaDialogo: null,
       switchEmitente: true,
       adicionarNumeroEmitenteInfo: {
@@ -189,7 +209,8 @@ export default {
               let movimento = {
                 notaFinal: id,
                 notaInicial: nota.complementar ? nota.complementar.notaReferencia : null,
-                data: new Date(nota.geral.dataHora)
+                data: new Date(nota.geral.dataHora),
+                conferido: false
               }
               this.$data.movimentos.push(movimento)
             }
@@ -213,7 +234,8 @@ export default {
             console.error(err)
           }
           if (!nota) {
-            this.chamarMensagem(new Error('Nota não localizada!'))
+            this.$data.mostraAdicionarNotaConhecida = true
+            this.$data.notaParaAdicionarXml = notaId
           }
         })
       }
@@ -225,6 +247,33 @@ export default {
     chamarMensagem (mensagem) {
       this.$data.erro.mensagem = mensagem.message
       this.$data.erro.mostra = true
+    },
+    adicionarXml (e) {
+      if (e.target.files) {
+        let chave = this.$data.notaParaAdicionarXml
+        let notas = this.$data.notas
+
+        lerNotasInput(e.target.files, (notaBruto, pessoas) => {
+          let nota
+          Object.keys(notaBruto).forEach(key => {
+            nota = notaBruto[key]
+          })
+
+          notas = {
+            ...notas,
+            ...notaBruto
+          }
+          this.$data.pessoas = {
+            ...this.$data.pessoas,
+            ...pessoas
+          }
+
+          if (nota.chave !== chave) {
+            this.$data.mostraAdicionarNotaConhecida = false
+            this.chamarMensagem(new Error('O XML importado não tem a chave de acesso informada!'))
+          }
+        })
+      }
     },
     adicionarPorXml (e) {
       if (e.target.files) {
