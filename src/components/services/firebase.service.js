@@ -377,13 +377,13 @@ export function compararCFOP (notaInicial, notaFinal) {
 
   if (cfopCompra.includes(cfopInicial) && cfopVenda.includes(cfopFinal)) {
     return true
-  } else if (cfopCompraConsignacao.includes(cfopInicial) && cfopVendaConsignacao.include(cfopFinal)) {
+  } else if (cfopCompraConsignacao.includes(cfopInicial) && cfopVendaConsignacao.includes(cfopFinal)) {
     return true
   } else if (cfopConsignacao.includes(cfopInicial) && cfopCompraConsignacao.includes(cfopFinal)) {
     return true
   } else if (cfopConsignacao.includes(cfopInicial) && cfopDevolucaoConsignacao.includes(cfopFinal)) {
     return true
-  } else if ((cfopVenda.includes(cfopInicial) && cfopVenda.include(cfopFinal)) && (notaFinal.emitente !== notaInicial.emitente)) {
+  } else if ((cfopVenda.includes(cfopInicial) && cfopVenda.includes(cfopFinal)) && (notaFinal.emitente !== notaInicial.emitente)) {
     return true
   } else {
     return false
@@ -484,5 +484,29 @@ export function gravarMovimentos (movimentos, callback) {
         })
       })
     }
+  })
+}
+
+export function pegarMovimentosMes (cnpj, competencia, callback) {
+  let movimentos = {}
+  let query = db.ref('Movimentos/' + cnpj)
+  query.orderByChild('data').on('child_added', snap => {
+    let movimento = snap.val()
+    let movimentoId = snap.key
+    let data = new Date(movimento.data)
+    let mes = (data.getUTCMonth() + 1).toString()
+    let ano = data.getUTCFullYear().toString()
+
+    if (mes === competencia.mes && ano === competencia.ano) {
+      movimentos = {
+        ...movimentos,
+        [movimentoId]: movimento
+      }
+    }
+  })
+  query.once('value', snap => {
+    callback(null, movimentos)
+  }, err => {
+    callback(err, null)
   })
 }

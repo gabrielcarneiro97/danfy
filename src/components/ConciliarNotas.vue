@@ -249,7 +249,14 @@ export default {
       movimentos.forEach(movimento => {
         if (movimento.conferido) {
           let empresa = notas[movimento.notaFinal].emitente
+          let valorInicial = notas[movimento.notaInicial] ? parseFloat(notas[movimento.notaInicial].valor.total) : null
+          let valorFinal = parseFloat(notas[movimento.notaFinal].valor.total)
 
+          if (valorInicial) {
+            movimento.valor = valorFinal - valorInicial
+          } else {
+            movimento.valor = -1
+          }
           if (!paraGravar[empresa]) {
             paraGravar[empresa] = []
           }
