@@ -311,14 +311,26 @@ export function pegarNotaChave (chave, callback) {
 }
 
 export function pegarNotaNumeroEmitente (numero, emitente, callback) {
-  let nota
-  db.ref('Notas/').orderByChild('emitente').equalTo(emitente)
-    .orderByChild('geral.numero').equalTo(numero).once('value').then(value => {
-      nota = value.val()
+  let storeNotas = store.getState().notas
+  let nota = null
+
+  Object.keys(storeNotas).forEach(key => {
+    if (parseInt(storeNotas[key].geral.numero) === parseInt(numero) && storeNotas[key].emitente === emitente) {
+      nota = storeNotas[key]
       callback(null, nota)
+    }
+  })
+  if (!nota) {
+    db.ref('Notas/').orderByChild('emitente').equalTo(emitente).on('child_added', snap => {
+      let val = snap.val()
+      if (parseInt(val.geral.numero) === parseInt(numero)) {
+        store.dispatch(adicionarNota(snap.key, val))
+        callback(null, val)
+      }
     }, err => {
       callback(err, null)
     })
+  }
 }
 
 export function pegarTodasNotasPessoa (id, callback) {
@@ -368,7 +380,6 @@ export function compararCFOP (notaInicial, notaFinal) {
 }
 
 export function compararProduto (notaInicial, notaFinal) {
-
   let retorno = false
 
   Object.keys(notaInicial.produtos).forEach(nomeProdutoInicial => {

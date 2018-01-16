@@ -115,7 +115,7 @@
               <md-list-item>
                 <md-field md-clearable>
                   <label>NÚMERO DA NOTA</label>
-                  <md-input v-model="adicionarNumeroEmitenteInfo.numero"></md-input>
+                  <md-input v-model="adicionarNumeroEmitenteInfo.numeroNota"></md-input>
                 </md-field>
               </md-list-item>
               <md-list-item>
@@ -217,7 +217,8 @@ export default {
     },
     adicionarPorNumeroEmitente () {
       let emitente
-      let num = this.$data.adicionarNumeroEmitenteInfo.num
+      let num = this.$data.adicionarNumeroEmitenteInfo.numeroNota
+      console.log(num)
       if (this.$data.switchEmitente) {
         emitente = this.$data.notas[this.$data.movimentos[this.$data.movimentoParaAdicionarId].notaFinal].emitente
       } else {
