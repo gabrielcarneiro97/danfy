@@ -92,7 +92,7 @@
               <md-list-item>
                 <md-field md-clearable>
                   <label>CHAVE</label>
-                  <md-input></md-input>
+                  <md-input @change="adicionarPorChave"></md-input>
                 </md-field>
               </md-list-item>
             </md-list>
@@ -111,7 +111,7 @@
 </template>
 
 <script>
-import { pegarDominio, usuarioAtivo, pegarNotaChave } from './services/firebase.service'
+import { pegarDominio, usuarioAtivo, pegarNotaChave, estaNoDominio } from './services/firebase.service'
 import store from '../store'
 
 export default {
@@ -142,7 +142,7 @@ export default {
 
           Object.keys(this.$data.notas).forEach(id => {
             let nota = this.$data.notas[id]
-            if (nota.geral.tipo === '1') {
+            if (nota.geral.tipo === '1' && estaNoDominio(nota.emitente)) {
               let movimento = {
                 notaSaida: id,
                 notaEntrada: nota.complementar ? nota.complementar.notaReferencia : null,
@@ -182,6 +182,9 @@ export default {
     chamarErro (mensagem) {
       this.$data.erro.mensagem = mensagem
       this.$data.erro.mostra = true
+    },
+    adicionarPorChave (e) {
+      console.log(e)
     }
   },
   computed: {

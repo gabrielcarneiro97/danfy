@@ -329,6 +329,21 @@ export function pegarDominio (callback) {
   })
 }
 
+export function estaNoDominio (cnpj) {
+  let empresas = store.getState().dominio.empresas
+  let retorno = false
+
+  Object.keys(empresas).forEach(key => {
+    console.log(empresas[key])
+    console.log(cnpj)
+    if (empresas[key] === cnpj) {
+      retorno = true
+    }
+  })
+
+  return retorno
+}
+
 export function adicionarEmpresaDominio (empresa, callback) {
   let dominioId = store.getState().usuario.dominio
 
