@@ -13,10 +13,10 @@
           <md-table-cell md-numeric>{{movimentos.indexOf(movimento)+1}}</md-table-cell>
 
           <md-table-cell>
-            <md-button v-if="movimento.notaEntrada" @click="abrirNota(movimento.notaEntrada)">{{movimento.notaEntrada}}</md-button>
+            <md-button v-if="movimento.notaInicial" @click="abrirNota(movimento.notaInicial)">{{movimento.notaInicial}}</md-button>
             <md-button v-else @click="abrirAdicionarNota(movimentos.indexOf(movimento))">ADICIONAR ENTRADA</md-button>
           </md-table-cell>
-          <md-table-cell><md-button @click="abrirNota(movimento.notaSaida)">{{movimento.notaSaida}}</md-button></md-table-cell>
+          <md-table-cell><md-button @click="abrirNota(movimento.notaFinal)">{{movimento.notaFinal}}</md-button></md-table-cell>
         </md-table-row>
       </md-table>
     </div>
@@ -92,7 +92,7 @@
               <md-list-item>
                 <md-field md-clearable>
                   <label>CHAVE</label>
-                  <md-input @change="adicionarPorChave"></md-input>
+                  <md-input @input="adicionarPorChave"></md-input>
                 </md-field>
               </md-list-item>
             </md-list>
@@ -142,10 +142,10 @@ export default {
 
           Object.keys(this.$data.notas).forEach(id => {
             let nota = this.$data.notas[id]
-            if (nota.geral.tipo === '1' && estaNoDominio(nota.emitente)) {
+            if ((nota.geral.tipo === '1' || nota.geral.cfop === '1113') && estaNoDominio(nota.emitente)) {
               let movimento = {
-                notaSaida: id,
-                notaEntrada: nota.complementar ? nota.complementar.notaReferencia : null,
+                notaFinal: id,
+                notaInicial: nota.complementar ? nota.complementar.notaReferencia : null,
                 data: new Date(nota.geral.dataHora)
               }
               this.$data.movimentos.push(movimento)
@@ -183,8 +183,29 @@ export default {
       this.$data.erro.mensagem = mensagem
       this.$data.erro.mostra = true
     },
-    adicionarPorChave (e) {
-      console.log(e)
+    adicionarPorChave (chave) {
+      chave = chave.toString()
+      let notas = this.$data.notas
+      let movimentoId = this.$data.movimentoParaAdicionarId
+      let notaFinal = this.$data.movimentos[movimentoId].notaFinal
+      let notaInicial
+
+      if (chave.lenght === 44) {
+        if (notas[chave]) {
+          notaInicial = notas[chave]
+        } else {
+          pegarNotaChave(chave, (err, nota) => {
+            if (err) {
+              console.error(err)
+            }
+            if (!nota) {
+              this.chamarErro('Nota não localizada!')
+            } else {
+              notaInicial = nota
+            }
+          })
+        }
+      }
     }
   },
   computed: {

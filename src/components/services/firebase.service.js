@@ -178,6 +178,8 @@ export function lerNotasInput (files, callback) {
         let prod = det.prod
         let codigo = prod.cProd['_text']
 
+        nota.geral.cfop = prod.CFOP['_text']
+
         let produto = {
           descricao: prod.xProd['_text'],
           quantidade: {
@@ -197,6 +199,8 @@ export function lerNotasInput (files, callback) {
         det.forEach(val => {
           let prod = val.prod
           let codigo = prod.cProd['_text']
+
+          nota.geral.cfop = prod.CFOP['_text']
 
           let produto = {
             descricao: prod.xProd['_text'],
@@ -315,6 +319,14 @@ export function pegarTodasNotasPessoa (id, callback) {
   }, err => {
     callback(err, null)
   })
+}
+
+export function compararCFOP (notaInicial, notaFinal) {
+  if ((notaFinal.geral.cfop === '5102' || notaFinal.geral.cfop === '5102') && (notaInicial.geral.cfop === '1102')) {
+    return true
+  } else if ((notaFinal.geral.cfop === '5115' || notaFinal.geral.cfop === '6115') && (notaInicial.geral.cfop === '1113')) {
+
+  }
 }
 
 export function pegarDominio (callback) {
