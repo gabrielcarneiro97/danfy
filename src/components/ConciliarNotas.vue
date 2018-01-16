@@ -25,6 +25,10 @@
           </md-table-cell>
         </md-table-row>
       </md-table>
+
+      <div class="md-layout-item md-size-90">
+        <md-button @click="enviarMovimentos">ENVIAR MOVIMENTOS</md-button>
+      </div>
     </div>
     <md-dialog v-if="notaDialogo" :md-active.sync="mostra">
       <md-dialog-content>
@@ -158,6 +162,15 @@
         <md-button class="md-primary" @click="mostraAdicionarNotaConhecida = false">FECHAR</md-button>
       </md-dialog-actions>
     </md-dialog>
+    <md-dialog :md-active.sync="mostraFinal">
+      <md-dialog-title>Importação concluída</md-dialog-title>
+      <md-dialog-content>
+        {{relatorioFinal}}
+      </md-dialog-content>
+      <md-dialog-actions>
+        <md-button class="md-primary" @click="proximo">PRÓXIMO</md-button>
+      </md-dialog-actions>
+    </md-dialog>
     <md-dialog-alert
       :md-active.sync="erro.mostra"
       :md-content="erro.mensagem"
@@ -166,7 +179,7 @@
 </template>
 
 <script>
-import { pegarDominio, usuarioAtivo, pegarNotaChave, estaNoDominio, validarMovimento, pegarNotaNumeroEmitente, lerNotasInput } from './services/firebase.service'
+import { pegarDominio, usuarioAtivo, pegarNotaChave, estaNoDominio, validarMovimento, pegarNotaNumeroEmitente, lerNotasInput, gravarMovimentos } from './services/firebase.service'
 import store from '../store'
 
 export default {
@@ -175,6 +188,8 @@ export default {
       mostra: false,
       usuario: {},
       mostraAdicionarNota: false,
+      mostraFinal: false,
+      relatorioFinal: null,
       movimentoParaAdicionarId: null,
       notaParaAdicionarXml: null,
       mostraAdicionarNotaConhecida: false,
@@ -211,7 +226,7 @@ export default {
               let movimento = {
                 notaFinal: id,
                 notaInicial: nota.complementar ? nota.complementar.notaReferencia : null,
-                data: new Date(nota.geral.dataHora),
+                data: nota.geral.dataHora,
                 conferido: false
               }
               this.$data.movimentos.push(movimento)
@@ -223,7 +238,34 @@ export default {
   },
   methods: {
     proximo () {
+      this.$router.push('/')
+    },
+    enviarMovimentos () {
+      let movimentos = this.$data.movimentos
+      let paraGravar = {}
+      let notas = this.$data.notas
+      let contador = 0
 
+      movimentos.forEach(movimento => {
+        if (movimento.conferido) {
+          let empresa = notas[movimento.notaFinal].emitente
+
+          if (!paraGravar[empresa]) {
+            paraGravar[empresa] = []
+          }
+
+          paraGravar[empresa].push(movimento)
+          contador++
+        }
+      })
+
+      gravarMovimentos(paraGravar, err => {
+        if (err) {
+          console.error(err)
+        }
+        this.$data.mostraFinal = true
+        this.$data.relatorioFinal = `${contador} movimentos gravados com sucesso!`
+      })
     },
     abrirNota (notaId) {
       let nota = this.$data.notas[notaId]

@@ -329,7 +329,6 @@ export function pegarNotaNumeroEmitente (numero, emitente, callback) {
     let query = db.ref('Notas/').orderByChild('emitente').equalTo(emitente)
     query.on('child_added', snap => {
       let val = snap.val()
-      console.log(snap)
       if (parseInt(val.geral.numero) === parseInt(numero)) {
         store.dispatch(adicionarNota(snap.key, val))
         nota = val
@@ -470,9 +469,17 @@ export function gravarMovimentos (movimentos, callback) {
   Object.keys(movimentos).forEach((cnpj, index, arr) => {
     if (movimentos[cnpj]) {
       movimentos[cnpj].forEach(movimento => {
-        db.ref('Movimentos/' + cnpj).push(movimento, err => {
-          if (arr.length - 1 === index) {
-            callback(err)
+        db.ref('Movimentos/' + cnpj).orderByChild('notaFinal').equalTo(movimento.notaFinal).once('value', snap => {
+          if (snap.val()) {
+            let erro = new Error('Nota já registrada em outro movimento! ID: ' + Object.keys(snap.val())[0])
+            erro.idMovimento = Object.keys(snap.val())[0]
+            callback(erro)
+          } else {
+            db.ref('Movimentos/' + cnpj).push(movimento, err => {
+              if (arr.length - 1 === index) {
+                callback(err)
+              }
+            })
           }
         })
       })
