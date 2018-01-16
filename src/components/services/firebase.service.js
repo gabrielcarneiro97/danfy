@@ -157,6 +157,7 @@ export function lerNotasInput (files, callback) {
       }
 
       let nota = {
+        chave: notaId,
         emitente: emitenteId,
         destinatario: destinatarioId,
         geral: {
@@ -266,11 +267,13 @@ export function lerNotasInput (files, callback) {
 export function gravarPessoas (callback) {
   let pessoas = store.getState().pessoas
   Object.keys(pessoas).forEach((key, index, arr) => {
-    db.ref('Pessoas/' + key).set(pessoas[key], err => {
-      if (arr.length - 1 === index) {
-        callback(err)
-      }
-    })
+    if (pessoas[key]) {
+      db.ref('Pessoas/' + key).set(pessoas[key], err => {
+        if (arr.length - 1 === index) {
+          callback(err)
+        }
+      })
+    }  
   })
 }
 
@@ -287,11 +290,13 @@ export function pegarPessoaId (id, callback) {
 export function gravarNotas (callback) {
   let notas = store.getState().notas
   Object.keys(notas).forEach((key, index, arr) => {
-    db.ref('Notas/' + key).set(notas[key], err => {
-      if (arr.length - 1 === index) {
-        callback(err)
-      }
-    })
+    if (notas[key]) {
+      db.ref('Notas/' + key).set(notas[key], err => {
+        if (arr.length - 1 === index) {
+          callback(err)
+        }
+      })
+    }
   })
 }
 
@@ -321,12 +326,19 @@ export function pegarNotaNumeroEmitente (numero, emitente, callback) {
     }
   })
   if (!nota) {
-    db.ref('Notas/').orderByChild('emitente').equalTo(emitente).on('child_added', snap => {
+    let query = db.ref('Notas/').orderByChild('emitente').equalTo(emitente)
+    query.on('child_added', snap => {
       let val = snap.val()
+      console.log(snap)
       if (parseInt(val.geral.numero) === parseInt(numero)) {
         store.dispatch(adicionarNota(snap.key, val))
-        callback(null, val)
+        nota = val
       }
+    }, err => {
+      callback(err, null)
+    })
+    query.once('value', () => {
+      callback(null, nota)
     }, err => {
       callback(err, null)
     })
