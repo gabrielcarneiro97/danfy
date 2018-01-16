@@ -102,7 +102,6 @@ export default {
           this.$data.clicaEnviar = true
           this.$data.foraDominio = []
           this.$data.adicionarDominio = []
-
           let dominio = store.getState().dominio
 
           Object.keys(pessoas).forEach(keyPessoa => {

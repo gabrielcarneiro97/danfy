@@ -106,10 +106,10 @@
               <md-list-item>
                 <md-switch v-model="switchEmitente">Mesmo Emitente</md-switch>
               </md-list-item>
-              <md-list-item>
+              <md-list-item v-if="!switchEmitente">
                 <md-field md-clearable>
                   <label>CNPJ</label>
-                  <md-input :disabled="switchEmitente" v-model="adicionarNumeroEmitenteInfo.emitente"></md-input>
+                  <md-input v-model="adicionarNumeroEmitenteInfo.emitente"></md-input>
                 </md-field>
               </md-list-item>
               <md-list-item>
@@ -120,6 +120,17 @@
               </md-list-item>
               <md-list-item>
                 <md-button @click="adicionarPorNumeroEmitente">Adicionar</md-button>
+              </md-list-item>
+            </md-list>
+          </md-list-item>
+          <md-list-item md-expand>
+            <span class="md-list-item-text">Importar XML</span>
+            <md-list slot="md-expand">
+              <md-list-item>
+                <md-field>
+                  <label>Nota</label>
+                  <md-file @change="adicionarPorXml" accept=".xml" />
+                </md-field>
               </md-list-item>
             </md-list>
           </md-list-item>
@@ -137,7 +148,7 @@
 </template>
 
 <script>
-import { pegarDominio, usuarioAtivo, pegarNotaChave, estaNoDominio, validarMovimento, pegarNotaNumeroEmitente } from './services/firebase.service'
+import { pegarDominio, usuarioAtivo, pegarNotaChave, estaNoDominio, validarMovimento, pegarNotaNumeroEmitente, lerNotasInput } from './services/firebase.service'
 import store from '../store'
 
 export default {
@@ -215,18 +226,72 @@ export default {
       this.$data.erro.mensagem = mensagem.message
       this.$data.erro.mostra = true
     },
+    adicionarPorXml (e) {
+      if (e.target.files) {
+        let movimentoId = this.$data.movimentoParaAdicionarId
+        let notas = this.$data.notas
+        let notaFinal = notas[this.$data.movimentos[movimentoId].notaFinal]
+
+        lerNotasInput(e.target.files, (notaBruto, pessoas) => {
+          let notaInicial
+          Object.keys(notaBruto).forEach(key => {
+            notaInicial = notaBruto[key]
+          })
+
+          notas = {
+            ...notas,
+            ...notaBruto
+          }
+          this.$data.pessoas = {
+            ...this.$data.pessoas,
+            ...pessoas
+          }
+          validarMovimento(notaInicial, notaFinal, err => {
+            if (err) {
+              this.chamarMensagem(err)
+            } else {
+              this.$data.movimentos[movimentoId].notaInicial = notaInicial.chave
+              this.$data.notas = store.getState().notas
+              this.$data.mostraAdicionarNota = false
+              this.$data.adicionarNumeroEmitenteInfo.numeroNota = null
+              this.$data.adicionarNumeroEmitenteInfo.emitente = null
+              this.chamarMensagem(new Error('Nota Adicionada com sucesso!'))
+            }
+          })
+        })
+      }
+    },
     adicionarPorNumeroEmitente () {
       let emitente
       let num = this.$data.adicionarNumeroEmitenteInfo.numeroNota
-      console.log(num)
+      let notas = this.$data.notas
+      let movimentoId = this.$data.movimentoParaAdicionarId
+      let notaFinal = notas[this.$data.movimentos[movimentoId].notaFinal]
+
       if (this.$data.switchEmitente) {
-        emitente = this.$data.notas[this.$data.movimentos[this.$data.movimentoParaAdicionarId].notaFinal].emitente
+        emitente = notaFinal.emitente
       } else {
         emitente = this.$data.adicionarNumeroEmitenteInfo.emitente
       }
-      pegarNotaNumeroEmitente(num, emitente, (err, nota) => {
+      pegarNotaNumeroEmitente(num, emitente, (err, notaInicial) => {
         if (err) console.error(err)
-        console.log(nota)
+
+        if (notaInicial) {
+          validarMovimento(notaInicial, notaFinal, err => {
+            if (err) {
+              this.chamarMensagem(err)
+            } else {
+              this.$data.movimentos[movimentoId].notaInicial = notaInicial.chave
+              this.$data.notas = store.getState().notas
+              this.$data.mostraAdicionarNota = false
+              this.$data.adicionarNumeroEmitenteInfo.numeroNota = null
+              this.$data.adicionarNumeroEmitenteInfo.emitente = null
+              this.chamarMensagem(new Error('Nota Adicionada com sucesso!'))
+            }
+          })
+        } else {
+          this.chamarMensagem(new Error('Nota não localizada!'))
+        }
       })
     },
     adicionarPorChave () {
