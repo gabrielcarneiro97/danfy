@@ -265,9 +265,11 @@ export function lerNotasInput (files, callback) {
 
 export function gravarPessoas (callback) {
   let pessoas = store.getState().pessoas
-  Object.keys(pessoas).forEach(key => {
+  Object.keys(pessoas).forEach((key, index, arr) => {
     db.ref('Pessoas/' + key).set(pessoas[key], err => {
-      callback(err)
+      if (arr.length - 1 === index) {
+        callback(err)
+      }
     })
   })
 }
@@ -284,21 +286,39 @@ export function pegarPessoaId (id, callback) {
 
 export function gravarNotas (callback) {
   let notas = store.getState().notas
-  Object.keys(notas).forEach(key => {
+  Object.keys(notas).forEach((key, index, arr) => {
     db.ref('Notas/' + key).set(notas[key], err => {
-      callback(err)
+      if (arr.length - 1 === index) {
+        callback(err)
+      }
     })
   })
 }
 
 export function pegarNotaChave (chave, callback) {
   let nota
-  db.ref('Notas/' + chave).once('value').then(value => {
-    nota = value.val()
-    callback(null, nota)
-  }, err => {
-    callback(err, null)
-  })
+  let storeNotas = store.getState().notas
+  if (storeNotas[chave]) {
+    callback(null, storeNotas[chave])
+  } else {
+    db.ref('Notas/' + chave).once('value').then(value => {
+      store.dispatch(adicionarNota(chave, nota))
+      callback(null, nota)
+    }, err => {
+      callback(err, null)
+    })
+  }
+}
+
+export function pegarNotaNumeroEmitente (numero, emitente, callback) {
+  let nota
+  db.ref('Notas/').orderByChild('emitente').equalTo(emitente)
+    .orderByChild('geral.numero').equalTo(numero).once('value').then(value => {
+      nota = value.val()
+      callback(null, nota)
+    }, err => {
+      callback(err, null)
+    })
 }
 
 export function pegarTodasNotasPessoa (id, callback) {
