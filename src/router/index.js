@@ -6,6 +6,7 @@ import Registrar from '../components/Registrar'
 import Perfil from '../components/Perfil'
 import Importar from '../components/Importar'
 import ConciliarNotas from '../components/ConciliarNotas'
+import MostrarMovimentos from '../components/MostrarMovimentos'
 
 Vue.use(VueRouter)
 
@@ -40,6 +41,11 @@ export default new VueRouter({
       path: '/conciliarNotas',
       name: 'ConciliarNotas',
       component: ConciliarNotas
+    },
+    {
+      path: '/mostrarMovimentos',
+      name: 'MostrarMovimentos',
+      component: MostrarMovimentos
     }
   ]
 })
