@@ -83,7 +83,7 @@
     <md-dialog :md-active.sync="mostraAdicionarNota">
       <md-dialog-content>
         <md-toolbar :md-elevation="1">
-          <span class="md-title">ADICIONAR NOTA AO MOVIMENTO ID {{movimentoParaAdicionarId+1}}</span>
+          <span class="md-title">ADICIONAR NOTA AO MOVIMENTO {{movimentoParaAdicionarId+1}}</span>
         </md-toolbar>
         <md-list>
           <md-list-item md-expand>
@@ -92,8 +92,34 @@
               <md-list-item>
                 <md-field md-clearable>
                   <label>CHAVE</label>
-                  <md-input @input="adicionarPorChave"></md-input>
+                  <md-input v-model="chaveParaAdicionar"></md-input>
                 </md-field>
+              </md-list-item>
+              <md-list-item>
+                <md-button @click="adicionarPorChave">Adicionar</md-button>
+              </md-list-item>
+            </md-list>
+          </md-list-item>
+          <md-list-item md-expand>
+            <span class="md-list-item-text">Adicionar por Número + Emitente</span>
+            <md-list slot="md-expand">
+              <md-list-item>
+                <md-switch v-model="switchEmitente">Mesmo Emitente</md-switch>
+              </md-list-item>
+              <md-list-item>
+                <md-field md-clearable>
+                  <label>CNPJ</label>
+                  <md-input :disabled="switchEmitente" v-model="adicionarNumeroEmitenteInfo.emitente"></md-input>
+                </md-field>
+              </md-list-item>
+              <md-list-item>
+                <md-field md-clearable>
+                  <label>NÚMERO DA NOTA</label>
+                  <md-input v-model="adicionarNumeroEmitenteInfo.numero"></md-input>
+                </md-field>
+              </md-list-item>
+              <md-list-item>
+                <md-button @click="adicionarPorNumeroEmitente">Adicionar</md-button>
               </md-list-item>
             </md-list>
           </md-list-item>
@@ -111,7 +137,7 @@
 </template>
 
 <script>
-import { pegarDominio, usuarioAtivo, pegarNotaChave, estaNoDominio, validarMovimento } from './services/firebase.service'
+import { pegarDominio, usuarioAtivo, pegarNotaChave, estaNoDominio, validarMovimento, pegarNotaNumeroEmitente } from './services/firebase.service'
 import store from '../store'
 
 export default {
@@ -121,6 +147,12 @@ export default {
       mostraAdicionarNota: false,
       movimentoParaAdicionarId: null,
       notaDialogo: null,
+      switchEmitente: true,
+      adicionarNumeroEmitenteInfo: {
+        emitente: null,
+        numeroNota: null
+      },
+      chaveParaAdicionar: null,
       notas: {},
       pessoas: {},
       movimentos: [],
@@ -170,7 +202,7 @@ export default {
             console.error(err)
           }
           if (!nota) {
-            this.chamarErro('Nota não localizada!')
+            this.chamarMensagem(new Error('Nota não localizada!'))
           }
         })
       }
@@ -179,45 +211,55 @@ export default {
       this.$data.mostraAdicionarNota = true
       this.$data.movimentoParaAdicionarId = id
     },
-    chamarErro (mensagem) {
-      this.$data.erro.mensagem = mensagem
+    chamarMensagem (mensagem) {
+      this.$data.erro.mensagem = mensagem.message
       this.$data.erro.mostra = true
     },
-    adicionarPorChave (chave) {
-      chave = chave.toString()
+    adicionarPorNumeroEmitente () {
+      let emitente
+      let num = this.$data.adicionarNumeroEmitenteInfo.num
+      if (this.$data.switchEmitente) {
+        emitente = this.$data.notas[this.$data.movimentos[this.$data.movimentoParaAdicionarId].notaFinal].emitente
+      } else {
+        emitente = this.$data.adicionarNumeroEmitenteInfo.emitente
+      }
+      pegarNotaNumeroEmitente(num, emitente, (err, nota) => {
+        if (err) console.error(err)
+        console.log(nota)
+      })
+    },
+    adicionarPorChave () {
+      if (!this.$data.chaveParaAdicionar) {
+        return false
+      }
+
+      let chave = this.$data.chaveParaAdicionar.toString()
       let notas = this.$data.notas
       let movimentoId = this.$data.movimentoParaAdicionarId
       let notaFinal = notas[this.$data.movimentos[movimentoId].notaFinal]
       let notaInicial
 
-      console.log(chave.length)
-
       if (chave.length === 44) {
-        if (notas[chave]) {
-          notaInicial = notas[chave]
-          if (compararCFOP(notaInicial, notaFinal)) {
-            this.$data.movimentos[movimentoId].notaInicial = chave
-          } else {
-            this.chamarErro(`O CFOP da Nota Inicial ${notaInicial.geral.cfop} não é valido para o CFOP da Nota Final ${notaFinal.geral.cfop}`)            
+        pegarNotaChave(chave, (err, nota) => {
+          if (err) {
+            console.error(err)
           }
-        } else {
-          pegarNotaChave(chave, (err, nota) => {
-            if (err) {
-              console.error(err)
-            }
-            if (!nota) {
-              this.chamarErro('Nota não localizada!')
-            } else {
-              notaInicial = nota
-              if (compararCFOP(notaInicial, notaFinal)) {
+          if (!nota) {
+            this.chamarMensagem(new Error('Nota não localizada!'))
+          } else {
+            notaInicial = nota
+            validarMovimento(notaInicial, notaFinal, err => {
+              if (err) {
+                this.chamarMensagem(err)
+              } else {
                 this.$data.movimentos[movimentoId].notaInicial = chave
                 this.$data.notas = store.getState().notas
-              } else {
-                this.chamarErro(`O CFOP da Nota Inicial ${notaInicial.geral.cfop} não é valido para o CFOP da Nota Final ${notaFinal.geral.cfop}`)
+                this.$data.mostraAdicionarNota = false
+                this.chamarMensagem(new Error('Nota Adicionada com sucesso!'))
               }
-            }
-          })
-        }
+            })
+          }
+        })
       }
     }
   },
