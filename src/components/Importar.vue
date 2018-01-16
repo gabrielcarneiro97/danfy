@@ -123,15 +123,7 @@ export default {
     },
     enviar () {
       if (this.$data.foraDominio.length === 0) {
-        gravarPessoas(err => {
-          if (err) console.error(err)
-          else {
-            gravarNotas(err => {
-              if (err) console.error(err)
-              else this.$router.push('/conciliarNotas')
-            })
-          }
-        })
+        this.gravarEProximaPagina()
       } else {
         this.$data.mostra = true
       }
@@ -157,30 +149,25 @@ export default {
               if (err) console.error(err)
 
               if (index === adicionar.length - 1) {
-                gravarPessoas(err => {
-                  if (err) console.error(err)
-                  else {
-                    gravarNotas(err => {
-                      if (err) console.error(err)
-                      else this.$router.push('/conciliarNotas')
-                    })
-                  }
-                })
+                this.gravarEProximaPagina()
               }
             })
           }
         })
       } else {
-        gravarPessoas(err => {
-          if (err) console.error(err)
-          else {
-            gravarNotas(err => {
-              if (err) console.error(err)
-              else this.$router.push('/conciliarNotas')
-            })
-          }
-        })
+        this.gravarEProximaPagina()
       }
+    },
+    gravarEProximaPagina () {
+      gravarPessoas(err => {
+        if (err) console.error(err)
+        else {
+          gravarNotas(err => {
+            if (err) console.error(err)
+            else this.$router.push('/conciliarNotas')
+          })
+        }
+      })
     }
   },
   computed: {
