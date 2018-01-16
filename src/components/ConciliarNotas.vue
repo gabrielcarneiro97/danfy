@@ -173,6 +173,7 @@ export default {
   data () {
     return {
       mostra: false,
+      usuario: {},
       mostraAdicionarNota: false,
       movimentoParaAdicionarId: null,
       notaParaAdicionarXml: null,
@@ -197,6 +198,7 @@ export default {
     usuarioAtivo(ativo => {
       if (!ativo) this.$router.push('/login')
       else {
+        this.$data.usuario = ativo
         pegarDominio((err, dominio) => {
           if (err) console.error(err)
 
@@ -220,6 +222,9 @@ export default {
     })
   },
   methods: {
+    proximo () {
+
+    },
     abrirNota (notaId) {
       let nota = this.$data.notas[notaId]
       if (nota) {

@@ -465,3 +465,17 @@ export function adicionarEmpresaDominio (empresa, callback) {
     callback(err, store.getState().dominio)
   })
 }
+
+export function gravarMovimentos (movimentos, callback) {
+  Object.keys(movimentos).forEach((cnpj, index, arr) => {
+    if (movimentos[cnpj]) {
+      movimentos[cnpj].forEach(movimento => {
+        db.ref('Movimentos/' + cnpj).push(movimento, err => {
+          if (arr.length - 1 === index) {
+            callback(err)
+          }
+        })
+      })
+    }
+  })
+}
