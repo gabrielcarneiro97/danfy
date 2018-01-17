@@ -68,12 +68,12 @@ export default {
   },
   data () {
     return {
-      nome: 'Gabriel Carneiro',
-      login: 'gabriel@andreacontabilidade.com',
-      confirmaLogin: 'gabriel@andreacontabilidade.com',
-      senha: '123456',
-      confirmaSenha: '123456',
-      dominio: 'andreacont',
+      nome: '',
+      login: '',
+      confirmaLogin: '',
+      senha: '',
+      confirmaSenha: '',
+      dominio: '',
       showSnackbar: false,
       duration: 3000,
       erro: 'null'
@@ -110,6 +110,8 @@ export default {
       }
 
       criarUsuario({nome: nome, dominio: dominio, login: login, senha: senha}, (err, usuario) => {
+        if (err) console.error(err)
+
         this.$router.push('/perfil')
       })
     }
