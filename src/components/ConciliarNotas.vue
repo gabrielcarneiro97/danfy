@@ -87,7 +87,7 @@
               <h4>Informações Complementares</h4>
             </md-list-item>
             <md-list-item class="md-triple-line">
-              <span class="md-list-item-text">{{notaDialogo.complementar.textoComplementar}}</span>
+              <span class="md-list-item-text"><small>{{notaDialogo.complementar.textoComplementar}}</small></span>
             </md-list-item>
             <md-divider></md-divider>
           </md-list>
@@ -224,7 +224,7 @@ export default {
       if (!ativo) {
         this.$router.push('/login')
       } else if (tipoDominio !== 'mult') {
-        this.$router.push('/login')
+        this.$router.push('/mostrarMovimentos')
       } else {
         this.$data.usuario = ativo
         pegarDominio((err, dominio) => {

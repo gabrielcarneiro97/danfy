@@ -86,7 +86,7 @@ export default {
     }
   },
   created () {
-    usuarioAtivo(ativo => {
+    usuarioAtivo((ativo, user, tipoDominio) => {
       if (!ativo) this.$router.push('/login')
     })
   },

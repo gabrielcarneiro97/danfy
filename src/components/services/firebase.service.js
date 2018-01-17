@@ -225,7 +225,7 @@ export function lerNotasInput (files, callback) {
 
       nota.complementar = {
         notaReferencia: info.ide.NFref ? info.ide.NFref.refNFe['_text'] : null,
-        textoComplementar: info.infAdic ? info.infAdic.infCpl ? info.infAdic.infCpl['_text'] : null : null
+        textoComplementar: info.infAdic ? info.infAdic.infCpl ? info.infAdic.infCpl['_text'] : info.infAdic.infAdFisco ? info.infAdic.infAdFisco['_text'] : null : null
       }
 
       notas = {
@@ -520,6 +520,8 @@ export function pegarMovimentosMes (cnpj, competencia, callback) {
   })
 }
 
-export function excluirMovimento (params) {
-
+export function excluirMovimento (cnpj, id, callback) {
+  db.ref('Movimentos/' + cnpj + '/' + id).set({}, err => {
+    callback(err)
+  })
 }

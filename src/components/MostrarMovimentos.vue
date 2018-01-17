@@ -50,7 +50,7 @@
       </md-table-row>
 
       <md-table-row v-for="(movimento, index) in movimentos" v-bind:key="index">
-        <md-table-cell md-numeric>{{pegaIndex(index)}}</md-table-cell>
+        <md-table-cell md-numeric><md-button class="md-icon-button" :disabled="numeroDesativo" @click="definirDeletar(index, pegaIndex(index))">{{pegaIndex(index)}}</md-button></md-table-cell>
         <md-table-cell v-if="notas[movimento.notaInicial]"><md-button @click="abrirNota(movimento.notaInicial)">{{notas[movimento.notaInicial].geral.numero}}</md-button></md-table-cell>
         <md-table-cell v-if="notas[movimento.notaFinal]"><md-button @click="abrirNota(movimento.notaFinal)">{{notas[movimento.notaFinal].geral.numero}}</md-button></md-table-cell>
         <md-table-cell>R$ {{(movimento.valor).toFixed(2)}}</md-table-cell>
@@ -117,7 +117,7 @@
             <h4>Informações Complementares</h4>
           </md-list-item>
           <md-list-item class="md-triple-line">
-            <span class="md-list-item-text">{{notaDialogo.complementar.textoComplementar}}</span>
+            <span class="md-list-item-text"><small>{{notaDialogo.complementar.textoComplementar}}</small></span>
           </md-list-item>
           <md-divider></md-divider>
         </md-list>
@@ -134,16 +134,30 @@
       :md-content="erro.mensagem"
       md-confirm-text="Ok" />
 
+  <md-dialog-confirm
+      :md-active.sync="deletar.mostra"
+      md-title="Excluir Movimento"
+      :md-content="deletar.mensagem"
+      md-confirm-text="DELETAR"
+      md-cancel-text="CANCELAR"
+      @md-cancel="deletar.mostra = false"
+      @md-confirm="deletarMovimento" />
+
 </div>
 </template>
 <script>
-import { pegarDominio, usuarioAtivo, pegarPessoaId, pegarMovimentosMes, pegarNotaChave } from './services/firebase.service'
+import { pegarDominio, usuarioAtivo, pegarPessoaId, pegarMovimentosMes, pegarNotaChave, excluirMovimento } from './services/firebase.service'
 import _ from 'lodash'
 import { Printd } from 'printd'
 
 export default {
   data () {
     return {
+      deletar: {
+        mostra: false,
+        mensagem: null,
+        movimentoId: null
+      },
       numeroDesativo: false,
       impostos: {
         icms: {
@@ -226,6 +240,19 @@ export default {
     })
   },
   methods: {
+    deletarMovimento () {
+      let movimentos = this.$data.movimentos
+      let movimentoId = this.$data.deletar.movimentoId
+      delete movimentos[movimentoId]
+      excluirMovimento(this.$data.empresaSelecionada.pessoa.cnpj, movimentoId, err => {
+        if (err) console.error(err)
+      })
+    },
+    definirDeletar (id, num) {
+      this.$data.deletar.mensagem = `Tem certeza que deseja deletar o movimento ${num}?`
+      this.$data.deletar.movimentoId = id
+      this.$data.deletar.mostra = true
+    },
     chamarMensagem (mensagem) {
       this.$data.erro.mensagem = mensagem.message
       this.$data.erro.mostra = true

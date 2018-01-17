@@ -1,6 +1,6 @@
 <template>
   <md-toolbar class="md-primary">
-    <h3 class="md-title" style="flex: 1">DANFY</h3>
+    <div style="flex: 1"><h3 class="md-title">DANFY <span id="label">ALPHA</span></h3></div>
     <md-button @click="click">{{texto}}</md-button>
   </md-toolbar>
 </template>
@@ -38,6 +38,9 @@ export default {
 }
 </script>
 
-<style lang="sass" scoped>
-
+<style lang="scss" scoped>
+#label {
+  font-size: 8.5px;
+  vertical-align: text-top;
+}
 </style>
