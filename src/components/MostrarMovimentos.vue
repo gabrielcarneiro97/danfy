@@ -117,7 +117,7 @@
             <h4>Informações Complementares</h4>
           </md-list-item>
           <md-list-item class="md-triple-line">
-            <span class="md-list-item-text"><small>{{notaDialogo.complementar.textoComplementar}}</small></span>
+            <span class="md-list-item-text"><small v-if="notaDialogo.complementar">{{notaDialogo.complementar.textoComplementar}}</small></span>
           </md-list-item>
           <md-divider></md-divider>
         </md-list>
