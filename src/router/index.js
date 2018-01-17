@@ -7,6 +7,7 @@ import Perfil from '../components/Perfil'
 import Importar from '../components/Importar'
 import ConciliarNotas from '../components/ConciliarNotas'
 import MostrarMovimentos from '../components/MostrarMovimentos'
+import Menu from '../components/Menu'
 
 Vue.use(VueRouter)
 
@@ -46,6 +47,11 @@ export default new VueRouter({
       path: '/mostrarMovimentos',
       name: 'MostrarMovimentos',
       component: MostrarMovimentos
+    },
+    {
+      path: '/menu',
+      name: 'Menu',
+      component: Menu
     }
   ]
 })

@@ -1,6 +1,6 @@
 <template>
   <md-toolbar class="md-primary">
-    <div style="flex: 1"><h3 class="md-title">DANFY <span id="label">ALPHA</span></h3></div>
+    <div style="flex: 1"><md-button :md-ripple="false" to="/menu"><h3 class="md-title">DANFY <span id="label">ALPHA</span></h3></md-button></div>
     <md-button @click="click">{{texto}}</md-button>
   </md-toolbar>
 </template>
