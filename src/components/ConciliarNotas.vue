@@ -43,8 +43,8 @@
             </md-list-item>
             <md-divider></md-divider>
             <md-list-item>
-              <h4>Data e Hora</h4>
-              <span>{{notaDialogo.geral.dataHora}}</span>
+              <h4>Data</h4>
+              <span>{{new Date(notaDialogo.geral.dataHora).toLocaleDateString()}}</span>
             </md-list-item>
             <md-divider></md-divider>
             <md-list-item>
@@ -73,6 +73,14 @@
               <h4>Destinatário</h4>
               <span v-if="pessoas[notaDialogo.destinatario]">{{pessoas[notaDialogo.destinatario].nome}}</span>
               <span>{{notaDialogo.destinatario}}</span>
+            </md-list-item>
+            <md-divider></md-divider>
+            <md-list-item>
+              <h4>Produtos</h4>
+            </md-list-item>
+            <md-list-item v-for="(produto, id) in notaDialogo.produtos" v-bind:key="id">
+              <md-list-item class="md-list-item-text">{{id}}: {{produto.descricao}}</md-list-item>
+              <md-list-item class="md-list-item-text">VALOR: {{produto.valor.total}}</md-list-item>
             </md-list-item>
             <md-divider></md-divider>
             <md-list-item>
