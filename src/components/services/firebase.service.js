@@ -63,13 +63,13 @@ export function usuarioAtivo (callback) {
 
         store.dispatch(autenticar({ email: user.email, token: user.getIdToken(), id: user.uid, nome: usuario.nome, dominio: usuario.dominio }))
 
-        pegarDominio(err => {
+        pegarDominio((err, dominio) => {
           if (err) console.error(err)
-          callback(user, store.getState().usuario)
+          callback(user, store.getState().usuario, dominio.tipo)
         })
       })
     } else {
-      callback(user, store.getState().usuario)
+      callback(user, null, null)
     }
   })
 }
@@ -225,7 +225,7 @@ export function lerNotasInput (files, callback) {
 
       nota.complementar = {
         notaReferencia: info.ide.NFref ? info.ide.NFref.refNFe['_text'] : null,
-        textoComplementar: info.infAdic ? info.infAdic.infCpl['_text'] : null
+        textoComplementar: info.infAdic ? info.infAdic.infCpl ? info.infAdic.infCpl['_text'] : null : null
       }
 
       notas = {
@@ -273,7 +273,7 @@ export function gravarPessoas (callback) {
           callback(err)
         }
       })
-    }  
+    }
   })
 }
 
@@ -325,6 +325,8 @@ export function pegarNotaChave (chave, callback) {
 export function pegarNotaNumeroEmitente (numero, emitente, callback) {
   let storeNotas = store.getState().notas
   let nota = null
+
+  console.log(storeNotas)
 
   Object.keys(storeNotas).forEach(key => {
     if (parseInt(storeNotas[key].geral.numero) === parseInt(numero) && storeNotas[key].emitente === emitente) {
@@ -516,4 +518,8 @@ export function pegarMovimentosMes (cnpj, competencia, callback) {
   }, err => {
     callback(err, null)
   })
+}
+
+export function excluirMovimento (params) {
+
 }
