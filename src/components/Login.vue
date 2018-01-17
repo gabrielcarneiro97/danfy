@@ -28,16 +28,20 @@ import { entrar, usuarioAtivo } from './services/firebase.service'
 export default {
   name: 'login',
   created () {
-    usuarioAtivo((ativo, usuario) => {
+    usuarioAtivo((ativo, usuario, tipoDominio) => {
       if (ativo) {
-        this.$router.push('/perfil')
+        if (tipoDominio === 'unico') {
+          this.$router.push('/mostrarMovimentos')
+        } else {
+          this.$router.push('/menu')
+        }
       }
     })
   },
   data () {
     return {
-      login: 'gabriel@andreacontabilidade.com',
-      senha: '123456'
+      login: '',
+      senha: ''
     }
   },
   methods: {
@@ -48,7 +52,15 @@ export default {
       entrar(login, senha, (err, usuario) => {
         if (err) console.error(err)
         else {
-          this.$router.push('/perfil')
+          usuarioAtivo((ativo, usuario, tipoDominio) => {
+            if (ativo) {
+              if (tipoDominio === 'unico') {
+                this.$router.push('/mostrarMovimentos')
+              } else {
+                this.$router.push('/menu')
+              }
+            }
+          })
         }
       })
     },
