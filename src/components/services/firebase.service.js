@@ -279,12 +279,18 @@ export function gravarPessoas (callback) {
 
 export function pegarPessoaId (id, callback) {
   let pessoa
-  db.ref('Pessoas/' + id).once('value').then(value => {
-    pessoa = value.val()
-    callback(null, pessoa)
-  }, err => {
-    callback(err, null)
-  })
+  let storePessoas = store.getState().pessoas
+  if (storePessoas[id]) {
+    callback(null, storePessoas[id])
+  } else {
+    db.ref('Pessoas/' + id).once('value').then(value => {
+      pessoa = value.val()
+      store.dispatch(adicionarPessoa(id, pessoa))
+      callback(null, pessoa)
+    }, err => {
+      callback(err, null)
+    })
+  }
 }
 
 export function gravarNotas (callback) {
@@ -307,6 +313,7 @@ export function pegarNotaChave (chave, callback) {
     callback(null, storeNotas[chave])
   } else {
     db.ref('Notas/' + chave).once('value').then(value => {
+      nota = value.val()
       store.dispatch(adicionarNota(chave, nota))
       callback(null, nota)
     }, err => {

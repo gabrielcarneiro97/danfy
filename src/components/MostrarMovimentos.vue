@@ -1,5 +1,5 @@
 <template>
-<div>
+<div v-if="carregado">
   <div class="md-layout md-alignment-top-center" id="form">
     <div class="md-layout md-layout-item md-size-85" id="inner">
         <md-field class="md-layout-item md-size-20">
@@ -15,52 +15,177 @@
           <md-input v-model="empresaSelecionada.pessoa.nome" disabled></md-input>
         </md-field>
         <md-field class="md-layout-item md-size-40">
-          <label>MÊS</label>
-          <md-input v-model="competenciaSelecionada.mes"></md-input>
+          <label for="mes">MÊS</label>
+          <md-select v-model="competenciaSelecionada.mes" name="mes" id="mes">
+            <md-option v-for="mes in meses" v-bind:key="'mes' + mes.num" :value="mes.num">{{mes.nome}}</md-option>
+          </md-select>
         </md-field>
         <md-field class="md-layout-item md-size-40">
-          <label>ANO</label>
-          <md-input v-model="competenciaSelecionada.ano"></md-input>
+          <label for="ano">ANO</label>
+          <md-select v-model="competenciaSelecionada.ano" name="ano" id="ano">
+            <md-option v-for="ano in anos" v-bind:key="'ano' + ano" :value="ano">{{ano}}</md-option>
+          </md-select>
         </md-field>
         <div class="md-layout md-layout-item md-size-100 md-alignment-top-right">
-          <md-button class="md-layout-item md-size-25 md-primary" @click="selecionarMovimento">SELECIONAR</md-button>
+          <md-button class="md-layout-item md-size-25 md-primary" @click="selecionarMovimento" :disabled="!tudoPreenchido">SELECIONAR</md-button>
+          <md-button class="md-layout-item md-size-25 md-primary" @click="imprimirTabela" :disabled="!temMovimentos">IMPRIMIR</md-button>
         </div>
     </div>
   </div>
 
   <div class="md-layout md-alignment-top-center">
-    <md-table v-if="!semMovimentos" class="md-layout-item md-size-90">
+    <md-table v-if="!semMovimentos" class="md-layout-item md-size-90" ref="tabela">
+
+      <md-table-toolbar>
+        <h1 class="md-title">Movimento {{meses[parseInt(competenciaSelecionada.mes) - 1].nome}}/{{competenciaSelecionada.ano}} - {{empresaSelecionada.pessoa.nome}}</h1>
+      </md-table-toolbar>
+
       <md-table-row>
-        <md-table-head md-numeric>Número</md-table-head>
-        <md-table-head>Emitente</md-table-head>
-        <md-table-head>Destinatário</md-table-head>
-        <md-table-head>Natureza Operação</md-table-head>
-        <md-table-head>Valor</md-table-head>
-        <md-table-head>Status</md-table-head>
+        <md-table-head>Número</md-table-head>
+        <md-table-head>Nota Inicial</md-table-head>
+        <md-table-head>Nota Final</md-table-head>
+        <md-table-head>Lucro</md-table-head>
+        <md-table-head>Base ICMS</md-table-head>
+        <md-table-head>ICMS</md-table-head>
+        <md-table-head>PIS</md-table-head>
+        <md-table-head>COFINS</md-table-head>
+        <md-table-head>CSLL</md-table-head>
+        <md-table-head>IRPJ</md-table-head>
       </md-table-row>
 
-      <md-table-row v-for="movimento in movimentos" v-bind:key="movimento.notaFinal">
-
-        <md-table-cell md-numeric>{{nota.geral.numero}}</md-table-cell>
-
-        <md-table-cell>{{pessoas[nota.emitente].nome}}</md-table-cell>
-        <md-table-cell>{{pessoas[nota.destinatario].nome}}</md-table-cell>
-
-        <md-table-cell>{{nota.geral.naturezaOperacao}}</md-table-cell>
-        <md-table-cell>{{nota.valor.total}}</md-table-cell>
-        <md-table-cell>{{nota.geral.status}}</md-table-cell>
+      <md-table-row v-for="(movimento, index) in movimentos" v-bind:key="index">
+        <md-table-cell md-numeric>{{pegaIndex(index)}}</md-table-cell>
+        <md-table-cell v-if="notas[movimento.notaInicial]"><md-button @click="abrirNota(movimento.notaInicial)">{{notas[movimento.notaInicial].geral.numero}}</md-button></md-table-cell>
+        <md-table-cell v-if="notas[movimento.notaFinal]"><md-button @click="abrirNota(movimento.notaFinal)">{{notas[movimento.notaFinal].geral.numero}}</md-button></md-table-cell>
+        <md-table-cell>R$ {{(movimento.valor).toFixed(2)}}</md-table-cell>
+        <md-table-cell>R$ {{(movimento.valor * impostos.icms.reducao).toFixed(2)}}</md-table-cell>
+        <md-table-cell>R$ {{(movimento.valor * impostos.icms.aliquota * impostos.icms.reducao).toFixed(2)}}</md-table-cell>
+        <md-table-cell>R$ {{(movimento.valor * impostos.pis).toFixed(2)}}</md-table-cell>
+        <md-table-cell>R$ {{(movimento.valor * impostos.cofins).toFixed(2)}}</md-table-cell>
+        <md-table-cell>R$ {{(movimento.valor * impostos.csll).toFixed(2)}}</md-table-cell>
+        <md-table-cell>R$ {{(movimento.valor * impostos.irpj).toFixed(2)}}</md-table-cell>
       </md-table-row>
     </md-table>
   </div>
+
+  <md-dialog v-if="notaDialogo" :md-active.sync="mostra">
+    <md-dialog-content>
+      <div class="viewport">
+        <md-toolbar :md-elevation="1">
+          <span class="md-title">{{notaDialogo.id}}</span>
+        </md-toolbar>
+        <md-list>
+          <md-list-item>
+            <h4>Número</h4>
+            <span>{{notaDialogo.geral.numero}}</span>
+          </md-list-item>
+          <md-divider></md-divider>
+          <md-list-item>
+            <h4>Data</h4>
+            <span>{{new Date(notaDialogo.geral.dataHora).toLocaleDateString()}}</span>
+          </md-list-item>
+          <md-divider></md-divider>
+          <md-list-item>
+            <h4>Tipo</h4>
+            <span v-if="notaDialogo.geral.tipo === '1'">SAÍDA</span>
+            <span v-else-if="notaDialogo.geral.tipo === '0'">ENTRADA</span>
+          </md-list-item>
+          <md-divider></md-divider>
+          <md-list-item>
+            <h4>Valor Total</h4>
+            <span>R$ {{notaDialogo.valor.total}}</span>
+          </md-list-item>
+          <md-divider></md-divider>
+          <md-list-item>
+            <h4>Natureza Operação</h4>
+            <span>{{notaDialogo.geral.naturezaOperacao}}</span>
+          </md-list-item>
+          <md-divider></md-divider>
+          <md-list-item>
+            <h4>Emitente</h4>
+            <span v-if="pessoas[notaDialogo.emitente]">{{pessoas[notaDialogo.emitente].nome}}</span>
+            <span>{{notaDialogo.emitente}}</span>
+          </md-list-item>
+          <md-divider></md-divider>
+          <md-list-item>
+            <h4>Destinatário</h4>
+            <span v-if="pessoas[notaDialogo.destinatario]">{{pessoas[notaDialogo.destinatario].nome}}</span>
+            <span>{{notaDialogo.destinatario}}</span>
+          </md-list-item>
+          <md-divider></md-divider>
+          <md-list-item>
+            <h4>Produtos</h4>
+          </md-list-item>
+          <md-list-item v-for="(produto, id) in notaDialogo.produtos" v-bind:key="id">
+            <md-list-item class="md-list-item-text">{{id}}: {{produto.descricao}}</md-list-item>
+            <md-list-item class="md-list-item-text">VALOR: {{produto.valor.total}}</md-list-item>
+          </md-list-item>
+          <md-divider></md-divider>
+          <md-list-item>
+            <h4>Informações Complementares</h4>
+          </md-list-item>
+          <md-list-item class="md-triple-line">
+            <span class="md-list-item-text">{{notaDialogo.complementar.textoComplementar}}</span>
+          </md-list-item>
+          <md-divider></md-divider>
+        </md-list>
+      </div>
+    </md-dialog-content>
+
+    <md-dialog-actions>
+      <md-button class="md-primary" @click="mostra = false">FECHAR</md-button>
+    </md-dialog-actions>
+  </md-dialog>
+
+  <md-dialog-alert
+      :md-active.sync="erro.mostra"
+      :md-content="erro.mensagem"
+      md-confirm-text="Ok" />
+
 </div>
 </template>
 <script>
-import { pegarDominio, usuarioAtivo, pegarPessoaId, pegarMovimentosMes } from './services/firebase.service'
-import store from '../store'
+import { pegarDominio, usuarioAtivo, pegarPessoaId, pegarMovimentosMes, pegarNotaChave } from './services/firebase.service'
+import _ from 'lodash'
+import { Printd } from 'printd'
 
 export default {
   data () {
     return {
+      impostos: {
+        icms: {
+          aliquota: 0.18,
+          reducao: 0.2778
+        },
+        pis: 0.0065,
+        cofins: 0.03,
+        csll: 0.0288,
+        irpj: 0.012
+      },
+      carregado: false,
+      erro: {
+        mostra: false,
+        mensagem: null
+      },
+      meses: [
+        { num: '1', nome: 'Janeiro' },
+        { num: '2', nome: 'Fevereiro' },
+        { num: '3', nome: 'Abril' },
+        { num: '4', nome: 'Março' },
+        { num: '5', nome: 'Maio' },
+        { num: '6', nome: 'Junho' },
+        { num: '7', nome: 'Julho' },
+        { num: '8', nome: 'Agosto' },
+        { num: '9', nome: 'Setembro' },
+        { num: '10', nome: 'Outubro' },
+        { num: '11', nome: 'Novembro' },
+        { num: '12', nome: 'Dezembro' }
+      ],
+      anos: [
+        '2016',
+        '2017',
+        '2018'
+      ],
       dominio: null,
       empresaSelecionada: {
         numero: null,
@@ -70,7 +195,12 @@ export default {
         mes: null,
         ano: null
       },
-      semMovimentos: true
+      semMovimentos: true,
+      movimentos: {},
+      pessoas: {},
+      notas: {},
+      notaDialogo: null,
+      mostra: false
     }
   },
   created () {
@@ -80,10 +210,15 @@ export default {
       pegarDominio((err, dominio) => {
         if (err) console.error(err)
         this.$data.dominio = dominio
+        this.$data.carregado = true
       })
     })
   },
   methods: {
+    chamarMensagem (mensagem) {
+      this.$data.erro.mensagem = mensagem.message
+      this.$data.erro.mostra = true
+    },
     selecionaPorNumero (numero) {
       if (this.$data.dominio.empresas[numero]) {
         let cnpj = this.$data.dominio.empresas[numero]
@@ -93,6 +228,10 @@ export default {
           } else {
             pessoa.cnpj = cnpj
             this.$data.empresaSelecionada.pessoa = pessoa
+            if (pessoa.temLiminar) {
+              this.$data.aliquotaImpostos.csll = 0.0108
+              this.$data.aliquotaImpostos.irpj = 0.012
+            }
           }
         })
       } else {
@@ -103,11 +242,139 @@ export default {
       }
     },
     selecionarMovimento () {
-      pegarMovimentosMes(this.$data.empresaSelecionada.pessoa.cnpj, this.$data.competenciaSelecionada, (err, movimentos) => {
+      let competencia = this.$data.competenciaSelecionada
+      let mesEscrito = this.$data.meses[parseInt(competencia.mes) - 1].nome
+      let pessoaEmpresa = this.$data.empresaSelecionada.pessoa
+      let numeroEmpresa = this.$data.empresaSelecionada.numero
+
+      pegarMovimentosMes(pessoaEmpresa.cnpj, competencia, (err, movimentos) => {
         if (err) console.error(err)
 
-        console.log(movimentos)
+        if (_.isEmpty(movimentos)) {
+          this.chamarMensagem(new Error(`Não foram encontrados movimentos na competência: ${mesEscrito}/${competencia.ano} da empresa Nº${numeroEmpresa} (${pessoaEmpresa.nome})`))
+          this.$data.semMovimentos = true
+        } else {
+          this.$data.semMovimentos = false
+          this.$data.movimentos = movimentos
+          Object.keys(movimentos).forEach(key => {
+            let chaveFinal = movimentos[key].notaFinal
+            let chaveInicial = movimentos[key].notaInicial
+            pegarNotaChave(chaveFinal, (err, notaFinal) => {
+              if (err) console.error(err)
+              pegarNotaChave(chaveInicial, (err, notaInicial) => {
+                if (err) console.error(err)
+
+                this.$data.notas = {
+                  ...this.$data.notas,
+                  [chaveFinal]: notaFinal,
+                  [chaveInicial]: notaInicial
+                }
+              })
+            })
+          })
+        }
       })
+    },
+    abrirNota (chave) {
+      pegarNotaChave(chave, (err, nota) => {
+        if (err) console.error(err)
+        this.$data.notaDialogo = {
+          ...nota,
+          id: chave
+        }
+        this.$data.mostra = true
+        pegarPessoaId(nota.emitente, (err, emit) => {
+          if (err) console.error(err)
+          pegarPessoaId(nota.destinatario, (err, dest) => {
+            if (err) console.error(err)
+            this.$data.pessoas = {
+              ...this.$data.pessoas,
+              [nota.emitente]: emit,
+              [nota.destinatario]: dest
+            }
+          })
+        })
+      })
+    },
+    pegaIndex (index) {
+      let movimentos = this.$data.movimentos
+      return Object.keys(movimentos).indexOf(index) + 1
+    },
+    imprimirTabela () {
+      let printer = new Printd()
+      let tabela = this.$refs['tabela']
+      let css = `  * {
+          font-family: Helvetica, Arial, sans-serif;
+        }
+        .md-content {
+          color: #333;
+          text-align: center;
+        }
+        .md-table {
+          width: 100%;
+        }
+        h1 {
+          font-size: 20px;
+        }
+        table {
+          color: #333;
+          font-family: Helvetica, Arial, sans-serif;
+          font-size: 11px;
+          width: 100%;
+          border-collapse:collapse;
+          border-spacing: 0;
+        }
+
+        td, th {
+          border: 1px solid #333; /* No more visible border */
+          height: 22px;
+          transition: all 0.3s;  /* Simple transition for hover effect */
+        }
+
+        th {
+            background: rgb(158, 158, 158);  /* Darken header a bit */
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        td {
+            background: #FAFAFA;
+            text-align: center;
+        }
+
+        button {
+          border: 0;
+          background: none;
+          box-shadow: none;
+          border-radius: 0px;
+          font-weight: normal;
+          font-size: 11px;
+        }
+
+        /* Cells in even rows (2,4,6...) are one color */
+        tr:nth-child(even) td { background: rgb(218, 218, 218); }
+
+        /* Cells in odd rows (1,3,5...) are another (excludes header cells)  */
+        tr:nth-child(odd) td { background: #FEFEFE; }`
+
+      console.log(tabela.$el.toString())
+      this.$nextTick(() => {
+        printer.print(tabela.$el, css, win => {
+          win.print()
+        })
+      })
+    }
+  },
+  computed: {
+    tudoPreenchido () {
+      if (!_.isEmpty(this.$data.empresaSelecionada.pessoa) && this.$data.competenciaSelecionada.ano && this.$data.competenciaSelecionada.mes) {
+        return true
+      } else {
+        return false
+      }
+    },
+    temMovimentos () {
+      return !_.isEmpty(this.$data.movimentos)
     }
   }
 }
