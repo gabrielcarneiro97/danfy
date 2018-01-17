@@ -1,7 +1,11 @@
 <template>
   <div>
-    <div class="md-layout md-alignment-top-center">
+    <div class="md-layout md-alignment-top-center" id="tabela">
       <md-table class="md-layout-item md-size-90">
+        <md-table-toolbar>
+          <h1 class="md-title">Conciliar Notas</h1>
+          <md-button @click="enviarMovimentos" :disabled="!movimentosAEnviar">ENVIAR MOVIMENTOS</md-button>          
+        </md-table-toolbar>
         <md-table-row>
           <md-table-head>Número</md-table-head>
           <md-table-head>Nota Inicial</md-table-head>
@@ -25,10 +29,6 @@
           </md-table-cell>
         </md-table-row>
       </md-table>
-
-      <div class="md-layout-item md-size-90">
-        <md-button @click="enviarMovimentos">ENVIAR MOVIMENTOS</md-button>
-      </div>
     </div>
     <md-dialog v-if="notaDialogo" :md-active.sync="mostra">
       <md-dialog-content>
@@ -188,6 +188,7 @@
 
 <script>
 import { pegarDominio, usuarioAtivo, pegarNotaChave, estaNoDominio, validarMovimento, pegarNotaNumeroEmitente, lerNotasInput, gravarMovimentos } from './services/firebase.service'
+import _ from 'lodash'
 import store from '../store'
 
 export default {
@@ -218,9 +219,13 @@ export default {
     }
   },
   created () {
-    usuarioAtivo(ativo => {
-      if (!ativo) this.$router.push('/login')
-      else {
+    usuarioAtivo((ativo, usuario, tipoDominio) => {
+      console.log(ativo)
+      if (!ativo) {
+        this.$router.push('/login')
+      } else if (tipoDominio !== 'mult') {
+        this.$router.push('/login')
+      } else {
         this.$data.usuario = ativo
         pegarDominio((err, dominio) => {
           if (err) console.error(err)
@@ -441,11 +446,24 @@ export default {
     }
   },
   computed: {
+    movimentosAEnviar () {
+      let movimentos = this.$data.movimentos
 
+      for (let id in movimentos) {
+        let movimento = movimentos[id]
+        if (movimento.conferido) {
+          return true
+        }
+      }
+      return false
+    }
   }
 }
 </script>
 
 <style lang="scss" scoped>
-
+#tabela {
+  margin-top: 2%;
+  margin-bottom: 2%;
+}
 </style>

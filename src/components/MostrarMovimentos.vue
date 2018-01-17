@@ -4,7 +4,7 @@
     <div class="md-layout md-layout-item md-size-85" id="inner">
         <md-field class="md-layout-item md-size-20">
           <label>Número</label>
-          <md-input v-model="empresaSelecionada.numero" @input="selecionaPorNumero"></md-input>
+          <md-input v-model="empresaSelecionada.numero" @input="selecionaPorNumero" :disabled="numeroDesativo"></md-input>
         </md-field>
         <md-field class="md-layout-item md-size-40">
           <label>CNPJ</label>
@@ -16,13 +16,13 @@
         </md-field>
         <md-field class="md-layout-item md-size-40">
           <label for="mes">MÊS</label>
-          <md-select v-model="competenciaSelecionada.mes" name="mes" id="mes">
+          <md-select v-model="competenciaSelecionada.mes" name="mes" id="mes" @input="removerMovimento">
             <md-option v-for="mes in meses" v-bind:key="'mes' + mes.num" :value="mes.num">{{mes.nome}}</md-option>
           </md-select>
         </md-field>
         <md-field class="md-layout-item md-size-40">
           <label for="ano">ANO</label>
-          <md-select v-model="competenciaSelecionada.ano" name="ano" id="ano">
+          <md-select v-model="competenciaSelecionada.ano" name="ano" id="ano" @input="removerMovimento">
             <md-option v-for="ano in anos" v-bind:key="'ano' + ano" :value="ano">{{ano}}</md-option>
           </md-select>
         </md-field>
@@ -33,7 +33,7 @@
     </div>
   </div>
 
-  <div class="md-layout md-alignment-top-center">
+  <div class="md-layout md-alignment-top-center" id="tabela">
     <md-table v-if="!semMovimentos" class="md-layout-item md-size-90" ref="tabela">
 
       <md-table-toolbar>
@@ -46,11 +46,7 @@
         <md-table-head>Nota Final</md-table-head>
         <md-table-head>Lucro</md-table-head>
         <md-table-head>Base ICMS</md-table-head>
-        <md-table-head>ICMS</md-table-head>
-        <md-table-head>PIS</md-table-head>
-        <md-table-head>COFINS</md-table-head>
-        <md-table-head>CSLL</md-table-head>
-        <md-table-head>IRPJ</md-table-head>
+        <md-table-head v-for="(imposto, nome) in impostos" v-bind:key="nome">{{nome.toUpperCase()}}</md-table-head>
       </md-table-row>
 
       <md-table-row v-for="(movimento, index) in movimentos" v-bind:key="index">
@@ -59,11 +55,7 @@
         <md-table-cell v-if="notas[movimento.notaFinal]"><md-button @click="abrirNota(movimento.notaFinal)">{{notas[movimento.notaFinal].geral.numero}}</md-button></md-table-cell>
         <md-table-cell>R$ {{(movimento.valor).toFixed(2)}}</md-table-cell>
         <md-table-cell>R$ {{(movimento.valor * impostos.icms.reducao).toFixed(2)}}</md-table-cell>
-        <md-table-cell>R$ {{(movimento.valor * impostos.icms.aliquota * impostos.icms.reducao).toFixed(2)}}</md-table-cell>
-        <md-table-cell>R$ {{(movimento.valor * impostos.pis).toFixed(2)}}</md-table-cell>
-        <md-table-cell>R$ {{(movimento.valor * impostos.cofins).toFixed(2)}}</md-table-cell>
-        <md-table-cell>R$ {{(movimento.valor * impostos.csll).toFixed(2)}}</md-table-cell>
-        <md-table-cell>R$ {{(movimento.valor * impostos.irpj).toFixed(2)}}</md-table-cell>
+        <md-table-cell v-for="(imposto, nome) in impostos" v-bind:key="nome + 'valor'">R$ {{(eObjeto(imposto) ? movimento.valor * imposto.reducao * imposto.aliquota : movimento.valor * imposto).toFixed(2)}}</md-table-cell>
       </md-table-row>
     </md-table>
   </div>
@@ -152,6 +144,7 @@ import { Printd } from 'printd'
 export default {
   data () {
     return {
+      numeroDesativo: false,
       impostos: {
         icms: {
           aliquota: 0.18,
@@ -204,14 +197,32 @@ export default {
     }
   },
   created () {
-    usuarioAtivo(ativo => {
-      if (!ativo) this.$router.push('/login')
+    usuarioAtivo((ativo, usuario, tipoDominio) => {
+      if (!ativo) {
+        this.$router.push('/login')
+      } else if (tipoDominio === 'unico') {
+        pegarDominio((err, dominio) => {
+          if (err) console.error(err)
+          pegarPessoaId(dominio.empresa, (err, pessoa) => {
+            if (err) console.error(err)
 
-      pegarDominio((err, dominio) => {
-        if (err) console.error(err)
-        this.$data.dominio = dominio
-        this.$data.carregado = true
-      })
+            this.$data.empresaSelecionada = {
+              numero: '000',
+              pessoa: pessoa
+            }
+            this.$data.empresaSelecionada.pessoa.cnpj = dominio.empresa
+            this.$data.numeroDesativo = true
+            this.$data.dominio = dominio
+            this.$data.carregado = true
+          })
+        })
+      } else {
+        pegarDominio((err, dominio) => {
+          if (err) console.error(err)
+          this.$data.dominio = dominio
+          this.$data.carregado = true
+        })
+      }
     })
   },
   methods: {
@@ -220,6 +231,7 @@ export default {
       this.$data.erro.mostra = true
     },
     selecionaPorNumero (numero) {
+      this.removerMovimento()
       if (this.$data.dominio.empresas[numero]) {
         let cnpj = this.$data.dominio.empresas[numero]
         pegarPessoaId(cnpj, (err, pessoa) => {
@@ -235,10 +247,7 @@ export default {
           }
         })
       } else {
-        this.$data.empresaSelecionada = {
-          numero: null,
-          pessoa: {}
-        }
+        this.$data.empresaSelecionada.pessoa = {}
       }
     },
     selecionarMovimento () {
@@ -363,6 +372,13 @@ export default {
           win.print()
         })
       })
+    },
+    eObjeto (obj) {
+      return _.isObject(obj)
+    },
+    removerMovimento () {
+      this.$data.movimentos = {}
+      this.$data.semMovimentos = true
     }
   },
   computed: {
@@ -383,6 +399,9 @@ export default {
 <style lang="scss" scoped>
 #form {
   margin-top: 5%;
+  margin-bottom: 2%;
+}
+#tabela {
   margin-bottom: 2%;
 }
 #inner {
