@@ -293,6 +293,72 @@ export function pegarPessoaId (id, callback) {
   }
 }
 
+export function procurarNotaPar (notaParametro, callback) {
+  if (!notaParametro || !notaParametro.geral) {
+    callback(new Error('O primeiro paramêtro não é uma nota Válida!'), null)
+  } else {
+    let produtosParametro = notaParametro.produtos
+    let tipoParametro = notaParametro.geral.tipo
+
+    let notaCb = null
+
+    Object.keys(produtosParametro).forEach(key => {
+      pegarNotaProduto(key, produtosParametro[key], (err, notas) => {
+        if (err) {
+          callback(err, null, null)
+        } else if (notas) {
+          for (let notaKey in notas) {
+            if (notas[notaKey].geral.numero !== notaParametro.geral.numero) {
+              if (!notaCb) {
+                notaCb = notas[notaKey]
+              } else {
+                if (tipoParametro === '0' && (notas[notaKey].geral.numero < notaCb.geral.numero) && (notaCb.geral.numero > notaParametro.geral.numero)) {
+                  notaCb = notas[notaKey]
+                } else if (tipoParametro === '1' && (notas[notaKey].geral.cfop === '1202' || notas[notaKey].geral.cfop === '2202') && (notas[notaKey].geral.numero > notaCb.geral.numero) && (notaCb.geral.numero < notaParametro.geral.numero)) {
+                  notaCb = notas[notaKey]
+                }
+              }
+            }
+          }
+          callback(null, notaCb)
+        }
+      })
+    })
+  }
+}
+
+export function pegarNotaProduto (produtoId, produto, callback) {
+  let notas = {}
+
+  let query = db.ref('Notas/').orderByChild('emitente')
+  query.on('child_added', snap => {
+    let nota = snap.val()
+    let chave = snap.key
+    let listaProdutos = Object.keys(nota.produtos)
+
+    if (listaProdutos.includes(produtoId)) {
+      notas = {
+        ...notas,
+        [chave]: nota
+      }
+    } else {
+      listaProdutos.forEach(key => {
+        if (nota.produtos[key].descricao === produto.descricao) {
+          notas = {
+            ...notas,
+            [chave]: nota
+          }
+        }
+      })
+    }
+  })
+  query.once('value', snap => {
+    callback(null, notas)
+  }, err => {
+    callback(err, null)
+  })
+}
+
 export function gravarNotas (callback) {
   let notas = store.getState().notas
   Object.keys(notas).forEach((key, index, arr) => {
@@ -329,8 +395,6 @@ export function pegarNotaChave (chave, callback) {
 export function pegarNotaNumeroEmitente (numero, emitente, callback) {
   let storeNotas = store.getState().notas
   let nota = null
-
-  console.log(storeNotas)
 
   Object.keys(storeNotas).forEach(key => {
     if (parseInt(storeNotas[key].geral.numero) === parseInt(numero) && storeNotas[key].emitente === emitente) {

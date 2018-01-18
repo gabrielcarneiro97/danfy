@@ -36,6 +36,14 @@
             </md-list-item>
             <md-divider></md-divider>
             <md-list-item>
+              <h4>Produtos</h4>
+            </md-list-item>
+            <md-list-item v-for="(produto, id) in notaDialogo.produtos" v-bind:key="id">
+              <md-list-item class="md-list-item-text">{{id}}: {{produto.descricao}}</md-list-item>
+              <md-list-item class="md-list-item-text">VALOR: {{produto.valor.total}}</md-list-item>
+            </md-list-item>
+            <md-divider></md-divider>
+            <md-list-item>
               <h4>Emitente</h4>
               <span v-if="pessoas[notaDialogo.emitente]">{{pessoas[notaDialogo.emitente].nome}}</span>
               <span>{{notaDialogo.emitente}}</span>
@@ -45,14 +53,6 @@
               <h4>Destinatário</h4>
               <span v-if="pessoas[notaDialogo.destinatario]">{{pessoas[notaDialogo.destinatario].nome}}</span>
               <span>{{notaDialogo.destinatario}}</span>
-            </md-list-item>
-            <md-divider></md-divider>
-            <md-list-item>
-              <h4>Produtos</h4>
-            </md-list-item>
-            <md-list-item v-for="(produto, id) in notaDialogo.produtos" v-bind:key="id">
-              <md-list-item class="md-list-item-text">{{id}}: {{produto.descricao}}</md-list-item>
-              <md-list-item class="md-list-item-text">VALOR: {{produto.valor.total}}</md-list-item>
             </md-list-item>
             <md-divider></md-divider>
             <md-list-item>
