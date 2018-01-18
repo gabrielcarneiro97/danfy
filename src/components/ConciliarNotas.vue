@@ -107,7 +107,7 @@
 </template>
 
 <script>
-import { pegarDominio, usuarioAtivo, pegarNotaChave, estaNoDominio, validarMovimento, pegarNotaNumeroEmitente, lerNotasInput, gravarMovimentos } from './services/firebase.service'
+import { pegarDominio, usuarioAtivo, pegarNotaChave, procurarNotaPar, estaNoDominio, validarMovimento, pegarNotaNumeroEmitente, lerNotasInput, gravarMovimentos } from './services/firebase.service'
 import notaDialogo from './notaDialogo'
 import store from '../store'
 
@@ -150,14 +150,25 @@ export default {
 
           Object.keys(this.$data.notas).forEach(id => {
             let nota = this.$data.notas[id]
-            if ((nota.geral.tipo === '1' || nota.geral.cfop === '1113') && estaNoDominio(nota.emitente)) {
+            if ((nota.geral.tipo === '1' || nota.geral.cfop === '1113' || nota.geral.cfop === '1202' || nota.geral.cfop === '2202') && estaNoDominio(nota.emitente)) {
               let movimento = {
                 notaFinal: id,
                 notaInicial: nota.complementar ? nota.complementar.notaReferencia : null,
                 data: nota.geral.dataHora,
                 conferido: false
               }
-              this.$data.movimentos.push(movimento)
+              if (!movimento.notaInicial) {
+                procurarNotaPar(nota, (err, notaRetorno) => {
+                  if (err) {
+                    console.error(err)
+                  } else if (notaRetorno) {
+                    movimento.notaInicial = notaRetorno.chave
+                  }
+                  this.$data.movimentos.push(movimento)
+                })
+              } else {
+                this.$data.movimentos.push(movimento)
+              }
             }
           })
         })
