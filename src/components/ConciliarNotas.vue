@@ -4,7 +4,7 @@
       <md-table class="md-layout-item md-size-90">
         <md-table-toolbar>
           <h1 class="md-title">Conciliar Notas</h1>
-          <md-button @click="enviarMovimentos" :disabled="!movimentosAEnviar">ENVIAR MOVIMENTOS</md-button>          
+          <md-button @click="enviarMovimentos" :disabled="!movimentosAEnviar">ENVIAR MOVIMENTOS</md-button>
         </md-table-toolbar>
         <md-table-row>
           <md-table-head>Número</md-table-head>
