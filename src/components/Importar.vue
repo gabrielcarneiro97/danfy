@@ -72,7 +72,7 @@
 <script>
 import _ from 'lodash'
 import store from '../store'
-import { usuarioAtivo, lerNotasInput, adicionarEmpresaDominio, gravarPessoas, gravarNotas } from './services/firebase.service'
+import { usuarioAtivo, lerNotasInput, adicionarEmpresaDominio, gravarPessoas, gravarNotas, limparNotasStore } from './services/firebase.service'
 
 export default {
   data () {
@@ -87,7 +87,13 @@ export default {
   },
   created () {
     usuarioAtivo((ativo, user, tipoDominio) => {
-      if (!ativo) this.$router.push('/login')
+      if (!ativo) {
+        this.$router.push('/login')
+      } else if (tipoDominio !== 'mult') {
+        this.$router.push('/mostrarMovimentos')
+      } else {
+        limparNotasStore()
+      }
     })
   },
   updated () {

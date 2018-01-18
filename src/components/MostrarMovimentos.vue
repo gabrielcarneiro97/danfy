@@ -137,10 +137,7 @@ export default {
       },
       semMovimentos: true,
       movimentos: {},
-      pessoas: {},
-      notas: {},
-      notaDialogo: null,
-      mostra: false
+      notas: {}
     }
   },
   created () {

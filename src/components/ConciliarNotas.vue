@@ -18,11 +18,11 @@
           <md-table-cell md-numeric>{{movimentos.indexOf(movimento)+1}}</md-table-cell>
 
           <md-table-cell>
-            <md-button v-if="movimento.notaInicial" @click="abrirNota(movimento.notaInicial)">{{movimento.notaInicial}}</md-button>
+            <nota-dialogo v-if="movimento.notaInicial" :chave="movimento.notaInicial">{{movimento.notaInicial}}</nota-dialogo>
             <md-button v-else @click="abrirAdicionarNota(movimentos.indexOf(movimento))">ADICIONAR INICIAL</md-button>
           </md-table-cell>
           <md-table-cell>
-            <md-button @click="abrirNota(movimento.notaFinal)">{{movimento.notaFinal}}</md-button>
+            <nota-dialogo :chave="movimento.notaFinal">{{movimento.notaFinal}}</nota-dialogo>
           </md-table-cell>
           <md-table-cell  md-numeric>
             <md-checkbox v-model="movimento.conferido"></md-checkbox>
@@ -30,74 +30,6 @@
         </md-table-row>
       </md-table>
     </div>
-    <md-dialog v-if="notaDialogo" :md-active.sync="mostra">
-      <md-dialog-content>
-        <div class="viewport">
-          <md-toolbar :md-elevation="1">
-            <span class="md-title">{{notaDialogo.id}}</span>
-          </md-toolbar>
-          <md-list>
-            <md-list-item>
-              <h4>Número</h4>
-              <span>{{notaDialogo.geral.numero}}</span>
-            </md-list-item>
-            <md-divider></md-divider>
-            <md-list-item>
-              <h4>Data</h4>
-              <span>{{new Date(notaDialogo.geral.dataHora).toLocaleDateString()}}</span>
-            </md-list-item>
-            <md-divider></md-divider>
-            <md-list-item>
-              <h4>Tipo</h4>
-              <span v-if="notaDialogo.geral.tipo === '1'">SAÍDA</span>
-              <span v-else-if="notaDialogo.geral.tipo === '0'">ENTRADA</span>
-            </md-list-item>
-            <md-divider></md-divider>
-            <md-list-item>
-              <h4>Valor Total</h4>
-              <span>R$ {{notaDialogo.valor.total}}</span>
-            </md-list-item>
-            <md-divider></md-divider>
-            <md-list-item>
-              <h4>Natureza Operação</h4>
-              <span>{{notaDialogo.geral.naturezaOperacao}}</span>
-            </md-list-item>
-            <md-divider></md-divider>
-            <md-list-item>
-              <h4>Emitente</h4>
-              <span v-if="pessoas[notaDialogo.emitente]">{{pessoas[notaDialogo.emitente].nome}}</span>
-              <span>{{notaDialogo.emitente}}</span>
-            </md-list-item>
-            <md-divider></md-divider>
-            <md-list-item>
-              <h4>Destinatário</h4>
-              <span v-if="pessoas[notaDialogo.destinatario]">{{pessoas[notaDialogo.destinatario].nome}}</span>
-              <span>{{notaDialogo.destinatario}}</span>
-            </md-list-item>
-            <md-divider></md-divider>
-            <md-list-item>
-              <h4>Produtos</h4>
-            </md-list-item>
-            <md-list-item v-for="(produto, id) in notaDialogo.produtos" v-bind:key="id">
-              <md-list-item class="md-list-item-text">{{id}}: {{produto.descricao}}</md-list-item>
-              <md-list-item class="md-list-item-text">VALOR: {{produto.valor.total}}</md-list-item>
-            </md-list-item>
-            <md-divider></md-divider>
-            <md-list-item>
-              <h4>Informações Complementares</h4>
-            </md-list-item>
-            <md-list-item class="md-triple-line">
-              <span class="md-list-item-text"><small v-if="notaDialogo.complementar">{{notaDialogo.complementar.textoComplementar}}</small></span>
-            </md-list-item>
-            <md-divider></md-divider>
-          </md-list>
-        </div>
-      </md-dialog-content>
-
-      <md-dialog-actions>
-        <md-button class="md-primary" @click="mostra = false">FECHAR</md-button>
-      </md-dialog-actions>
-    </md-dialog>
     <md-dialog :md-active.sync="mostraAdicionarNota">
       <md-dialog-content>
         <md-toolbar :md-elevation="1">
@@ -158,18 +90,6 @@
         <md-button class="md-primary" @click="mostraAdicionarNota = false">FECHAR</md-button>
       </md-dialog-actions>
     </md-dialog>
-    <md-dialog :md-active.sync="mostraAdicionarNotaConhecida">
-      <md-dialog-title>Nota não encontrada! Selecione o XML para importa-la.</md-dialog-title>
-      <md-dialog-content>
-        <md-field>
-          <label>Nota</label>
-          <md-file @change="adicionarXml" accept=".xml" />
-        </md-field>
-      </md-dialog-content>
-      <md-dialog-actions>
-        <md-button class="md-primary" @click="mostraAdicionarNotaConhecida = false">FECHAR</md-button>
-      </md-dialog-actions>
-    </md-dialog>
     <md-dialog :md-active.sync="mostraFinal">
       <md-dialog-title>Importação concluída</md-dialog-title>
       <md-dialog-content>
@@ -188,21 +108,19 @@
 
 <script>
 import { pegarDominio, usuarioAtivo, pegarNotaChave, estaNoDominio, validarMovimento, pegarNotaNumeroEmitente, lerNotasInput, gravarMovimentos } from './services/firebase.service'
-import _ from 'lodash'
+import notaDialogo from './notaDialogo'
 import store from '../store'
 
 export default {
+  components: { notaDialogo },
   data () {
     return {
-      mostra: false,
       usuario: {},
       mostraAdicionarNota: false,
       mostraFinal: false,
       relatorioFinal: null,
       movimentoParaAdicionarId: null,
       notaParaAdicionarXml: null,
-      mostraAdicionarNotaConhecida: false,
-      notaDialogo: null,
       switchEmitente: true,
       adicionarNumeroEmitenteInfo: {
         emitente: null,
@@ -210,7 +128,6 @@ export default {
       },
       chaveParaAdicionar: null,
       notas: {},
-      pessoas: {},
       movimentos: [],
       erro: {
         mensagem: '',
@@ -220,7 +137,6 @@ export default {
   },
   created () {
     usuarioAtivo((ativo, usuario, tipoDominio) => {
-      console.log(ativo)
       if (!ativo) {
         this.$router.push('/login')
       } else if (tipoDominio !== 'mult') {
@@ -231,7 +147,6 @@ export default {
           if (err) console.error(err)
 
           this.$data.notas = store.getState().notas
-          this.$data.pessoas = store.getState().pessoas
 
           Object.keys(this.$data.notas).forEach(id => {
             let nota = this.$data.notas[id]
@@ -287,26 +202,6 @@ export default {
         this.$data.relatorioFinal = `${contador} movimentos gravados com sucesso!`
       })
     },
-    abrirNota (notaId) {
-      let nota = this.$data.notas[notaId]
-      if (nota) {
-        this.$data.notaDialogo = {
-          ...nota,
-          id: notaId
-        }
-        this.$data.mostra = true
-      } else {
-        pegarNotaChave(notaId, (err, nota) => {
-          if (err) {
-            console.error(err)
-          }
-          if (!nota) {
-            this.$data.mostraAdicionarNotaConhecida = true
-            this.$data.notaParaAdicionarXml = notaId
-          }
-        })
-      }
-    },
     abrirAdicionarNota (id) {
       this.$data.mostraAdicionarNota = true
       this.$data.movimentoParaAdicionarId = id
@@ -315,40 +210,13 @@ export default {
       this.$data.erro.mensagem = mensagem.message
       this.$data.erro.mostra = true
     },
-    adicionarXml (e) {
-      if (e.target.files) {
-        let chave = this.$data.notaParaAdicionarXml
-        let notas = this.$data.notas
-
-        lerNotasInput(e.target.files, (notaBruto, pessoas) => {
-          let nota
-          Object.keys(notaBruto).forEach(key => {
-            nota = notaBruto[key]
-          })
-
-          notas = {
-            ...notas,
-            ...notaBruto
-          }
-          this.$data.pessoas = {
-            ...this.$data.pessoas,
-            ...pessoas
-          }
-
-          if (nota.chave !== chave) {
-            this.$data.mostraAdicionarNotaConhecida = false
-            this.chamarMensagem(new Error('O XML importado não tem a chave de acesso informada!'))
-          }
-        })
-      }
-    },
     adicionarPorXml (e) {
       if (e.target.files) {
         let movimentoId = this.$data.movimentoParaAdicionarId
         let notas = this.$data.notas
         let notaFinal = notas[this.$data.movimentos[movimentoId].notaFinal]
 
-        lerNotasInput(e.target.files, (notaBruto, pessoas) => {
+        lerNotasInput(e.target.files, (notaBruto) => {
           let notaInicial
           Object.keys(notaBruto).forEach(key => {
             notaInicial = notaBruto[key]
@@ -357,10 +225,6 @@ export default {
           notas = {
             ...notas,
             ...notaBruto
-          }
-          this.$data.pessoas = {
-            ...this.$data.pessoas,
-            ...pessoas
           }
           validarMovimento(notaInicial, notaFinal, err => {
             if (err) {

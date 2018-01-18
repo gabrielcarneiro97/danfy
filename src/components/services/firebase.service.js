@@ -1,7 +1,7 @@
 import * as firebase from 'firebase'
 import { xml2js } from 'xml-js'
 import store from '../../store'
-import { sair, autenticar, adicionarPessoa, adicionarNota, carregarDominio, adicionarEmpresa } from '../../store/actions'
+import { sair, autenticar, adicionarPessoa, adicionarNota, limparNotas, carregarDominio, adicionarEmpresa } from '../../store/actions'
 
 var config = {
   apiKey: 'apiKey',
@@ -130,7 +130,7 @@ export function lerNotasInput (files, callback) {
             codigo: emit.enderEmit.cPais['_text'],
             nome: emit.enderEmit.xPais['_text']
           },
-          cep: emit.enderEmit.CEP['_text']
+          cep: emit.enderEmit.CEP ? emit.enderEmit.CEP['_text'] : null
         }
       }
 
@@ -304,6 +304,10 @@ export function gravarNotas (callback) {
       })
     }
   })
+}
+
+export function limparNotasStore () {
+  store.dispatch(limparNotas())
 }
 
 export function pegarNotaChave (chave, callback) {
