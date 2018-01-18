@@ -177,7 +177,7 @@ export default {
   },
   methods: {
     proximo () {
-      this.$router.push('/')
+      this.$router.push('/mostrarMovimentos')
     },
     enviarMovimentos () {
       let movimentos = this.$data.movimentos
