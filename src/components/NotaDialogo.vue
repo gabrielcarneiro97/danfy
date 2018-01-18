@@ -70,11 +70,29 @@
         <md-button class="md-primary" @click="mostra = false">FECHAR</md-button>
       </md-dialog-actions>
     </md-dialog>
+
+    <md-dialog :md-active.sync="mostraAdicionarNota">
+      <md-dialog-title>Nota não encontrada! Selecione o XML para importa-la.</md-dialog-title>
+      <md-dialog-content>
+        <md-field>
+          <label>Nota</label>
+          <md-file @change="adicionarXml" accept=".xml" />
+        </md-field>
+      </md-dialog-content>
+      <md-dialog-actions>
+        <md-button class="md-primary" @click="mostraAdicionarNota = false">FECHAR</md-button>
+      </md-dialog-actions>
+    </md-dialog>
+
+    <md-dialog-alert
+      :md-active.sync="erro.mostra"
+      :md-content="erro.mensagem"
+      md-confirm-text="Ok" />
   </div>
 </template>
 
 <script>
-import { pegarNotaChave, pegarPessoaId } from './services/firebase.service'
+import { pegarNotaChave, pegarPessoaId, lerNotasInput } from './services/firebase.service'
 
 export default {
   name: 'nota-dialogo',
@@ -83,42 +101,83 @@ export default {
     return {
       notaDialogo: null,
       pessoas: {},
-      mostra: false
+      mostra: false,
+      mostraAdicionarNota: false,
+      erro: {
+        mensagem: '',
+        mostra: false
+      }
     }
   },
   created () {
     let chave = this.$props.chave
     pegarNotaChave(chave, (err, nota) => {
-      console.log(chave)
       if (err) {
         console.error(err)
       } else {
-        this.$data.notaDialogo = {
-          ...nota,
-          id: chave
-        }
-        pegarPessoaId(nota.emitente, (err, emit) => {
-          if (err) {
-            console.error(err)
-          } else {
-            pegarPessoaId(nota.destinatario, (err, dest) => {
-              if (err) {
-                console.error(err)
-              } else {
-                this.$data.pessoas = {
-                  [nota.emitente]: emit,
-                  [nota.destinatario]: dest
-                }
-              }
-            })
+        if (nota) {
+          this.$data.notaDialogo = {
+            ...nota,
+            id: chave
           }
-        })
+          pegarPessoaId(nota.emitente, (err, emit) => {
+            if (err) {
+              console.error(err)
+            } else {
+              pegarPessoaId(nota.destinatario, (err, dest) => {
+                if (err) {
+                  console.error(err)
+                } else {
+                  this.$data.pessoas = {
+                    [nota.emitente]: emit,
+                    [nota.destinatario]: dest
+                  }
+                }
+              })
+            }
+          })
+        }
       }
     })
   },
   methods: {
+    chamarMensagem (mensagem) {
+      this.$data.erro.mensagem = mensagem.message
+      this.$data.erro.mostra = true
+    },
+    adicionarXml (e) {
+      if (e.target.files) {
+        let chave = this.$props.chave
+
+        lerNotasInput(e.target.files, (notaBruto) => {
+          let nota
+          Object.keys(notaBruto).forEach(key => {
+            nota = notaBruto[key]
+          })
+
+          console.log(nota)
+
+          this.$data.notaDialogo = {
+            ...nota,
+            id: chave
+          }
+
+          if (nota.chave !== chave) {
+            this.$data.mostraAdicionarNota = false
+            this.chamarMensagem(new Error('O XML importado não tem a chave de acesso informada!'))
+          } else {
+            this.$data.mostraAdicionarNota = false
+            this.$data.mostra = true
+          }
+        })
+      }
+    },
     abrirNota () {
-      this.$data.mostra = true
+      if (this.$data.notaDialogo) {
+        this.$data.mostra = true
+      } else {
+        this.$data.mostraAdicionarNota = true
+      }
     }
   }
 }
