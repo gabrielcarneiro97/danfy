@@ -160,6 +160,11 @@ export function lerNotasInput (files, callback) {
         chave: notaId,
         emitente: emitenteId,
         destinatario: destinatarioId,
+        informacoesEstaduais: {
+          estadoGerador: emitente.endereco.estado,
+          estadoDestino: destinatario.endereco.estado,
+          destinatarioContribuinte: dest.indIEDest['_text']
+        },
         geral: {
           dataHora: info.ide.dhSaiEnt['_text'],
           naturezaOperacao: info.ide.natOp['_text'],
@@ -586,6 +591,157 @@ export function pegarMovimentosMes (cnpj, competencia, callback) {
   }, err => {
     callback(err, null)
   })
+}
+
+export function calcularImpostosMovimento (valorSaida, lucro, estadoGerador, estadoDestino, destinatarioContribuinte) {
+
+  if (estadoGerador !== 'MG') {
+    return 0
+  }
+
+  let aliquotas = {
+    icms: {
+      aliquota: 0.18,
+      reducao: 0.2778
+    },
+    pis: 0.0065,
+    cofins: 0.03,
+    csll: 0.0288,
+    irpj: 0.012
+  }
+
+  let valores = {
+    lucro: lucro,
+    valorSaida: valorSaida,
+    impostos: {
+      pis: (lucro * aliquotas.pis).toFixed(2),
+      cofins: (lucro * aliquotas.cofins).toFixed(2),
+      csll: (lucro * aliquotas.csll).toFixed(2),
+      irpj: (lucro * aliquotas.irpj).toFixed(2)
+    }
+  }
+
+  let icmsEstados = {
+    SC: {
+      externo: 0.12,
+      interno: 0.12
+    },
+    DF: {
+      externo: 0.07,
+      interno: 0.12
+    },
+    MS: {
+      externo: 0.07,
+      interno: 0.17
+    },
+    MT: {
+      externo: 0.07,
+      interno: 0.17
+    },
+    SP: {
+      externo: 0.12,
+      interno: 0.18
+    },
+    RJ: {
+      externo: 0.12,
+      interno: 0.18
+    },
+    GO: {
+      externo: 0.07,
+      interno: 0.17
+    },
+    RO: {
+      externo: 0.07,
+      interno: 0.175
+    },
+    ES: {
+      externo: 0.07,
+      interno: 0.12
+    },
+    AC: {
+      externo: 0.07,
+      interno: 0.17
+    },
+    CE: {
+      externo: 0.07,
+      interno: 0.17
+    },
+    PR: {
+      externo: 0.12,
+      interno: 0.18
+    },
+    PI: {
+      externo: 0.07,
+      interno: 0.17
+    },
+    PE: {
+      externo: 0.12,
+      interno: 0.18
+    },
+    MA: {
+      externo: 0.07,
+      interno: 0.18
+    },
+    PA: {
+      externo: 0.07,
+      interno: 0.17
+    },
+    RN: {
+      externo: 0.07,
+      interno: 0.18
+    },
+    BA: {
+      externo: 0.07,
+      interno: 0.18
+    },
+    RS: {
+      externo: 0.12,
+      interno: 0.18
+    },
+    TO: {
+      externo: 0.07,
+      interno: 0.18
+    }
+  }
+
+  let estadosSemReducao = ['RN', 'BA', 'RS', 'TO']
+
+  if (estadoGerador === estadoDestino) {
+    valores.impostos.icms = {
+      baseDeCalculo: (lucro * aliquotas.icms.reducao).toFixed(2),
+      proprio: (lucro * aliquotas.icms.reducao * aliquotas.icms.aliquota).toFixed(2)
+    }
+  } else {
+    if (destinatarioContribuinte === '2') {
+      let composicaoDaBase = (valorSaida / (1 - icmsEstados[estadoDestino].interno)).toFixed(2)
+      let baseDeCalculo = (0.05 * composicaoDaBase).toFixed(2)
+      let baseDifal = estadosSemReducao.includes(estadoDestino) ? composicaoDaBase : baseDeCalculo
+      let proprio = (baseDifal * icmsEstados[estadoDestino].externo).toFixed(2)
+      let difal = ((baseDifal * icmsEstados[estadoDestino].interno) - proprio).toFixed(2)
+
+      valores.impostos.icms = {
+        composicaoDaBase: composicaoDaBase,
+        baseDeCalculo: baseDeCalculo,
+        proprio: proprio,
+        difal: {
+          origem: (difal * 0.8).toFixed(2),
+          destino: (difal * 0.2).toFixed(2)
+        }
+      }
+    } else if (destinatarioContribuinte === '1') {
+      let baseDeCalculo = (0.05 * valorSaida).toFixed(2)
+      let valor = (baseDeCalculo * icmsEstados[estadoDestino].externo).toFixed(2)
+
+      valores.impostos.icms = {
+        composicaoDaBase: null,
+        difal: null,
+        baseDeCalculo: baseDeCalculo,
+        proprio: valor
+      }
+    }
+  }
+
+  return valores
 }
 
 export function excluirMovimento (cnpj, id, callback) {
