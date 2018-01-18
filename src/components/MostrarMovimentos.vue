@@ -42,20 +42,49 @@
 
       <md-table-row>
         <md-table-head>Número</md-table-head>
-        <md-table-head>Nota Inicial</md-table-head>
-        <md-table-head>Nota Final</md-table-head>
+        <md-table-head>Valor Nota Inicial</md-table-head>
+        <md-table-head>Valor Nota Final</md-table-head>
         <md-table-head>Lucro</md-table-head>
         <md-table-head>Base ICMS</md-table-head>
-        <md-table-head v-for="(imposto, nome) in impostos" v-bind:key="nome">{{nome.toUpperCase()}}</md-table-head>
+        <md-table-head></md-table-head>
+        <md-table-head>GNRE</md-table-head>
+        <md-table-head>PIS</md-table-head>
+        <md-table-head>COFINS</md-table-head>
+        <md-table-head>CSLL</md-table-head>
+        <md-table-head>IRPJ</md-table-head>
+        <md-table-head>TOTAL</md-table-head>
       </md-table-row>
 
       <md-table-row v-for="(movimento, index) in movimentos" v-bind:key="index">
-        <md-table-cell md-numeric><md-button class="md-icon-button" :disabled="numeroDesativo" @click="definirDeletar(index, pegaIndex(index))">{{pegaIndex(index)}}</md-button></md-table-cell>
-        <md-table-cell v-if="notas[movimento.notaInicial]"><nota-dialogo :chave="movimento.notaInicial">{{notas[movimento.notaInicial].geral.numero}}</nota-dialogo></md-table-cell>
-        <md-table-cell v-if="notas[movimento.notaFinal]"><nota-dialogo :chave="movimento.notaFinal">{{notas[movimento.notaFinal].geral.numero}}</nota-dialogo></md-table-cell>
-        <md-table-cell>R$ {{(movimento.valor).toFixed(2)}}</md-table-cell>
-        <md-table-cell>R$ {{(movimento.valor * impostos.icms.reducao).toFixed(2)}}</md-table-cell>
-        <md-table-cell v-for="(imposto, nome) in impostos" v-bind:key="nome + 'valor'">R$ {{(eObjeto(imposto) ? movimento.valor * imposto.reducao * imposto.aliquota : movimento.valor * imposto).toFixed(2)}}</md-table-cell>
+        <md-table-cell md-numeric><md-button class="md-icon-button" :disabled="numeroDesativo" @click="definirDeletar(index, pegaIndex(index))">{{parseInt(notas[movimento.notaFinal].geral.numero)}}</md-button></md-table-cell>
+        <md-table-cell v-if="movimento.notaInicial"><nota-dialogo :chave="movimento.notaInicial">R${{notas[movimento.notaInicial].valor.total}}</nota-dialogo></md-table-cell>
+        <md-table-cell v-else></md-table-cell>
+        <md-table-cell v-if="notas[movimento.notaFinal]"><nota-dialogo :chave="movimento.notaFinal">R${{notas[movimento.notaFinal].valor.total}}</nota-dialogo></md-table-cell>
+        <md-table-cell>R${{movimento.valores.lucro}}</md-table-cell>
+        <md-table-cell>R${{movimento.valores.impostos.icms.baseDeCalculo}} </md-table-cell>
+        <md-table-cell>R${{calculaIcmsTotal(movimento)}}</md-table-cell>
+        <md-table-cell v-if="movimento.valores.impostos.icms.difal">R${{movimento.valores.impostos.icms.difal.destino}}</md-table-cell>
+        <md-table-cell v-else></md-table-cell>
+        <md-table-cell>R${{movimento.valores.impostos.pis}}</md-table-cell>
+        <md-table-cell>R${{movimento.valores.impostos.cofins}}</md-table-cell>
+        <md-table-cell>R${{movimento.valores.impostos.csll}}</md-table-cell>
+        <md-table-cell>R${{movimento.valores.impostos.irpj}}</md-table-cell>
+        <md-table-cell>R${{movimento.valores.impostos.total}}</md-table-cell>
+      </md-table-row>
+
+      <md-table-row>
+        <md-table-head></md-table-head>
+        <md-table-head></md-table-head>
+        <md-table-head></md-table-head>
+        <md-table-head></md-table-head>
+        <md-table-head>TOTAIS IMPOSTOS</md-table-head>
+        <md-table-head>R${{retornarTotais.icms}}</md-table-head>
+        <md-table-head>R${{retornarTotais.gnre}}</md-table-head>
+        <md-table-head>R${{retornarTotais.pis}}</md-table-head>
+        <md-table-head>R${{retornarTotais.cofins}}</md-table-head>
+        <md-table-head>R${{retornarTotais.csll}}</md-table-head>
+        <md-table-head>R${{retornarTotais.irpj}}</md-table-head>
+        <md-table-head>R${{retornarTotais.total}}</md-table-head>
       </md-table-row>
     </md-table>
   </div>
@@ -92,16 +121,6 @@ export default {
         movimentoId: null
       },
       numeroDesativo: false,
-      impostos: {
-        icms: {
-          aliquota: 0.18,
-          reducao: 0.2778
-        },
-        pis: 0.0065,
-        cofins: 0.03,
-        csll: 0.0288,
-        irpj: 0.012
-      },
       carregado: false,
       erro: {
         mostra: false,
@@ -170,6 +189,14 @@ export default {
     })
   },
   methods: {
+    calculaIcmsTotal (movimento) {
+      let icms = movimento.valores.impostos.icms
+      if (icms.difal) {
+        return (parseFloat(icms.difal.origem) + parseFloat(icms.proprio)).toFixed(2)
+      } else {
+        return icms.proprio
+      }
+    },
     deletarMovimento () {
       let movimentos = this.$data.movimentos
       let movimentoId = this.$data.deletar.movimentoId
@@ -327,6 +354,41 @@ export default {
     },
     temMovimentos () {
       return !_.isEmpty(this.$data.movimentos)
+    },
+    retornarTotais () {
+      let movimentos = this.$data.movimentos
+      let totais = {
+        icms: 0,
+        irpj: 0,
+        csll: 0,
+        pis: 0,
+        cofins: 0,
+        gnre: 0
+      }
+
+      Object.keys(movimentos).forEach(key => {
+        let movimento = movimentos[key]
+
+        totais.icms += parseFloat(this.calculaIcmsTotal(movimento))
+        totais.csll += parseFloat(movimento.valores.impostos.csll)
+        totais.pis += parseFloat(movimento.valores.impostos.pis)
+        totais.irpj += parseFloat(movimento.valores.impostos.irpj)
+        totais.cofins += parseFloat(movimento.valores.impostos.cofins)
+        if (movimento.valores.impostos.icms.difal) {
+          totais.gnre += parseFloat(movimento.valores.impostos.icms.difal.destino)
+        }
+      })
+
+      totais.total = totais.icms + totais.csll + totais.pis + totais.irpj + totais.cofins + totais.gnre
+
+      totais.icms = (totais.icms).toFixed(2)
+      totais.csll = (totais.csll).toFixed(2)
+      totais.pis = (totais.pis).toFixed(2)
+      totais.irpj = (totais.irpj).toFixed(2)
+      totais.cofins = (totais.cofins).toFixed(2)
+      totais.gnre = (totais.gnre).toFixed(2)
+
+      return totais
     }
   }
 }

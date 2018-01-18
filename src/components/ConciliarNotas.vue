@@ -10,6 +10,7 @@
           <md-table-head>Número</md-table-head>
           <md-table-head>Nota Inicial</md-table-head>
           <md-table-head>Nota Final</md-table-head>
+          <md-table-head>Tipo de Operação</md-table-head>
           <md-table-head>Confirmar Movimento</md-table-head>
         </md-table-row>
 
@@ -18,11 +19,19 @@
           <md-table-cell md-numeric>{{movimentos.indexOf(movimento)+1}}</md-table-cell>
 
           <md-table-cell>
-            <nota-dialogo v-if="movimento.notaInicial" :chave="movimento.notaInicial">{{movimento.notaInicial}}</nota-dialogo>
+            <nota-dialogo v-if="movimento.notaInicial" :chave="movimento.notaInicial">{{notas[movimento.notaInicial].geral.numero}}</nota-dialogo>
             <md-button v-else @click="abrirAdicionarNota(movimentos.indexOf(movimento))">ADICIONAR INICIAL</md-button>
           </md-table-cell>
           <md-table-cell>
-            <nota-dialogo :chave="movimento.notaFinal">{{movimento.notaFinal}}</nota-dialogo>
+            <nota-dialogo :chave="movimento.notaFinal">{{notas[movimento.notaFinal].geral.numero}}</nota-dialogo>
+          </md-table-cell>
+          <md-table-cell>
+            <div v-if="notas[movimento.notaFinal].informacoesEstaduais.estadoDestino === notas[movimento.notaFinal].informacoesEstaduais.estadoGerador">
+              OPERAÇÃO INTERNA
+            </div>
+            <div v-else>
+              OPERAÇÃO INTERESTADUAL {{notas[movimento.notaFinal].informacoesEstaduais.estadoGerador}} -> {{notas[movimento.notaFinal].informacoesEstaduais.estadoDestino}} COM<span v-if="notas[movimento.notaFinal].informacoesEstaduais.destinatarioContribuinte !== '1'"> NÃO</span> CONTRIBUINTE
+            </div>
           </md-table-cell>
           <md-table-cell  md-numeric>
             <md-checkbox v-model="movimento.conferido"></md-checkbox>
@@ -107,7 +116,7 @@
 </template>
 
 <script>
-import { pegarDominio, usuarioAtivo, pegarNotaChave, procurarNotaPar, estaNoDominio, validarMovimento, pegarNotaNumeroEmitente, lerNotasInput, gravarMovimentos } from './services/firebase.service'
+import { calcularImpostosMovimento, pegarDominio, usuarioAtivo, pegarNotaChave, procurarNotaPar, estaNoDominio, validarMovimento, pegarNotaNumeroEmitente, lerNotasInput, gravarMovimentos } from './services/firebase.service'
 import notaDialogo from './notaDialogo'
 import store from '../store'
 
@@ -153,22 +162,29 @@ export default {
             if ((nota.geral.tipo === '1' || nota.geral.cfop === '1113' || nota.geral.cfop === '1202' || nota.geral.cfop === '2202') && estaNoDominio(nota.emitente)) {
               let movimento = {
                 notaFinal: id,
-                notaInicial: nota.complementar ? nota.complementar.notaReferencia : null,
+                notaInicial: null,
                 data: nota.geral.dataHora,
                 conferido: false
               }
-              if (!movimento.notaInicial) {
-                procurarNotaPar(nota, (err, notaRetorno) => {
-                  if (err) {
-                    console.error(err)
-                  } else if (notaRetorno) {
-                    movimento.notaInicial = notaRetorno.chave
-                  }
-                  this.$data.movimentos.push(movimento)
-                })
-              } else {
-                this.$data.movimentos.push(movimento)
-              }
+              procurarNotaPar(nota, (err, notaRetorno) => {
+                if (err) {
+                  console.error(err)
+                } else if (notaRetorno) {
+                  validarMovimento(notaRetorno, nota, err => {
+                    console.log(nota)
+                    console.log(notaRetorno)
+                    if (!err) {
+                      movimento.notaInicial = notaRetorno.chave
+                      movimento.valores = calcularImpostosMovimento(notaRetorno, nota)
+                    }
+                    this.$data.notas = {
+                      ...this.$data.notas,
+                      [notaRetorno.chave]: notaRetorno
+                    }
+                    this.$data.movimentos.push(movimento)
+                  })
+                }
+              })
             }
           })
         })
@@ -188,14 +204,7 @@ export default {
       movimentos.forEach(movimento => {
         if (movimento.conferido) {
           let empresa = notas[movimento.notaFinal].emitente
-          let valorInicial = notas[movimento.notaInicial] ? parseFloat(notas[movimento.notaInicial].valor.total) : null
-          let valorFinal = parseFloat(notas[movimento.notaFinal].valor.total)
 
-          if (valorInicial) {
-            movimento.valor = valorFinal - valorInicial
-          } else {
-            movimento.valor = -1
-          }
           if (!paraGravar[empresa]) {
             paraGravar[empresa] = []
           }
@@ -242,6 +251,7 @@ export default {
               this.chamarMensagem(err)
             } else {
               this.$data.movimentos[movimentoId].notaInicial = notaInicial.chave
+              this.$data.movimentos[movimentoId].valores = calcularImpostosMovimento(notaInicial, notaFinal)
               this.$data.notas = store.getState().notas
               this.$data.mostraAdicionarNota = false
               this.$data.adicionarNumeroEmitenteInfo.numeroNota = null
@@ -273,6 +283,7 @@ export default {
               this.chamarMensagem(err)
             } else {
               this.$data.movimentos[movimentoId].notaInicial = notaInicial.chave
+              this.$data.movimentos[movimentoId].valores = calcularImpostosMovimento(notaInicial, notaFinal)
               this.$data.notas = store.getState().notas
               this.$data.mostraAdicionarNota = false
               this.$data.adicionarNumeroEmitenteInfo.numeroNota = null
@@ -310,6 +321,7 @@ export default {
                 this.chamarMensagem(err)
               } else {
                 this.$data.movimentos[movimentoId].notaInicial = chave
+                this.$data.movimentos[movimentoId].valores = calcularImpostosMovimento(notaInicial, notaFinal)
                 this.$data.notas = store.getState().notas
                 this.$data.mostraAdicionarNota = false
                 this.chamarMensagem(new Error('Nota Adicionada com sucesso!'))
