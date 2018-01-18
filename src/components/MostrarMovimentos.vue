@@ -51,83 +51,14 @@
 
       <md-table-row v-for="(movimento, index) in movimentos" v-bind:key="index">
         <md-table-cell md-numeric><md-button class="md-icon-button" :disabled="numeroDesativo" @click="definirDeletar(index, pegaIndex(index))">{{pegaIndex(index)}}</md-button></md-table-cell>
-        <md-table-cell v-if="notas[movimento.notaInicial]"><md-button @click="abrirNota(movimento.notaInicial)">{{notas[movimento.notaInicial].geral.numero}}</md-button></md-table-cell>
-        <md-table-cell v-if="notas[movimento.notaFinal]"><md-button @click="abrirNota(movimento.notaFinal)">{{notas[movimento.notaFinal].geral.numero}}</md-button></md-table-cell>
+        <md-table-cell v-if="notas[movimento.notaInicial]"><nota-dialogo :chave="movimento.notaInicial">{{notas[movimento.notaInicial].geral.numero}}</nota-dialogo></md-table-cell>
+        <md-table-cell v-if="notas[movimento.notaFinal]"><nota-dialogo :chave="movimento.notaFinal">{{notas[movimento.notaFinal].geral.numero}}</nota-dialogo></md-table-cell>
         <md-table-cell>R$ {{(movimento.valor).toFixed(2)}}</md-table-cell>
         <md-table-cell>R$ {{(movimento.valor * impostos.icms.reducao).toFixed(2)}}</md-table-cell>
         <md-table-cell v-for="(imposto, nome) in impostos" v-bind:key="nome + 'valor'">R$ {{(eObjeto(imposto) ? movimento.valor * imposto.reducao * imposto.aliquota : movimento.valor * imposto).toFixed(2)}}</md-table-cell>
       </md-table-row>
     </md-table>
   </div>
-
-  <md-dialog v-if="notaDialogo" :md-active.sync="mostra">
-    <md-dialog-content>
-      <div class="viewport">
-        <md-toolbar :md-elevation="1">
-          <span class="md-title">{{notaDialogo.id}}</span>
-        </md-toolbar>
-        <md-list>
-          <md-list-item>
-            <h4>Número</h4>
-            <span>{{notaDialogo.geral.numero}}</span>
-          </md-list-item>
-          <md-divider></md-divider>
-          <md-list-item>
-            <h4>Data</h4>
-            <span>{{new Date(notaDialogo.geral.dataHora).toLocaleDateString()}}</span>
-          </md-list-item>
-          <md-divider></md-divider>
-          <md-list-item>
-            <h4>Tipo</h4>
-            <span v-if="notaDialogo.geral.tipo === '1'">SAÍDA</span>
-            <span v-else-if="notaDialogo.geral.tipo === '0'">ENTRADA</span>
-          </md-list-item>
-          <md-divider></md-divider>
-          <md-list-item>
-            <h4>Valor Total</h4>
-            <span>R$ {{notaDialogo.valor.total}}</span>
-          </md-list-item>
-          <md-divider></md-divider>
-          <md-list-item>
-            <h4>Natureza Operação</h4>
-            <span>{{notaDialogo.geral.naturezaOperacao}}</span>
-          </md-list-item>
-          <md-divider></md-divider>
-          <md-list-item>
-            <h4>Emitente</h4>
-            <span v-if="pessoas[notaDialogo.emitente]">{{pessoas[notaDialogo.emitente].nome}}</span>
-            <span>{{notaDialogo.emitente}}</span>
-          </md-list-item>
-          <md-divider></md-divider>
-          <md-list-item>
-            <h4>Destinatário</h4>
-            <span v-if="pessoas[notaDialogo.destinatario]">{{pessoas[notaDialogo.destinatario].nome}}</span>
-            <span>{{notaDialogo.destinatario}}</span>
-          </md-list-item>
-          <md-divider></md-divider>
-          <md-list-item>
-            <h4>Produtos</h4>
-          </md-list-item>
-          <md-list-item v-for="(produto, id) in notaDialogo.produtos" v-bind:key="id">
-            <md-list-item class="md-list-item-text">{{id}}: {{produto.descricao}}</md-list-item>
-            <md-list-item class="md-list-item-text">VALOR: {{produto.valor.total}}</md-list-item>
-          </md-list-item>
-          <md-divider></md-divider>
-          <md-list-item>
-            <h4>Informações Complementares</h4>
-          </md-list-item>
-          <md-list-item class="md-triple-line">
-            <span class="md-list-item-text"><small v-if="notaDialogo.complementar">{{notaDialogo.complementar.textoComplementar}}</small></span>
-          </md-list-item>
-          <md-divider></md-divider>
-        </md-list>
-      </div>
-    </md-dialog-content>
-
-    <md-dialog-actions>
-      <md-button class="md-primary" @click="mostra = false">FECHAR</md-button>
-    </md-dialog-actions>
-  </md-dialog>
 
   <md-dialog-alert
       :md-active.sync="erro.mostra"
@@ -147,10 +78,12 @@
 </template>
 <script>
 import { pegarDominio, usuarioAtivo, pegarPessoaId, pegarMovimentosMes, pegarNotaChave, excluirMovimento } from './services/firebase.service'
+import notaDialogo from './notaDialogo'
 import _ from 'lodash'
 import { Printd } from 'printd'
 
 export default {
+  components: { notaDialogo },
   data () {
     return {
       deletar: {
@@ -309,27 +242,6 @@ export default {
             })
           })
         }
-      })
-    },
-    abrirNota (chave) {
-      pegarNotaChave(chave, (err, nota) => {
-        if (err) console.error(err)
-        this.$data.notaDialogo = {
-          ...nota,
-          id: chave
-        }
-        this.$data.mostra = true
-        pegarPessoaId(nota.emitente, (err, emit) => {
-          if (err) console.error(err)
-          pegarPessoaId(nota.destinatario, (err, dest) => {
-            if (err) console.error(err)
-            this.$data.pessoas = {
-              ...this.$data.pessoas,
-              [nota.emitente]: emit,
-              [nota.destinatario]: dest
-            }
-          })
-        })
       })
     },
     pegaIndex (index) {
