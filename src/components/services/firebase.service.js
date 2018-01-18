@@ -317,9 +317,9 @@ export function procurarNotaPar (notaParametro, callback) {
               if (!notaCb) {
                 notaCb = notas[notaKey]
               } else {
-                if (tipoParametro === '0' && (notas[notaKey].geral.numero < notaCb.geral.numero) && (notaCb.geral.numero > notaParametro.geral.numero)) {
+                if (tipoParametro === '0' && (notas[notaKey].geral.numero < notaCb.geral.numero) && (notaCb.geral.numero > notaParametro.geral.numero) && (notas[notaKey].geral.cfop !== '1202' || notas[notaKey].geral.cfop !== '2202')) {
                   notaCb = notas[notaKey]
-                } else if (tipoParametro === '1' && (notas[notaKey].geral.cfop === '1202' || notas[notaKey].geral.cfop === '2202') && (notas[notaKey].geral.numero > notaCb.geral.numero) && (notaCb.geral.numero < notaParametro.geral.numero)) {
+                } else if ((tipoParametro === '1' || (notas[notaKey].geral.cfop === '1202' || notas[notaKey].geral.cfop === '2202')) && (notas[notaKey].geral.numero > notaCb.geral.numero) && (notaCb.geral.numero < notaParametro.geral.numero)) {
                   notaCb = notas[notaKey]
                 }
               }
@@ -593,7 +593,12 @@ export function pegarMovimentosMes (cnpj, competencia, callback) {
   })
 }
 
-export function calcularImpostosMovimento (valorSaida, lucro, estadoGerador, estadoDestino, destinatarioContribuinte) {
+export function calcularImpostosMovimento (notaInicial, notaFinal) {
+  let valorSaida = parseFloat(notaFinal.valor.total)
+  let lucro = parseFloat(notaFinal.valor.total) - parseFloat(notaInicial.valor.total)
+  let estadoGerador = notaFinal.informacoesEstaduais.estadoGerador
+  let estadoDestino = notaFinal.informacoesEstaduais.estadoDestino
+  let destinatarioContribuinte = notaFinal.informacoesEstaduais.destinatarioContribuinte
 
   if (estadoGerador !== 'MG') {
     return 0
@@ -610,6 +615,24 @@ export function calcularImpostosMovimento (valorSaida, lucro, estadoGerador, est
     irpj: 0.012
   }
 
+  if (lucro < 0) {
+    return {
+      lucro: lucro,
+      valorSaida: valorSaida,
+      impostos: {
+        pis: 0,
+        cofins: 0,
+        csll: 0,
+        irpj: 0,
+        icms: {
+          baseDeCalculo: 0,
+          proprio: 0
+        },
+        total: 0
+      }
+    }
+  }
+
   let valores = {
     lucro: lucro,
     valorSaida: valorSaida,
@@ -617,7 +640,8 @@ export function calcularImpostosMovimento (valorSaida, lucro, estadoGerador, est
       pis: (lucro * aliquotas.pis).toFixed(2),
       cofins: (lucro * aliquotas.cofins).toFixed(2),
       csll: (lucro * aliquotas.csll).toFixed(2),
-      irpj: (lucro * aliquotas.irpj).toFixed(2)
+      irpj: (lucro * aliquotas.irpj).toFixed(2),
+      total: ((lucro * aliquotas.irpj) + (lucro * aliquotas.pis) + (lucro * aliquotas.cofins) + (lucro * aliquotas.csll)).toFixed(2)
     }
   }
 
@@ -711,33 +735,37 @@ export function calcularImpostosMovimento (valorSaida, lucro, estadoGerador, est
       baseDeCalculo: (lucro * aliquotas.icms.reducao).toFixed(2),
       proprio: (lucro * aliquotas.icms.reducao * aliquotas.icms.aliquota).toFixed(2)
     }
+    valores.impostos.total = (parseFloat(valores.impostos.total) + (lucro * aliquotas.icms.reducao * aliquotas.icms.aliquota)).toFixed(2)
   } else {
-    if (destinatarioContribuinte === '2') {
-      let composicaoDaBase = (valorSaida / (1 - icmsEstados[estadoDestino].interno)).toFixed(2)
-      let baseDeCalculo = (0.05 * composicaoDaBase).toFixed(2)
+    if (destinatarioContribuinte === '2' || destinatarioContribuinte === '9') {
+      let composicaoDaBase = valorSaida / (1 - icmsEstados[estadoDestino].interno)
+      let baseDeCalculo = 0.05 * composicaoDaBase
       let baseDifal = estadosSemReducao.includes(estadoDestino) ? composicaoDaBase : baseDeCalculo
-      let proprio = (baseDifal * icmsEstados[estadoDestino].externo).toFixed(2)
-      let difal = ((baseDifal * icmsEstados[estadoDestino].interno) - proprio).toFixed(2)
+      let proprio = baseDifal * icmsEstados[estadoDestino].externo
+      let difal = (baseDifal * icmsEstados[estadoDestino].interno) - proprio
 
       valores.impostos.icms = {
-        composicaoDaBase: composicaoDaBase,
-        baseDeCalculo: baseDeCalculo,
-        proprio: proprio,
+        composicaoDaBase: composicaoDaBase.toFixed(2),
+        baseDeCalculo: baseDeCalculo.toFixed(2),
+        proprio: proprio.toFixed(2),
         difal: {
           origem: (difal * 0.8).toFixed(2),
           destino: (difal * 0.2).toFixed(2)
         }
       }
+
+      valores.impostos.total = (parseFloat(valores.impostos.total) + (difal * 0.8) + (difal * 0.2) + proprio).toFixed(2)
     } else if (destinatarioContribuinte === '1') {
-      let baseDeCalculo = (0.05 * valorSaida).toFixed(2)
-      let valor = (baseDeCalculo * icmsEstados[estadoDestino].externo).toFixed(2)
+      let baseDeCalculo = 0.05 * valorSaida
+      let valor = baseDeCalculo * icmsEstados[estadoDestino].externo
 
       valores.impostos.icms = {
         composicaoDaBase: null,
         difal: null,
-        baseDeCalculo: baseDeCalculo,
-        proprio: valor
+        baseDeCalculo: baseDeCalculo.toFixed(2),
+        proprio: valor.toFixed(2)
       }
+      valores.impostos.toatal = parseFloat(valores.impostos.toatal) + valor
     }
   }
 
