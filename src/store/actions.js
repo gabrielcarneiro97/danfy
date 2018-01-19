@@ -41,6 +41,31 @@ export function limparNotas () {
 }
 // FIM REDUCER NOTAS
 
+// INÍCIO REDUCER NOTAS SERVICO
+export const ADICIONAR_NOTA_SERVICO = 'ADICIONAR_NOTA_SERVICO'
+export const REMOVER_NOTA_SERVICO = 'REMOVER_NOTA_SERVICO'
+export const LIMPAR_NOTAS_SERVICO = 'LIMPAR_NOTAS_SERVICO'
+
+export function adicionarNotaServico (id, notaServico) {
+  return {
+    type: ADICIONAR_NOTA_SERVICO,
+    id: id,
+    notaServico: notaServico
+  }
+}
+export function removerNotaServico (id) {
+  return {
+    type: REMOVER_NOTA_SERVICO,
+    id: id
+  }
+}
+export function limparNotasServico () {
+  return {
+    type: LIMPAR_NOTAS_SERVICO
+  }
+}
+// FIM REDUCER NOTAS SERVICO
+
 // INÍCIO REDUCER PESSOAS
 export const ADICIONAR_PESSOA = 'ADICIONAR_PESSOA'
 export const REMOVER_PESSOA = 'REMOVER_PESSOA'
