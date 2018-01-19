@@ -547,6 +547,37 @@ export function adicionarEmpresaDominio (empresa, callback) {
   })
 }
 
+export function adicionarEmpresaImpostos (empresa, callback) {
+  db.ref('Impostos/' + empresa.cnpj).set(empresa.aliquotas, err => {
+    callback(err, empresa.aliquotas)
+  })
+}
+
+export function adicionarDominioEImpostos (empresa, callback) {
+  adicionarEmpresaDominio(empresa, err => {
+    if (err) {
+      console.error(err)
+    } else {
+      adicionarEmpresaImpostos(empresa, err => {
+        if (err) {
+          console.error(err)
+        } else {
+          callback(null)
+        }
+      })
+    }
+  })
+}
+
+export function pegarEmpresaImpostos (empresaCnpj, callback) {
+  db.ref('Impostos/' + empresaCnpj).once('value', snap => {
+    let aliquotas = snap.val()
+    callback(null, aliquotas)
+  }, err => {
+    callback(err, null)
+  })
+}
+
 export function gravarMovimentos (movimentos, callback) {
   Object.keys(movimentos).forEach((cnpj, index, arr) => {
     if (movimentos[cnpj]) {
