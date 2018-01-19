@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="md-layout md-alignment-top-center" id="tabela">
-      <md-table class="md-layout-item md-size-90">
+      <md-table class="md-layout-item md-size-90" v-if="mostraMovimentos">
         <md-table-toolbar>
           <h1 class="md-title">Conciliar Notas</h1>
           <md-button @click="enviarMovimentos" :disabled="!movimentosAEnviar">ENVIAR MOVIMENTOS</md-button>
@@ -35,6 +35,28 @@
           </md-table-cell>
           <md-table-cell  md-numeric>
             <md-checkbox v-model="movimento.conferido"></md-checkbox>
+          </md-table-cell>
+        </md-table-row>
+      </md-table>
+      <md-divider></md-divider>
+      <md-table class="md-layout-item md-size-90" v-if="mostraServicos">
+        <md-table-toolbar>
+          <h1 class="md-title">Conciliar Servicos</h1>
+          <md-button @click="enviarServicos" :disabled="!servicosAEnviar">ENVIAR SERVIÇOS</md-button>
+        </md-table-toolbar>
+        <md-table-row>
+          <md-table-head>Número</md-table-head>
+          <md-table-head>Nota</md-table-head>
+          <md-table-head>Confirmar Serviço</md-table-head>
+        </md-table-row>
+
+        <md-table-row v-for="servico in servicos" v-bind:key="servicos.indexOf(servico) + 'servico'">
+
+          <md-table-cell md-numeric>{{servicos.indexOf(servico)+1}}</md-table-cell>
+
+          <md-table-cell>{{notasServico[servico.nota].geral.numero}}</md-table-cell>
+          <md-table-cell  md-numeric>
+            <md-checkbox v-model="servico.conferido"></md-checkbox>
           </md-table-cell>
         </md-table-row>
       </md-table>
@@ -116,7 +138,7 @@
 </template>
 
 <script>
-import { calcularImpostosMovimento, pegarDominio, usuarioAtivo, pegarNotaChave, procurarNotaPar, estaNoDominio, validarMovimento, pegarNotaNumeroEmitente, lerNotasInput, gravarMovimentos } from './services/firebase.service'
+import { calcularImpostosMovimento, calcularImpostosServico, pegarDominio, usuarioAtivo, pegarNotaChave, procurarNotaPar, estaNoDominio, validarMovimento, pegarNotaNumeroEmitente, lerNotasInput, gravarMovimentos, gravarServicos } from './services/firebase.service'
 import notaDialogo from './notaDialogo'
 import store from '../store'
 
@@ -137,7 +159,9 @@ export default {
       },
       chaveParaAdicionar: null,
       notas: {},
+      notasServico: {},
       movimentos: [],
+      servicos: [],
       erro: {
         mensagem: '',
         mostra: false
@@ -156,8 +180,9 @@ export default {
           if (err) console.error(err)
 
           this.$data.notas = store.getState().notas
+          this.$data.notasServico = store.getState().notasServico
 
-          Object.keys(this.$data.notas).forEach(id => {
+          Object.keys(this.$data.notas).forEach((id, index, arr) => {
             let nota = this.$data.notas[id]
             if ((nota.geral.tipo === '1' || nota.geral.cfop === '1113' || nota.geral.cfop === '1202' || nota.geral.cfop === '2202') && estaNoDominio(nota.emitente)) {
               let movimento = {
@@ -171,11 +196,9 @@ export default {
                   console.error(err)
                 } else if (notaRetorno) {
                   validarMovimento(notaRetorno, nota, err => {
-                    console.log(nota)
-                    console.log(notaRetorno)
                     if (!err) {
                       movimento.notaInicial = notaRetorno.chave
-                      movimento.valores = calcularImpostosMovimento(notaRetorno, nota, (err, valores) => {
+                      calcularImpostosMovimento(notaRetorno, nota, (err, valores) => {
                         if (err) {
                           console.error(err)
                         } else {
@@ -193,13 +216,64 @@ export default {
               })
             }
           })
+
+          Object.keys(this.$data.notasServico).forEach(id => {
+            let notaServico = this.$data.notasServico[id]
+            if (estaNoDominio(notaServico.emitente)) {
+              calcularImpostosServico(notaServico, (err, valores) => {
+                if (err) {
+                  console.error(err)
+                } else {
+                  let servico = {
+                    conferido: false,
+                    nota: notaServico.chave,
+                    data: notaServico.geral.dataHora,
+                    valores: valores
+                  }
+                  this.$data.servicos.push(servico)
+                }
+              })
+            }
+          })
         })
       }
     })
   },
   methods: {
     proximo () {
-      this.$router.push('/mostrarMovimentos')
+      if (!this.mostraServicos && !this.mostraMovimentos) {
+        this.$router.push('/mostrarMovimentos')
+      } else {
+        this.$data.mostraFinal = false
+      }
+    },
+    enviarServicos () {
+      let servicos = this.$data.servicos
+      let paraGravar = {}
+      let notasServico = this.$data.notasServico
+      let contador = 0
+
+      servicos.forEach(servico => {
+        if (servico.conferido) {
+          let empresa = notasServico[servico.nota].emitente
+
+          if (!paraGravar[empresa]) {
+            paraGravar[empresa] = []
+          }
+
+          paraGravar[empresa].push(servico)
+          contador++
+        }
+      })
+
+      gravarServicos(paraGravar, err => {
+        if (err) {
+          console.error(err)
+        }
+        this.$data.servicos = []
+        this.$data.mostraFinal = true
+        this.$data.relatorioFinal = `${contador} serviços gravados com sucesso!`
+      })
     },
     enviarMovimentos () {
       let movimentos = this.$data.movimentos
@@ -224,6 +298,7 @@ export default {
         if (err) {
           console.error(err)
         }
+        this.$data.movimentos = []
         this.$data.mostraFinal = true
         this.$data.relatorioFinal = `${contador} movimentos gravados com sucesso!`
       })
@@ -363,6 +438,35 @@ export default {
         }
       }
       return false
+    },
+    servicosAEnviar () {
+      let servicos = this.$data.servicos
+
+      for (let id in servicos) {
+        let servico = servicos[id]
+        if (servico.conferido) {
+          return true
+        }
+      }
+      return false
+    },
+    mostraMovimentos () {
+      if (this.$data.movimentos.length === 0) {
+        return false
+      } else if (this.$data.movimentosEnviados) {
+        return false
+      } else {
+        return true
+      }
+    },
+    mostraServicos () {
+      if (this.$data.servicos.length === 0) {
+        return false
+      } else if (this.$data.servicosEnviados) {
+        return false
+      } else {
+        return true
+      }
     }
   }
 }
