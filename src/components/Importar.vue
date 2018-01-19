@@ -41,23 +41,20 @@
   <md-dialog :md-active.sync="mostra">
     <md-dialog-content>
 
-      <md-table v-model="foraDominio" md-card @md-selected="selecaoTabela">
-        <md-table-toolbar>
-          <h1 class="md-title">Selecione as empresas que você deseja adicionar ao domínio e informe um número</h1>
-        </md-table-toolbar>
+      <md-table>
+        <md-table-row>
+          <md-table-head >Nome</md-table-head>
+          <md-table-head>CNPJ</md-table-head>
+          <md-table-head>Adicionar?</md-table-head>
+        </md-table-row>
 
-        <md-table-toolbar slot="md-table-alternate-header" slot-scope="{ count }">
-          <div class="md-toolbar-section-start">{{ mensagemTabela(count) }}</div>
-        </md-table-toolbar>
+        <md-table-row v-for="empresa in foraDominio" v-bind:key="empresa.cnpj + 'adicionar'">
 
-        <md-table-row slot="md-table-row" slot-scope="{ item }" md-selectable="multiple" md-auto-select>
-          <md-table-cell md-label="CNPJ" md-sort-by="nome">{{ item.cnpj }}</md-table-cell>
-          <md-table-cell md-label="Nome" md-sort-by="cnpj">{{ pessoas[item.cnpj].nome }}</md-table-cell>
-          <md-table-cell md-label="Número" md-sort-by="numero">
-            <md-field>
-              <md-input v-model="item.num"></md-input>
-            </md-field>
-          </md-table-cell>
+          <md-table-cell>{{pessoas[empresa.cnpj].nome}}</md-table-cell>
+
+          <md-table-cell>{{empresa.cnpj}}</md-table-cell>
+
+          <md-table-cell><md-button @click="abrirImpostosEDominio(empresa)">ADICIONAR</md-button></md-table-cell>
         </md-table-row>
       </md-table>
     </md-dialog-content>
@@ -66,22 +63,99 @@
       <md-button class="md-primary" @click="proximo">PRÓXIMO</md-button>
     </md-dialog-actions>
   </md-dialog>
+
+  <md-dialog :md-active.sync="mostraImpostos" v-if="empresaParaAdicionar.cnpj">
+    <md-dialog-title>{{pessoas[empresaParaAdicionar.cnpj].nome}}</md-dialog-title>
+    <md-dialog-content class="md-layout">
+      <md-field class="md-layout-item md-size-100">
+        <label>NÚMERO</label>
+        <md-input v-model="empresaParaAdicionar.num"></md-input>
+      </md-field>
+      <md-divider></md-divider>
+      <md-field class="md-layout-item md-size-50">
+        <label>IRPJ</label>
+        <md-input v-model="aliquotas.irpj"></md-input>
+      </md-field>
+      <md-field class="md-layout-item md-size-50">
+        <label>CSLL</label>
+        <md-input v-model="aliquotas.csll"></md-input>
+      </md-field>
+      <md-field class="md-layout-item md-size-50">
+        <label>PIS</label>
+        <md-input v-model="aliquotas.pis"></md-input>
+      </md-field>
+      <md-field class="md-layout-item md-size-50">
+        <label>COFINS</label>
+        <md-input v-model="aliquotas.cofins"></md-input>
+      </md-field>
+      <md-field class="md-layout-item md-size-50">
+        <label>ICMS</label>
+        <md-input v-model="aliquotas.icms.aliquota"></md-input>
+      </md-field>
+      <md-field class="md-layout-item md-size-50">
+        <label>REDUÇÃO NO ICMS</label>
+        <md-input v-model="aliquotas.icms.reducao"></md-input>
+      </md-field>
+      <md-field class="md-layout-item md-size-100">
+        <label>ISS</label>
+        <md-input v-model="aliquotas.iss"></md-input>
+      </md-field>
+    </md-dialog-content>
+
+    <md-dialog-actions>
+      <md-button class="md-primary" @click="mostraImpostos = false; mostra = true">CANCELAR</md-button>
+      <md-button class="md-primary" @click="gravarImpostosEDominio">ADICIONAR</md-button>
+    </md-dialog-actions>
+  </md-dialog>
+
+  <md-dialog-confirm
+      v-if="empresaParaAdicionar.cnpj"
+      :md-active.sync="mostraConfirma"
+      md-title="Empresa adicionada com sucesso"
+      :md-content="'Empresa: ' + pessoas[empresaParaAdicionar.cnpj].nome + ' Número: ' + empresaParaAdicionar.num"
+      md-confirm-text="OK"
+      md-cancel-text=""
+      @md-confirm="mostraConfirma = false; mostra = true" />
 </div>
 </template>
 
 <script>
 import _ from 'lodash'
 import store from '../store'
-import { usuarioAtivo, lerNotasInput, adicionarEmpresaDominio, gravarPessoas, gravarNotas, limparNotasStore } from './services/firebase.service'
+import { usuarioAtivo, lerNotasInput, adicionarDominioEImpostos, gravarPessoas, gravarNotas, limparNotasStore } from './services/firebase.service'
 
 export default {
   data () {
     return {
       notas: {},
       pessoas: {},
-      foraDominio: [],
-      adicionarDominio: [],
+      foraDominio: {},
+      aliquotasPadrao: {
+        icms: {
+          aliquota: 0.18,
+          reducao: 0.2778
+        },
+        pis: 0.0065,
+        cofins: 0.03,
+        csll: 0.0288,
+        irpj: 0.012,
+        iss: 0.03
+      },
+      aliquotas: {
+        icms: {
+          aliquota: 0.18,
+          reducao: 0.2778
+        },
+        pis: 0.0065,
+        cofins: 0.03,
+        csll: 0.0288,
+        irpj: 0.012,
+        iss: 0.03
+      },
+      empresaParaAdicionar: {},
       mostra: false,
+      mostraConfirma: false,
+      mostraImpostos: false,
       clicaEnviar: false
     }
   },
@@ -106,8 +180,7 @@ export default {
           this.$data.notas = notas
           this.$data.pessoas = pessoas
           this.$data.clicaEnviar = true
-          this.$data.foraDominio = []
-          this.$data.adicionarDominio = []
+          this.$data.foraDominio = {}
           let dominio = store.getState().dominio
 
           Object.keys(pessoas).forEach(keyPessoa => {
@@ -120,14 +193,14 @@ export default {
             })
 
             if (!jaNoDominio) {
-              this.$data.foraDominio.push({cnpj: keyPessoa, num: 0})
+              this.$data.foraDominio[keyPessoa] = {cnpj: keyPessoa, num: null}
             }
           })
         })
       }
     },
     enviar () {
-      if (this.$data.foraDominio.length === 0) {
+      if (_.isEmpty(this.$data.foraDominio)) {
         this.gravarEProximaPagina()
       } else {
         this.$data.mostra = true
@@ -142,26 +215,39 @@ export default {
 
       return `${count} empresa${plural} selecionada${plural}`
     },
-    selecaoTabela (items) {
-      this.$data.adicionarDominio = items
-    },
     proximo () {
-      let adicionar = this.$data.adicionarDominio
-      if (adicionar.length > 0) {
-        adicionar.forEach((empresa, index) => {
-          if (empresa.num !== 0) {
-            adicionarEmpresaDominio(empresa, (err, dominio) => {
-              if (err) console.error(err)
-
-              if (index === adicionar.length - 1) {
-                this.gravarEProximaPagina()
-              }
-            })
-          }
-        })
-      } else {
-        this.gravarEProximaPagina()
+      this.gravarEProximaPagina()
+    },
+    abrirImpostosEDominio (empresa) {
+      this.$data.mostra = false
+      this.$data.aliquotas = this.$data.aliquotasPadrao
+      this.$data.mostraImpostos = true
+      this.$data.empresaParaAdicionar = empresa
+    },
+    gravarImpostosEDominio () {
+      let empresa = this.$data.empresaParaAdicionar
+      let aliquotas = this.$data.aliquotas
+      empresa.aliquotas = {
+        icms: {
+          aliquota: parseFloat(aliquotas.icms.aliquota.toString().replace(',', '.')),
+          reducao: parseFloat(aliquotas.icms.reducao.toString().replace(',', '.'))
+        },
+        pis: parseFloat(aliquotas.pis.toString().replace(',', '.')),
+        cofins: parseFloat(aliquotas.cofins.toString().replace(',', '.')),
+        csll: parseFloat(aliquotas.csll.toString().replace(',', '.')),
+        irpj: parseFloat(aliquotas.irpj.toString().replace(',', '.')),
+        iss: parseFloat(aliquotas.iss.toString().replace(',', '.'))
       }
+
+      adicionarDominioEImpostos(empresa, err => {
+        if (err) {
+          console.error(err)
+        } else {
+          delete this.$data.foraDominio[empresa.cnpj]
+          this.$data.mostraImpostos = false
+          this.$data.mostraConfirma = true
+        }
+      })
     },
     gravarEProximaPagina () {
       gravarPessoas(err => {
