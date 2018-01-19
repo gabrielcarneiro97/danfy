@@ -14,16 +14,25 @@
           <label>NOME</label>
           <md-input v-model="empresaSelecionada.pessoa.nome" disabled></md-input>
         </md-field>
-        <md-field class="md-layout-item md-size-40">
+        <md-field class="md-layout-item md-size-30">
           <label for="mes">MÊS</label>
           <md-select v-model="competenciaSelecionada.mes" name="mes" id="mes" @input="removerMovimentosEServicos">
             <md-option v-for="mes in meses" v-bind:key="'mes' + mes.num" :value="mes.num">{{mes.nome}}</md-option>
           </md-select>
         </md-field>
-        <md-field class="md-layout-item md-size-40">
+        <md-field class="md-layout-item md-size-30">
           <label for="ano">ANO</label>
           <md-select v-model="competenciaSelecionada.ano" name="ano" id="ano" @input="removerMovimentosEServicos">
             <md-option v-for="ano in anos" v-bind:key="'ano' + ano" :value="ano">{{ano}}</md-option>
+          </md-select>
+        </md-field>
+        <md-field class="md-layout-item md-size-40">
+          <label for="tipoTabela">ESCOLHA A TABELA</label>
+          <md-select v-model="tipoTabela" name="tipoTabela" id="tipoTabela">
+            <md-option value="movimentos">VENDAS</md-option>
+            <md-option value="servicos">SERVIÇOS</md-option>
+            <md-option value="acumulado">ACUMULADO</md-option>
+            
           </md-select>
         </md-field>
         <div class="md-layout md-layout-item md-size-100 md-alignment-top-right">
@@ -34,7 +43,7 @@
   </div>
 
   <div class="md-layout md-alignment-top-center" id="tabela" ref="tabelas">
-    <md-table v-if="temMovimentos" class="md-layout-item md-size-90" ref="tabelaMovimentos">
+    <md-table v-if="temMovimentos" class="md-layout-item md-size-90" v-show="tipoTabela === 'movimentos' || mostraTudo" ref="tabelaMovimentos">
 
       <md-table-toolbar>
         <h1 class="md-title">Vendas {{meses[parseInt(competenciaSelecionada.mes) - 1].nome}}/{{competenciaSelecionada.ano}} - {{empresaSelecionada.pessoa.nome}}</h1>
@@ -83,8 +92,7 @@
       </md-table-row>
     </md-table>
 
-    <md-table v-if="temServicos" class="md-layout-item md-size-90" ref="tabelaServicos">
-
+    <md-table v-if="temServicos" class="md-layout-item md-size-90" v-show="tipoTabela === 'servicos' || mostraTudo" ref="tabelaServicos">
       <md-table-toolbar>
         <h1 class="md-title">Servicos {{meses[parseInt(competenciaSelecionada.mes) - 1].nome}}/{{competenciaSelecionada.ano}} - {{empresaSelecionada.pessoa.nome}}</h1>
       </md-table-toolbar>
@@ -112,35 +120,104 @@
 
       <md-table-row v-for="(servico, index) in servicos" v-bind:key="index">
         <md-table-cell md-numeric v-if="notasServico[servico.nota]"><md-button class="md-icon-button" :disabled="numeroDesativo" @click="definirDeletarServico(index, pegaIndexServico(index))">{{parseInt(notasServico[servico.nota].geral.numero.replace(competenciaSelecionada.ano, ''))}}</md-button></md-table-cell>
-        <md-table-cell>R${{servico.valores.impostos.baseDeCalculo}}</md-table-cell>
-        <md-table-cell>R${{servico.valores.impostos.retencoes.iss}}</md-table-cell>
-        <md-table-cell>R${{servico.valores.impostos.retencoes.pis}}</md-table-cell>
-        <md-table-cell>R${{servico.valores.impostos.retencoes.cofins}}</md-table-cell>
-        <md-table-cell>R${{servico.valores.impostos.retencoes.csll}}</md-table-cell>
-        <md-table-cell>R${{servico.valores.impostos.retencoes.irpj}}</md-table-cell>
-        <md-table-cell>R${{servico.valores.impostos.retencoes.total}}</md-table-cell>
-        <md-table-cell>R${{servico.valores.impostos.iss}}</md-table-cell>
-        <md-table-cell>R${{servico.valores.impostos.pis}}</md-table-cell>
-        <md-table-cell>R${{servico.valores.impostos.cofins}}</md-table-cell>
-        <md-table-cell>R${{servico.valores.impostos.csll}}</md-table-cell>
-        <md-table-cell>R${{servico.valores.impostos.irpj}}</md-table-cell>
-        <md-table-cell>R${{servico.valores.impostos.total}}</md-table-cell>
+        <md-table-cell>R${{parseFloat(servico.valores.impostos.baseDeCalculo).toFixed(2)}}</md-table-cell>
+        <md-table-cell>R${{parseFloat(servico.valores.impostos.retencoes.iss).toFixed(2)}}</md-table-cell>
+        <md-table-cell>R${{parseFloat(servico.valores.impostos.retencoes.pis).toFixed(2)}}</md-table-cell>
+        <md-table-cell>R${{parseFloat(servico.valores.impostos.retencoes.cofins).toFixed(2)}}</md-table-cell>
+        <md-table-cell>R${{parseFloat(servico.valores.impostos.retencoes.csll).toFixed(2)}}</md-table-cell>
+        <md-table-cell>R${{parseFloat(servico.valores.impostos.retencoes.irpj).toFixed(2)}}</md-table-cell>
+        <md-table-cell>R${{parseFloat(servico.valores.impostos.retencoes.total).toFixed(2)}}</md-table-cell>
+        <md-table-cell>R${{parseFloat(servico.valores.impostos.iss).toFixed(2)}}</md-table-cell>
+        <md-table-cell>R${{parseFloat(servico.valores.impostos.pis).toFixed(2)}}</md-table-cell>
+        <md-table-cell>R${{parseFloat(servico.valores.impostos.cofins).toFixed(2)}}</md-table-cell>
+        <md-table-cell>R${{parseFloat(servico.valores.impostos.csll).toFixed(2)}}</md-table-cell>
+        <md-table-cell>R${{parseFloat(servico.valores.impostos.irpj).toFixed(2)}}</md-table-cell>
+        <md-table-cell>R${{parseFloat(servico.valores.impostos.total).toFixed(2)}}</md-table-cell>
       </md-table-row>
 
       <md-table-row>
         <md-table-head colspan="2">TOTAIS IMPOSTOS</md-table-head>
-        <md-table-head>R${{retornarTotaisServicos.retencoes.iss}}</md-table-head>
-        <md-table-head>R${{retornarTotaisServicos.retencoes.pis}}</md-table-head>
-        <md-table-head>R${{retornarTotaisServicos.retencoes.cofins}}</md-table-head>
-        <md-table-head>R${{retornarTotaisServicos.retencoes.csll}}</md-table-head>
-        <md-table-head>R${{retornarTotaisServicos.retencoes.irpj}}</md-table-head>
-        <md-table-head>R${{retornarTotaisServicos.retencoes.total}}</md-table-head>
-        <md-table-head>R${{retornarTotaisServicos.iss}}</md-table-head>
-        <md-table-head>R${{retornarTotaisServicos.pis}}</md-table-head>
-        <md-table-head>R${{retornarTotaisServicos.cofins}}</md-table-head>
-        <md-table-head>R${{retornarTotaisServicos.csll}}</md-table-head>
-        <md-table-head>R${{retornarTotaisServicos.irpj}}</md-table-head>
-        <md-table-head>R${{retornarTotaisServicos.total}}</md-table-head>
+        <md-table-head>R${{parseFloat(retornarTotaisServicos.retencoes.iss).toFixed(2)}}</md-table-head>
+        <md-table-head>R${{parseFloat(retornarTotaisServicos.retencoes.pis).toFixed(2)}}</md-table-head>
+        <md-table-head>R${{parseFloat(retornarTotaisServicos.retencoes.cofins).toFixed(2)}}</md-table-head>
+        <md-table-head>R${{parseFloat(retornarTotaisServicos.retencoes.csll).toFixed(2)}}</md-table-head>
+        <md-table-head>R${{parseFloat(retornarTotaisServicos.retencoes.irpj).toFixed(2)}}</md-table-head>
+        <md-table-head>R${{parseFloat(retornarTotaisServicos.retencoes.total).toFixed(2)}}</md-table-head>
+        <md-table-head>R${{parseFloat(retornarTotaisServicos.iss).toFixed(2)}}</md-table-head>
+        <md-table-head>R${{parseFloat(retornarTotaisServicos.pis).toFixed(2)}}</md-table-head>
+        <md-table-head>R${{parseFloat(retornarTotaisServicos.cofins).toFixed(2)}}</md-table-head>
+        <md-table-head>R${{parseFloat(retornarTotaisServicos.csll).toFixed(2)}}</md-table-head>
+        <md-table-head>R${{parseFloat(retornarTotaisServicos.irpj).toFixed(2)}}</md-table-head>
+        <md-table-head>R${{parseFloat(retornarTotaisServicos.total).toFixed(2)}}</md-table-head>
+      </md-table-row>
+    </md-table>
+
+    <md-table class="md-layout-item md-size-90" v-show="tipoTabela === 'acumulado' || mostraTudo" v-if="temAcumulado" ref="tabelaTrimestre">
+      <md-table-toolbar>
+        <h1 class="md-title">Acumulado - {{empresaSelecionada.pessoa.nome}}</h1>
+      </md-table-toolbar>
+
+      <md-table-row>
+        <md-table-head rowspan="2">MÊS</md-table-head>        
+        <md-table-head rowspan="2">ICMS PRÓPRIO</md-table-head>   
+        <md-table-head colspan="2" style="text-align:center">DIFAL</md-table-head>                 
+        <md-table-head rowspan="2">ISS</md-table-head>
+        <md-table-head rowspan="2">PIS</md-table-head>
+        <md-table-head rowspan="2">COFINS</md-table-head>
+        <md-table-head rowspan="2">CSLL</md-table-head>
+        <md-table-head rowspan="2">IRPJ</md-table-head>
+        <md-table-head rowspan="2">TOTAL</md-table-head>
+        <md-table-head colspan="6" style="text-align:center">RETENÇÕES</md-table-head>
+      </md-table-row>
+
+      <md-table-row>
+        <md-table-head>ORIGINÁRIO</md-table-head>
+        <md-table-head>DESTINO</md-table-head>
+        <md-table-head>ISS</md-table-head>
+        <md-table-head>PIS</md-table-head>
+        <md-table-head>COFINS</md-table-head>
+        <md-table-head>CSLL</md-table-head>
+        <md-table-head>IRPJ</md-table-head>
+        <md-table-head>TOTAL</md-table-head>
+      </md-table-row>
+
+
+      <md-table-row v-for="(mes, index) in trimestre" v-if="index !== 'totais'" v-bind:key="index + 'totais'">
+        <md-table-cell>{{pegarMes(index)}}</md-table-cell>        
+        <md-table-cell>R${{mes.totais.impostos.icms.proprio.toFixed(2)}}</md-table-cell>
+        <md-table-cell>R${{mes.totais.impostos.icms.difal.origem.toFixed(2)}}</md-table-cell>
+        <md-table-cell>R${{mes.totais.impostos.icms.difal.destino.toFixed(2)}}</md-table-cell>
+        <md-table-cell>R${{mes.totais.impostos.iss.toFixed(2)}}</md-table-cell>
+        <md-table-cell>R${{mes.totais.impostos.pis.toFixed(2)}}</md-table-cell>
+        <md-table-cell>R${{mes.totais.impostos.cofins.toFixed(2)}}</md-table-cell>
+        <md-table-cell>R${{mes.totais.impostos.csll.toFixed(2)}}</md-table-cell>
+        <md-table-cell>R${{mes.totais.impostos.irpj.toFixed(2)}}</md-table-cell>
+        <md-table-cell>R${{mes.totais.impostos.total.toFixed(2)}}</md-table-cell>
+        <md-table-cell>R${{mes.totais.impostos.retencoes.iss.toFixed(2)}}</md-table-cell>
+        <md-table-cell>R${{mes.totais.impostos.retencoes.pis.toFixed(2)}}</md-table-cell>
+        <md-table-cell>R${{mes.totais.impostos.retencoes.cofins.toFixed(2)}}</md-table-cell>
+        <md-table-cell>R${{mes.totais.impostos.retencoes.csll.toFixed(2)}}</md-table-cell>
+        <md-table-cell>R${{mes.totais.impostos.retencoes.irpj.toFixed(2)}}</md-table-cell>
+        <md-table-cell>R${{mes.totais.impostos.retencoes.total.toFixed(2)}}</md-table-cell>
+      </md-table-row>
+
+      <md-table-row>
+        <md-table-head>Trimestre</md-table-head>
+        <md-table-head>R${{trimestre.totais.impostos.icms.proprio.toFixed(2)}}</md-table-head>
+        <md-table-head>R${{trimestre.totais.impostos.icms.difal.origem.toFixed(2)}}</md-table-head>
+        <md-table-head>R${{trimestre.totais.impostos.icms.difal.destino.toFixed(2)}}</md-table-head>
+        <md-table-head>R${{trimestre.totais.impostos.iss.toFixed(2)}}</md-table-head>
+        <md-table-head>R${{trimestre.totais.impostos.pis.toFixed(2)}}</md-table-head>
+        <md-table-head>R${{trimestre.totais.impostos.cofins.toFixed(2)}}</md-table-head>
+        <md-table-head>R${{trimestre.totais.impostos.csll.toFixed(2)}}</md-table-head>
+        <md-table-head>R${{trimestre.totais.impostos.irpj.toFixed(2)}}</md-table-head>
+        <md-table-head>R${{trimestre.totais.impostos.total.toFixed(2)}}</md-table-head>
+        <md-table-head>R${{trimestre.totais.impostos.retencoes.iss.toFixed(2)}}</md-table-head>
+        <md-table-head>R${{trimestre.totais.impostos.retencoes.pis.toFixed(2)}}</md-table-head>
+        <md-table-head>R${{trimestre.totais.impostos.retencoes.cofins.toFixed(2)}}</md-table-head>
+        <md-table-head>R${{trimestre.totais.impostos.retencoes.csll.toFixed(2)}}</md-table-head>
+        <md-table-head>R${{trimestre.totais.impostos.retencoes.irpj.toFixed(2)}}</md-table-head>
+        <md-table-head>R${{trimestre.totais.impostos.retencoes.total.toFixed(2)}}</md-table-head>
       </md-table-row>
     </md-table>
   </div>
@@ -216,7 +293,10 @@ export default {
       semServicos: true,
       servicos: {},
       notasServico: {},
-      notas: {}
+      notas: {},
+      trimestre: {},
+      tipoTabela: null,
+      mostraTudo: false
     }
   },
   created () {
@@ -323,13 +403,6 @@ export default {
       let pessoaEmpresa = this.$data.empresaSelecionada.pessoa
       let numeroEmpresa = this.$data.empresaSelecionada.numero
 
-      totaisTrimestrais(pessoaEmpresa.cnpj, competencia, (err, trimestre) => {
-        if (err) {
-          console.error(err)
-        }
-        console.log(trimestre)
-      })
-
       pegarMovimentosMes(pessoaEmpresa.cnpj, competencia, (err, movimentos) => {
         if (err) console.error(err)
 
@@ -381,6 +454,12 @@ export default {
           })
         }
       })
+      totaisTrimestrais(pessoaEmpresa.cnpj, competencia, (err, trimestre) => {
+        if (err) {
+          console.error(err)
+        }
+        this.$data.trimestre = trimestre
+      })
     },
     pegaIndex (index) {
       let movimentos = this.$data.movimentos
@@ -388,6 +467,7 @@ export default {
     },
     imprimirTabela () {
       let printer = new Printd()
+      this.$data.mostraTudo = true
       let tabela = this.$refs['tabelas']
       let css = `  * {
           font-family: Helvetica, Arial, sans-serif;
@@ -446,6 +526,7 @@ export default {
       this.$nextTick(() => {
         printer.print(tabela, css, win => {
           win.print()
+          this.$data.mostraTudo = false
         })
       })
     },
@@ -457,6 +538,16 @@ export default {
       this.$data.semMovimentos = true
       this.$data.servicos = {}
       this.$data.semServicos = true
+    },
+    pegarMes (num) {
+      let meses = this.$data.meses
+      let mes
+      Object.keys(meses).forEach(key => {
+        if(meses[key].num === num) {
+          mes = meses[key].nome
+        }
+      })
+      return mes
     }
   },
   computed: {
@@ -472,6 +563,9 @@ export default {
     },
     temServicos () {
       return !_.isEmpty(this.$data.servicos)
+    },
+    temAcumulado () {
+      return !_.isEmpty(this.$data.trimestre)
     },
     retornarTotais () {
       let movimentos = this.$data.movimentos

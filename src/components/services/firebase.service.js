@@ -1034,7 +1034,7 @@ export function calcularImpostosMovimento (notaInicial, notaFinal, callback) {
               baseDeCalculo: baseDeCalculo.toFixed(2),
               proprio: valor.toFixed(2)
             }
-            valores.impostos.toatal = parseFloat(valores.impostos.toatal) + valor
+            valores.impostos.total = parseFloat(valores.impostos.total) + valor
           }
         }
 
@@ -1234,7 +1234,7 @@ export function totaisTrimestrais (cnpj, competencia, callback) {
         trimestre.totais.impostos.cofins += trimestre[mes].totais.impostos.cofins
         trimestre.totais.impostos.total += trimestre[mes].totais.impostos.total
 
-        trimestre.totais.impostos.icms.proprio += trimestre[mes].totais.impostos.icms.prorpio
+        trimestre.totais.impostos.icms.proprio += trimestre[mes].totais.impostos.icms.proprio
         trimestre.totais.impostos.icms.difal.origem += trimestre[mes].totais.impostos.icms.difal.origem
         trimestre.totais.impostos.icms.difal.destino += trimestre[mes].totais.impostos.icms.difal.destino
 

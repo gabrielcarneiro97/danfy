@@ -219,7 +219,7 @@ export default {
 
           Object.keys(this.$data.notasServico).forEach(id => {
             let notaServico = this.$data.notasServico[id]
-            if (estaNoDominio(notaServico.emitente)) {
+            if (estaNoDominio(notaServico.emitente) && notaServico.geral.status !== 'CANCELADA') {
               calcularImpostosServico(notaServico, (err, valores) => {
                 if (err) {
                   console.error(err)
