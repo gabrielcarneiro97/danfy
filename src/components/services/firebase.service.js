@@ -1,7 +1,7 @@
 import * as firebase from 'firebase'
 import { xml2js } from 'xml-js'
 import store from '../../store'
-import { sair, autenticar, adicionarPessoa, adicionarNota, limparNotas, carregarDominio, adicionarEmpresa } from '../../store/actions'
+import { sair, autenticar, adicionarPessoa, adicionarNota, adicionarNotaServico, limparNotas, limparNotasServico, carregarDominio, adicionarEmpresa } from '../../store/actions'
 
 var config = {
   apiKey: 'apiKey',
@@ -83,6 +83,7 @@ export function lerNotasInput (files, callback) {
   let pessoas = {}
   let canceladas = {}
   let notas = {}
+  let notasServico = {}
 
   for (let index = 0; index < todosArquivos; index++) {
     let leitor = new window.FileReader()
@@ -95,160 +96,36 @@ export function lerNotasInput (files, callback) {
       let dados = leitor.result
       let obj = xml2js(dados, { compact: true })
 
-      if (obj.envEvento) {
+      if (obj.CompNfse) {
+        lerNfse(obj, (notaServico, emitente, destinatario) => {
+          notasServico = {
+            ...notasServico,
+            [notaServico.chave]: notaServico
+          }
+          pessoas = {
+            ...pessoas,
+            [notaServico.emitente]: emitente,
+            [notaServico.destinatario]: destinatario
+          }
+        })
+      } else if (obj.envEvento) {
         if (obj.envEvento.evento.Signature) {
           canceladas[obj.envEvento.evento.infEvento.chNFe['_text']] = true
           return 0
         }
-      }
-
-      if (!obj.nfeProc) return 0
-      if (!obj.nfeProc.NFe) return 0
-      if (!obj.nfeProc.NFe.Signature) return 0
-
-      let info = obj.nfeProc.NFe.infNFe
-
-      if (!info.ide.tpAmb['_text'] === '1') return 0
-
-      let notaId = info['_attributes'].Id.split('NFe')[1]
-
-      let emit = info.emit
-      let emitenteId = emit.CNPJ['_text']
-      let emitente = {
-        nome: emit.xNome['_text'],
-        endereco: {
-          logradouro: emit.enderEmit.xLgr['_text'],
-          numero: emit.enderEmit.nro['_text'],
-          complemento: emit.enderEmit.xCpl ? emit.enderEmit.xCpl['_text'] : '',
-          bairro: emit.enderEmit.xBairro['_text'],
-          municipio: {
-            codigo: emit.enderEmit.cMun['_text'],
-            nome: emit.enderEmit.xMun['_text']
-          },
-          estado: emit.enderEmit.UF['_text'],
-          pais: {
-            codigo: emit.enderEmit.cPais['_text'],
-            nome: emit.enderEmit.xPais['_text']
-          },
-          cep: emit.enderEmit.CEP ? emit.enderEmit.CEP['_text'] : null
-        }
-      }
-
-      let dest = info.dest
-      let destinatarioId = dest.CPF ? dest.CPF['_text'] : dest.CNPJ['_text']
-      let destinatario = {
-        nome: dest.xNome['_text'],
-        endereco: {
-          logradouro: dest.enderDest.xLgr['_text'],
-          numero: dest.enderDest.nro['_text'],
-          complemento: dest.enderDest.xCpl ? dest.enderDest.xCpl['_text'] : '',
-          bairro: dest.enderDest.xBairro['_text'],
-          municipio: {
-            codigo: dest.enderDest.cMun['_text'],
-            nome: dest.enderDest.xMun['_text']
-          },
-          estado: dest.enderDest.UF['_text'],
-          pais: {
-            codigo: dest.enderDest.cPais['_text'],
-            nome: dest.enderDest.xPais['_text']
-          },
-          cep: dest.enderDest.CEP['_text']
-        }
-      }
-
-      let nota = {
-        chave: notaId,
-        emitente: emitenteId,
-        destinatario: destinatarioId,
-        informacoesEstaduais: {
-          estadoGerador: emitente.endereco.estado,
-          estadoDestino: destinatario.endereco.estado,
-          destinatarioContribuinte: dest.indIEDest['_text']
-        },
-        geral: {
-          dataHora: info.ide.dhSaiEnt['_text'],
-          naturezaOperacao: info.ide.natOp['_text'],
-          numero: info.ide.cNF['_text'],
-          tipo: info.ide.tpNF['_text'],
-          status: canceladas[notaId] ? 'CANCELADA' : 'NORMAL'
-        },
-        valor: {
-          total: info.total.ICMSTot.vNF['_text']
-        }
-      }
-
-      let det = info.det
-      let produtos = {}
-
-      if (!Array.isArray(det)) {
-        let prod = det.prod
-        let codigo = prod.cProd['_text']
-
-        nota.geral.cfop = prod.CFOP['_text']
-
-        let produto = {
-          descricao: prod.xProd['_text'],
-          quantidade: {
-            numero: prod.qCom['_text'],
-            tipo: prod.uCom['_text']
-          },
-          valor: {
-            total: prod.vProd['_text']
-          }
-        }
-
-        produtos = {
-          ...produtos,
-          [codigo]: produto
-        }
       } else {
-        det.forEach(val => {
-          let prod = val.prod
-          let codigo = prod.cProd['_text']
-
-          nota.geral.cfop = prod.CFOP['_text']
-
-          let produto = {
-            descricao: prod.xProd['_text'],
-            quantidade: {
-              numero: prod.qCom['_text'],
-              tipo: prod.uCom['_text']
-            },
-            valor: {
-              total: prod.vProd['_text']
-            }
+        lerNfe(obj, (nota, emitente, destinatario) => {
+          notas = {
+            ...notas,
+            [nota.chave]: nota
           }
-
-          produtos = {
-            ...produtos,
-            [codigo]: produto
+          pessoas = {
+            ...pessoas,
+            [nota.emitente]: emitente,
+            [nota.destinatario]: destinatario
           }
         })
       }
-
-      nota.produtos = produtos
-
-      nota.complementar = {
-        notaReferencia: info.ide.NFref ? info.ide.NFref.refNFe['_text'] : null,
-        textoComplementar: info.infAdic ? info.infAdic.infCpl ? info.infAdic.infCpl['_text'] : info.infAdic.infAdFisco ? info.infAdic.infAdFisco['_text'] : null : null
-      }
-
-      notas = {
-        ...notas,
-        [notaId]: nota
-      }
-
-      store.dispatch(adicionarNota(notaId, nota))
-
-      pessoas = {
-        ...pessoas,
-        [emitenteId]: emitente,
-        [destinatarioId]: destinatario
-      }
-
-      store.dispatch(adicionarPessoa(emitenteId, emitente))
-      store.dispatch(adicionarPessoa(destinatarioId, destinatario))
-
       //  FINAL leitor.onload
     }
 
@@ -263,23 +140,258 @@ export function lerNotasInput (files, callback) {
           }
         })
 
-        callback(notas, pessoas)
+        callback(notas, notasServico, pessoas)
       }
     }
   }
 }
 
+export function lerNfse (obj, callback) {
+  if (!obj.CompNfse.Nfse.Signature) {
+    return 0
+  }
+
+  let info = obj.CompNfse.Nfse.InfNfse
+  let valorBruto = info.Servico.Valores
+
+  let notaServico = {}
+
+  let valor = {
+    servico: valorBruto.ValorServicos['_text'],
+    baseDeCalculo: valorBruto.BaseCalculo['_text'],
+    iss: {
+      valor: valorBruto.ValorIss ? valorBruto.ValorIss['_text'] : null,
+      aliquota: valorBruto.Aliquota ? valorBruto.Aliquota['_text'] : null
+    },
+    retencoes: {
+      iss: valorBruto.ValorIssRetido ? valorBruto.ValorIssRetido['_text'] : '0.0',
+      irpj: valorBruto.ValorIr ? valorBruto.ValorIr['_text'] : '0.0',
+      csll: valorBruto.ValorCsll ? valorBruto.ValorCsll['_text'] : '0.0',
+      cofins: valorBruto.ValorCofins ? valorBruto.ValorCofins['_text'] : '0.0',
+      pis: valorBruto.ValorPis ? valorBruto.ValorPis['_text'] : '0.0',
+      inss: valorBruto.ValorInss ? valorBruto.ValorInss['_text'] : '0.0'
+    }
+  }
+
+  notaServico.valor = valor
+
+  let emitenteBruto = info.PrestadorServico
+
+  notaServico.emitente = emitenteBruto.IdentificacaoPrestador.Cnpj['_text']
+
+  let emitente = {
+    nome: emitenteBruto.RazaoSocial['_text'],
+    endereco: {
+      logradouro: emitenteBruto.Endereco.Endereco['_text'],
+      numero: emitenteBruto.Endereco.Numero['_text'],
+      complemento: emitenteBruto.Endereco.Complemento ? emitenteBruto.Endereco.Complemento['_text'] : null,
+      bairro: emitenteBruto.Endereco.Bairro,
+      municipio: {
+        codigo: emitenteBruto.Endereco.CodigoMunicipio['_text']
+      },
+      estado: emitenteBruto.Endereco.Uf['_text'],
+      pais: {
+        nome: 'Brasil',
+        codigo: '1058'
+      },
+      cep: emitenteBruto.Endereco.Cep['_text']
+    }
+  }
+
+  let destinatarioBruto = info.TomadorServico
+
+  notaServico.destinatario = destinatarioBruto.IdentificacaoTomador.CpfCnpj.Cpf ? destinatarioBruto.IdentificacaoTomador.CpfCnpj.Cpf['_text'] : destinatarioBruto.IdentificacaoTomador.CpfCnpj.Cnpj['_text']
+
+  let destinatario = {
+    nome: destinatarioBruto.RazaoSocial['_text'],
+    endereco: {
+      logradouro: destinatarioBruto.Endereco.Endereco['_text'],
+      numero: destinatarioBruto.Endereco.Numero['_text'],
+      complemento: destinatarioBruto.Endereco.Complemento ? destinatarioBruto.Endereco.Complemento['_text'] : null,
+      bairro: destinatarioBruto.Endereco.Bairro,
+      municipio: {
+        codigo: destinatarioBruto.Endereco.CodigoMunicipio['_text']
+      },
+      estado: destinatarioBruto.Endereco.Uf['_text'],
+      pais: {
+        nome: 'Brasil',
+        codigo: '1058'
+      },
+      cep: destinatarioBruto.Endereco.Cep['_text']
+    }
+  }
+
+  notaServico.geral = {
+    numero: info.Numero['_text'],
+    dataHora: info.Competencia['_text'],
+    status: obj.CompNfse.NfseCancelamento ? 'CANCELADA' : 'NORMAL'
+  }
+
+  notaServico.chave = notaServico.emitente + notaServico.geral.numero
+  notaServico.servico = true
+
+  store.dispatch(adicionarNotaServico(notaServico.chave, notaServico))
+  store.dispatch(adicionarPessoa(notaServico.emitente, emitente))
+  store.dispatch(adicionarPessoa(notaServico.destinatario, destinatario))
+
+  callback(notaServico, emitente, destinatario)
+}
+
+export function lerNfe (obj, callback) {
+  if (!obj.nfeProc) return 0
+  if (!obj.nfeProc.NFe) return 0
+  if (!obj.nfeProc.NFe.Signature) return 0
+
+  let info = obj.nfeProc.NFe.infNFe
+
+  if (!info.ide.tpAmb['_text'] === '1') return 0
+
+  let notaId = info['_attributes'].Id.split('NFe')[1]
+
+  let emit = info.emit
+  let emitenteId = emit.CNPJ['_text']
+  let emitente = {
+    nome: emit.xNome['_text'],
+    endereco: {
+      logradouro: emit.enderEmit.xLgr['_text'],
+      numero: emit.enderEmit.nro['_text'],
+      complemento: emit.enderEmit.xCpl ? emit.enderEmit.xCpl['_text'] : '',
+      bairro: emit.enderEmit.xBairro['_text'],
+      municipio: {
+        codigo: emit.enderEmit.cMun['_text'],
+        nome: emit.enderEmit.xMun['_text']
+      },
+      estado: emit.enderEmit.UF['_text'],
+      pais: {
+        codigo: emit.enderEmit.cPais['_text'],
+        nome: emit.enderEmit.xPais['_text']
+      },
+      cep: emit.enderEmit.CEP ? emit.enderEmit.CEP['_text'] : null
+    }
+  }
+
+  let dest = info.dest
+  let destinatarioId = dest.CPF ? dest.CPF['_text'] : dest.CNPJ['_text']
+  let destinatario = {
+    nome: dest.xNome['_text'],
+    endereco: {
+      logradouro: dest.enderDest.xLgr['_text'],
+      numero: dest.enderDest.nro['_text'],
+      complemento: dest.enderDest.xCpl ? dest.enderDest.xCpl['_text'] : '',
+      bairro: dest.enderDest.xBairro['_text'],
+      municipio: {
+        codigo: dest.enderDest.cMun['_text'],
+        nome: dest.enderDest.xMun['_text']
+      },
+      estado: dest.enderDest.UF['_text'],
+      pais: {
+        codigo: dest.enderDest.cPais['_text'],
+        nome: dest.enderDest.xPais['_text']
+      },
+      cep: dest.enderDest.CEP['_text']
+    }
+  }
+
+  let nota = {
+    chave: notaId,
+    emitente: emitenteId,
+    destinatario: destinatarioId,
+    informacoesEstaduais: {
+      estadoGerador: emitente.endereco.estado,
+      estadoDestino: destinatario.endereco.estado,
+      destinatarioContribuinte: dest.indIEDest['_text']
+    },
+    geral: {
+      dataHora: info.ide.dhSaiEnt['_text'],
+      naturezaOperacao: info.ide.natOp['_text'],
+      numero: info.ide.cNF['_text'],
+      tipo: info.ide.tpNF['_text'],
+      status: 'NORMAL'
+    },
+    valor: {
+      total: info.total.ICMSTot.vNF['_text']
+    }
+  }
+
+  let det = info.det
+  let produtos = {}
+
+  if (!Array.isArray(det)) {
+    let prod = det.prod
+    let codigo = prod.cProd['_text']
+
+    nota.geral.cfop = prod.CFOP['_text']
+
+    let produto = {
+      descricao: prod.xProd['_text'],
+      quantidade: {
+        numero: prod.qCom['_text'],
+        tipo: prod.uCom['_text']
+      },
+      valor: {
+        total: prod.vProd['_text']
+      }
+    }
+
+    produtos = {
+      ...produtos,
+      [codigo]: produto
+    }
+  } else {
+    det.forEach(val => {
+      let prod = val.prod
+      let codigo = prod.cProd['_text']
+
+      nota.geral.cfop = prod.CFOP['_text']
+
+      let produto = {
+        descricao: prod.xProd['_text'],
+        quantidade: {
+          numero: prod.qCom['_text'],
+          tipo: prod.uCom['_text']
+        },
+        valor: {
+          total: prod.vProd['_text']
+        }
+      }
+
+      produtos = {
+        ...produtos,
+        [codigo]: produto
+      }
+    })
+  }
+
+  nota.produtos = produtos
+
+  nota.complementar = {
+    notaReferencia: info.ide.NFref ? info.ide.NFref.refNFe['_text'] : null,
+    textoComplementar: info.infAdic ? info.infAdic.infCpl ? info.infAdic.infCpl['_text'] : info.infAdic.infAdFisco ? info.infAdic.infAdFisco['_text'] : null : null
+  }
+
+  store.dispatch(adicionarNota(notaId, nota))
+  store.dispatch(adicionarPessoa(emitenteId, emitente))
+  store.dispatch(adicionarPessoa(destinatarioId, destinatario))
+
+  callback(nota, emitente, destinatario)
+}
+
 export function gravarPessoas (callback) {
   let pessoas = store.getState().pessoas
-  Object.keys(pessoas).forEach((key, index, arr) => {
-    if (pessoas[key]) {
-      db.ref('Pessoas/' + key).set(pessoas[key], err => {
-        if (arr.length - 1 === index) {
-          callback(err)
-        }
-      })
-    }
-  })
+  let keys = Object.keys(pessoas)
+  if (keys.length !== 0) {
+    keys.forEach((key, index, arr) => {
+      if (pessoas[key]) {
+        db.ref('Pessoas/' + key).set(pessoas[key], err => {
+          if (arr.length - 1 === index) {
+            callback(err)
+          }
+        })
+      }
+    })
+  } else {
+    callback(null)
+  }
 }
 
 export function pegarPessoaId (id, callback) {
@@ -366,19 +478,46 @@ export function pegarNotaProduto (produtoId, produto, callback) {
 
 export function gravarNotas (callback) {
   let notas = store.getState().notas
-  Object.keys(notas).forEach((key, index, arr) => {
-    if (notas[key]) {
-      db.ref('Notas/' + key).set(notas[key], err => {
-        if (arr.length - 1 === index) {
-          callback(err)
-        }
-      })
-    }
-  })
+  let keys = Object.keys(notas)
+  if (keys.length !== 0) {
+    keys.forEach((key, index, arr) => {
+      if (notas[key]) {
+        db.ref('Notas/' + key).set(notas[key], err => {
+          if (arr.length - 1 === index) {
+            callback(err)
+          }
+        })
+      }
+    })
+  } else {
+    callback(null)
+  }
+}
+
+export function gravarNotasServico (callback) {
+  let notasServico = store.getState().notasServico
+  let keys = Object.keys(notasServico)
+  if (keys.length !== 0) {
+    keys.forEach((key, index, arr) => {
+      if (notasServico[key]) {
+        db.ref('NotasServico/' + key).set(notasServico[key], err => {
+          if (arr.length - 1 === index) {
+            callback(err)
+          }
+        })
+      }
+    })
+  } else {
+    callback(null)
+  }
 }
 
 export function limparNotasStore () {
   store.dispatch(limparNotas())
+}
+
+export function limparNotasServicoStore () {
+  store.dispatch(limparNotasServico())
 }
 
 export function pegarNotaChave (chave, callback) {
@@ -624,7 +763,7 @@ export function pegarMovimentosMes (cnpj, competencia, callback) {
   })
 }
 
-export function calcularImpostosMovimento (notaInicial, notaFinal) {
+export function calcularImpostosMovimento (notaInicial, notaFinal, callback) {
   let valorSaida = parseFloat(notaFinal.valor.total)
   let lucro = parseFloat(notaFinal.valor.total) - parseFloat(notaInicial.valor.total)
   let estadoGerador = notaFinal.informacoesEstaduais.estadoGerador
@@ -632,175 +771,172 @@ export function calcularImpostosMovimento (notaInicial, notaFinal) {
   let destinatarioContribuinte = notaFinal.informacoesEstaduais.destinatarioContribuinte
 
   if (estadoGerador !== 'MG') {
-    return 0
+    callback(new Error('Estado informado não suportado! Estado: ' + estadoGerador), null)
   }
 
-  let aliquotas = {
-    icms: {
-      aliquota: 0.18,
-      reducao: 0.2778
-    },
-    pis: 0.0065,
-    cofins: 0.03,
-    csll: 0.0288,
-    irpj: 0.012
-  }
-
-  if (lucro < 0) {
-    return {
-      lucro: lucro,
-      valorSaida: valorSaida,
-      impostos: {
-        pis: 0,
-        cofins: 0,
-        csll: 0,
-        irpj: 0,
-        icms: {
-          baseDeCalculo: 0,
-          proprio: 0
-        },
-        total: 0
-      }
-    }
-  }
-
-  let valores = {
-    lucro: lucro,
-    valorSaida: valorSaida,
-    impostos: {
-      pis: (lucro * aliquotas.pis).toFixed(2),
-      cofins: (lucro * aliquotas.cofins).toFixed(2),
-      csll: (lucro * aliquotas.csll).toFixed(2),
-      irpj: (lucro * aliquotas.irpj).toFixed(2),
-      total: ((lucro * aliquotas.irpj) + (lucro * aliquotas.pis) + (lucro * aliquotas.cofins) + (lucro * aliquotas.csll)).toFixed(2)
-    }
-  }
-
-  let icmsEstados = {
-    SC: {
-      externo: 0.12,
-      interno: 0.12
-    },
-    DF: {
-      externo: 0.07,
-      interno: 0.12
-    },
-    MS: {
-      externo: 0.07,
-      interno: 0.17
-    },
-    MT: {
-      externo: 0.07,
-      interno: 0.17
-    },
-    SP: {
-      externo: 0.12,
-      interno: 0.18
-    },
-    RJ: {
-      externo: 0.12,
-      interno: 0.18
-    },
-    GO: {
-      externo: 0.07,
-      interno: 0.17
-    },
-    RO: {
-      externo: 0.07,
-      interno: 0.175
-    },
-    ES: {
-      externo: 0.07,
-      interno: 0.12
-    },
-    AC: {
-      externo: 0.07,
-      interno: 0.17
-    },
-    CE: {
-      externo: 0.07,
-      interno: 0.17
-    },
-    PR: {
-      externo: 0.12,
-      interno: 0.18
-    },
-    PI: {
-      externo: 0.07,
-      interno: 0.17
-    },
-    PE: {
-      externo: 0.12,
-      interno: 0.18
-    },
-    MA: {
-      externo: 0.07,
-      interno: 0.18
-    },
-    PA: {
-      externo: 0.07,
-      interno: 0.17
-    },
-    RN: {
-      externo: 0.07,
-      interno: 0.18
-    },
-    BA: {
-      externo: 0.07,
-      interno: 0.18
-    },
-    RS: {
-      externo: 0.12,
-      interno: 0.18
-    },
-    TO: {
-      externo: 0.07,
-      interno: 0.18
-    }
-  }
-
-  let estadosSemReducao = ['RN', 'BA', 'RS', 'TO']
-
-  if (estadoGerador === estadoDestino) {
-    valores.impostos.icms = {
-      baseDeCalculo: (lucro * aliquotas.icms.reducao).toFixed(2),
-      proprio: (lucro * aliquotas.icms.reducao * aliquotas.icms.aliquota).toFixed(2)
-    }
-    valores.impostos.total = (parseFloat(valores.impostos.total) + (lucro * aliquotas.icms.reducao * aliquotas.icms.aliquota)).toFixed(2)
-  } else {
-    if (destinatarioContribuinte === '2' || destinatarioContribuinte === '9') {
-      let composicaoDaBase = valorSaida / (1 - icmsEstados[estadoDestino].interno)
-      let baseDeCalculo = 0.05 * composicaoDaBase
-      let baseDifal = estadosSemReducao.includes(estadoDestino) ? composicaoDaBase : baseDeCalculo
-      let proprio = baseDifal * icmsEstados[estadoDestino].externo
-      let difal = (baseDifal * icmsEstados[estadoDestino].interno) - proprio
-
-      valores.impostos.icms = {
-        composicaoDaBase: composicaoDaBase.toFixed(2),
-        baseDeCalculo: baseDeCalculo.toFixed(2),
-        proprio: proprio.toFixed(2),
-        difal: {
-          origem: (difal * 0.8).toFixed(2),
-          destino: (difal * 0.2).toFixed(2)
+  pegarEmpresaImpostos(notaFinal.emitente, (err, aliquotas) => {
+    if (err) {
+      console.error(err)
+    } else {
+      if (!notaFinal.servico) {
+        if (lucro < 0) {
+          return {
+            lucro: lucro,
+            valorSaida: valorSaida,
+            impostos: {
+              pis: 0,
+              cofins: 0,
+              csll: 0,
+              irpj: 0,
+              icms: {
+                baseDeCalculo: 0,
+                proprio: 0
+              },
+              total: 0
+            }
+          }
         }
-      }
 
-      valores.impostos.total = (parseFloat(valores.impostos.total) + (difal * 0.8) + (difal * 0.2) + proprio).toFixed(2)
-    } else if (destinatarioContribuinte === '1') {
-      let baseDeCalculo = 0.05 * valorSaida
-      let valor = baseDeCalculo * icmsEstados[estadoDestino].externo
+        let valores = {
+          lucro: lucro,
+          valorSaida: valorSaida,
+          impostos: {
+            pis: (lucro * aliquotas.pis).toFixed(2),
+            cofins: (lucro * aliquotas.cofins).toFixed(2),
+            csll: (lucro * aliquotas.csll).toFixed(2),
+            irpj: (lucro * aliquotas.irpj).toFixed(2),
+            total: ((lucro * aliquotas.irpj) + (lucro * aliquotas.pis) + (lucro * aliquotas.cofins) + (lucro * aliquotas.csll)).toFixed(2)
+          }
+        }
 
-      valores.impostos.icms = {
-        composicaoDaBase: null,
-        difal: null,
-        baseDeCalculo: baseDeCalculo.toFixed(2),
-        proprio: valor.toFixed(2)
+        let icmsEstados = {
+          SC: {
+            externo: 0.12,
+            interno: 0.12
+          },
+          DF: {
+            externo: 0.07,
+            interno: 0.12
+          },
+          MS: {
+            externo: 0.07,
+            interno: 0.17
+          },
+          MT: {
+            externo: 0.07,
+            interno: 0.17
+          },
+          SP: {
+            externo: 0.12,
+            interno: 0.18
+          },
+          RJ: {
+            externo: 0.12,
+            interno: 0.18
+          },
+          GO: {
+            externo: 0.07,
+            interno: 0.17
+          },
+          RO: {
+            externo: 0.07,
+            interno: 0.175
+          },
+          ES: {
+            externo: 0.07,
+            interno: 0.12
+          },
+          AC: {
+            externo: 0.07,
+            interno: 0.17
+          },
+          CE: {
+            externo: 0.07,
+            interno: 0.17
+          },
+          PR: {
+            externo: 0.12,
+            interno: 0.18
+          },
+          PI: {
+            externo: 0.07,
+            interno: 0.17
+          },
+          PE: {
+            externo: 0.12,
+            interno: 0.18
+          },
+          MA: {
+            externo: 0.07,
+            interno: 0.18
+          },
+          PA: {
+            externo: 0.07,
+            interno: 0.17
+          },
+          RN: {
+            externo: 0.07,
+            interno: 0.18
+          },
+          BA: {
+            externo: 0.07,
+            interno: 0.18
+          },
+          RS: {
+            externo: 0.12,
+            interno: 0.18
+          },
+          TO: {
+            externo: 0.07,
+            interno: 0.18
+          }
+        }
+
+        let estadosSemReducao = ['RN', 'BA', 'RS', 'TO']
+
+        if (estadoGerador === estadoDestino) {
+          valores.impostos.icms = {
+            baseDeCalculo: (lucro * aliquotas.icms.reducao).toFixed(2),
+            proprio: (lucro * aliquotas.icms.reducao * aliquotas.icms.aliquota).toFixed(2)
+          }
+          valores.impostos.total = (parseFloat(valores.impostos.total) + (lucro * aliquotas.icms.reducao * aliquotas.icms.aliquota)).toFixed(2)
+        } else {
+          if (destinatarioContribuinte === '2' || destinatarioContribuinte === '9') {
+            let composicaoDaBase = valorSaida / (1 - icmsEstados[estadoDestino].interno)
+            let baseDeCalculo = 0.05 * composicaoDaBase
+            let baseDifal = estadosSemReducao.includes(estadoDestino) ? composicaoDaBase : baseDeCalculo
+            let proprio = baseDifal * icmsEstados[estadoDestino].externo
+            let difal = (baseDifal * icmsEstados[estadoDestino].interno) - proprio
+
+            valores.impostos.icms = {
+              composicaoDaBase: composicaoDaBase.toFixed(2),
+              baseDeCalculo: baseDeCalculo.toFixed(2),
+              proprio: proprio.toFixed(2),
+              difal: {
+                origem: (difal * 0.8).toFixed(2),
+                destino: (difal * 0.2).toFixed(2)
+              }
+            }
+
+            valores.impostos.total = (parseFloat(valores.impostos.total) + (difal * 0.8) + (difal * 0.2) + proprio).toFixed(2)
+          } else if (destinatarioContribuinte === '1') {
+            let baseDeCalculo = 0.05 * valorSaida
+            let valor = baseDeCalculo * icmsEstados[estadoDestino].externo
+
+            valores.impostos.icms = {
+              composicaoDaBase: null,
+              difal: null,
+              baseDeCalculo: baseDeCalculo.toFixed(2),
+              proprio: valor.toFixed(2)
+            }
+            valores.impostos.toatal = parseFloat(valores.impostos.toatal) + valor
+          }
+        }
+
+        callback(null, valores)
       }
-      valores.impostos.toatal = parseFloat(valores.impostos.toatal) + valor
     }
-  }
-
-  return valores
+  })
 }
 
 export function excluirMovimento (cnpj, id, callback) {

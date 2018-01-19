@@ -175,13 +175,19 @@ export default {
                     console.log(notaRetorno)
                     if (!err) {
                       movimento.notaInicial = notaRetorno.chave
-                      movimento.valores = calcularImpostosMovimento(notaRetorno, nota)
+                      movimento.valores = calcularImpostosMovimento(notaRetorno, nota, (err, valores) => {
+                        if (err) {
+                          console.error(err)
+                        } else {
+                          movimento.valores = valores
+                          this.$data.movimentos.push(movimento)
+                        }
+                      })
                     }
                     this.$data.notas = {
                       ...this.$data.notas,
                       [notaRetorno.chave]: notaRetorno
                     }
-                    this.$data.movimentos.push(movimento)
                   })
                 }
               })
@@ -250,13 +256,19 @@ export default {
             if (err) {
               this.chamarMensagem(err)
             } else {
-              this.$data.movimentos[movimentoId].notaInicial = notaInicial.chave
-              this.$data.movimentos[movimentoId].valores = calcularImpostosMovimento(notaInicial, notaFinal)
-              this.$data.notas = store.getState().notas
-              this.$data.mostraAdicionarNota = false
-              this.$data.adicionarNumeroEmitenteInfo.numeroNota = null
-              this.$data.adicionarNumeroEmitenteInfo.emitente = null
-              this.chamarMensagem(new Error('Nota Adicionada com sucesso!'))
+              calcularImpostosMovimento(notaInicial, notaFinal, (err, valores) => {
+                if (err) {
+                  console.error(err)
+                } else {
+                  this.$data.movimentos[movimentoId].notaInicial = notaInicial.chave
+                  this.$data.movimentos[movimentoId].valores = valores
+                  this.$data.notas = store.getState().notas
+                  this.$data.mostraAdicionarNota = false
+                  this.$data.adicionarNumeroEmitenteInfo.numeroNota = null
+                  this.$data.adicionarNumeroEmitenteInfo.emitente = null
+                  this.chamarMensagem(new Error('Nota Adicionada com sucesso!'))
+                }
+              })
             }
           })
         })
@@ -282,13 +294,15 @@ export default {
             if (err) {
               this.chamarMensagem(err)
             } else {
-              this.$data.movimentos[movimentoId].notaInicial = notaInicial.chave
-              this.$data.movimentos[movimentoId].valores = calcularImpostosMovimento(notaInicial, notaFinal)
-              this.$data.notas = store.getState().notas
-              this.$data.mostraAdicionarNota = false
-              this.$data.adicionarNumeroEmitenteInfo.numeroNota = null
-              this.$data.adicionarNumeroEmitenteInfo.emitente = null
-              this.chamarMensagem(new Error('Nota Adicionada com sucesso!'))
+              calcularImpostosMovimento(notaInicial, notaFinal, valores => {
+                this.$data.movimentos[movimentoId].notaInicial = notaInicial.chave
+                this.$data.movimentos[movimentoId].valores = valores
+                this.$data.notas = store.getState().notas
+                this.$data.mostraAdicionarNota = false
+                this.$data.adicionarNumeroEmitenteInfo.numeroNota = null
+                this.$data.adicionarNumeroEmitenteInfo.emitente = null
+                this.chamarMensagem(new Error('Nota Adicionada com sucesso!'))
+              })
             }
           })
         } else {
@@ -320,11 +334,17 @@ export default {
               if (err) {
                 this.chamarMensagem(err)
               } else {
-                this.$data.movimentos[movimentoId].notaInicial = chave
-                this.$data.movimentos[movimentoId].valores = calcularImpostosMovimento(notaInicial, notaFinal)
-                this.$data.notas = store.getState().notas
-                this.$data.mostraAdicionarNota = false
-                this.chamarMensagem(new Error('Nota Adicionada com sucesso!'))
+                calcularImpostosMovimento(notaInicial, notaFinal, (err, valores) => {
+                  if (err) {
+                    console.error(err)
+                  } else {
+                    this.$data.movimentos[movimentoId].notaInicial = chave
+                    this.$data.movimentos[movimentoId].valores = valores
+                    this.$data.notas = store.getState().notas
+                    this.$data.mostraAdicionarNota = false
+                    this.chamarMensagem(new Error('Nota Adicionada com sucesso!'))
+                  }
+                })
               }
             })
           }

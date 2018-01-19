@@ -14,8 +14,13 @@
   </div>
 
   <div class="md-layout md-alignment-top-center">
-    <md-table class="md-layout-item md-size-90">
-      <md-table-row v-if="!semNotas">
+    <md-table class="md-layout-item md-size-90" v-if="!semNotas">
+
+      <md-table-toolbar>
+        <h1 class="md-title">Notas de Compra e Venda</h1>
+      </md-table-toolbar>
+
+      <md-table-row>
         <md-table-head md-numeric>Número</md-table-head>
         <md-table-head>Emitente</md-table-head>
         <md-table-head>Destinatário</md-table-head>
@@ -34,6 +39,31 @@
         <md-table-cell>{{nota.geral.naturezaOperacao}}</md-table-cell>
         <md-table-cell>{{nota.valor.total}}</md-table-cell>
         <md-table-cell>{{nota.geral.status}}</md-table-cell>
+      </md-table-row>
+    </md-table>
+
+     <md-table class="md-layout-item md-size-90" v-if="!semNotasServico">
+
+      <md-table-toolbar>
+        <h1 class="md-title">Notas de Serviço</h1>
+      </md-table-toolbar>
+
+      <md-table-row>
+        <md-table-head md-numeric>Número</md-table-head>
+        <md-table-head>Emitente</md-table-head>
+        <md-table-head>Destinatário</md-table-head>
+        <md-table-head>Valor</md-table-head>
+        <md-table-head>Status</md-table-head>
+      </md-table-row>
+
+      <md-table-row v-for="notaServico in ordenarNotasServico" v-bind:key="notaServico.emitente + notaServico.geral.numero">
+
+        <md-table-cell md-numeric>{{notaServico.geral.numero}}</md-table-cell>
+
+        <md-table-cell>{{pessoas[notaServico.emitente].nome}}</md-table-cell>
+        <md-table-cell>{{pessoas[notaServico.destinatario].nome}}</md-table-cell>
+        <md-table-cell>{{notaServico.valor.servico}}</md-table-cell>
+        <md-table-cell>{{notaServico.geral.status}}</md-table-cell>
       </md-table-row>
     </md-table>
   </div>
@@ -122,12 +152,13 @@
 <script>
 import _ from 'lodash'
 import store from '../store'
-import { usuarioAtivo, lerNotasInput, adicionarDominioEImpostos, gravarPessoas, gravarNotas, limparNotasStore } from './services/firebase.service'
+import { usuarioAtivo, lerNotasInput, adicionarDominioEImpostos, gravarPessoas, gravarNotas, gravarNotasServico, limparNotasStore, limparNotasServicoStore } from './services/firebase.service'
 
 export default {
   data () {
     return {
       notas: {},
+      notasServico: {},
       pessoas: {},
       foraDominio: {},
       aliquotasPadrao: {
@@ -138,7 +169,7 @@ export default {
         pis: 0.0065,
         cofins: 0.03,
         csll: 0.0288,
-        irpj: 0.012,
+        irpj: 0.048,
         iss: 0.03
       },
       aliquotas: {
@@ -149,7 +180,7 @@ export default {
         pis: 0.0065,
         cofins: 0.03,
         csll: 0.0288,
-        irpj: 0.012,
+        irpj: 0.048,
         iss: 0.03
       },
       empresaParaAdicionar: {},
@@ -167,6 +198,7 @@ export default {
         this.$router.push('/mostrarMovimentos')
       } else {
         limparNotasStore()
+        limparNotasServicoStore()
       }
     })
   },
@@ -176,8 +208,9 @@ export default {
   methods: {
     ler (e) {
       if (e.target.files) {
-        lerNotasInput(e.target.files, (notas, pessoas) => {
+        lerNotasInput(e.target.files, (notas, notasServico, pessoas) => {
           this.$data.notas = notas
+          this.$data.notasServico = notasServico
           this.$data.pessoas = pessoas
           this.$data.clicaEnviar = true
           this.$data.foraDominio = {}
@@ -219,8 +252,16 @@ export default {
       this.gravarEProximaPagina()
     },
     abrirImpostosEDominio (empresa) {
+      let padrao = this.$data.aliquotasPadrao
+      this.$data.aliquotas.iss = padrao.iss
+      this.$data.aliquotas.irpj = padrao.irpj
+      this.$data.aliquotas.csll = padrao.csll
+      this.$data.aliquotas.pis = padrao.pis
+      this.$data.aliquotas.cofins = padrao.cofins
+      this.$data.aliquotas.icms.reducao = padrao.icms.reducao
+      this.$data.aliquotas.icms.aliquota = padrao.icms.aliquota
+
       this.$data.mostra = false
-      this.$data.aliquotas = this.$data.aliquotasPadrao
       this.$data.mostraImpostos = true
       this.$data.empresaParaAdicionar = empresa
     },
@@ -255,7 +296,12 @@ export default {
         else {
           gravarNotas(err => {
             if (err) console.error(err)
-            else this.$router.push('/conciliarNotas')
+            else {
+              gravarNotasServico(err => {
+                if (err) console.error(err)
+                else this.$router.push('/conciliarNotas')
+              })
+            }
           })
         }
       })
@@ -265,8 +311,14 @@ export default {
     ordenarNotas () {
       return _.orderBy(this.$data.notas, 'geral.numero')
     },
+    ordenarNotasServico () {
+      return _.orderBy(this.$data.notasServico, 'geral.numero')
+    },
     semNotas () {
       return _.isEmpty(this.$data.notas)
+    },
+    semNotasServico () {
+      return _.isEmpty(this.$data.notasServico)
     }
   }
 }
