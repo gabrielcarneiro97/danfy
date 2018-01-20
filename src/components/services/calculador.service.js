@@ -1,4 +1,4 @@
-import { pegarEmpresaImpostos } from './index'
+import { pegarEmpresaImpostos, pegarMovimentosMes, pegarServicosMes } from './index'
 
 export function calcularImpostosServico (notaServico, callback) {
   pegarEmpresaImpostos(notaServico.emitente, (err, aliquotas) => {
