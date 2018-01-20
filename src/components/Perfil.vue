@@ -30,7 +30,7 @@
 
 <script>
 import store from '../store'
-import { usuarioAtivo } from './services/firebase.service'
+import { usuarioAtivo } from './services'
 
 export default {
   data () {

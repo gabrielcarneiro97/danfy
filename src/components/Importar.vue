@@ -152,7 +152,7 @@
 <script>
 import _ from 'lodash'
 import store from '../store'
-import { usuarioAtivo, lerNotasInput, adicionarDominioEImpostos, gravarPessoas, gravarNotas, gravarNotasServico, limparNotasStore, limparNotasServicoStore } from './services/firebase.service'
+import { usuarioAtivo, lerNotasInput, adicionarDominioEImpostos, gravarPessoas, gravarNotas, gravarNotasServico, limparNotasStore, limparNotasServicoStore } from './services'
 
 export default {
   data () {

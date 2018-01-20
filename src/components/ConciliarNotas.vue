@@ -138,7 +138,7 @@
 </template>
 
 <script>
-import { calcularImpostosMovimento, calcularImpostosServico, pegarDominio, usuarioAtivo, pegarNotaChave, procurarNotaPar, estaNoDominio, validarMovimento, pegarNotaNumeroEmitente, lerNotasInput, gravarMovimentos, gravarServicos } from './services/firebase.service'
+import { calcularImpostosMovimento, calcularImpostosServico, pegarDominio, usuarioAtivo, pegarNotaChave, procurarNotaPar, estaNoDominio, validarMovimento, pegarNotaNumeroEmitente, lerNotasInput, gravarMovimentos, gravarServicos } from './services'
 import notaDialogo from './notaDialogo'
 import store from '../store'
 

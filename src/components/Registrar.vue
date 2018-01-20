@@ -56,7 +56,7 @@
 </template>
 
 <script>
-import { criarUsuario, usuarioAtivo } from './services/firebase.service'
+import { criarUsuario, usuarioAtivo } from './services'
 
 export default {
   created () {

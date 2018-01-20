@@ -6,7 +6,7 @@
 </template>
 
 <script>
-import { deslogar, usuarioAtivo } from './services/firebase.service'
+import { deslogar, usuarioAtivo } from './services'
 
 export default {
   name: 'navbar',

@@ -1,0 +1,5 @@
+export * from './xml.service'
+export * from './firebase.service'
+export * from './validador.service'
+export * from './calculador.service'
+export * from './store.service.js'

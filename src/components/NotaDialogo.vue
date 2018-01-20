@@ -92,7 +92,7 @@
 </template>
 
 <script>
-import { pegarNotaChave, pegarPessoaId, lerNotasInput } from './services/firebase.service'
+import { pegarNotaChave, pegarPessoaId, lerNotasInput } from './services'
 
 export default {
   name: 'nota-dialogo',
