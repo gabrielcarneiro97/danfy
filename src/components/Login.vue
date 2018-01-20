@@ -23,7 +23,7 @@
   </div>
 </template>
 <script>
-import { entrar, usuarioAtivo } from './services/firebase.service'
+import { entrar, usuarioAtivo } from './services'
 
 export default {
   name: 'login',

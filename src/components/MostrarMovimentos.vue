@@ -239,7 +239,7 @@
 </div>
 </template>
 <script>
-import { pegarDominio, usuarioAtivo, pegarPessoaId, pegarMovimentosMes, pegarServicosMes, pegarNotaChave, pegarNotaServicoChave, excluirMovimento, excluirServico, totaisTrimestrais } from './services/firebase.service'
+import { pegarDominio, usuarioAtivo, pegarPessoaId, pegarMovimentosMes, pegarServicosMes, pegarNotaChave, pegarNotaServicoChave, excluirMovimento, excluirServico, totaisTrimestrais } from './services'
 import notaDialogo from './notaDialogo'
 import _ from 'lodash'
 import { Printd } from 'printd'
