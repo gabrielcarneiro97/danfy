@@ -199,6 +199,7 @@ export default {
       } else {
         limparNotasStore()
         limparNotasServicoStore()
+        console.log(store.getState().notas)
       }
     })
   },

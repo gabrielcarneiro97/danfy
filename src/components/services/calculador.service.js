@@ -51,25 +51,23 @@ export function calcularImpostosMovimento (notaInicial, notaFinal, callback) {
     if (err) {
       console.error(err)
     } else {
-      if (!notaFinal.servico) {
-        if (lucro < 0) {
-          return {
-            lucro: lucro,
-            valorSaida: valorSaida,
-            impostos: {
-              pis: 0,
-              cofins: 0,
-              csll: 0,
-              irpj: 0,
-              icms: {
-                baseDeCalculo: 0,
-                proprio: 0
-              },
-              total: 0
-            }
+      if (lucro < 0) {
+        callback(null, {
+          lucro: lucro,
+          valorSaida: valorSaida,
+          impostos: {
+            pis: 0,
+            cofins: 0,
+            csll: 0,
+            irpj: 0,
+            icms: {
+              baseDeCalculo: 0,
+              proprio: 0
+            },
+            total: 0
           }
-        }
-
+        })
+      } else {
         let valores = {
           lucro: lucro,
           valorSaida: valorSaida,
@@ -352,10 +350,8 @@ export function totaisTrimestrais (cnpj, competencia, callback) {
         if (err) {
           console.error(err)
         }
-
         Object.keys(movimentos).forEach(key => {
           let movimento = movimentos[key]
-
           trimestre[mes].movimentos.lucro += parseFloat(movimento.valores.lucro)
 
           trimestre[mes].movimentos.impostos.total += parseFloat(movimento.valores.impostos.total)
