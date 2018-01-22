@@ -33,6 +33,9 @@
               OPERAÇÃO INTERESTADUAL {{notas[movimento.notaFinal].informacoesEstaduais.estadoGerador}} -> {{notas[movimento.notaFinal].informacoesEstaduais.estadoDestino}} COM<span v-if="notas[movimento.notaFinal].informacoesEstaduais.destinatarioContribuinte !== '1'"> NÃO</span> CONTRIBUINTE
             </div>
           </md-table-cell>
+          <md-table-cell>
+           {{movimento}}
+          </md-table-cell>
           <md-table-cell  md-numeric>
             <md-checkbox v-model="movimento.conferido"></md-checkbox>
           </md-table-cell>
@@ -196,7 +199,10 @@ export default {
                   console.error(err)
                 } else if (notaRetorno) {
                   validarMovimento(notaRetorno, nota, err => {
-                    if (!err) {
+                    if (err) {
+                      this.$data.movimentos.push(movimento)
+                      console.error(err)
+                    } else {
                       movimento.notaInicial = notaRetorno.chave
                       calcularImpostosMovimento(notaRetorno, nota, (err, valores) => {
                         if (err) {
@@ -212,6 +218,8 @@ export default {
                       [notaRetorno.chave]: notaRetorno
                     }
                   })
+                } else {
+                  this.$data.movimentos.push(movimento)
                 }
               })
             }
@@ -335,6 +343,7 @@ export default {
                 if (err) {
                   console.error(err)
                 } else {
+                  console.log(valores)
                   this.$data.movimentos[movimentoId].notaInicial = notaInicial.chave
                   this.$data.movimentos[movimentoId].valores = valores
                   this.$data.notas = store.getState().notas
@@ -369,14 +378,18 @@ export default {
             if (err) {
               this.chamarMensagem(err)
             } else {
-              calcularImpostosMovimento(notaInicial, notaFinal, valores => {
-                this.$data.movimentos[movimentoId].notaInicial = notaInicial.chave
-                this.$data.movimentos[movimentoId].valores = valores
-                this.$data.notas = store.getState().notas
-                this.$data.mostraAdicionarNota = false
-                this.$data.adicionarNumeroEmitenteInfo.numeroNota = null
-                this.$data.adicionarNumeroEmitenteInfo.emitente = null
-                this.chamarMensagem(new Error('Nota Adicionada com sucesso!'))
+              calcularImpostosMovimento(notaInicial, notaFinal, (err, valores) => {
+                if (err) {
+                  this.chamarMensagem(err)
+                } else {
+                  this.$data.movimentos[movimentoId].notaInicial = notaInicial.chave
+                  this.$data.movimentos[movimentoId].valores = valores
+                  this.$data.notas = store.getState().notas
+                  this.$data.mostraAdicionarNota = false
+                  this.$data.adicionarNumeroEmitenteInfo.numeroNota = null
+                  this.$data.adicionarNumeroEmitenteInfo.emitente = null
+                  this.chamarMensagem(new Error('Nota Adicionada com sucesso!'))
+                }
               })
             }
           })
