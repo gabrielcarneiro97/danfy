@@ -53,7 +53,7 @@ export function calcularImpostosMovimento (notaInicial, notaFinal, callback) {
     } else {
       if (lucro < 0) {
         callback(null, {
-          lucro: lucro,
+          lucro: 0,
           valorSaida: valorSaida,
           impostos: {
             pis: 0,

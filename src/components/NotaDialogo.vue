@@ -1,8 +1,8 @@
 <template>
   <div>
-    <md-button @click="abrirNota"><slot>NOTA</slot></md-button>
+    <md-button @click="abrirNota" :disabled="interno"><slot>NOTA</slot></md-button>
 
-    <md-dialog v-if="notaDialogo" :md-active.sync="mostra">
+    <md-dialog v-if="notaDialogo && !interno" :md-active.sync="mostra">
       <md-dialog-content>
         <div class="viewport">
           <md-toolbar :md-elevation="1">
@@ -99,6 +99,7 @@ export default {
   props: ['chave'],
   data () {
     return {
+      interno: false,
       notaDialogo: null,
       pessoas: {},
       mostra: false,
@@ -114,6 +115,8 @@ export default {
     pegarNotaChave(chave, (err, nota) => {
       if (err) {
         console.error(err)
+      } else if (nota.emitente === 'INTERNO') {
+        this.$data.interno = true
       } else {
         if (nota) {
           this.$data.notaDialogo = {

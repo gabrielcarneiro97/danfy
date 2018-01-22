@@ -118,6 +118,20 @@
               </md-list-item>
             </md-list>
           </md-list-item>
+          <md-list-item md-expand>
+            <span class="md-list-item-text">Adicionar valor de entrada</span>
+            <md-list slot="md-expand">
+              <md-list-item>
+                <md-field md-clearable>
+                  <label>Valor</label>
+                  <md-input v-model="valorDaNota"></md-input>
+                </md-field>
+              </md-list-item>
+              <md-list-item>
+                <md-button @click="adicionarValor">Adicionar</md-button>
+              </md-list-item>
+            </md-list>
+          </md-list-item>
         </md-list>
       </md-dialog-content>
       <md-dialog-actions>
@@ -141,7 +155,7 @@
 </template>
 
 <script>
-import { calcularImpostosMovimento, calcularImpostosServico, pegarDominio, usuarioAtivo, pegarNotaChave, procurarNotaPar, estaNoDominio, validarMovimento, pegarNotaNumeroEmitente, lerNotasInput, gravarMovimentos, gravarServicos } from './services'
+import { calcularImpostosMovimento, calcularImpostosServico, pegarDominio, usuarioAtivo, pegarNotaChave, procurarNotaPar, estaNoDominio, validarMovimento, pegarNotaNumeroEmitente, lerNotasInput, gravarMovimentos, gravarServicos, gravarNotaSlim } from './services'
 import notaDialogo from './notaDialogo'
 import store from '../store'
 
@@ -150,6 +164,7 @@ export default {
   data () {
     return {
       usuario: {},
+      valorDaNota: null,
       mostraAdicionarNota: false,
       mostraFinal: false,
       relatorioFinal: null,
@@ -312,8 +327,8 @@ export default {
       })
     },
     abrirAdicionarNota (id) {
-      this.$data.mostraAdicionarNota = true
       this.$data.movimentoParaAdicionarId = id
+      this.$data.mostraAdicionarNota = true
     },
     chamarMensagem (mensagem) {
       this.$data.erro.mensagem = mensagem.message
@@ -343,7 +358,6 @@ export default {
                 if (err) {
                   console.error(err)
                 } else {
-                  console.log(valores)
                   this.$data.movimentos[movimentoId].notaInicial = notaInicial.chave
                   this.$data.movimentos[movimentoId].valores = valores
                   this.$data.notas = store.getState().notas
@@ -438,6 +452,59 @@ export default {
           }
         })
       }
+    },
+    adicionarValor () {
+      let notas = this.$data.notas
+      let movimentoId = this.$data.movimentoParaAdicionarId
+      let notaFinal = notas[this.$data.movimentos[movimentoId].notaFinal]
+      let valor = parseFloat(this.$data.valorDaNota.toString().replace(',', '.'))
+      let notaInicial = {
+        emitente: 'INTERNO',
+        destinatario: notaFinal.emitente,
+        geral: {
+          dataHora: new Date().toISOString(),
+          cfop: 'INTERNO',
+          naturezaOperacao: 'INTERNO',
+          numero: 'INTERNO',
+          status: 'INTERNO',
+          tipo: 'INTERNO'
+        },
+        produtos: {
+          INTERNO: {
+            descricao: 'INTERNO',
+            quantidade: {
+              numero: '1',
+              tipo: 'UN'
+            },
+            valor: {
+              total: valor
+            }
+          }
+        },
+        valor: {
+          total: valor
+        }
+      }
+
+      gravarNotaSlim(notaInicial, (err, notaInicialCompleta) => {
+        if (err) {
+          console.error(err)
+        }
+        notaInicial = notaInicialCompleta
+        calcularImpostosMovimento(notaInicial, notaFinal, (err, valores) => {
+          if (err) {
+            console.error(err)
+          } else {
+            console.log('aqui')
+            this.$data.movimentos[movimentoId].notaInicial = notaInicial.chave
+            this.$data.movimentos[movimentoId].valores = valores
+            this.$data.notas = store.getState().notas
+            this.$data.mostraAdicionarNota = false
+            this.chamarMensagem(new Error('Nota Adicionada com sucesso!'))
+            this.$data.valorDaNota = null
+          }
+        })
+      })
     }
   },
   computed: {

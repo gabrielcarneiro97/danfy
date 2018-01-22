@@ -50,27 +50,36 @@
       </md-table-toolbar>
 
       <md-table-row>
-        <md-table-head>Número</md-table-head>
-        <md-table-head>Valor Nota Inicial</md-table-head>
-        <md-table-head>Valor Nota Final</md-table-head>
-        <md-table-head>Lucro</md-table-head>
-        <md-table-head>Base ICMS</md-table-head>
-        <md-table-head>ICMS</md-table-head>
-        <md-table-head>GNRE</md-table-head>
-        <md-table-head>PIS</md-table-head>
-        <md-table-head>COFINS</md-table-head>
-        <md-table-head>CSLL</md-table-head>
-        <md-table-head>IRPJ</md-table-head>
-        <md-table-head>TOTAL</md-table-head>
+        <md-table-head rowspan="2">Número</md-table-head>
+        <md-table-head rowspan="2">Valor Nota Inicial</md-table-head>
+        <md-table-head rowspan="2">Valor Nota Final</md-table-head>
+        <md-table-head rowspan="2">Lucro</md-table-head>
+        <md-table-head rowspan="2">Base ICMS</md-table-head>
+        <md-table-head rowspan="2">ICMS</md-table-head>
+        <md-table-head colspan="2" style="text-align: center">DIFAL</md-table-head>
+        <md-table-head rowspan="2">PIS</md-table-head>
+        <md-table-head rowspan="2">COFINS</md-table-head>
+        <md-table-head rowspan="2">CSLL</md-table-head>
+        <md-table-head rowspan="2">IRPJ</md-table-head>
+        <md-table-head rowspan="2">TOTAL</md-table-head>
+      </md-table-row>
+
+      <md-table-row>
+        <md-table-head>ORIGINÁRIO</md-table-head>
+        <md-table-head>DESTINO (GNRE)</md-table-head>        
       </md-table-row>
 
       <md-table-row v-for="(movimento, index) in movimentos" v-bind:key="index">
         <md-table-cell md-numeric v-if="notas[movimento.notaFinal]"><md-button class="md-icon-button" :disabled="numeroDesativo" @click="definirDeletar(index, pegaIndex(index))">{{parseInt(notas[movimento.notaFinal].geral.numero)}}</md-button></md-table-cell>
-        <md-table-cell v-if="notas[movimento.notaInicial]"><nota-dialogo :chave="movimento.notaInicial">R${{notas[movimento.notaInicial].valor.total}}</nota-dialogo></md-table-cell>
+        <md-table-cell v-if="notas[movimento.notaInicial]"><nota-dialogo :chave="movimento.notaInicial">R${{parseFloat(notas[movimento.notaInicial].valor.total).toFixed(2)}}</nota-dialogo></md-table-cell>
+        <md-table-cell v-else>{{movimento}}</md-table-cell>       
         <md-table-cell v-if="notas[movimento.notaFinal]"><nota-dialogo :chave="movimento.notaFinal">R${{notas[movimento.notaFinal].valor.total}}</nota-dialogo></md-table-cell>
+        <md-table-cell v-else></md-table-cell>
         <md-table-cell>R${{movimento.valores.lucro}}</md-table-cell>
         <md-table-cell>R${{movimento.valores.impostos.icms.baseDeCalculo}} </md-table-cell>
         <md-table-cell>R${{calculaIcmsTotal(movimento)}}</md-table-cell>
+        <md-table-cell v-if="movimento.valores.impostos.icms.difal">R${{movimento.valores.impostos.icms.difal.origem}}</md-table-cell>
+        <md-table-cell v-else></md-table-cell>
         <md-table-cell v-if="movimento.valores.impostos.icms.difal">R${{movimento.valores.impostos.icms.difal.destino}}</md-table-cell>
         <md-table-cell v-else></md-table-cell>
         <md-table-cell>R${{movimento.valores.impostos.pis}}</md-table-cell>
@@ -81,14 +90,22 @@
       </md-table-row>
 
       <md-table-row>
-        <md-table-head colspan="5" style="text-align:center">TOTAIS IMPOSTOS</md-table-head>
-        <md-table-head>R${{retornarTotais.icms}}</md-table-head>
-        <md-table-head>R${{retornarTotais.gnre}}</md-table-head>
-        <md-table-head>R${{retornarTotais.pis}}</md-table-head>
-        <md-table-head>R${{retornarTotais.cofins}}</md-table-head>
-        <md-table-head>R${{retornarTotais.csll}}</md-table-head>
-        <md-table-head>R${{retornarTotais.irpj}}</md-table-head>
-        <md-table-head>R${{retornarTotais.total}}</md-table-head>
+        <md-table-head colspan="3" style="text-align:center">TOTAIS</md-table-head>
+        <md-table-head>R${{trimestre[competenciaSelecionada.mes].movimentos.lucro}}</md-table-head>
+        <md-table-head colspan="1" style="text-align:center">IMPOSTOS</md-table-head>
+        <md-table-head>R${{parseFloat(trimestre[competenciaSelecionada.mes].movimentos.impostos.icms.proprio).toFixed(2)}}</md-table-head>
+        <md-table-head>R${{parseFloat(trimestre[competenciaSelecionada.mes].movimentos.impostos.icms.difal.origem).toFixed(2)}}</md-table-head>
+        <md-table-head>R${{parseFloat(trimestre[competenciaSelecionada.mes].movimentos.impostos.icms.difal.destino).toFixed(2)}}</md-table-head>
+        <md-table-head>R${{parseFloat(trimestre[competenciaSelecionada.mes].movimentos.impostos.pis).toFixed(2)}}</md-table-head>        
+        <md-table-head>R${{parseFloat(trimestre[competenciaSelecionada.mes].movimentos.impostos.cofins).toFixed(2)}}</md-table-head>
+        <md-table-head>R${{parseFloat(trimestre[competenciaSelecionada.mes].movimentos.impostos.csll).toFixed(2)}}</md-table-head>
+        <md-table-head>R${{parseFloat(trimestre[competenciaSelecionada.mes].movimentos.impostos.irpj).toFixed(2)}}</md-table-head>
+        <md-table-head>R${{parseFloat(trimestre[competenciaSelecionada.mes].movimentos.impostos.total).toFixed(2)}}</md-table-head>
+      </md-table-row>
+      <md-table-row>
+        <md-table-head colspan="4" style="background-color: white; border:none"></md-table-head>
+        <md-table-head>GUIA ICMS</md-table-head>
+        <md-table-head colspan="2" style="text-align: center">R${{(parseFloat(trimestre[competenciaSelecionada.mes].movimentos.impostos.icms.proprio) + parseFloat(trimestre[competenciaSelecionada.mes].movimentos.impostos.icms.difal.origem)).toFixed(2)}}</md-table-head>        
       </md-table-row>
     </md-table>
 
@@ -158,66 +175,27 @@
       </md-table-toolbar>
 
       <md-table-row>
-        <md-table-head rowspan="2">MÊS</md-table-head>        
-        <md-table-head rowspan="2">ICMS PRÓPRIO</md-table-head>   
-        <md-table-head colspan="2" style="text-align:center">DIFAL</md-table-head>                 
-        <md-table-head rowspan="2">ISS</md-table-head>
-        <md-table-head rowspan="2">PIS</md-table-head>
-        <md-table-head rowspan="2">COFINS</md-table-head>
-        <md-table-head rowspan="2">CSLL</md-table-head>
-        <md-table-head rowspan="2">IRPJ</md-table-head>
-        <md-table-head rowspan="2">TOTAL</md-table-head>
-        <md-table-head colspan="6" style="text-align:center">RETENÇÕES</md-table-head>
-      </md-table-row>
-
-      <md-table-row>
-        <md-table-head>ORIGINÁRIO</md-table-head>
-        <md-table-head>DESTINO</md-table-head>
-        <md-table-head>ISS</md-table-head>
+        <md-table-head>MÊS</md-table-head>
         <md-table-head>PIS</md-table-head>
         <md-table-head>COFINS</md-table-head>
         <md-table-head>CSLL</md-table-head>
         <md-table-head>IRPJ</md-table-head>
-        <md-table-head>TOTAL</md-table-head>
       </md-table-row>
 
-
       <md-table-row v-for="(mes, index) in trimestre" v-if="index !== 'totais'" v-bind:key="index + 'totais'">
-        <md-table-cell>{{pegarMes(index)}}</md-table-cell>        
-        <md-table-cell>R${{mes.totais.impostos.icms.proprio.toFixed(2)}}</md-table-cell>
-        <md-table-cell>R${{mes.totais.impostos.icms.difal.origem.toFixed(2)}}</md-table-cell>
-        <md-table-cell>R${{mes.totais.impostos.icms.difal.destino.toFixed(2)}}</md-table-cell>
-        <md-table-cell>R${{mes.totais.impostos.iss.toFixed(2)}}</md-table-cell>
+        <md-table-cell>{{pegarMes(index)}}</md-table-cell>
         <md-table-cell>R${{mes.totais.impostos.pis.toFixed(2)}}</md-table-cell>
         <md-table-cell>R${{mes.totais.impostos.cofins.toFixed(2)}}</md-table-cell>
         <md-table-cell>R${{mes.totais.impostos.csll.toFixed(2)}}</md-table-cell>
         <md-table-cell>R${{mes.totais.impostos.irpj.toFixed(2)}}</md-table-cell>
-        <md-table-cell>R${{mes.totais.impostos.total.toFixed(2)}}</md-table-cell>
-        <md-table-cell>R${{mes.totais.impostos.retencoes.iss.toFixed(2)}}</md-table-cell>
-        <md-table-cell>R${{mes.totais.impostos.retencoes.pis.toFixed(2)}}</md-table-cell>
-        <md-table-cell>R${{mes.totais.impostos.retencoes.cofins.toFixed(2)}}</md-table-cell>
-        <md-table-cell>R${{mes.totais.impostos.retencoes.csll.toFixed(2)}}</md-table-cell>
-        <md-table-cell>R${{mes.totais.impostos.retencoes.irpj.toFixed(2)}}</md-table-cell>
-        <md-table-cell>R${{mes.totais.impostos.retencoes.total.toFixed(2)}}</md-table-cell>
       </md-table-row>
 
       <md-table-row>
         <md-table-head>Trimestre</md-table-head>
-        <md-table-head>R${{trimestre.totais.impostos.icms.proprio.toFixed(2)}}</md-table-head>
-        <md-table-head>R${{trimestre.totais.impostos.icms.difal.origem.toFixed(2)}}</md-table-head>
-        <md-table-head>R${{trimestre.totais.impostos.icms.difal.destino.toFixed(2)}}</md-table-head>
-        <md-table-head>R${{trimestre.totais.impostos.iss.toFixed(2)}}</md-table-head>
         <md-table-head>R${{trimestre.totais.impostos.pis.toFixed(2)}}</md-table-head>
         <md-table-head>R${{trimestre.totais.impostos.cofins.toFixed(2)}}</md-table-head>
         <md-table-head>R${{trimestre.totais.impostos.csll.toFixed(2)}}</md-table-head>
         <md-table-head>R${{trimestre.totais.impostos.irpj.toFixed(2)}}</md-table-head>
-        <md-table-head>R${{trimestre.totais.impostos.total.toFixed(2)}}</md-table-head>
-        <md-table-head>R${{trimestre.totais.impostos.retencoes.iss.toFixed(2)}}</md-table-head>
-        <md-table-head>R${{trimestre.totais.impostos.retencoes.pis.toFixed(2)}}</md-table-head>
-        <md-table-head>R${{trimestre.totais.impostos.retencoes.cofins.toFixed(2)}}</md-table-head>
-        <md-table-head>R${{trimestre.totais.impostos.retencoes.csll.toFixed(2)}}</md-table-head>
-        <md-table-head>R${{trimestre.totais.impostos.retencoes.irpj.toFixed(2)}}</md-table-head>
-        <md-table-head>R${{trimestre.totais.impostos.retencoes.total.toFixed(2)}}</md-table-head>
       </md-table-row>
     </md-table>
   </div>
@@ -459,6 +437,7 @@ export default {
           console.error(err)
         }
         this.$data.trimestre = trimestre
+        console.log(trimestre)
       })
     },
     pegaIndex (index) {
@@ -480,7 +459,7 @@ export default {
           width: 100%;
         }
         h1 {
-          font-size: 15px;
+          font-size: 10px;
         }
         table {
           color: #333;
@@ -493,19 +472,20 @@ export default {
 
         td, th {
           border: 1px solid #333; /* No more visible border */
-          height: 15px;
+          height: 8px;
           transition: all 0.3s;  /* Simple transition for hover effect */
         }
 
         th {
             background: rgb(158, 158, 158);  /* Darken header a bit */
             font-weight: bold;
-            font-size: 12px;
+            font-size: 7px;
         }
 
         td {
             background: #FAFAFA;
             text-align: center;
+            font-size: 7px;
         }
 
         button {
@@ -514,7 +494,7 @@ export default {
           box-shadow: none;
           border-radius: 0px;
           font-weight: normal;
-          font-size: 10px;
+          font-size: 7px;
         }
 
         /* Cells in even rows (2,4,6...) are one color */
@@ -543,7 +523,7 @@ export default {
       let meses = this.$data.meses
       let mes
       Object.keys(meses).forEach(key => {
-        if(meses[key].num === num) {
+        if (meses[key].num === num) {
           mes = meses[key].nome
         }
       })
@@ -591,7 +571,7 @@ export default {
         }
       })
 
-      totais.total = totais.icms + totais.csll + totais.pis + totais.irpj + totais.cofins + totais.gnre
+      totais.total = (totais.icms + totais.csll + totais.pis + totais.irpj + totais.cofins + totais.gnre).toFixed(2)
 
       totais.icms = (totais.icms).toFixed(2)
       totais.csll = (totais.csll).toFixed(2)
