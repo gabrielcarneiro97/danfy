@@ -199,7 +199,6 @@ export default {
       } else {
         limparNotasStore()
         limparNotasServicoStore()
-        console.log(store.getState().notas)
       }
     })
   },
@@ -235,7 +234,7 @@ export default {
     },
     enviar () {
       if (_.isEmpty(this.$data.foraDominio)) {
-        this.gravarEProximaPagina()
+        this.proximaPagina()
       } else {
         this.$data.mostra = true
       }
@@ -250,7 +249,7 @@ export default {
       return `${count} empresa${plural} selecionada${plural}`
     },
     proximo () {
-      this.gravarEProximaPagina()
+      this.proximaPagina()
     },
     abrirImpostosEDominio (empresa) {
       let padrao = this.$data.aliquotasPadrao
@@ -291,21 +290,8 @@ export default {
         }
       })
     },
-    gravarEProximaPagina () {
-      gravarPessoas(err => {
-        if (err) console.error(err)
-        else {
-          gravarNotas(err => {
-            if (err) console.error(err)
-            else {
-              gravarNotasServico(err => {
-                if (err) console.error(err)
-                else this.$router.push('/conciliarNotas')
-              })
-            }
-          })
-        }
-      })
+    proximaPagina () {
+      this.$router.push('/conciliarNotas')
     }
   },
   computed: {

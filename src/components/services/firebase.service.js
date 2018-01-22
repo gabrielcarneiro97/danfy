@@ -89,6 +89,11 @@ export function gravarPessoas (callback) {
     callback(null)
   }
 }
+export function gravarPessoa (id, pessoa, callback) {
+  db.ref('Pessoas/' + id).set(pessoa, err => {
+    callback(err)
+  })
+}
 export function pegarPessoaId (id, callback) {
   let pessoa
   let storePessoas = store.getState().pessoas
@@ -123,6 +128,30 @@ export function gravarNotas (callback) {
   } else {
     callback(null)
   }
+}
+export function gravarNota (chave, nota, callback) {
+  db.ref('Notas/' + chave).set(nota, err => {
+    callback(err)
+  })
+}
+export function gravarNotaSlim (nota, callback) {
+  let mockChave = '999999999'
+  nota.chave = mockChave
+
+  db.ref('Notas/').push(nota, err => {
+    if (err) {
+      console.error(err)
+    } else {
+      db.ref('Notas/').orderByChild('chave').equalTo(mockChave).once('child_added', snap => {
+        let chave = snap.key
+        nota.chave = chave
+        db.ref('Notas/' + chave).set(nota, err => {
+          store.dispatch(adicionarNota(chave, nota))
+          callback(err, nota)
+        })
+      })
+    }
+  })
 }
 export function pegarNotaProduto (produtoId, produto, callback) {
   let notas = {}
@@ -236,6 +265,11 @@ export function gravarNotasServico (callback) {
   } else {
     callback(null)
   }
+}
+export function gravarNotaServico (chave, nota, callback) {
+  db.ref('NotasServico/' + chave).set(nota, err => {
+    callback(err)
+  })
 }
 export function pegarNotaServicoChave (chave, callback) {
   let notaServico

@@ -4,12 +4,12 @@ export function compararCFOP (notaInicial, notaFinal) {
   let cfopInicial = notaInicial.geral.cfop
   let cfopFinal = notaFinal.geral.cfop
 
-  let cfopCompra = ['1102']
+  let cfopCompra = ['1102', '2102']
   let cfopVenda = ['5102', '6102', '6108']
-  let cfopConsignacao = ['1917']
+  let cfopConsignacao = ['1917', '2917']
   let cfopCompraConsignacao = ['1113']
   let cfopVendaConsignacao = ['5115', '6115', '5114']
-  let cfopDevolucaoConsignacao = ['5918']
+  let cfopDevolucaoConsignacao = ['5918', '6918']
 
   if (cfopCompra.includes(cfopInicial) && cfopVenda.includes(cfopFinal)) {
     return true

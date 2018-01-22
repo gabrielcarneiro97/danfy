@@ -1,6 +1,7 @@
 import { xml2js } from 'xml-js'
 import store from '../../store'
-import { adicionarPessoa, adicionarNota } from '../../store/actions'
+import { adicionarPessoa, adicionarNota, adicionarNotaServico } from '../../store/actions'
+import { gravarNota, gravarNotaServico, gravarPessoa } from './index'
 
 export function lerNotasInput (files, callback) {
   let arquivos = files
@@ -34,6 +35,21 @@ export function lerNotasInput (files, callback) {
             [notaServico.emitente]: emitente,
             [notaServico.destinatario]: destinatario
           }
+          gravarPessoa(notaServico.emitente, emitente, err => {
+            if (err) {
+              console.error(err)
+            }
+          })
+          gravarPessoa(notaServico.destinatario, destinatario, err => {
+            if (err) {
+              console.error(err)
+            }
+          })
+          gravarNotaServico(notaServico.chave, notaServico, err => {
+            if (err) {
+              console.error(err)
+            }
+          })
         })
       } else if (obj.envEvento) {
         if (obj.envEvento.evento.Signature) {
@@ -51,6 +67,21 @@ export function lerNotasInput (files, callback) {
             [nota.emitente]: emitente,
             [nota.destinatario]: destinatario
           }
+          gravarPessoa(nota.emitente, emitente, err => {
+            if (err) {
+              console.error(err)
+            }
+          })
+          gravarPessoa(nota.destinatario, destinatario, err => {
+            if (err) {
+              console.error(err)
+            }
+          })
+          gravarNota(nota.chave, nota, err => {
+            if (err) {
+              console.error(err)
+            }
+          })
         })
       }
       //  FINAL leitor.onload
@@ -63,6 +94,11 @@ export function lerNotasInput (files, callback) {
         Object.keys(canceladas).forEach(id => {
           if (notas[id]) {
             notas[id].geral.status = 'CANCELADA'
+            gravarNota(notas[id].chave, notas[id], err => {
+              if (err) {
+                console.error(err)
+              }
+            })
             store.dispatch(adicionarNota(id, notas[id]))
           }
         })
@@ -227,7 +263,7 @@ export function lerNfe (obj, callback) {
       destinatarioContribuinte: dest.indIEDest['_text']
     },
     geral: {
-      dataHora: info.ide.dhSaiEnt['_text'],
+      dataHora: info.ide.dhSaiEnt ? info.ide.dhSaiEnt['_text'] : info.ide.dhEmi['_text'],
       naturezaOperacao: info.ide.natOp['_text'],
       numero: info.ide.cNF['_text'],
       tipo: info.ide.tpNF['_text'],
