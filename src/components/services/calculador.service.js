@@ -412,3 +412,29 @@ export function totaisTrimestrais (cnpj, competencia, callback) {
     })
   })
 }
+
+export function R$ (valor) {
+  valor = parseFloat(valor).toFixed(2)
+  console.log(valor)
+
+  valor = valor.toString().replace('.', ',')
+
+  let esquerda = valor.split(',')[0]
+  console.log(esquerda)
+  let direita = valor.split(',')[1]
+  console.log(direita)
+
+  let counter = 0
+  let esquerdaArr = []
+  for (let i = esquerda.length - 1; i >= 0; i--) {
+    counter++
+    esquerdaArr.push(esquerda[i])
+    if (counter === 3 && i > 0) {
+      esquerdaArr.push('.')
+      counter = 0
+    }
+  }
+  esquerda = esquerdaArr.reverse().join('')
+
+  return 'R$' + esquerda + ',' + direita
+}
