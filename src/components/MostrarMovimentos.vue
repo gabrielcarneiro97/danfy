@@ -71,42 +71,42 @@
 
       <md-table-row v-for="(movimento, index) in movimentos" v-bind:key="index">
         <md-table-cell md-numeric v-if="notas[movimento.notaFinal]"><md-button class="md-icon-button" :disabled="numeroDesativo" @click="definirDeletar(index, pegaIndex(index))">{{parseInt(notas[movimento.notaFinal].geral.numero)}}</md-button></md-table-cell>
-        <md-table-cell v-if="notas[movimento.notaInicial]"><nota-dialogo :chave="movimento.notaInicial">R${{parseFloat(notas[movimento.notaInicial].valor.total).toFixed(2)}}</nota-dialogo></md-table-cell>
-        <md-table-cell v-else>{{movimento}}</md-table-cell>       
-        <md-table-cell v-if="notas[movimento.notaFinal]"><nota-dialogo :chave="movimento.notaFinal">R${{notas[movimento.notaFinal].valor.total}}</nota-dialogo></md-table-cell>
+        <md-table-cell v-if="notas[movimento.notaInicial]"><nota-dialogo :chave="movimento.notaInicial">{{R$(notas[movimento.notaInicial].valor.total)}}</nota-dialogo></md-table-cell>
+        <md-table-cell v-else><md-button disabled>SEM NOTA INICIAL</md-button></md-table-cell>       
+        <md-table-cell v-if="notas[movimento.notaFinal]"><nota-dialogo :chave="movimento.notaFinal">{{R$(notas[movimento.notaFinal].valor.total)}}</nota-dialogo></md-table-cell>
         <md-table-cell v-else></md-table-cell>
-        <md-table-cell>R${{movimento.valores.lucro}}</md-table-cell>
-        <md-table-cell>R${{movimento.valores.impostos.icms.baseDeCalculo}} </md-table-cell>
-        <md-table-cell>R${{calculaIcmsTotal(movimento)}}</md-table-cell>
-        <md-table-cell v-if="movimento.valores.impostos.icms.difal">R${{movimento.valores.impostos.icms.difal.origem}}</md-table-cell>
+        <md-table-cell>{{R$(movimento.valores.lucro)}}</md-table-cell>
+        <md-table-cell>{{R$(movimento.valores.impostos.icms.baseDeCalculo)}} </md-table-cell>
+        <md-table-cell>{{R$(movimento.valores.impostos.icms.proprio)}}</md-table-cell>
+        <md-table-cell v-if="movimento.valores.impostos.icms.difal">{{R$(movimento.valores.impostos.icms.difal.origem)}}</md-table-cell>
         <md-table-cell v-else></md-table-cell>
-        <md-table-cell v-if="movimento.valores.impostos.icms.difal">R${{movimento.valores.impostos.icms.difal.destino}}</md-table-cell>
+        <md-table-cell v-if="movimento.valores.impostos.icms.difal">{{R$(movimento.valores.impostos.icms.difal.destino)}}</md-table-cell>
         <md-table-cell v-else></md-table-cell>
-        <md-table-cell>R${{movimento.valores.impostos.pis}}</md-table-cell>
-        <md-table-cell>R${{movimento.valores.impostos.cofins}}</md-table-cell>
-        <md-table-cell>R${{movimento.valores.impostos.csll}}</md-table-cell>
-        <md-table-cell>R${{movimento.valores.impostos.irpj}}</md-table-cell>
-        <md-table-cell>R${{movimento.valores.impostos.total}}</md-table-cell>
+        <md-table-cell>{{R$(movimento.valores.impostos.pis)}}</md-table-cell>
+        <md-table-cell>{{R$(movimento.valores.impostos.cofins)}}</md-table-cell>
+        <md-table-cell>{{R$(movimento.valores.impostos.csll)}}</md-table-cell>
+        <md-table-cell>{{R$(movimento.valores.impostos.irpj)}}</md-table-cell>
+        <md-table-cell>{{R$(movimento.valores.impostos.total)}}</md-table-cell>
       </md-table-row>
 
       <md-table-row>
         <md-table-head colspan="2" style="text-align:center">TOTAIS</md-table-head>
-        <md-table-head>R${{trimestre[competenciaSelecionada.mes].movimentos.totalSaida}}</md-table-head>
-        <md-table-head>R${{trimestre[competenciaSelecionada.mes].movimentos.lucro}}</md-table-head>
+        <md-table-head>{{R$(trimestre[competenciaSelecionada.mes].movimentos.totalSaida)}}</md-table-head>
+        <md-table-head>{{R$(trimestre[competenciaSelecionada.mes].movimentos.lucro)}}</md-table-head>
         <md-table-head colspan="1" style="text-align:center">IMPOSTOS</md-table-head>
-        <md-table-head>R${{parseFloat(trimestre[competenciaSelecionada.mes].movimentos.impostos.icms.proprio).toFixed(2)}}</md-table-head>
-        <md-table-head>R${{parseFloat(trimestre[competenciaSelecionada.mes].movimentos.impostos.icms.difal.origem).toFixed(2)}}</md-table-head>
-        <md-table-head>R${{parseFloat(trimestre[competenciaSelecionada.mes].movimentos.impostos.icms.difal.destino).toFixed(2)}}</md-table-head>
-        <md-table-head>R${{parseFloat(trimestre[competenciaSelecionada.mes].movimentos.impostos.pis).toFixed(2)}}</md-table-head>        
-        <md-table-head>R${{parseFloat(trimestre[competenciaSelecionada.mes].movimentos.impostos.cofins).toFixed(2)}}</md-table-head>
-        <md-table-head>R${{parseFloat(trimestre[competenciaSelecionada.mes].movimentos.impostos.csll).toFixed(2)}}</md-table-head>
-        <md-table-head>R${{parseFloat(trimestre[competenciaSelecionada.mes].movimentos.impostos.irpj).toFixed(2)}}</md-table-head>
-        <md-table-head>R${{parseFloat(trimestre[competenciaSelecionada.mes].movimentos.impostos.total).toFixed(2)}}</md-table-head>
+        <md-table-head>{{R$(trimestre[competenciaSelecionada.mes].movimentos.impostos.icms.proprio)}}</md-table-head>
+        <md-table-head>{{R$(trimestre[competenciaSelecionada.mes].movimentos.impostos.icms.difal.origem)}}</md-table-head>
+        <md-table-head>{{R$(trimestre[competenciaSelecionada.mes].movimentos.impostos.icms.difal.destino)}}</md-table-head>
+        <md-table-head>{{R$(trimestre[competenciaSelecionada.mes].movimentos.impostos.pis)}}</md-table-head>        
+        <md-table-head>{{R$(trimestre[competenciaSelecionada.mes].movimentos.impostos.cofins)}}</md-table-head>
+        <md-table-head>{{R$(trimestre[competenciaSelecionada.mes].movimentos.impostos.csll)}}</md-table-head>
+        <md-table-head>{{R$(trimestre[competenciaSelecionada.mes].movimentos.impostos.irpj)}}</md-table-head>
+        <md-table-head>{{R$(trimestre[competenciaSelecionada.mes].movimentos.impostos.total)}}</md-table-head>
       </md-table-row>
       <md-table-row>
         <md-table-head colspan="4" style="background-color: white; border:none"></md-table-head>
         <md-table-head>GUIA ICMS</md-table-head>
-        <md-table-head colspan="2" style="text-align: center">R${{(parseFloat(trimestre[competenciaSelecionada.mes].movimentos.impostos.icms.proprio) + parseFloat(trimestre[competenciaSelecionada.mes].movimentos.impostos.icms.difal.origem)).toFixed(2)}}</md-table-head>        
+        <md-table-head colspan="2" style="text-align: center">{{R$(parseFloat(trimestre[competenciaSelecionada.mes].movimentos.impostos.icms.proprio) + parseFloat(trimestre[competenciaSelecionada.mes].movimentos.impostos.icms.difal.origem))}}</md-table-head>        
       </md-table-row>
     </md-table>
 
@@ -138,35 +138,35 @@
 
       <md-table-row v-for="(servico, index) in servicos" v-bind:key="index">
         <md-table-cell md-numeric v-if="notasServico[servico.nota]"><md-button class="md-icon-button" :disabled="numeroDesativo" @click="definirDeletarServico(index, pegaIndexServico(index))">{{parseInt(notasServico[servico.nota].geral.numero.replace(competenciaSelecionada.ano, ''))}}</md-button></md-table-cell>
-        <md-table-cell>R${{parseFloat(servico.valores.impostos.baseDeCalculo).toFixed(2)}}</md-table-cell>
-        <md-table-cell>R${{parseFloat(servico.valores.impostos.retencoes.iss).toFixed(2)}}</md-table-cell>
-        <md-table-cell>R${{parseFloat(servico.valores.impostos.retencoes.pis).toFixed(2)}}</md-table-cell>
-        <md-table-cell>R${{parseFloat(servico.valores.impostos.retencoes.cofins).toFixed(2)}}</md-table-cell>
-        <md-table-cell>R${{parseFloat(servico.valores.impostos.retencoes.csll).toFixed(2)}}</md-table-cell>
-        <md-table-cell>R${{parseFloat(servico.valores.impostos.retencoes.irpj).toFixed(2)}}</md-table-cell>
-        <md-table-cell>R${{parseFloat(servico.valores.impostos.retencoes.total).toFixed(2)}}</md-table-cell>
-        <md-table-cell>R${{parseFloat(servico.valores.impostos.iss).toFixed(2)}}</md-table-cell>
-        <md-table-cell>R${{parseFloat(servico.valores.impostos.pis).toFixed(2)}}</md-table-cell>
-        <md-table-cell>R${{parseFloat(servico.valores.impostos.cofins).toFixed(2)}}</md-table-cell>
-        <md-table-cell>R${{parseFloat(servico.valores.impostos.csll).toFixed(2)}}</md-table-cell>
-        <md-table-cell>R${{parseFloat(servico.valores.impostos.irpj).toFixed(2)}}</md-table-cell>
-        <md-table-cell>R${{parseFloat(servico.valores.impostos.total).toFixed(2)}}</md-table-cell>
+        <md-table-cell>{{R$(servico.valores.impostos.baseDeCalculo)}}</md-table-cell>
+        <md-table-cell>{{R$(servico.valores.impostos.retencoes.iss)}}</md-table-cell>
+        <md-table-cell>{{R$(servico.valores.impostos.retencoes.pis)}}</md-table-cell>
+        <md-table-cell>{{R$(servico.valores.impostos.retencoes.cofins)}}</md-table-cell>
+        <md-table-cell>{{R$(servico.valores.impostos.retencoes.csll)}}</md-table-cell>
+        <md-table-cell>{{R$(servico.valores.impostos.retencoes.irpj)}}</md-table-cell>
+        <md-table-cell>{{R$(servico.valores.impostos.retencoes.total)}}</md-table-cell>
+        <md-table-cell>{{R$(servico.valores.impostos.iss)}}</md-table-cell>
+        <md-table-cell>{{R$(servico.valores.impostos.pis)}}</md-table-cell>
+        <md-table-cell>{{R$(servico.valores.impostos.cofins)}}</md-table-cell>
+        <md-table-cell>{{R$(servico.valores.impostos.csll)}}</md-table-cell>
+        <md-table-cell>{{R$(servico.valores.impostos.irpj)}}</md-table-cell>
+        <md-table-cell>{{R$(servico.valores.impostos.total)}}</md-table-cell>
       </md-table-row>
 
       <md-table-row>
         <md-table-head colspan="2">TOTAIS IMPOSTOS</md-table-head>
-        <md-table-head>R${{parseFloat(retornarTotaisServicos.retencoes.iss).toFixed(2)}}</md-table-head>
-        <md-table-head>R${{parseFloat(retornarTotaisServicos.retencoes.pis).toFixed(2)}}</md-table-head>
-        <md-table-head>R${{parseFloat(retornarTotaisServicos.retencoes.cofins).toFixed(2)}}</md-table-head>
-        <md-table-head>R${{parseFloat(retornarTotaisServicos.retencoes.csll).toFixed(2)}}</md-table-head>
-        <md-table-head>R${{parseFloat(retornarTotaisServicos.retencoes.irpj).toFixed(2)}}</md-table-head>
-        <md-table-head>R${{parseFloat(retornarTotaisServicos.retencoes.total).toFixed(2)}}</md-table-head>
-        <md-table-head>R${{parseFloat(retornarTotaisServicos.iss).toFixed(2)}}</md-table-head>
-        <md-table-head>R${{parseFloat(retornarTotaisServicos.pis).toFixed(2)}}</md-table-head>
-        <md-table-head>R${{parseFloat(retornarTotaisServicos.cofins).toFixed(2)}}</md-table-head>
-        <md-table-head>R${{parseFloat(retornarTotaisServicos.csll).toFixed(2)}}</md-table-head>
-        <md-table-head>R${{parseFloat(retornarTotaisServicos.irpj).toFixed(2)}}</md-table-head>
-        <md-table-head>R${{parseFloat(retornarTotaisServicos.total).toFixed(2)}}</md-table-head>
+        <md-table-head>{{R$(retornarTotaisServicos.retencoes.iss)}}</md-table-head>
+        <md-table-head>{{R$(retornarTotaisServicos.retencoes.pis)}}</md-table-head>
+        <md-table-head>{{R$(retornarTotaisServicos.retencoes.cofins)}}</md-table-head>
+        <md-table-head>{{R$(retornarTotaisServicos.retencoes.csll)}}</md-table-head>
+        <md-table-head>{{R$(retornarTotaisServicos.retencoes.irpj)}}</md-table-head>
+        <md-table-head>{{R$(retornarTotaisServicos.retencoes.total)}}</md-table-head>
+        <md-table-head>{{R$(retornarTotaisServicos.iss)}}</md-table-head>
+        <md-table-head>{{R$(retornarTotaisServicos.pis)}}</md-table-head>
+        <md-table-head>{{R$(retornarTotaisServicos.cofins)}}</md-table-head>
+        <md-table-head>{{R$(retornarTotaisServicos.csll)}}</md-table-head>
+        <md-table-head>{{R$(retornarTotaisServicos.irpj)}}</md-table-head>
+        <md-table-head>{{R$(retornarTotaisServicos.total)}}</md-table-head>
       </md-table-row>
     </md-table>
 
@@ -185,18 +185,18 @@
 
       <md-table-row v-for="(mes, index) in trimestre" v-if="index !== 'totais'" v-bind:key="index + 'totais'">
         <md-table-cell>{{pegarMes(index)}}</md-table-cell>
-        <md-table-cell>R${{mes.totais.impostos.pis.toFixed(2)}}</md-table-cell>
-        <md-table-cell>R${{mes.totais.impostos.cofins.toFixed(2)}}</md-table-cell>
-        <md-table-cell>R${{mes.totais.impostos.csll.toFixed(2)}}</md-table-cell>
-        <md-table-cell>R${{mes.totais.impostos.irpj.toFixed(2)}}</md-table-cell>
+        <md-table-cell>{{R$(mes.totais.impostos.pis)}}</md-table-cell>
+        <md-table-cell>{{R$(mes.totais.impostos.cofins)}}</md-table-cell>
+        <md-table-cell>{{R$(mes.totais.impostos.csll)}}</md-table-cell>
+        <md-table-cell>{{R$(mes.totais.impostos.irpj)}}</md-table-cell>
       </md-table-row>
 
       <md-table-row>
         <md-table-head>Trimestre</md-table-head>
-        <md-table-head>R${{trimestre.totais.impostos.pis.toFixed(2)}}</md-table-head>
-        <md-table-head>R${{trimestre.totais.impostos.cofins.toFixed(2)}}</md-table-head>
-        <md-table-head>R${{trimestre.totais.impostos.csll.toFixed(2)}}</md-table-head>
-        <md-table-head>R${{trimestre.totais.impostos.irpj.toFixed(2)}}</md-table-head>
+        <md-table-head>{{R$(trimestre.totais.impostos.pis)}}</md-table-head>
+        <md-table-head>{{R$(trimestre.totais.impostos.cofins)}}</md-table-head>
+        <md-table-head>{{R$(trimestre.totais.impostos.csll)}}</md-table-head>
+        <md-table-head>{{R$(trimestre.totais.impostos.irpj)}}</md-table-head>
       </md-table-row>
     </md-table>
   </div>
@@ -218,7 +218,7 @@
 </div>
 </template>
 <script>
-import { pegarDominio, usuarioAtivo, pegarPessoaId, pegarMovimentosMes, pegarServicosMes, pegarNotaChave, pegarNotaServicoChave, excluirMovimento, excluirServico, totaisTrimestrais } from './services'
+import { pegarDominio, usuarioAtivo, pegarPessoaId, pegarMovimentosMes, pegarServicosMes, pegarNotaChave, pegarNotaServicoChave, excluirMovimento, excluirServico, totaisTrimestrais, R$ } from './services'
 import notaDialogo from './notaDialogo'
 import _ from 'lodash'
 import { Printd } from 'printd'
@@ -308,6 +308,7 @@ export default {
     })
   },
   methods: {
+    R$: R$,
     calculaIcmsTotal (movimento) {
       let icms = movimento.valores.impostos.icms
       if (icms.difal) {
