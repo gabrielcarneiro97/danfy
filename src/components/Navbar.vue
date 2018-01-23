@@ -1,6 +1,6 @@
 <template>
   <md-toolbar class="md-primary">
-    <div style="flex: 1"><md-button :md-ripple="false" to="/menu"><h3 class="md-title">DANFY <span id="label">ALPHA</span></h3></md-button></div>
+    <div style="flex: 1"><md-button :md-ripple="false" @click="clickIcone"><h3 class="md-title">DANFY <span id="label">ALPHA</span></h3></md-button></div>
     <md-button @click="click">{{texto}}</md-button>
   </md-toolbar>
 </template>
@@ -12,12 +12,14 @@ export default {
   name: 'navbar',
   data () {
     return {
-      texto: 'ENTRAR'
+      texto: 'ENTRAR',
+      tipoUsuario: ''
     }
   },
   created () {
-    usuarioAtivo(ativo => {
+    usuarioAtivo((ativo, usuario, tipo) => {
       if (ativo) {
+        this.$data.tipoUsuario = tipo
         this.$data.texto = 'SAIR'
       } else {
         this.$data.texto = 'ENTRAR'
@@ -25,6 +27,15 @@ export default {
     })
   },
   methods: {
+    clickIcone () {
+      if (this.$data.texto === 'ENTRAR') {
+        this.$router.push('/')
+      } else if (this.$data.tipoUsuario === 'mult') {
+        this.$router.push('/menu')
+      } else {
+        this.$router.push('/mostrarMovimentos')
+      }
+    },
     click () {
       if (this.$data.texto === 'SAIR') {
         deslogar(() => {
