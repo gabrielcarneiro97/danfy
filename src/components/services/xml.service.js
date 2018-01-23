@@ -199,11 +199,20 @@ export function lerNfse (obj, callback) {
   callback(notaServico, emitente, destinatario)
 }
 export function lerNfe (obj, callback) {
-  if (!obj.nfeProc) return 0
-  if (!obj.nfeProc.NFe) return 0
-  if (!obj.nfeProc.NFe.Signature) return 0
+  if (obj.nfeProc) {
+    if (!obj.nfeProc.NFe) {
+      return 0
+    } else if (!obj.nfeProc.NFe.Signature) {
+      return 0
+    }
+  } else if (!obj.NFe) {
+    return 0
+  } else if (!obj.NFe.Signature) {
+    return 0
+  }
+  console.log(obj)
 
-  let info = obj.nfeProc.NFe.infNFe
+  let info = obj.nfeProc ? obj.nfeProc.NFe.infNFe : obj.NFe.infNFe
 
   if (!info.ide.tpAmb['_text'] === '1') return 0
 
