@@ -4,7 +4,7 @@ export function calcularImpostosServico (notaServico, callback) {
   pegarEmpresaImpostos(notaServico.emitente, (err, aliquotas) => {
     if (err) {
       console.error(err)
-    } else {
+    } else if (aliquotas.tributacao !== 'SN') {
       let valores = {}
 
       valores.servico = notaServico.valor.servico
@@ -12,7 +12,9 @@ export function calcularImpostosServico (notaServico, callback) {
       let baseDeCalculo = notaServico.valor.baseDeCalculo
 
       let retencoes = notaServico.valor.retencoes
-      let iss = notaServico.valor.iss ? notaServico.valor.iss.valor : (baseDeCalculo * aliquotas.iss).toFixed(2)
+      let iss = notaServico.valor.iss ? notaServico.valor.iss.valor : (baseDeCalculo * aliquotas.iss)
+      let aliquotaIr = 0.048
+      let aliquotaCsll = 0.0288
 
       valores.impostos = {
         baseDeCalculo: notaServico.valor.baseDeCalculo,
@@ -22,14 +24,14 @@ export function calcularImpostosServico (notaServico, callback) {
           cofins: retencoes.cofins,
           csll: retencoes.csll,
           irpj: retencoes.irpj,
-          total: (parseFloat(retencoes.iss) + parseFloat(retencoes.pis) + parseFloat(retencoes.cofins) + parseFloat(retencoes.csll) + parseFloat(retencoes.irpj)).toFixed(2)
+          total: (parseFloat(retencoes.iss) + parseFloat(retencoes.pis) + parseFloat(retencoes.cofins) + parseFloat(retencoes.csll) + parseFloat(retencoes.irpj))
         },
         iss: iss,
-        pis: (baseDeCalculo * aliquotas.pis).toFixed(2),
-        cofins: (baseDeCalculo * aliquotas.cofins).toFixed(2),
-        csll: (baseDeCalculo * aliquotas.csll).toFixed(2),
-        irpj: (baseDeCalculo * aliquotas.irpj).toFixed(2),
-        total: (parseFloat(iss) + (baseDeCalculo * aliquotas.irpj) + (baseDeCalculo * aliquotas.pis) + (baseDeCalculo * aliquotas.cofins) + (baseDeCalculo * aliquotas.csll)).toFixed(2)
+        pis: (baseDeCalculo * aliquotas.pis),
+        cofins: (baseDeCalculo * aliquotas.cofins),
+        csll: (baseDeCalculo * aliquotaCsll),
+        irpj: (baseDeCalculo * aliquotaIr),
+        total: (parseFloat(iss) + (baseDeCalculo * aliquotaIr) + (baseDeCalculo * aliquotas.pis) + (baseDeCalculo * aliquotas.cofins) + (baseDeCalculo * aliquotaCsll))
       }
 
       callback(null, valores)
@@ -72,11 +74,11 @@ export function calcularImpostosMovimento (notaInicial, notaFinal, callback) {
           lucro: lucro,
           valorSaida: valorSaida,
           impostos: {
-            pis: (lucro * aliquotas.pis).toFixed(2),
-            cofins: (lucro * aliquotas.cofins).toFixed(2),
-            csll: (lucro * aliquotas.csll).toFixed(2),
-            irpj: (lucro * aliquotas.irpj).toFixed(2),
-            total: ((lucro * aliquotas.irpj) + (lucro * aliquotas.pis) + (lucro * aliquotas.cofins) + (lucro * aliquotas.csll)).toFixed(2)
+            pis: (lucro * aliquotas.pis),
+            cofins: (lucro * aliquotas.cofins),
+            csll: (lucro * aliquotas.csll),
+            irpj: (lucro * aliquotas.irpj),
+            total: ((lucro * aliquotas.irpj) + (lucro * aliquotas.pis) + (lucro * aliquotas.cofins) + (lucro * aliquotas.csll))
           }
         }
 
@@ -167,10 +169,10 @@ export function calcularImpostosMovimento (notaInicial, notaFinal, callback) {
 
         if (estadoGerador === estadoDestino) {
           valores.impostos.icms = {
-            baseDeCalculo: (lucro * aliquotas.icms.reducao).toFixed(2),
-            proprio: (lucro * aliquotas.icms.reducao * aliquotas.icms.aliquota).toFixed(2)
+            baseDeCalculo: (lucro * aliquotas.icms.reducao),
+            proprio: (lucro * aliquotas.icms.reducao * aliquotas.icms.aliquota)
           }
-          valores.impostos.total = (parseFloat(valores.impostos.total) + (lucro * aliquotas.icms.reducao * aliquotas.icms.aliquota)).toFixed(2)
+          valores.impostos.total = (parseFloat(valores.impostos.total) + (lucro * aliquotas.icms.reducao * aliquotas.icms.aliquota))
         } else {
           if (destinatarioContribuinte === '2' || destinatarioContribuinte === '9') {
             let composicaoDaBase = valorSaida / (1 - icmsEstados[estadoDestino].interno)
@@ -180,16 +182,16 @@ export function calcularImpostosMovimento (notaInicial, notaFinal, callback) {
             let difal = (baseDifal * icmsEstados[estadoDestino].interno) - proprio
 
             valores.impostos.icms = {
-              composicaoDaBase: composicaoDaBase.toFixed(2),
-              baseDeCalculo: baseDeCalculo.toFixed(2),
-              proprio: proprio.toFixed(2),
+              composicaoDaBase: composicaoDaBase,
+              baseDeCalculo: baseDeCalculo,
+              proprio: proprio,
               difal: {
-                origem: (difal * 0.8).toFixed(2),
-                destino: (difal * 0.2).toFixed(2)
+                origem: (difal * 0.8),
+                destino: (difal * 0.2)
               }
             }
 
-            valores.impostos.total = (parseFloat(valores.impostos.total) + (difal * 0.8) + (difal * 0.2) + proprio).toFixed(2)
+            valores.impostos.total = (parseFloat(valores.impostos.total) + (difal * 0.8) + (difal * 0.2) + proprio)
           } else if (destinatarioContribuinte === '1') {
             let baseDeCalculo = 0.05 * valorSaida
             let valor = baseDeCalculo * icmsEstados[estadoDestino].externo
@@ -197,8 +199,8 @@ export function calcularImpostosMovimento (notaInicial, notaFinal, callback) {
             valores.impostos.icms = {
               composicaoDaBase: null,
               difal: null,
-              baseDeCalculo: baseDeCalculo.toFixed(2),
-              proprio: valor.toFixed(2)
+              baseDeCalculo: baseDeCalculo,
+              proprio: valor
             }
             valores.impostos.total = parseFloat(valores.impostos.total) + valor
           }
@@ -299,6 +301,7 @@ export function totaisTrimestrais (cnpj, competencia, callback) {
         lucro: 0,
         servicos: 0,
         impostos: {
+          adicionalIr: 0,
           pis: 0,
           cofins: 0,
           csll: 0,
@@ -404,7 +407,33 @@ export function totaisTrimestrais (cnpj, competencia, callback) {
           trimestre.totais.impostos.retencoes.cofins += trimestre[mes].totais.impostos.retencoes.cofins
           trimestre.totais.impostos.retencoes.total += trimestre[mes].totais.impostos.retencoes.total
 
-          if (mes === ultimoMes) {
+          if (mes % 3 === 0) {
+            let adicionalIr
+            let baseLucro
+            let baseServico
+            pegarEmpresaImpostos(cnpj, (err, aliquotas) => {
+              if (err) {
+                console.error(err)
+              } else {
+                if (aliquotas.irpj === 0.012) {
+                  baseLucro = trimestre.totais.lucro * 0.8
+                } else {
+                  baseLucro = trimestre.totais.lucro * 0.32
+                }
+                baseServico = trimestre.totais.servico * 0.32
+
+                if (baseLucro + baseServico > 60000) {
+                  adicionalIr = ((baseLucro + baseServico) - 60000) * 0.1
+                } else {
+                  adicionalIr = 0
+                }
+
+                trimestre.totais.impostos.adicionalIr = adicionalIr
+
+                callback(null, trimestre)
+              }
+            })
+          } else if (mes === ultimoMes) {
             callback(null, trimestre)
           }
         })
