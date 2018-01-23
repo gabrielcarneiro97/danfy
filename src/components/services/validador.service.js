@@ -5,6 +5,7 @@ export function compararCFOP (notaInicial, notaFinal) {
   let cfopFinal = notaFinal.geral.cfop
 
   let cfopCompra = ['1102', '2102']
+  let cfopDevolucao = ['1202', '2202']
   let cfopVenda = ['5102', '6102', '6108']
   let cfopConsignacao = ['1917', '2917']
   let cfopCompraConsignacao = ['1113']
@@ -19,6 +20,8 @@ export function compararCFOP (notaInicial, notaFinal) {
     return true
   } else if (cfopConsignacao.includes(cfopInicial) && cfopDevolucaoConsignacao.includes(cfopFinal)) {
     return true
+  } else if (cfopVenda.includes(cfopInicial) && cfopDevolucao.includes(cfopFinal)) {
+
   } else if ((cfopVenda.includes(cfopInicial) && cfopVenda.includes(cfopFinal)) && (notaFinal.emitente !== notaInicial.emitente)) {
     return true
   } else {

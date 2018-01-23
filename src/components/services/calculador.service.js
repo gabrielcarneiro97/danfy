@@ -53,7 +53,7 @@ export function calcularImpostosMovimento (notaInicial, notaFinal, callback) {
     if (err) {
       console.error(err)
     } else {
-      if (lucro < 0) {
+      if (lucro < 0 && notaFinal.geral.cfop !== '1202' && notaFinal.geral.cfop !== '2202') {
         callback(null, {
           lucro: 0,
           valorSaida: valorSaida,
@@ -232,6 +232,7 @@ export function totaisTrimestrais (cnpj, competencia, callback) {
     lucro: 0,
     servicos: 0,
     impostos: {
+      adicionalIr: 0,
       pis: 0,
       cofins: 0,
       csll: 0,
@@ -301,7 +302,6 @@ export function totaisTrimestrais (cnpj, competencia, callback) {
         lucro: 0,
         servicos: 0,
         impostos: {
-          adicionalIr: 0,
           pis: 0,
           cofins: 0,
           csll: 0,
@@ -445,6 +445,13 @@ export function totaisTrimestrais (cnpj, competencia, callback) {
 export function R$ (valor) {
   valor = parseFloat(valor).toFixed(2)
 
+  let negativo = ''
+
+  if (valor.charAt(0) === '-') {
+    negativo = '-'
+    valor = valor.replace('-', '')
+  }
+
   valor = valor.toString().replace('.', ',')
 
   let esquerda = valor.split(',')[0]
@@ -462,5 +469,5 @@ export function R$ (valor) {
   }
   esquerda = esquerdaArr.reverse().join('')
 
-  return 'R$' + esquerda + ',' + direita
+  return negativo + esquerda + ',' + direita
 }
