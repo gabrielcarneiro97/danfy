@@ -97,26 +97,29 @@
   <md-dialog :md-active.sync="mostraImpostos" v-if="empresaParaAdicionar.cnpj">
     <md-dialog-title>{{pessoas[empresaParaAdicionar.cnpj].nome}}</md-dialog-title>
     <md-dialog-content class="md-layout">
-      <md-field class="md-layout-item md-size-100">
+      <md-field class="md-layout-item md-size-50">
         <label>NÚMERO</label>
         <md-input v-model="empresaParaAdicionar.num"></md-input>
       </md-field>
+      <div class="md-layout-item md-size-50">
+        <md-checkbox v-model="temLiminar">Liminar de Redução</md-checkbox>
+      </div>
       <md-divider></md-divider>
       <md-field class="md-layout-item md-size-50">
         <label>IRPJ</label>
-        <md-input v-model="aliquotas.irpj"></md-input>
+        <md-input v-model="aliquotas.irpj" disabled></md-input>
       </md-field>
       <md-field class="md-layout-item md-size-50">
         <label>CSLL</label>
-        <md-input v-model="aliquotas.csll"></md-input>
+        <md-input v-model="aliquotas.csll" disabled></md-input>
       </md-field>
       <md-field class="md-layout-item md-size-50">
         <label>PIS</label>
-        <md-input v-model="aliquotas.pis"></md-input>
+        <md-input v-model="aliquotas.pis" disabled></md-input>
       </md-field>
       <md-field class="md-layout-item md-size-50">
         <label>COFINS</label>
-        <md-input v-model="aliquotas.cofins"></md-input>
+        <md-input v-model="aliquotas.cofins" disabled></md-input>
       </md-field>
       <md-field class="md-layout-item md-size-50">
         <label>ICMS</label>
@@ -130,11 +133,15 @@
         <label>ISS</label>
         <md-input v-model="aliquotas.iss"></md-input>
       </md-field>
+      <div class="md-layout-item md-size-100">
+        <md-radio v-model="aliquotas.tributacao" value="SN">Simples Nacional</md-radio>
+        <md-radio v-model="aliquotas.tributacao" value="LP">Lucro Presumido</md-radio>
+      </div>
     </md-dialog-content>
 
     <md-dialog-actions>
       <md-button class="md-primary" @click="mostraImpostos = false; mostra = true">CANCELAR</md-button>
-      <md-button class="md-primary" @click="gravarImpostosEDominio">ADICIONAR</md-button>
+      <md-button class="md-primary" @click="gravarImpostosEDominio" :disabled="!podeAdicionar">ADICIONAR</md-button>
     </md-dialog-actions>
   </md-dialog>
 
@@ -145,14 +152,14 @@
       :md-content="'Empresa: ' + pessoas[empresaParaAdicionar.cnpj].nome + ' Número: ' + empresaParaAdicionar.num"
       md-confirm-text="OK"
       md-cancel-text=""
-      @md-confirm="mostraConfirma = false; mostra = true" />
+      @md-confirm="confirmarDialogo" />
 </div>
 </template>
 
 <script>
 import _ from 'lodash'
 import store from '../store'
-import { usuarioAtivo, lerNotasInput, adicionarDominioEImpostos, gravarPessoas, gravarNotas, gravarNotasServico, limparNotasStore, limparNotasServicoStore } from './services'
+import { usuarioAtivo, lerNotasInput, adicionarDominioEImpostos, limparNotasStore, limparNotasServicoStore } from './services'
 
 export default {
   data () {
@@ -162,6 +169,7 @@ export default {
       pessoas: {},
       foraDominio: {},
       aliquotasPadrao: {
+        tributacao: '',
         icms: {
           aliquota: 0.18,
           reducao: 0.2778
@@ -172,7 +180,9 @@ export default {
         irpj: 0.048,
         iss: 0.03
       },
+      temLiminar: false,
       aliquotas: {
+        tributacao: '',
         icms: {
           aliquota: 0.18,
           reducao: 0.2778
@@ -219,7 +229,7 @@ export default {
           Object.keys(pessoas).forEach(keyPessoa => {
             if (keyPessoa.length === 11) return 0
 
-            let empresas = dominio.empresas
+            let empresas = dominio.empresas ? dominio.empresas : {}
 
             let jaNoDominio = Object.keys(empresas).some((keyEmpresa, index) => {
               return empresas[keyEmpresa] === keyPessoa
@@ -269,6 +279,7 @@ export default {
       let empresa = this.$data.empresaParaAdicionar
       let aliquotas = this.$data.aliquotas
       empresa.aliquotas = {
+        tributacao: aliquotas.tributacao,
         icms: {
           aliquota: parseFloat(aliquotas.icms.aliquota.toString().replace(',', '.')),
           reducao: parseFloat(aliquotas.icms.reducao.toString().replace(',', '.'))
@@ -292,6 +303,14 @@ export default {
     },
     proximaPagina () {
       this.$router.push('/conciliarNotas')
+    },
+    confirmarDialogo () {
+      this.$data.mostraConfirma = false
+      if (!_.isEmpty(this.$data.foraDominio)) {
+        this.$data.mostra = true
+      } else {
+        this.proximaPagina()
+      }
     }
   },
   computed: {
@@ -306,6 +325,24 @@ export default {
     },
     semNotasServico () {
       return _.isEmpty(this.$data.notasServico)
+    },
+    podeAdicionar () {
+      if (this.$data.empresaParaAdicionar.num && this.$data.aliquotas.tributacao !== '') {
+        return true
+      } else {
+        return false
+      }
+    }
+  },
+  watch: {
+    temLiminar () {
+      if (this.$data.temLiminar) {
+        this.$data.aliquotas.csll = 0.0108
+        this.$data.aliquotas.irpj = 0.012
+      } else {
+        this.$data.aliquotas.csll = 0.0288
+        this.$data.aliquotas.irpj = 0.048
+      }
     }
   }
 }

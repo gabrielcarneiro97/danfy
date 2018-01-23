@@ -549,41 +549,6 @@ export default {
     temAcumulado () {
       return !_.isEmpty(this.$data.trimestre)
     },
-    retornarTotais () {
-      let movimentos = this.$data.movimentos
-      let totais = {
-        icms: 0,
-        irpj: 0,
-        csll: 0,
-        pis: 0,
-        cofins: 0,
-        gnre: 0
-      }
-
-      Object.keys(movimentos).forEach(key => {
-        let movimento = movimentos[key]
-
-        totais.icms += parseFloat(this.calculaIcmsTotal(movimento))
-        totais.csll += parseFloat(movimento.valores.impostos.csll)
-        totais.pis += parseFloat(movimento.valores.impostos.pis)
-        totais.irpj += parseFloat(movimento.valores.impostos.irpj)
-        totais.cofins += parseFloat(movimento.valores.impostos.cofins)
-        if (movimento.valores.impostos.icms.difal) {
-          totais.gnre += parseFloat(movimento.valores.impostos.icms.difal.destino)
-        }
-      })
-
-      totais.total = (totais.icms + totais.csll + totais.pis + totais.irpj + totais.cofins + totais.gnre).toFixed(2)
-
-      totais.icms = (totais.icms).toFixed(2)
-      totais.csll = (totais.csll).toFixed(2)
-      totais.pis = (totais.pis).toFixed(2)
-      totais.irpj = (totais.irpj).toFixed(2)
-      totais.cofins = (totais.cofins).toFixed(2)
-      totais.gnre = (totais.gnre).toFixed(2)
-
-      return totais
-    },
     retornarTotaisServicos () {
       let servicos = this.$data.servicos
       let totais = {
