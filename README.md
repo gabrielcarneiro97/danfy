@@ -1,18 +1,5 @@
 # danfy
 
-> A Vue.js project
+### Disposições gerais
 
-## Build Setup
-
-``` bash
-# install dependencies
-npm install
-
-# serve with hot reload at localhost:8080
-npm run dev
-
-# build for production with minification
-npm run build
-```
-
-For detailed explanation on how things work, consult the [docs for vue-loader](http://vuejs.github.io/vue-loader).
+O *danfy* tem como objetivo conciliar movimentos fiscais, capturando valores dos xmls das notas fiscais para fazer o calculo de impostos de acordo com as informações contidas nas notas.
