@@ -186,9 +186,9 @@
         <md-table-head>ICMS</md-table-head>
         <md-table-head>PIS</md-table-head>
         <md-table-head>COFINS</md-table-head>        
-        <md-table-head>CSLL</md-table-head>
-        <md-table-head v-if="(parseInt(competenciaSelecionada.mes) % 3 === 0)">IRPJ + ADICIONAL</md-table-head>    
-        <md-table-head v-else>IRPJ</md-table-head>        
+        <md-table-head v-if="empresaSelecionada.pessoa.formaPagamento === 'adiantamento'">CSLL</md-table-head>
+        <md-table-head v-if="(parseInt(competenciaSelecionada.mes) % 3 === 0) && empresaSelecionada.pessoa.formaPagamento === 'adiantamento'">IRPJ + ADICIONAL</md-table-head>    
+        <md-table-head v-else-if="empresaSelecionada.pessoa.formaPagamento === 'adiantamento'">IRPJ</md-table-head>        
       </md-table-row>
 
       <md-table-row>
@@ -196,9 +196,9 @@
         <md-table-cell>{{R$(trimestre[competenciaSelecionada.mes].totais.impostos.icms.proprio + trimestre[competenciaSelecionada.mes].totais.impostos.icms.difal.origem)}}</md-table-cell>
         <md-table-cell>{{R$(trimestre[competenciaSelecionada.mes].totais.impostos.pis - trimestre[competenciaSelecionada.mes].totais.impostos.retencoes.pis)}}</md-table-cell>
         <md-table-cell>{{R$(trimestre[competenciaSelecionada.mes].totais.impostos.cofins - trimestre[competenciaSelecionada.mes].totais.impostos.retencoes.cofins)}}</md-table-cell>
-        <md-table-cell>{{R$(trimestre[competenciaSelecionada.mes].totais.impostos.csll - trimestre[competenciaSelecionada.mes].totais.impostos.retencoes.csll)}}</md-table-cell>        
-        <md-table-cell v-if="(parseInt(competenciaSelecionada.mes) % 3 === 0)">{{R$(trimestre[competenciaSelecionada.mes].totais.impostos.irpj - trimestre[competenciaSelecionada.mes].totais.impostos.retencoes.irpj + trimestre.totais.impostos.adicionalIr)}}</md-table-cell>
-        <md-table-cell v-else>{{R$(trimestre[competenciaSelecionada.mes].totais.impostos.irpj - trimestre[competenciaSelecionada.mes].totais.impostos.retencoes.irpj)}}</md-table-cell>      
+        <md-table-cell v-if="empresaSelecionada.pessoa.formaPagamento === 'adiantamento'">{{R$(trimestre[competenciaSelecionada.mes].totais.impostos.csll - trimestre[competenciaSelecionada.mes].totais.impostos.retencoes.csll)}}</md-table-cell>        
+        <md-table-cell v-if="(parseInt(competenciaSelecionada.mes) % 3 === 0) && empresaSelecionada.pessoa.formaPagamento === 'adiantamento'">{{R$(trimestre[competenciaSelecionada.mes].totais.impostos.irpj - trimestre[competenciaSelecionada.mes].totais.impostos.retencoes.irpj + trimestre.totais.impostos.adicionalIr)}}</md-table-cell>
+        <md-table-cell v-else-if="empresaSelecionada.pessoa.formaPagamento === 'adiantamento'">{{R$(trimestre[competenciaSelecionada.mes].totais.impostos.irpj - trimestre[competenciaSelecionada.mes].totais.impostos.retencoes.irpj)}}</md-table-cell>      
       </md-table-row>
 
 
@@ -234,7 +234,7 @@
       </md-table-row>
     </md-table>
 
-    <md-table class="md-layout-item md-size-90 meia-tabela" v-show="tipoTabela === 'acumulado' || mostraTudo" v-if="temAcumulado">
+    <md-table class="md-layout-item md-size-90 meia-tabela" v-show="tipoTabela === 'acumulado' || mostraTudo" v-if="temAcumulado && empresaSelecionada.pessoa.formaPagamento === 'cotas' && (parseInt(competenciaSelecionada.mes) % 3 === 0)">
       <md-table-toolbar>
         <h1 class="md-title">Cotas - {{empresaSelecionada.pessoa.nome}}</h1>
       </md-table-toolbar>
@@ -419,6 +419,9 @@ export default {
             console.error(err)
           } else {
             pegarEmpresaImpostos(cnpj, (err, impostos) => {
+              if (err) {
+                console.error(err)
+              }
               pessoa.formaPagamento = impostos.formaPagamentoTrimestrais
               pessoa.cnpj = cnpj
               this.$data.empresaSelecionada.pessoa = pessoa
@@ -437,6 +440,8 @@ export default {
 
       pegarMovimentosMes(pessoaEmpresa.cnpj, competencia, (err, movimentos) => {
         if (err) console.error(err)
+
+        console.log(movimentos)
 
         if (_.isEmpty(movimentos)) {
           this.chamarMensagem(new Error(`Não foram encontrados movimentos na competência: ${mesEscrito}/${competencia.ano} da empresa Nº${numeroEmpresa} (${pessoaEmpresa.nome})`))
@@ -463,8 +468,17 @@ export default {
               console.error(err)
             }
             if (_.isEmpty(servicos)) {
-              this.chamarMensagem(new Error(`Não foram encontrados serviços na competência: ${mesEscrito}/${competencia.ano} da empresa Nº${numeroEmpresa} (${pessoaEmpresa.nome})`))
               this.$data.semServicos = true
+              console.log('aqui')
+              totaisTrimestrais(pessoaEmpresa.cnpj, competencia, (err, trimestre) => {
+                if (err) {
+                  console.error(err)
+                }
+                console.log('aqui2')
+                this.$data.trimestre = trimestre
+                this.$data.semMovimentos = false
+              })
+              this.chamarMensagem(new Error(`Não foram encontrados serviços na competência: ${mesEscrito}/${competencia.ano} da empresa Nº${numeroEmpresa} (${pessoaEmpresa.nome})`))
             } else {
               this.$data.servicos = servicos
               Object.keys(servicos).forEach(key => {

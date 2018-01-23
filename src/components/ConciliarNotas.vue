@@ -14,7 +14,7 @@
           <md-table-head>Confirmar Movimento</md-table-head>
         </md-table-row>
 
-        <md-table-row v-for="movimento in movimentos" v-bind:key="movimentos.indexOf(movimento)">
+        <md-table-row v-for="movimento in ordenarMovimentos" v-bind:key="movimentos.indexOf(movimento)">
 
           <md-table-cell md-numeric>{{movimentos.indexOf(movimento)+1}}</md-table-cell>
 
@@ -119,7 +119,7 @@
             </md-list>
           </md-list-item>
           <md-list-item md-expand>
-            <span class="md-list-item-text">Adicionar valor de entrada</span>
+            <span class="md-list-item-text">Adicionar Valor da Nota Inicial</span>
             <md-list slot="md-expand">
               <md-list-item>
                 <md-field md-clearable>
@@ -158,6 +158,7 @@
 import { calcularImpostosMovimento, calcularImpostosServico, pegarDominio, usuarioAtivo, pegarNotaChave, procurarNotaPar, estaNoDominio, validarMovimento, pegarNotaNumeroEmitente, lerNotasInput, gravarMovimentos, gravarServicos, gravarNotaSlim } from './services'
 import notaDialogo from './notaDialogo'
 import store from '../store'
+import _ from 'lodash'
 
 export default {
   components: { notaDialogo },
@@ -547,6 +548,10 @@ export default {
       } else {
         return true
       }
+    },
+    ordenarMovimentos () {
+      return _.orderBy(this.$data.movimentos, 'data')
+
     }
   }
 }
