@@ -415,14 +415,11 @@ export function totaisTrimestrais (cnpj, competencia, callback) {
 
 export function R$ (valor) {
   valor = parseFloat(valor).toFixed(2)
-  console.log(valor)
 
   valor = valor.toString().replace('.', ',')
 
   let esquerda = valor.split(',')[0]
-  console.log(esquerda)
   let direita = valor.split(',')[1]
-  console.log(direita)
 
   let counter = 0
   let esquerdaArr = []
