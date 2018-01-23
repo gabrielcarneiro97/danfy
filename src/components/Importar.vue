@@ -137,6 +137,11 @@
         <md-radio v-model="aliquotas.tributacao" value="SN">Simples Nacional</md-radio>
         <md-radio v-model="aliquotas.tributacao" value="LP">Lucro Presumido</md-radio>
       </div>
+      <div class="md-layout-item md-size-100">
+        <md-radio v-model="aliquotas.formaPagamentoTrimestrais" value="adiantamento">Adiantamento</md-radio>
+        <md-radio v-model="aliquotas.formaPagamentoTrimestrais" value="acumulado">Acumulado por trimestre</md-radio>
+        <md-radio v-model="aliquotas.formaPagamentoTrimestrais" value="cotas">Pagamento em cotas</md-radio>        
+      </div>
     </md-dialog-content>
 
     <md-dialog-actions>
@@ -169,6 +174,7 @@ export default {
       pessoas: {},
       foraDominio: {},
       aliquotasPadrao: {
+        formaPagamentoTrimestrais: '',
         tributacao: '',
         icms: {
           aliquota: 0.18,
@@ -182,6 +188,7 @@ export default {
       },
       temLiminar: false,
       aliquotas: {
+        formaPagamentoTrimestrais: '',
         tributacao: '',
         icms: {
           aliquota: 0.18,
@@ -279,6 +286,7 @@ export default {
       let empresa = this.$data.empresaParaAdicionar
       let aliquotas = this.$data.aliquotas
       empresa.aliquotas = {
+        formaPagamentoTrimestrais: aliquotas.formaPagamentoTrimestrais,
         tributacao: aliquotas.tributacao,
         icms: {
           aliquota: parseFloat(aliquotas.icms.aliquota.toString().replace(',', '.')),
@@ -327,7 +335,7 @@ export default {
       return _.isEmpty(this.$data.notasServico)
     },
     podeAdicionar () {
-      if (this.$data.empresaParaAdicionar.num && this.$data.aliquotas.tributacao !== '') {
+      if (this.$data.empresaParaAdicionar.num && this.$data.aliquotas.tributacao !== '' && this.$data.aliquotas.formaPagamentoTrimestrais) {
         return true
       } else {
         return false

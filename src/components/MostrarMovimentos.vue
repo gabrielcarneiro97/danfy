@@ -14,6 +14,12 @@
           <label>NOME</label>
           <md-input v-model="empresaSelecionada.pessoa.nome" disabled></md-input>
         </md-field>
+        <md-field class="md-layout-item md-size-100">
+          <label>Forma de Pagamento Impostos Trimestrais</label>
+          <md-input v-if="empresaSelecionada.pessoa.formaPagamento === 'cotas'" v-model="cotas" disabled></md-input>
+          <md-input v-if="empresaSelecionada.pessoa.formaPagamento === 'adiantamento'" v-model="adiantamento" disabled></md-input>
+          <md-input v-if="empresaSelecionada.pessoa.formaPagamento === 'acumulado'" v-model="acumulado" disabled></md-input>          
+        </md-field>
         <md-field class="md-layout-item md-size-30">
           <label for="mes">MÊS</label>
           <md-select v-model="competenciaSelecionada.mes" name="mes" id="mes" @input="removerMovimentosEServicos">
@@ -155,48 +161,96 @@
 
       <md-table-row>
         <md-table-head colspan="2">TOTAIS IMPOSTOS</md-table-head>
-        <md-table-head>{{R$(retornarTotaisServicos.retencoes.iss)}}</md-table-head>
-        <md-table-head>{{R$(retornarTotaisServicos.retencoes.pis)}}</md-table-head>
-        <md-table-head>{{R$(retornarTotaisServicos.retencoes.cofins)}}</md-table-head>
-        <md-table-head>{{R$(retornarTotaisServicos.retencoes.csll)}}</md-table-head>
-        <md-table-head>{{R$(retornarTotaisServicos.retencoes.irpj)}}</md-table-head>
-        <md-table-head>{{R$(retornarTotaisServicos.retencoes.total)}}</md-table-head>
-        <md-table-head>{{R$(retornarTotaisServicos.iss)}}</md-table-head>
-        <md-table-head>{{R$(retornarTotaisServicos.pis)}}</md-table-head>
-        <md-table-head>{{R$(retornarTotaisServicos.cofins)}}</md-table-head>
-        <md-table-head>{{R$(retornarTotaisServicos.csll)}}</md-table-head>
-        <md-table-head>{{R$(retornarTotaisServicos.irpj)}}</md-table-head>
-        <md-table-head>{{R$(retornarTotaisServicos.total)}}</md-table-head>
+        <md-table-head>{{R$(trimestre[competenciaSelecionada.mes].servicos.impostos.retencoes.iss)}}</md-table-head>
+        <md-table-head>{{R$(trimestre[competenciaSelecionada.mes].servicos.impostos.retencoes.pis)}}</md-table-head>
+        <md-table-head>{{R$(trimestre[competenciaSelecionada.mes].servicos.impostos.retencoes.cofins)}}</md-table-head>
+        <md-table-head>{{R$(trimestre[competenciaSelecionada.mes].servicos.impostos.retencoes.csll)}}</md-table-head>
+        <md-table-head>{{R$(trimestre[competenciaSelecionada.mes].servicos.impostos.retencoes.irpj)}}</md-table-head>
+        <md-table-head>{{R$(trimestre[competenciaSelecionada.mes].servicos.impostos.retencoes.total)}}</md-table-head>
+        <md-table-head>{{R$(trimestre[competenciaSelecionada.mes].servicos.impostos.iss)}}</md-table-head>
+        <md-table-head>{{R$(trimestre[competenciaSelecionada.mes].servicos.impostos.pis)}}</md-table-head>
+        <md-table-head>{{R$(trimestre[competenciaSelecionada.mes].servicos.impostos.cofins)}}</md-table-head>
+        <md-table-head>{{R$(trimestre[competenciaSelecionada.mes].servicos.impostos.csll)}}</md-table-head>
+        <md-table-head>{{R$(trimestre[competenciaSelecionada.mes].servicos.impostos.irpj)}}</md-table-head>
+        <md-table-head>{{R$(trimestre[competenciaSelecionada.mes].servicos.impostos.total)}}</md-table-head>
       </md-table-row>
     </md-table>
 
-    <md-table class="md-layout-item md-size-90" v-show="tipoTabela === 'acumulado' || mostraTudo" v-if="temAcumulado" ref="tabelaTrimestre">
+    <md-table class="md-layout-item md-size-90" v-show="tipoTabela === 'acumulado' || mostraTudo" v-if="temAcumulado">
+      <md-table-toolbar>
+        <h1 class="md-title">Guias Mensais {{meses[parseInt(competenciaSelecionada.mes) - 1].nome}}/{{competenciaSelecionada.ano}} - {{empresaSelecionada.pessoa.nome}}</h1>
+      </md-table-toolbar>
+
+      <md-table-row>
+        <md-table-head>ISS</md-table-head>
+        <md-table-head>ICMS</md-table-head>
+        <md-table-head>PIS</md-table-head>
+        <md-table-head>COFINS</md-table-head>        
+        <md-table-head>CSLL</md-table-head>
+        <md-table-head v-if="(parseInt(competenciaSelecionada.mes) % 3 === 0)">IRPJ + ADICIONAL</md-table-head>    
+        <md-table-head v-else>IRPJ</md-table-head>        
+      </md-table-row>
+
+      <md-table-row>
+        <md-table-cell>{{R$(trimestre[competenciaSelecionada.mes].totais.impostos.iss - trimestre[competenciaSelecionada.mes].totais.impostos.retencoes.iss)}}</md-table-cell>
+        <md-table-cell>{{R$(trimestre[competenciaSelecionada.mes].totais.impostos.icms.proprio + trimestre[competenciaSelecionada.mes].totais.impostos.icms.difal.origem)}}</md-table-cell>
+        <md-table-cell>{{R$(trimestre[competenciaSelecionada.mes].totais.impostos.pis - trimestre[competenciaSelecionada.mes].totais.impostos.retencoes.pis)}}</md-table-cell>
+        <md-table-cell>{{R$(trimestre[competenciaSelecionada.mes].totais.impostos.cofins - trimestre[competenciaSelecionada.mes].totais.impostos.retencoes.cofins)}}</md-table-cell>
+        <md-table-cell>{{R$(trimestre[competenciaSelecionada.mes].totais.impostos.csll - trimestre[competenciaSelecionada.mes].totais.impostos.retencoes.csll)}}</md-table-cell>        
+        <md-table-cell v-if="(parseInt(competenciaSelecionada.mes) % 3 === 0)">{{R$(trimestre[competenciaSelecionada.mes].totais.impostos.irpj - trimestre[competenciaSelecionada.mes].totais.impostos.retencoes.irpj + trimestre.totais.impostos.adicionalIr)}}</md-table-cell>
+        <md-table-cell v-else>{{R$(trimestre[competenciaSelecionada.mes].totais.impostos.irpj - trimestre[competenciaSelecionada.mes].totais.impostos.retencoes.irpj)}}</md-table-cell>      
+      </md-table-row>
+
+
+    </md-table>
+
+    <md-table class="md-layout-item md-size-90 meia-tabela" v-show="tipoTabela === 'acumulado' || mostraTudo" v-if="temAcumulado" ref="tabelaTrimestre">
       <md-table-toolbar>
         <h1 class="md-title">Acumulado - {{empresaSelecionada.pessoa.nome}}</h1>
       </md-table-toolbar>
 
       <md-table-row>
         <md-table-head>MÊS</md-table-head>
-        <md-table-head>PIS</md-table-head>
-        <md-table-head>COFINS</md-table-head>
         <md-table-head>CSLL</md-table-head>
         <md-table-head>IRPJ</md-table-head>
       </md-table-row>
 
       <md-table-row v-for="(mes, index) in trimestre" v-if="index !== 'totais'" v-bind:key="index + 'totais'">
         <md-table-cell>{{pegarMes(index)}}</md-table-cell>
-        <md-table-cell>{{R$(mes.totais.impostos.pis)}}</md-table-cell>
-        <md-table-cell>{{R$(mes.totais.impostos.cofins)}}</md-table-cell>
-        <md-table-cell>{{R$(mes.totais.impostos.csll)}}</md-table-cell>
-        <md-table-cell>{{R$(mes.totais.impostos.irpj)}}</md-table-cell>
+        <md-table-cell>{{R$(mes.totais.impostos.csll - mes.totais.impostos.retencoes.csll)}}</md-table-cell>
+        <md-table-cell>{{R$(mes.totais.impostos.irpj - mes.totais.impostos.retencoes.irpj)}}</md-table-cell>
+      </md-table-row>
+
+      <md-table-row v-if="(parseInt(competenciaSelecionada.mes) % 3 === 0)">
+        <md-table-cell>Adicionais</md-table-cell>
+        <md-table-cell>0,00</md-table-cell>
+        <md-table-cell>{{R$(trimestre.totais.impostos.adicionalIr)}}</md-table-cell>        
       </md-table-row>
 
       <md-table-row>
         <md-table-head>Trimestre</md-table-head>
-        <md-table-head>{{R$(trimestre.totais.impostos.pis)}}</md-table-head>
-        <md-table-head>{{R$(trimestre.totais.impostos.cofins)}}</md-table-head>
-        <md-table-head>{{R$(trimestre.totais.impostos.csll)}}</md-table-head>
-        <md-table-head>{{R$(trimestre.totais.impostos.irpj)}}</md-table-head>
+        <md-table-head>{{R$(trimestre.totais.impostos.csll - trimestre.totais.impostos.retencoes.csll)}}</md-table-head>
+        <md-table-head>{{R$(trimestre.totais.impostos.irpj - trimestre.totais.impostos.retencoes.irpj + trimestre.totais.impostos.adicionalIr)}}</md-table-head>
+      </md-table-row>
+    </md-table>
+
+    <md-table class="md-layout-item md-size-90 meia-tabela" v-show="tipoTabela === 'acumulado' || mostraTudo" v-if="temAcumulado">
+      <md-table-toolbar>
+        <h1 class="md-title">Cotas - {{empresaSelecionada.pessoa.nome}}</h1>
+      </md-table-toolbar>
+
+      <md-table-row>
+        <md-table-head>Nº</md-table-head>
+        <md-table-head>CSLL</md-table-head>
+        <md-table-head>IRPJ</md-table-head>
+      </md-table-row>
+
+      <md-table-row v-for="numero in [1, 2, 3]" v-bind:key="numero + 'cota'">
+        <md-table-cell>{{numero}}</md-table-cell>
+        <md-table-cell v-if="calcularCotas.cotaCsll.numero >= numero">{{R$(calcularCotas.cotaCsll.valor)}}</md-table-cell>
+        <md-table-cell v-else>0,00</md-table-cell>
+        <md-table-cell v-if="calcularCotas.cotaIr.numero >= numero">{{R$(calcularCotas.cotaIr.valor)}}</md-table-cell>
+        <md-table-cell v-else>0,00</md-table-cell>        
       </md-table-row>
     </md-table>
   </div>
@@ -218,7 +272,7 @@
 </div>
 </template>
 <script>
-import { pegarDominio, usuarioAtivo, pegarPessoaId, pegarMovimentosMes, pegarServicosMes, pegarNotaChave, pegarNotaServicoChave, excluirMovimento, excluirServico, totaisTrimestrais, R$ } from './services'
+import { pegarDominio, usuarioAtivo, pegarPessoaId, pegarMovimentosMes, pegarServicosMes, pegarNotaChave, pegarNotaServicoChave, excluirMovimento, excluirServico, totaisTrimestrais, R$, pegarEmpresaImpostos } from './services'
 import notaDialogo from './notaDialogo'
 import _ from 'lodash'
 import { Printd } from 'printd'
@@ -227,6 +281,9 @@ export default {
   components: { notaDialogo },
   data () {
     return {
+      cotas: 'Pagamento em Cotas',
+      adiantamento: 'Pagamento Adiantado',
+      acumulado: 'Pagamento Acumulado no Final do Trimestre',
       deletar: {
         mostra: false,
         mensagem: null,
@@ -309,14 +366,6 @@ export default {
   },
   methods: {
     R$: R$,
-    calculaIcmsTotal (movimento) {
-      let icms = movimento.valores.impostos.icms
-      if (icms.difal) {
-        return (parseFloat(icms.difal.origem) + parseFloat(icms.proprio)).toFixed(2)
-      } else {
-        return icms.proprio
-      }
-    },
     escolherDeletar () {
       if (this.$data.deletar.movimentoId) {
         this.deletarMovimento()
@@ -369,8 +418,11 @@ export default {
           if (err) {
             console.error(err)
           } else {
-            pessoa.cnpj = cnpj
-            this.$data.empresaSelecionada.pessoa = pessoa
+            pegarEmpresaImpostos(cnpj, (err, impostos) => {
+              pessoa.formaPagamento = impostos.formaPagamentoTrimestrais
+              pessoa.cnpj = cnpj
+              this.$data.empresaSelecionada.pessoa = pessoa
+            })
           }
         })
       } else {
@@ -390,7 +442,6 @@ export default {
           this.chamarMensagem(new Error(`Não foram encontrados movimentos na competência: ${mesEscrito}/${competencia.ano} da empresa Nº${numeroEmpresa} (${pessoaEmpresa.nome})`))
           this.$data.semMovimentos = true
         } else {
-          this.$data.semMovimentos = false
           this.$data.movimentos = movimentos
           Object.keys(movimentos).forEach(key => {
             let chaveFinal = movimentos[key].notaFinal
@@ -407,39 +458,39 @@ export default {
               })
             })
           })
-        }
-      })
-      pegarServicosMes(pessoaEmpresa.cnpj, competencia, (err, servicos) => {
-        if (err) {
-          console.error(err)
-        }
-        if (_.isEmpty(servicos)) {
-          this.chamarMensagem(new Error(`Não foram encontrados serviços na competência: ${mesEscrito}/${competencia.ano} da empresa Nº${numeroEmpresa} (${pessoaEmpresa.nome})`))
-          this.$data.semServicos = true
-        } else {
-          this.$data.semServicos = false
-          this.$data.servicos = servicos
-          Object.keys(servicos).forEach(key => {
-            let chave = servicos[key].nota
-            pegarNotaServicoChave(chave, (err, notaServico) => {
-              if (err) {
-                console.error(err)
-              } else {
-                this.$data.notasServico = {
-                  ...this.$data.notasServico,
-                  [chave]: notaServico
+          pegarServicosMes(pessoaEmpresa.cnpj, competencia, (err, servicos) => {
+            if (err) {
+              console.error(err)
+            }
+            if (_.isEmpty(servicos)) {
+              this.chamarMensagem(new Error(`Não foram encontrados serviços na competência: ${mesEscrito}/${competencia.ano} da empresa Nº${numeroEmpresa} (${pessoaEmpresa.nome})`))
+              this.$data.semServicos = true
+            } else {
+              this.$data.servicos = servicos
+              Object.keys(servicos).forEach(key => {
+                let chave = servicos[key].nota
+                pegarNotaServicoChave(chave, (err, notaServico) => {
+                  if (err) {
+                    console.error(err)
+                  } else {
+                    this.$data.notasServico = {
+                      ...this.$data.notasServico,
+                      [chave]: notaServico
+                    }
+                  }
+                })
+              })
+              totaisTrimestrais(pessoaEmpresa.cnpj, competencia, (err, trimestre) => {
+                if (err) {
+                  console.error(err)
                 }
-              }
-            })
+                this.$data.trimestre = trimestre
+                this.$data.semMovimentos = false
+                this.$data.semServicos = false
+              })
+            }
           })
         }
-      })
-      totaisTrimestrais(pessoaEmpresa.cnpj, competencia, (err, trimestre) => {
-        if (err) {
-          console.error(err)
-        }
-        this.$data.trimestre = trimestre
-        console.log(trimestre)
       })
     },
     pegaIndex (index) {
@@ -459,6 +510,12 @@ export default {
         }
         .md-table {
           width: 100%;
+        }
+        .meia-tabela {
+          width: 48%;
+          float: left;
+          margin-right: .5%;
+          margin-left: .5%;
         }
         h1 {
           font-size: 10px;
@@ -520,6 +577,7 @@ export default {
       this.$data.semMovimentos = true
       this.$data.servicos = {}
       this.$data.semServicos = true
+      this.$data.trimestre = {}
     },
     pegarMes (num) {
       let meses = this.$data.meses
@@ -541,51 +599,40 @@ export default {
       }
     },
     temMovimentos () {
-      return !_.isEmpty(this.$data.movimentos)
+      return !this.$data.semMovimentos && !_.isEmpty(this.$data.movimentos)
     },
     temServicos () {
-      return !_.isEmpty(this.$data.servicos)
+      return !this.$data.semServicos && !_.isEmpty(this.$data.servicos)
     },
     temAcumulado () {
       return !_.isEmpty(this.$data.trimestre)
     },
-    retornarTotaisServicos () {
-      let servicos = this.$data.servicos
-      let totais = {
-        iss: 0,
-        irpj: 0,
-        csll: 0,
-        pis: 0,
-        cofins: 0,
-        total: 0,
-        retencoes: {
-          iss: 0,
-          irpj: 0,
-          csll: 0,
-          pis: 0,
-          cofins: 0,
-          total: 0
-        }
+    calcularCotas () {
+      let total = this.$data.trimestre.totais
+
+      let valorIr = total.impostos.irpj + total.impostos.adicionalIr - total.impostos.retencoes.irpj
+      let valorCsll = total.impostos.csll - total.impostos.retencoes.csll
+
+      let cotaIr = { valor: 0, numero: 0 }
+      let cotaCsll = { valor: 0, numero: 0 }
+
+      if (valorIr / 3 > 1000) {
+        cotaIr = { valor: valorIr / 3, numero: 3 }
+      } else if (valorIr / 2 > 1000) {
+        cotaIr = { valor: valorIr / 2, numero: 2 }
+      } else {
+        cotaIr = { valor: valorIr, numero: 1 }
       }
 
-      Object.keys(servicos).forEach(key => {
-        let servico = servicos[key]
+      if (valorCsll / 3 > 1000) {
+        cotaCsll = { valor: valorCsll / 3, numero: 3 }
+      } else if (valorCsll / 2 > 1000) {
+        cotaCsll = { valor: valorCsll / 2, numero: 2 }
+      } else {
+        cotaCsll = { valor: valorCsll, numero: 1 }
+      }
 
-        totais.iss += parseFloat(servico.valores.impostos.iss)
-        totais.irpj += parseFloat(servico.valores.impostos.irpj)
-        totais.csll += parseFloat(servico.valores.impostos.csll)
-        totais.pis += parseFloat(servico.valores.impostos.pis)
-        totais.cofins += parseFloat(servico.valores.impostos.cofins)
-        totais.total += parseFloat(servico.valores.impostos.total)
-        totais.retencoes.iss += parseFloat(servico.valores.impostos.retencoes.iss)
-        totais.retencoes.irpj += parseFloat(servico.valores.impostos.retencoes.irpj)
-        totais.retencoes.csll += parseFloat(servico.valores.impostos.retencoes.csll)
-        totais.retencoes.pis += parseFloat(servico.valores.impostos.retencoes.pis)
-        totais.retencoes.cofins += parseFloat(servico.valores.impostos.retencoes.cofins)
-        totais.retencoes.total += parseFloat(servico.valores.impostos.retencoes.total)
-      })
-
-      return totais
+      return { cotaCsll: cotaCsll, cotaIr: cotaIr }
     }
   }
 }
