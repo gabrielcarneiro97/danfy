@@ -210,7 +210,6 @@ export function lerNfe (obj, callback) {
   } else if (!obj.NFe.Signature) {
     return 0
   }
-  console.log(obj)
 
   let info = obj.nfeProc ? obj.nfeProc.NFe.infNFe : obj.NFe.infNFe
 

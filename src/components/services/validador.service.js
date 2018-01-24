@@ -21,7 +21,9 @@ export function compararCFOP (notaInicial, notaFinal) {
   } else if (cfopConsignacao.includes(cfopInicial) && cfopDevolucaoConsignacao.includes(cfopFinal)) {
     return true
   } else if (cfopVenda.includes(cfopInicial) && cfopDevolucao.includes(cfopFinal)) {
-
+    return true
+  } else if (cfopDevolucao.includes(cfopInicial) && cfopVenda.includes(cfopFinal)) {
+    return true
   } else if ((cfopVenda.includes(cfopInicial) && cfopVenda.includes(cfopFinal)) && (notaFinal.emitente !== notaInicial.emitente)) {
     return true
   } else {
@@ -90,11 +92,11 @@ export function validarMovimento (notaInicial, notaFinal, callback) {
   let err = null
 
   if (!compararCFOP(notaInicial, notaFinal)) {
-    err = new Error(`O CFOP da Nota Inicial ${notaInicial.geral.cfop} não é valido para o CFOP da Nota Final ${notaFinal.geral.cfop}`)
+    err = new Error(`O CFOP da Nota Inicial ${notaInicial.geral.numero} ${notaInicial.geral.cfop} não é valido para o CFOP da Nota Final ${notaFinal.geral.numero} ${notaFinal.geral.cfop}`)
   } else if (!compararProduto(notaInicial, notaFinal)) {
-    err = new Error(`O produto da Nota Final não foi localizado na Nota Inicial!`)
+    err = new Error(`O produto da Nota Final ${notaFinal.geral.numero} não foi localizado na Nota Inicial ${notaInicial.geral.numero}!`)
   } else if (!compararData(notaInicial, notaFinal)) {
-    err = new Error(`A data da Nota Final é anterior a data da Nota Inicial!`)
+    err = new Error(`A data da Nota Final ${notaFinal.geral.numero} é anterior a data da Nota Inicial ${notaInicial.geral.numero}!`)
   }
 
   callback(err)
