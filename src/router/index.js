@@ -8,6 +8,7 @@ import Importar from '../components/Importar'
 import ConciliarNotas from '../components/ConciliarNotas'
 import MostrarMovimentos from '../components/MostrarMovimentos'
 import Menu from '../components/Menu'
+import Admin from '../components/Admin'
 
 Vue.use(VueRouter)
 
@@ -17,6 +18,11 @@ export default new VueRouter({
       path: '/',
       name: 'Hello',
       component: Hello
+    },
+    {
+      path: '/admin',
+      name: 'Admin',
+      component: Admin
     },
     {
       path: '/login',

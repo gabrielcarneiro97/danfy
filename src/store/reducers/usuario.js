@@ -8,6 +8,7 @@ export default function usuario (state = {}, action) {
         dominio: action.dados.dominio,
         email: action.dados.email,
         token: action.dados.token,
+        nivel: action.dados.nivel,
         id: action.dados.id
       }
     case SAIR:
