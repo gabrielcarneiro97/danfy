@@ -1,7 +1,7 @@
 <template>
 <div v-if="carregado">
   <div class="md-layout md-alignment-top-center" id="form">
-    <div class="md-layout md-layout-item md-size-85" id="inner">
+    <div class="md-layout md-layout-item md-size-90" id="inner">
         <md-field class="md-layout-item md-size-20">
           <label>Número</label>
           <md-input v-model="empresaSelecionada.numero" @input="selecionaPorNumero" :disabled="numeroDesativo"></md-input>

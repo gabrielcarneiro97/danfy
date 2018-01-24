@@ -22,7 +22,4 @@ export default {
 </script>
 
 <style lang="scss">
-  .nav {
-    margin-bottom: 1%;
-  }
 </style>

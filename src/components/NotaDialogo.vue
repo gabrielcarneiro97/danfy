@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <span>
     <md-button @click="abrirNota" :disabled="interno"><slot>NOTA</slot></md-button>
 
     <md-dialog v-if="notaDialogo && !interno" :md-active.sync="mostra">
@@ -88,7 +88,7 @@
       :md-active.sync="erro.mostra"
       :md-content="erro.mensagem"
       md-confirm-text="Ok" />
-  </div>
+  </span>
 </template>
 
 <script>

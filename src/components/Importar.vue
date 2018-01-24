@@ -1,7 +1,7 @@
 <template>
 <div>
   <div class="md-layout md-alignment-top-center" id="form">
-    <div class="md-layout-item md-size-85" id="inner">
+    <div class="md-layout-item md-size-90" id="inner">
         <md-field class="md-layout-item md-size-100">
           <label>Notas</label>
           <md-file multiple @change="ler" accept=".xml" />

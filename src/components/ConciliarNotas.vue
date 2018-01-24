@@ -7,21 +7,25 @@
           <md-button @click="enviarMovimentos" :disabled="!movimentosAEnviar">ENVIAR MOVIMENTOS</md-button>
         </md-table-toolbar>
         <md-table-row>
-          <md-table-head>Número</md-table-head>
-          <md-table-head>Nota Inicial</md-table-head>
+          <md-table-head>Número</md-table-head>       
+          <md-table-head>Nota Inicial</md-table-head>         
           <md-table-head>Nota Final</md-table-head>
           <md-table-head>Tipo de Operação</md-table-head>
           <md-table-head>Confirmar Movimento</md-table-head>
         </md-table-row>
 
-        <md-table-row v-for="movimento in ordenarMovimentos" v-bind:key="movimentos.indexOf(movimento)">
+        <md-table-row v-for="(movimento, index) in ordenarMovimentos" v-bind:key="movimentos.indexOf(movimento) + 'movimentos'">
 
-          <md-table-cell md-numeric>{{movimentos.indexOf(movimento)+1}}</md-table-cell>
+          <md-table-cell md-numeric>{{index+1}}</md-table-cell>
 
           <md-table-cell>
             <nota-dialogo v-if="movimento.notaInicial" :chave="movimento.notaInicial">{{notas[movimento.notaInicial].geral.numero}}</nota-dialogo>
+            <md-button  v-if="movimento.notaInicial" class="md-icon-button md-list-action md-primary" @click="confirmaRemoverInicial(movimentos.indexOf(movimento))">
+              <font-awesome-icon :icon="faTrash" size="lg" />
+            </md-button>
             <md-button v-else @click="abrirAdicionarNota(movimentos.indexOf(movimento))">ADICIONAR INICIAL</md-button>
           </md-table-cell>
+
           <md-table-cell>
             <nota-dialogo :chave="movimento.notaFinal">{{notas[movimento.notaFinal].geral.numero}}</nota-dialogo>
           </md-table-cell>
@@ -33,15 +37,13 @@
               OPERAÇÃO INTERESTADUAL {{notas[movimento.notaFinal].informacoesEstaduais.estadoGerador}} -> {{notas[movimento.notaFinal].informacoesEstaduais.estadoDestino}} COM<span v-if="notas[movimento.notaFinal].informacoesEstaduais.destinatarioContribuinte !== '1'"> NÃO</span> CONTRIBUINTE
             </div>
           </md-table-cell>
-          <md-table-cell>
-           {{movimento}}
-          </md-table-cell>
           <md-table-cell  md-numeric>
-            <md-checkbox v-model="movimento.conferido"></md-checkbox>
+            <md-checkbox v-model="movimento.conferido" class="md-primary"></md-checkbox>
           </md-table-cell>
         </md-table-row>
       </md-table>
       <md-divider></md-divider>
+
       <md-table class="md-layout-item md-size-90" v-if="mostraServicos">
         <md-table-toolbar>
           <h1 class="md-title">Conciliar Servicos</h1>
@@ -63,11 +65,13 @@
           </md-table-cell>
         </md-table-row>
       </md-table>
+
     </div>
+
     <md-dialog :md-active.sync="mostraAdicionarNota">
       <md-dialog-content>
         <md-toolbar :md-elevation="1">
-          <span class="md-title">ADICIONAR NOTA AO MOVIMENTO {{movimentoParaAdicionarId+1}}</span>
+          <span class="md-title">ADICIONAR NOTA AO MOVIMENTO</span>
         </md-toolbar>
         <md-list>
           <md-list-item md-expand>
@@ -147,6 +151,18 @@
         <md-button class="md-primary" @click="proximo">PRÓXIMO</md-button>
       </md-dialog-actions>
     </md-dialog>
+
+    <md-dialog :md-active.sync="remover.mostra">
+      <md-dialog-title>Tem certeza?</md-dialog-title>
+      <md-dialog-content>
+        {{remover.mensagem}}
+      </md-dialog-content>
+      <md-dialog-actions>
+        <md-button class="md-primary" @click="remover.mostra = false">CANCELA</md-button>        
+        <md-button class="md-primary" @click="removerInicial">CONFIRMA</md-button>
+      </md-dialog-actions>
+    </md-dialog>
+
     <md-dialog-alert
       :md-active.sync="erro.mostra"
       :md-content="erro.mensagem"
@@ -159,17 +175,25 @@ import { calcularImpostosMovimento, calcularImpostosServico, pegarDominio, usuar
 import notaDialogo from './notaDialogo'
 import store from '../store'
 import _ from 'lodash'
+import FontAwesomeIcon from '@fortawesome/vue-fontawesome'
+import { faTrash } from '@fortawesome/fontawesome-free-solid'
 
 export default {
-  components: { notaDialogo },
+  components: {
+    notaDialogo,
+    FontAwesomeIcon
+  },
   data () {
     return {
       usuario: {},
       valorDaNota: null,
       mostraAdicionarNota: false,
+      remover: {
+        mostra: false,
+        mensagem: ''
+      },
       mostraFinal: false,
       relatorioFinal: null,
-      movimentoParaAdicionarId: null,
       notaParaAdicionarXml: null,
       switchEmitente: true,
       adicionarNumeroEmitenteInfo: {
@@ -328,111 +352,63 @@ export default {
       })
     },
     abrirAdicionarNota (id) {
-      this.$data.movimentoParaAdicionarId = id
       this.$data.mostraAdicionarNota = true
-    },
-    chamarMensagem (mensagem) {
-      this.$data.erro.mensagem = mensagem.message
-      this.$data.erro.mostra = true
-    },
-    adicionarPorXml (e) {
-      if (e.target.files) {
-        let movimentoId = this.$data.movimentoParaAdicionarId
+      this.adicionarPorNumeroEmitente = () => {
+        let emitente
+        let num = this.$data.adicionarNumeroEmitenteInfo.numeroNota
         let notas = this.$data.notas
+        let movimentoId = id
         let notaFinal = notas[this.$data.movimentos[movimentoId].notaFinal]
 
-        lerNotasInput(e.target.files, (notaBruto) => {
-          let notaInicial
-          Object.keys(notaBruto).forEach(key => {
-            notaInicial = notaBruto[key]
-          })
+        if (this.$data.switchEmitente) {
+          emitente = notaFinal.emitente
+        } else {
+          emitente = this.$data.adicionarNumeroEmitenteInfo.emitente
+        }
+        pegarNotaNumeroEmitente(num, emitente, (err, notaInicial) => {
+          if (err) console.error(err)
 
-          notas = {
-            ...notas,
-            ...notaBruto
+          if (notaInicial) {
+            validarMovimento(notaInicial, notaFinal, err => {
+              if (err) {
+                this.chamarMensagem(err)
+              } else {
+                calcularImpostosMovimento(notaInicial, notaFinal, (err, valores) => {
+                  if (err) {
+                    this.chamarMensagem(err)
+                  } else {
+                    this.$data.movimentos[movimentoId].notaInicial = notaInicial.chave
+                    this.$data.movimentos[movimentoId].valores = valores
+                    this.$data.notas = store.getState().notas
+                    this.$data.mostraAdicionarNota = false
+                    this.$data.adicionarNumeroEmitenteInfo.numeroNota = null
+                    this.$data.adicionarNumeroEmitenteInfo.emitente = null
+                    this.chamarMensagem(new Error('Nota Adicionada com sucesso!'))
+                  }
+                })
+              }
+            })
+          } else {
+            this.chamarMensagem(new Error('Nota não localizada!'))
           }
-          validarMovimento(notaInicial, notaFinal, err => {
-            if (err) {
-              this.chamarMensagem(err)
-            } else {
-              calcularImpostosMovimento(notaInicial, notaFinal, (err, valores) => {
-                if (err) {
-                  console.error(err)
-                } else {
-                  this.$data.movimentos[movimentoId].notaInicial = notaInicial.chave
-                  this.$data.movimentos[movimentoId].valores = valores
-                  this.$data.notas = store.getState().notas
-                  this.$data.mostraAdicionarNota = false
-                  this.$data.adicionarNumeroEmitenteInfo.numeroNota = null
-                  this.$data.adicionarNumeroEmitenteInfo.emitente = null
-                  this.chamarMensagem(new Error('Nota Adicionada com sucesso!'))
-                }
-              })
-            }
-          })
         })
       }
-    },
-    adicionarPorNumeroEmitente () {
-      let emitente
-      let num = this.$data.adicionarNumeroEmitenteInfo.numeroNota
-      let notas = this.$data.notas
-      let movimentoId = this.$data.movimentoParaAdicionarId
-      let notaFinal = notas[this.$data.movimentos[movimentoId].notaFinal]
+      this.adicionarPorXml = (e) => {
+        if (e.target.files) {
+          let movimentoId = id
+          let notas = this.$data.notas
+          let notaFinal = notas[this.$data.movimentos[movimentoId].notaFinal]
 
-      if (this.$data.switchEmitente) {
-        emitente = notaFinal.emitente
-      } else {
-        emitente = this.$data.adicionarNumeroEmitenteInfo.emitente
-      }
-      pegarNotaNumeroEmitente(num, emitente, (err, notaInicial) => {
-        if (err) console.error(err)
+          lerNotasInput(e.target.files, (notaBruto) => {
+            let notaInicial
+            Object.keys(notaBruto).forEach(key => {
+              notaInicial = notaBruto[key]
+            })
 
-        if (notaInicial) {
-          validarMovimento(notaInicial, notaFinal, err => {
-            if (err) {
-              this.chamarMensagem(err)
-            } else {
-              calcularImpostosMovimento(notaInicial, notaFinal, (err, valores) => {
-                if (err) {
-                  this.chamarMensagem(err)
-                } else {
-                  this.$data.movimentos[movimentoId].notaInicial = notaInicial.chave
-                  this.$data.movimentos[movimentoId].valores = valores
-                  this.$data.notas = store.getState().notas
-                  this.$data.mostraAdicionarNota = false
-                  this.$data.adicionarNumeroEmitenteInfo.numeroNota = null
-                  this.$data.adicionarNumeroEmitenteInfo.emitente = null
-                  this.chamarMensagem(new Error('Nota Adicionada com sucesso!'))
-                }
-              })
+            notas = {
+              ...notas,
+              ...notaBruto
             }
-          })
-        } else {
-          this.chamarMensagem(new Error('Nota não localizada!'))
-        }
-      })
-    },
-    adicionarPorChave () {
-      if (!this.$data.chaveParaAdicionar) {
-        return false
-      }
-
-      let chave = this.$data.chaveParaAdicionar.toString()
-      let notas = this.$data.notas
-      let movimentoId = this.$data.movimentoParaAdicionarId
-      let notaFinal = notas[this.$data.movimentos[movimentoId].notaFinal]
-      let notaInicial
-
-      if (chave.length === 44) {
-        pegarNotaChave(chave, (err, nota) => {
-          if (err) {
-            console.error(err)
-          }
-          if (!nota) {
-            this.chamarMensagem(new Error('Nota não localizada!'))
-          } else {
-            notaInicial = nota
             validarMovimento(notaInicial, notaFinal, err => {
               if (err) {
                 this.chamarMensagem(err)
@@ -441,74 +417,136 @@ export default {
                   if (err) {
                     console.error(err)
                   } else {
-                    this.$data.movimentos[movimentoId].notaInicial = chave
+                    this.$data.movimentos[movimentoId].notaInicial = notaInicial.chave
                     this.$data.movimentos[movimentoId].valores = valores
                     this.$data.notas = store.getState().notas
                     this.$data.mostraAdicionarNota = false
+                    this.$data.adicionarNumeroEmitenteInfo.numeroNota = null
+                    this.$data.adicionarNumeroEmitenteInfo.emitente = null
                     this.chamarMensagem(new Error('Nota Adicionada com sucesso!'))
                   }
                 })
               }
             })
+          })
+        }
+      }
+      this.adicionarPorChave = () => {
+        if (!this.$data.chaveParaAdicionar) {
+          return false
+        }
+
+        let chave = this.$data.chaveParaAdicionar.toString()
+        let notas = this.$data.notas
+        let movimentoId = id
+        let notaFinal = notas[this.$data.movimentos[movimentoId].notaFinal]
+        let notaInicial
+
+        if (chave.length === 44) {
+          pegarNotaChave(chave, (err, nota) => {
+            if (err) {
+              console.error(err)
+            }
+            if (!nota) {
+              this.chamarMensagem(new Error('Nota não localizada!'))
+            } else {
+              notaInicial = nota
+              validarMovimento(notaInicial, notaFinal, err => {
+                if (err) {
+                  this.chamarMensagem(err)
+                } else {
+                  calcularImpostosMovimento(notaInicial, notaFinal, (err, valores) => {
+                    if (err) {
+                      console.error(err)
+                    } else {
+                      this.$data.movimentos[movimentoId].notaInicial = chave
+                      this.$data.movimentos[movimentoId].valores = valores
+                      this.$data.notas = store.getState().notas
+                      this.$data.mostraAdicionarNota = false
+                      this.chamarMensagem(new Error('Nota Adicionada com sucesso!'))
+                    }
+                  })
+                }
+              })
+            }
+          })
+        }
+      }
+      this.adicionarValor = () => {
+        let notas = this.$data.notas
+        let movimentoId = id
+        let notaFinal = notas[this.$data.movimentos[movimentoId].notaFinal]
+        let valor = parseFloat(this.$data.valorDaNota.toString().replace(',', '.'))
+        let notaInicial = {
+          emitente: 'INTERNO',
+          destinatario: notaFinal.emitente,
+          geral: {
+            dataHora: new Date().toISOString(),
+            cfop: 'INTERNO',
+            naturezaOperacao: 'INTERNO',
+            numero: 'INTERNO',
+            status: 'INTERNO',
+            tipo: 'INTERNO'
+          },
+          produtos: {
+            INTERNO: {
+              descricao: 'INTERNO',
+              quantidade: {
+                numero: '1',
+                tipo: 'UN'
+              },
+              valor: {
+                total: valor
+              }
+            }
+          },
+          valor: {
+            total: valor
           }
+        }
+
+        gravarNotaSlim(notaInicial, (err, notaInicialCompleta) => {
+          if (err) {
+            console.error(err)
+          }
+          notaInicial = notaInicialCompleta
+          calcularImpostosMovimento(notaInicial, notaFinal, (err, valores) => {
+            if (err) {
+              console.error(err)
+            } else {
+              console.log('aqui')
+              this.$data.movimentos[movimentoId].notaInicial = notaInicial.chave
+              this.$data.movimentos[movimentoId].valores = valores
+              this.$data.notas = store.getState().notas
+              this.$data.mostraAdicionarNota = false
+              this.chamarMensagem(new Error('Nota Adicionada com sucesso!'))
+              this.$data.valorDaNota = null
+            }
+          })
         })
       }
     },
-    adicionarValor () {
-      let notas = this.$data.notas
-      let movimentoId = this.$data.movimentoParaAdicionarId
-      let notaFinal = notas[this.$data.movimentos[movimentoId].notaFinal]
-      let valor = parseFloat(this.$data.valorDaNota.toString().replace(',', '.'))
-      let notaInicial = {
-        emitente: 'INTERNO',
-        destinatario: notaFinal.emitente,
-        geral: {
-          dataHora: new Date().toISOString(),
-          cfop: 'INTERNO',
-          naturezaOperacao: 'INTERNO',
-          numero: 'INTERNO',
-          status: 'INTERNO',
-          tipo: 'INTERNO'
-        },
-        produtos: {
-          INTERNO: {
-            descricao: 'INTERNO',
-            quantidade: {
-              numero: '1',
-              tipo: 'UN'
-            },
-            valor: {
-              total: valor
-            }
-          }
-        },
-        valor: {
-          total: valor
-        }
-      }
+    adicionarPorXml (e) {},
+    adicionarPorNumeroEmitente () {},
+    adicionarPorChave () {},
+    adicionarValor () {},
+    confirmaRemoverInicial (id) {
+      this.$data.remover.mostra = true
+      this.$data.remover.mensagem = `Você tem certeza que deseja remover a nota inicial do movimento ${id + 1}?`
 
-      gravarNotaSlim(notaInicial, (err, notaInicialCompleta) => {
-        if (err) {
-          console.error(err)
-        }
-        notaInicial = notaInicialCompleta
-        calcularImpostosMovimento(notaInicial, notaFinal, (err, valores) => {
-          if (err) {
-            console.error(err)
-          } else {
-            console.log('aqui')
-            this.$data.movimentos[movimentoId].notaInicial = notaInicial.chave
-            this.$data.movimentos[movimentoId].valores = valores
-            this.$data.notas = store.getState().notas
-            this.$data.mostraAdicionarNota = false
-            this.chamarMensagem(new Error('Nota Adicionada com sucesso!'))
-            this.$data.valorDaNota = null
-          }
-        })
-      })
+      this.removerInicial = () => {
+        this.$data.movimentos[id].notaInicial = null
+        this.$data.remover.mostra = false
+      }
+    },
+    removerInicial () {},
+    chamarMensagem (mensagem) {
+      this.$data.erro.mensagem = mensagem.message
+      this.$data.erro.mostra = true
     }
   },
   computed: {
+    faTrash: _ => faTrash,
     movimentosAEnviar () {
       let movimentos = this.$data.movimentos
 
