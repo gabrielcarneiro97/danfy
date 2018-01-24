@@ -43,7 +43,8 @@ export function criarUsuario (dados, callback) {
 
     db.ref('Usuarios/' + usuario.id).set({
       nome: dados.nome,
-      dominio: dados.dominio
+      dominio: dados.dominio,
+      nivel: 1
     }, err => {
       callback(err, usuario)
     })
@@ -57,7 +58,7 @@ export function usuarioAtivo (callback) {
       db.ref('Usuarios/' + user.uid).once('value').then(value => {
         let usuario = value.val()
 
-        store.dispatch(autenticar({ email: user.email, token: user.getIdToken(), id: user.uid, nome: usuario.nome, dominio: usuario.dominio }))
+        store.dispatch(autenticar({ email: user.email, token: user.getIdToken(), id: user.uid, nome: usuario.nome, dominio: usuario.dominio, nivel: usuario.nivel }))
 
         pegarDominio((err, dominio) => {
           if (err) console.error(err)
@@ -393,6 +394,30 @@ export function excluirServico (cnpj, id, callback) {
 // FIM ACESSO DB SERVICOS
 
 // ACESSO DB DOMINIO
+export function gravarDominio (dados, callback) {
+  db.ref('Dominios/' + dados.nome).once('value').then(snap => {
+    let dominio = snap.val()
+    if (dominio) {
+      callback(new Error(`Dominio ${dados.nome} já existe!`))
+    } else {
+      if (dados.tipo === 'unico') {
+        if (!dados.cnpj) {
+          callback(new Error(`Para registrar um domínio único é necessário informar um CNPJ!`))
+        } else {
+          db.ref('Dominios/' + dados.nome).set({
+            tipo: 'unico',
+            empresa: dados.cnpj
+          }, err => { callback(err) })
+        }
+      } else {
+        db.ref('Dominios/' + dados.nome).set({
+          tipo: 'mult'
+        }, err => { callback(err) })
+      }
+    }
+  })
+}
+
 export function pegarDominio (callback) {
   let dominioId = store.getState().usuario.dominio
   let dominio
@@ -403,6 +428,16 @@ export function pegarDominio (callback) {
   }, err => {
     callback(err, null)
   })
+}
+
+export function pegarTodosDominios (callback) {
+  db.ref('Dominios').once('value', snap => {
+    callback(null, snap.val())
+  }, err => callback(err, null))
+}
+
+export function deletarDominio (nome, callback) {
+  db.ref('Dominios/' + nome).set({}, err => { callback(err) })
 }
 
 export function adicionarEmpresaDominio (empresa, callback) {
