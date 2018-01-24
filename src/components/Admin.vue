@@ -1,5 +1,5 @@
 <template>
-  <div class="md-layout md-alignment-top-center">
+  <div class="md-layout md-alignment-top-center" style="margin-top: 3%">
     <md-card class="md-layout-item md-size-90">
       <md-card-header>
         <div class="md-title">Domínio</div>
@@ -50,7 +50,7 @@
                   <span>{{dominio.tipo}}</span>
                 </div>
 
-                <md-button class="md-icon-button md-list-action md-accent" @click="mostrarDeletar(nome)">
+                <md-button class="md-icon-button md-list-action md-primary" @click="mostrarDeletar(nome)">
                   <md-icon><font-awesome-icon :icon="faTrash" /></md-icon>
                 </md-button>
               </md-list-item>
