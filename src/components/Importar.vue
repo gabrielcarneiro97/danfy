@@ -219,9 +219,6 @@ export default {
       }
     })
   },
-  updated () {
-
-  },
   methods: {
     ler (e) {
       if (e.target.files) {

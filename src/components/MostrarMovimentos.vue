@@ -278,7 +278,9 @@ import _ from 'lodash'
 import { Printd } from 'printd'
 
 export default {
-  components: { notaDialogo },
+  components: {
+    notaDialogo
+  },
   data () {
     return {
       cotas: 'Pagamento em Cotas',
@@ -582,9 +584,6 @@ export default {
           this.$data.mostraTudo = false
         })
       })
-    },
-    eObjeto (obj) {
-      return _.isObject(obj)
     },
     removerMovimentosEServicos () {
       this.$data.movimentos = {}

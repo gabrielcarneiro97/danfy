@@ -1,0 +1,8 @@
+{
+  "scripts": {
+    "examples": "docusaurus-examples"
+  },
+  "devDependencies": {
+    "docusaurus": "^1.0.5"
+  }
+}
