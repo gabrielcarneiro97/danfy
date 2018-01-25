@@ -1,4 +1,4 @@
-# danfy
+# danfy <img src="icon.png" alt="logo" style="width: 2rem;"/>
 
 ### Disposições gerais
 

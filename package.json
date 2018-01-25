@@ -14,6 +14,7 @@
     "url": "https://github.com/gabrielcarneiro97/danfy/issues"
   },
   "homepage": "https://gabrielcarneiro97.github.io/danfy",
+  "icon": "icon.png",
   "license": "MIT",
   "private": true,
   "scripts": {
