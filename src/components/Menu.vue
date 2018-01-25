@@ -14,6 +14,9 @@
           <div class="md-layout md-layout-item md-size-100 md-alignment-top-right">
             <md-button class="md-layout-item md-size-100 md-primary" to="/mostrarMovimentos">VISUALIZAR MOVIMENTOS</md-button>
           </div>
+          <div v-if="perm > 1" class="md-layout md-layout-item md-size-100 md-alignment-top-right">
+            <md-button class="md-layout-item md-size-100 md-primary" to="/admin">PAINEL DO ADMINISTRADOR</md-button>
+          </div>
         </md-card-content>
       </md-card>
     </div>
@@ -28,9 +31,27 @@
 <script>
 import FontAwesomeIcon from '@fortawesome/vue-fontawesome'
 import { faFileAlt } from '@fortawesome/fontawesome-free-regular'
-import { version } from './services'
+import { version, usuarioAtivo } from './services'
 
 export default {
+  created () {
+    usuarioAtivo((u, usuario, tipoDominio) => {
+      if (u) {
+        if (tipoDominio !== 'mult') {
+          this.$router.push('/login')
+        } else {
+          this.$data.perm = usuario.nivel
+        }
+      } else {
+        this.$router.push('/')
+      }
+    })
+  },
+  data () {
+    return {
+      perm: 0
+    }
+  },
   components: {
     FontAwesomeIcon
   },

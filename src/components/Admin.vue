@@ -95,7 +95,7 @@ export default {
   created () {
     usuarioAtivo((u, usuario) => {
       if (u) {
-        if (usuario.nivel < 2) {
+        if (usuario.nivel < 2 || !usuario.nivel) {
           this.$router.push('/')
         }
       } else {
