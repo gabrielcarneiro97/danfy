@@ -9,7 +9,7 @@ export function calcularImpostosServico (notaServico, callback) {
 
       valores.servico = notaServico.valor.servico
 
-      let baseDeCalculo = notaServico.valor.baseDeCalculo
+      let baseDeCalculo = notaServico.geral.status === 'NORMAL' ? notaServico.valor.baseDeCalculo : 0
 
       let retencoes = notaServico.valor.retencoes
       let iss = notaServico.valor.iss ? notaServico.valor.iss.valor : (baseDeCalculo * aliquotas.iss)
@@ -19,19 +19,19 @@ export function calcularImpostosServico (notaServico, callback) {
       valores.impostos = {
         baseDeCalculo: notaServico.valor.baseDeCalculo,
         retencoes: {
-          iss: retencoes.iss,
-          pis: retencoes.pis,
-          cofins: retencoes.cofins,
-          csll: retencoes.csll,
-          irpj: retencoes.irpj,
-          total: (parseFloat(retencoes.iss) + parseFloat(retencoes.pis) + parseFloat(retencoes.cofins) + parseFloat(retencoes.csll) + parseFloat(retencoes.irpj))
+          iss: notaServico.geral.status === 'NORMAL' ? retencoes.iss : 0,
+          pis: notaServico.geral.status === 'NORMAL' ? retencoes.pis : 0,
+          cofins: notaServico.geral.status === 'NORMAL' ? retencoes.cofins : 0,
+          csll: notaServico.geral.status === 'NORMAL' ? retencoes.csll : 0,
+          irpj: notaServico.geral.status === 'NORMAL' ? retencoes.irpj : 0,
+          total: notaServico.geral.status === 'NORMAL' ? (parseFloat(retencoes.iss) + parseFloat(retencoes.pis) + parseFloat(retencoes.cofins) + parseFloat(retencoes.csll) + parseFloat(retencoes.irpj)) : 0
         },
-        iss: iss,
+        iss: notaServico.geral.status === 'NORMAL' ? iss : 0,
         pis: (baseDeCalculo * aliquotas.pis),
         cofins: (baseDeCalculo * aliquotas.cofins),
         csll: (baseDeCalculo * aliquotaCsll),
         irpj: (baseDeCalculo * aliquotaIr),
-        total: (parseFloat(iss) + (baseDeCalculo * aliquotaIr) + (baseDeCalculo * aliquotas.pis) + (baseDeCalculo * aliquotas.cofins) + (baseDeCalculo * aliquotaCsll))
+        total: notaServico.geral.status === 'NORMAL' ? (parseFloat(iss) + (baseDeCalculo * aliquotaIr) + (baseDeCalculo * aliquotas.pis) + (baseDeCalculo * aliquotas.cofins) + (baseDeCalculo * aliquotaCsll)) : 0
       }
 
       callback(null, valores)

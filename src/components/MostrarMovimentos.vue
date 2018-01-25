@@ -59,6 +59,7 @@
         <md-table-head rowspan="2">Número</md-table-head>
         <md-table-head rowspan="2">Valor Nota Inicial</md-table-head>
         <md-table-head rowspan="2">Valor Nota Final</md-table-head>
+        <md-table-head rowspan="2">Tipo de Movimento</md-table-head>
         <md-table-head rowspan="2">Lucro</md-table-head>
         <md-table-head rowspan="2">Base ICMS</md-table-head>
         <md-table-head rowspan="2">ICMS</md-table-head>
@@ -81,6 +82,8 @@
         <md-table-cell v-else><md-button disabled>SEM NOTA INICIAL</md-button></md-table-cell>       
         <md-table-cell v-if="notas[movimento.notaFinal]"><nota-dialogo :chave="movimento.notaFinal">{{R$(notas[movimento.notaFinal].valor.total)}}</nota-dialogo></md-table-cell>
         <md-table-cell v-else></md-table-cell>
+        <md-table-cell v-if="notas[movimento.notaFinal]">{{retornarTipo(notas[movimento.notaFinal].geral.cfop)}}</md-table-cell>
+        <md-table-cell v-else></md-table-cell>        
         <md-table-cell>{{R$(movimento.valores.lucro)}}</md-table-cell>
         <md-table-cell>{{R$(movimento.valores.impostos.icms.baseDeCalculo)}} </md-table-cell>
         <md-table-cell>{{R$(movimento.valores.impostos.icms.proprio)}}</md-table-cell>
@@ -98,6 +101,7 @@
       <md-table-row>
         <md-table-head colspan="2" style="text-align:center">TOTAIS</md-table-head>
         <md-table-head>{{R$(trimestre[competenciaSelecionada.mes].movimentos.totalSaida)}}</md-table-head>
+        <md-table-head></md-table-head>        
         <md-table-head>{{R$(trimestre[competenciaSelecionada.mes].movimentos.lucro)}}</md-table-head>
         <md-table-head colspan="1" style="text-align:center">IMPOSTOS</md-table-head>
         <md-table-head>{{R$(trimestre[competenciaSelecionada.mes].movimentos.impostos.icms.proprio)}}</md-table-head>
@@ -123,7 +127,8 @@
 
       <md-table-row>
         <md-table-head rowspan="2">Nota</md-table-head>
-        <md-table-head rowspan="2">Valor</md-table-head>
+        <md-table-head rowspan="2">Valor Serviço</md-table-head>
+        <md-table-head rowspan="2">Status</md-table-head>        
         <md-table-head colspan="6" style="text-align:center">RETENÇÕES</md-table-head>
         <md-table-head rowspan="2">ISS</md-table-head>
         <md-table-head rowspan="2">PIS</md-table-head>
@@ -145,6 +150,7 @@
       <md-table-row v-for="(servico, index) in servicos" v-bind:key="index">
         <md-table-cell md-numeric v-if="notasServico[servico.nota]"><md-button class="md-icon-button" :disabled="numeroDesativo" @click="definirDeletarServico(index, pegaIndexServico(index))">{{parseInt(notasServico[servico.nota].geral.numero.replace(competenciaSelecionada.ano, ''))}}</md-button></md-table-cell>
         <md-table-cell>{{R$(servico.valores.impostos.baseDeCalculo)}}</md-table-cell>
+        <md-table-cell>{{notasServico[servico.nota].geral.status}}</md-table-cell>        
         <md-table-cell>{{R$(servico.valores.impostos.retencoes.iss)}}</md-table-cell>
         <md-table-cell>{{R$(servico.valores.impostos.retencoes.pis)}}</md-table-cell>
         <md-table-cell>{{R$(servico.valores.impostos.retencoes.cofins)}}</md-table-cell>
@@ -160,7 +166,7 @@
       </md-table-row>
 
       <md-table-row>
-        <md-table-head colspan="2">TOTAIS IMPOSTOS</md-table-head>
+        <md-table-head colspan="3">TOTAIS IMPOSTOS</md-table-head>
         <md-table-head>{{R$(trimestre[competenciaSelecionada.mes].servicos.impostos.retencoes.iss)}}</md-table-head>
         <md-table-head>{{R$(trimestre[competenciaSelecionada.mes].servicos.impostos.retencoes.pis)}}</md-table-head>
         <md-table-head>{{R$(trimestre[competenciaSelecionada.mes].servicos.impostos.retencoes.cofins)}}</md-table-head>
@@ -272,7 +278,9 @@
 </div>
 </template>
 <script>
-import { pegarDominio, usuarioAtivo, pegarPessoaId, pegarMovimentosMes, pegarServicosMes, pegarNotaChave, pegarNotaServicoChave, excluirMovimento, excluirServico, totaisTrimestrais, R$, pegarEmpresaImpostos } from './services'
+import { pegarDominio, usuarioAtivo, pegarPessoaId, pegarMovimentosMes, pegarServicosMes,
+  pegarNotaChave, pegarNotaServicoChave, excluirMovimento, excluirServico, totaisTrimestrais,
+  R$, pegarEmpresaImpostos, retornarTipo } from './services'
 import notaDialogo from './notaDialogo'
 import _ from 'lodash'
 import { Printd } from 'printd'
@@ -368,6 +376,7 @@ export default {
   },
   methods: {
     R$: R$,
+    retornarTipo: retornarTipo,
     escolherDeletar () {
       if (this.$data.deletar.movimentoId) {
         this.deletarMovimento()

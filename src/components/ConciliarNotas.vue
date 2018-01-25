@@ -10,6 +10,7 @@
           <md-table-head>Número</md-table-head>       
           <md-table-head>Nota Inicial</md-table-head>         
           <md-table-head>Nota Final</md-table-head>
+          <md-table-head>Base Impostos</md-table-head>
           <md-table-head>Tipo de Operação</md-table-head>
           <md-table-head>Confirmar Movimento</md-table-head>
         </md-table-row>
@@ -19,15 +20,25 @@
           <md-table-cell md-numeric>{{index+1}}</md-table-cell>
 
           <md-table-cell>
-            <nota-dialogo v-if="movimento.notaInicial" :chave="movimento.notaInicial">{{notas[movimento.notaInicial].geral.numero}}</nota-dialogo>
-            <md-button  v-if="movimento.notaInicial" class="md-icon-button md-list-action md-primary" @click="confirmaRemoverInicial(movimentos.indexOf(movimento))">
-              <font-awesome-icon :icon="faTrash" size="lg" />
-            </md-button>
+            <div v-if="movimento.notaInicial" class="md-layout md-alignment-center-center">
+              <nota-dialogo :chave="movimento.notaInicial" class="md-layout-item">{{notas[movimento.notaInicial].geral.numero}}</nota-dialogo>
+              <md-button class="md-icon-button md-list-action md-primary md-layout-item" @click="confirmaRemoverInicial(movimentos.indexOf(movimento))">
+                <font-awesome-icon :icon="faTrash" size="lg" />
+              </md-button>
+            </div>
             <md-button v-else @click="abrirAdicionarNota(movimentos.indexOf(movimento))">ADICIONAR INICIAL</md-button>
           </md-table-cell>
 
           <md-table-cell>
             <nota-dialogo :chave="movimento.notaFinal">{{notas[movimento.notaFinal].geral.numero}}</nota-dialogo>
+          </md-table-cell>
+          <md-table-cell>
+            <span v-if="movimento.valores">
+              {{R$(movimento.valores.lucro)}}
+            </span>
+            <span v-else>
+              0,00
+            </span>
           </md-table-cell>
           <md-table-cell>
             <div v-if="notas[movimento.notaFinal].informacoesEstaduais.estadoDestino === notas[movimento.notaFinal].informacoesEstaduais.estadoGerador">
@@ -52,14 +63,18 @@
         <md-table-row>
           <md-table-head>Número</md-table-head>
           <md-table-head>Nota</md-table-head>
-          <md-table-head>Confirmar Serviço</md-table-head>
+          <md-table-head>Status</md-table-head>          
+          <md-table-head>Valor do Serviço</md-table-head>          
+          <md-table-head md-numeric>Confirmar Serviço</md-table-head>
         </md-table-row>
 
         <md-table-row v-for="servico in servicos" v-bind:key="servicos.indexOf(servico) + 'servico'">
 
-          <md-table-cell md-numeric>{{servicos.indexOf(servico)+1}}</md-table-cell>
+          <md-table-cell>{{servicos.indexOf(servico)+1}}</md-table-cell>
 
           <md-table-cell>{{notasServico[servico.nota].geral.numero}}</md-table-cell>
+          <md-table-cell>{{notasServico[servico.nota].geral.status}}</md-table-cell>                  
+          <md-table-cell>{{R$(notasServico[servico.nota].valor.servico)}}</md-table-cell>        
           <md-table-cell  md-numeric>
             <md-checkbox v-model="servico.conferido"></md-checkbox>
           </md-table-cell>
@@ -171,7 +186,9 @@
 </template>
 
 <script>
-import { calcularImpostosMovimento, calcularImpostosServico, pegarDominio, usuarioAtivo, pegarNotaChave, procurarNotaPar, estaNoDominio, validarMovimento, pegarNotaNumeroEmitente, lerNotasInput, gravarMovimentos, gravarServicos, gravarNotaSlim } from './services'
+import { R$, calcularImpostosMovimento, calcularImpostosServico, pegarDominio,
+  usuarioAtivo, pegarNotaChave, procurarNotaPar, estaNoDominio, validarMovimento,
+  pegarNotaNumeroEmitente, lerNotasInput, gravarMovimentos, gravarServicos, gravarNotaSlim } from './services'
 import notaDialogo from './notaDialogo'
 import store from '../store'
 import _ from 'lodash'
@@ -267,7 +284,7 @@ export default {
 
           Object.keys(this.$data.notasServico).forEach(id => {
             let notaServico = this.$data.notasServico[id]
-            if (estaNoDominio(notaServico.emitente) && notaServico.geral.status !== 'CANCELADA') {
+            if (estaNoDominio(notaServico.emitente)) {
               calcularImpostosServico(notaServico, (err, valores) => {
                 if (err) {
                   console.error(err)
@@ -288,6 +305,7 @@ export default {
     })
   },
   methods: {
+    R$: R$,
     proximo () {
       if (!this.mostraServicos && !this.mostraMovimentos) {
         this.$router.push('/mostrarMovimentos')
@@ -536,6 +554,7 @@ export default {
 
       this.removerInicial = () => {
         this.$data.movimentos[id].notaInicial = null
+        this.$data.movimentos[id].valores = null
         this.$data.remover.mostra = false
       }
     },
