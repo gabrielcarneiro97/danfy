@@ -17,10 +17,10 @@
                   <md-input v-model="dominio.nome"></md-input>
                 </md-field>
               </md-list-item>
-              <md-list-item class="md-inset">
+              <md-list-item v-if="perm > 5" class="md-inset">
                 <div>
-                  <md-radio v-model="dominio.tipo" value="mult">Múltiplo</md-radio>
-                  <md-radio v-model="dominio.tipo" value="unico">Único</md-radio>
+                  <md-radio class="md-primary" v-model="dominio.tipo" value="mult">Múltiplo</md-radio>
+                  <md-radio class="md-primary" v-model="dominio.tipo" value="unico">Único</md-radio>
                 </div>
               </md-list-item>
               <md-list-item class="md-inset" v-if="dominio.tipo === 'unico'">
@@ -37,17 +37,19 @@
 
           <md-list-item md-expand @click="pegarTodosDominios">
             <md-icon><font-awesome-icon :icon="faListUl" /></md-icon>
-            <span class="md-list-item-text">Mostrar Todos</span>
+            <span class="md-list-item-text">Mostrar Domínios Gerenciados</span>
 
             <md-list class="md-double-line" slot="md-expand">
-              <md-list-item v-for="(dominio, nome) in todosDominios" v-bind:key="nome + 'dominioMostrar'">
+              <md-list-item v-for="(dominio, nome) in todosDominios" v-if="(perm <= 5 && dominio.dominioPai === usuario.dominio) || perm > 5" v-bind:key="nome + 'dominioMostrar'">
                 <md-icon>
                   <font-awesome-icon :icon="faSitemap" />
                 </md-icon>
 
                 <div class="md-list-item-text">
                   <span>{{nome}}</span>
-                  <span>{{dominio.tipo}}</span>
+                  <span v-if="perm > 5 && dominio.tipo === 'unico'">{{dominio.dominioPai}}</span>
+                  <span v-else-if="dominio.tipo === 'unico'">CNPJ: {{dominio.empresa}}</span>                  
+                  <span v-else>Domínio Múltipo</span>                  
                 </div>
 
                 <md-button class="md-icon-button md-list-action md-primary" @click="mostrarDeletar(nome)">
@@ -56,14 +58,32 @@
               </md-list-item>
             </md-list>
           </md-list-item>
+
+          <md-list-item md-expand @click="pegarTodosDominios">
+            <md-icon><font-awesome-icon :icon="faListUl" /></md-icon>
+            <span class="md-list-item-text">Gerenciar Domínio</span>
+
+            <md-list slot="md-expand">
+              <md-list-item class="md-inset">
+                <md-field>
+                  <label>Nome do Domínio</label>
+                  <md-input v-model="dominioSelecionado.nome" :disabled="perm <=5"></md-input>
+                </md-field>
+              </md-list-item>
+              <md-list-item class="md-inset" style="text-align: right">
+                <md-button @click="pegarDominio(dominioSelecionado.nome)">MOSTRAR</md-button>
+              </md-list-item>
+            </md-list>
+
+          </md-list-item>
         </md-list>
       </md-card-content>
 
     </md-card>
 
+
     <md-dialog-alert
       :md-active.sync="erro.mostra"
-      md-title="Mensagem pra você!"
       :md-content="erro.mensagem" />
 
     <md-dialog-confirm
@@ -78,25 +98,35 @@
 </template>
 
 <script>
-import { usuarioAtivo, gravarDominio, pegarTodosDominios, deletarDominio } from './services'
+import { usuarioAtivo, gravarDominio, pegarTodosDominios, deletarDominio, pegarDominioPorNome } from './services'
 import FontAwesomeIcon from '@fortawesome/vue-fontawesome'
 import { faPlus, faListUl, faTrash, faSitemap } from '@fortawesome/fontawesome-free-solid'
 
 export default {
-  components: {
-    FontAwesomeIcon
-  },
-  computed: {
-    faPlus: _ => faPlus,
-    faListUl: _ => faListUl,
-    faTrash: _ => faTrash,
-    faSitemap: _ => faSitemap
-  },
   created () {
+    console.log(process.env.apiKeyFirebase)
     usuarioAtivo((u, usuario) => {
       if (u) {
-        if (usuario.nivel < 2 || !usuario.nivel) {
+        if (usuario.nivel <= 2 || !usuario.nivel) {
           this.$router.push('/')
+        } else {
+          this.$data.perm = usuario.nivel
+          this.$data.usuario = usuario
+          this.$data.dominio.dominioPai = usuario.dominio
+          if (usuario.nivel <= 5) {
+            this.$data.dominio.tipo = 'unico'
+            pegarDominioPorNome(usuario.dominio, (err, dominio) => {
+              if (err) {
+                console.error(err)
+              } else {
+                this.$data.dominioSelecionado = {
+                  nome: usuario.dominio,
+                  ...dominio
+                }
+              }
+            })
+          }
+          console.log(usuario)
         }
       } else {
         this.$router.push('/')
@@ -106,10 +136,19 @@ export default {
   data () {
     return {
       todosDominios: {},
+      dominioSelecionado: {
+        nome: ''
+      },
+      gerenciar: {
+        mostra: false
+      },
+      perm: 0,
+      usuario: {},
       dominio: {
         tipo: '',
         nome: '',
-        cnpj: ''
+        cnpj: '',
+        dominioPai: ''
       },
       deletar: {
         mostra: false,
@@ -144,7 +183,8 @@ export default {
           this.$data.dominio = {
             nome: '',
             cnpj: '',
-            tipo: ''
+            tipo: this.$data.perm <= 5 ? 'unico' : '',
+            dominioPai: this.$data.usuario.dominio
           }
         }
       })
@@ -165,8 +205,41 @@ export default {
           }
         })
       }
-
+    },
+    pegarDominio (nome) {
+      if (nome === 'motherload') {
+        this.$data.dominioSelecionado.nome = this.$data.usuario.dominio
+        nome = this.$data.usuario.dominio
+      }
+      pegarDominioPorNome(nome, (err, dominio) => {
+        if (err) {
+          console.error(err)
+        } else {
+          if (dominio) {
+            if (dominio.tipo === 'unico') {
+              this.chamarErro(new Error('Domínios únicos não possuem gerenciamento detalhado!'))
+            } else {
+              this.$data.dominioSelecionado = {
+                nome: nome,
+                ...dominio
+              }
+              this.$data.gerenciar.mostra = true
+            }
+          } else {
+            this.chamarErro(new Error('Domínio não localizado!'))
+          }
+        }
+      })
     }
+  },
+  components: {
+    FontAwesomeIcon
+  },
+  computed: {
+    faPlus: _ => faPlus,
+    faListUl: _ => faListUl,
+    faTrash: _ => faTrash,
+    faSitemap: _ => faSitemap
   }
 }
 </script>

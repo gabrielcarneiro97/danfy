@@ -235,7 +235,7 @@ export default {
       } else if (tipoDominio !== 'mult') {
         this.$router.push('/mostrarMovimentos')
       } else {
-        this.$data.usuario = ativo
+        this.$data.usuario = usuario
         pegarDominio((err, dominio) => {
           if (err) console.error(err)
 
@@ -249,7 +249,8 @@ export default {
                 notaFinal: id,
                 notaInicial: null,
                 data: nota.geral.dataHora,
-                conferido: false
+                conferido: false,
+                dominio: this.$data.usuario.dominio
               }
               procurarNotaPar(nota, (err, movimentoRet) => {
                 if (err) {
@@ -293,7 +294,8 @@ export default {
                     conferido: false,
                     nota: notaServico.chave,
                     data: notaServico.geral.dataHora,
-                    valores: valores
+                    valores: valores,
+                    dominio: this.$data.usuario.dominio
                   }
                   this.$data.servicos.push(servico)
                 }

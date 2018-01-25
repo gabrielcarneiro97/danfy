@@ -66,7 +66,7 @@
       </div>
       <div class="md-layout-item" style="text-align: center">
         <div style="margin-bottom: 2%">
-          <font-awesome-icon color="white" :icon="faClock" size="5x" />
+          <font-awesome-icon color="white" :icon="faFastForward" size="5x" />
         </div>
         <div>
           <div class="titulo">Agilidade</div>
@@ -77,7 +77,7 @@
       </div>
       <div class="md-layout-item" style="text-align: center">
         <div style="margin-bottom: 2%">
-          <font-awesome-icon color="white" :icon="faHandshake" size="5x" />
+          <font-awesome-icon color="white" :icon="faUsers" size="5x" />
         </div>
         <div>
           <div class="titulo">Acesso aos clientes</div>
@@ -89,14 +89,57 @@
     </md-content>
   </div>
   <div class="md-layout">
-    <md-content class="md-layout-item md-size-100 md-layout md-accent p1 md-alignment-top-center">
+    <md-content class="md-layout-item md-size-100 md-layout md-gutter md-accent p1" style="padding-bottom: 4%; padding-top: 4%">
+      <div class="md-layout-item" style="text-align: center">
+        <div>
+          <div class="titulo-2" style="font-size: 200%; font-weight: 400; color: black; margin-bottom: 0; margin-top: 0">Como funciona?</div>
+        </div>
+      </div>
+    </md-content>
+  </div>
+  <div class="md-layout">
+    <md-content class="md-layout-item md-size-100 md-layout md-alignment-center-center md-accent p1" style="padding-top: 0">
+      <div class="md-layout-item md-size-30" style="text-align: center;">
+        <div style="margin-bottom: 2%">
+          <font-awesome-icon color="black" :icon="faDownload" size="5x"  />
+        </div>
+        <div>
+          <div class="titulo-2" style="color: black">Importe as notas</div>
+        </div>
+      </div>
+      <div class="md-layout-item md-size-5" style="text-align: center;">
+        <font-awesome-icon color="black" :icon="faArrowRight" size="5x" />
+      </div>
+      <div class="md-layout-item md-size-30" style="text-align: center;">
+        <div style="margin-bottom: 2%">
+          <font-awesome-icon color="black" :icon="faCodeBranch" size="5x"  />
+        </div>
+        <div>
+          <div class="titulo-2" style="color: black">Concilie os movimentos</div>
+        </div>
+      </div>
+      <div class="md-layout-item md-size-5" style="text-align: center">
+        <font-awesome-icon color="black" :icon="faArrowRight" size="5x" />
+      </div>
+      <div class="md-layout-item md-size-30" style="text-align: center;">
+        <div style="margin-bottom: 2%">
+          <font-awesome-icon color="black" :icon="faListOl" size="5x"  />
+        </div>
+        <div>
+          <div class="titulo-2" style="color: black">Visualize os relatórios</div>
+        </div>
+      </div>     
+    </md-content>
+  </div>
+  <div class="md-layout">
+    <md-content class="md-layout-item md-size-100 md-layout md-primary p1 md-alignment-top-center">
       <div class="md-layout-item md-size-10"></div>
       
       <div class="md-layout-item md-size-50" style="text-align: center; padding-top: 1%">
-        <div class="titulo-2" style="color: black">Aumente a sua produtividade com o DANFY!</div>
+        <div class="titulo-2" style="color: white">Aumente a sua produtividade com o DANFY!</div>
       </div>
       <div class="md-layout-item md-size-20" style="text-align: left; margin-left: -4vw">
-        <font-awesome-icon color="black" :icon="faFire" size="8x"/>
+        <font-awesome-icon color="white" :icon="faFire" size="8x"/>
       </div>
     </md-content>
   </div>
@@ -106,7 +149,8 @@
 <script>
 import FontAwesomeIcon from '@fortawesome/vue-fontawesome'
 import { faFileAlt } from '@fortawesome/fontawesome-free-regular'
-import { faDownload, faFire, faMagic, faMoneyBillAlt, faFileCode, faSpaceShuttle, faCheck, faHandshake, faClock, faDatabase } from '@fortawesome/fontawesome-free-solid'
+import { faDownload, faFire, faMagic, faMoneyBillAlt, faFileCode, faArrowRight, faRocket, faUsers,
+  faSpaceShuttle, faFastForward, faCheck, faHandshake, faClock, faDatabase, faQuestion, faListOl, faCodeBranch } from '@fortawesome/fontawesome-free-solid'
 
 export default {
   computed: {
@@ -120,7 +164,14 @@ export default {
     faHandshake: _ => faHandshake,
     faClock: _ => faClock,
     faDatabase: _ => faDatabase,
-    faFire: _ => faFire
+    faFire: _ => faFire,
+    faQuestion: _ => faQuestion,
+    faArrowRight: _ => faArrowRight,
+    faListOl: _ => faListOl,
+    faCodeBranch: _ => faCodeBranch,
+    faRocket: _ => faRocket,
+    faUsers: _ => faUsers,
+    faFastForward: _ => faFastForward
   },
   components: {
     FontAwesomeIcon

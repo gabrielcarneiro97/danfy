@@ -102,7 +102,7 @@
         <md-input v-model="empresaParaAdicionar.num"></md-input>
       </md-field>
       <div class="md-layout-item md-size-50">
-        <md-checkbox v-model="temLiminar">Liminar de Redução</md-checkbox>
+        <md-checkbox class="md-primary" v-model="temLiminar">Liminar de Redução</md-checkbox>
       </div>
       <md-divider></md-divider>
       <md-field class="md-layout-item md-size-50">
@@ -134,13 +134,13 @@
         <md-input v-model="aliquotas.iss"></md-input>
       </md-field>
       <div class="md-layout-item md-size-100">
-        <md-radio v-model="aliquotas.tributacao" value="SN">Simples Nacional</md-radio>
-        <md-radio v-model="aliquotas.tributacao" value="LP">Lucro Presumido</md-radio>
+        <md-radio class="md-primary" v-model="aliquotas.tributacao" value="SN">Simples Nacional</md-radio>
+        <md-radio class="md-primary" v-model="aliquotas.tributacao" value="LP">Lucro Presumido</md-radio>
       </div>
       <div class="md-layout-item md-size-100">
-        <md-radio v-model="aliquotas.formaPagamentoTrimestrais" value="adiantamento">Adiantamento</md-radio>
-        <md-radio v-model="aliquotas.formaPagamentoTrimestrais" value="acumulado">Acumulado por trimestre</md-radio>
-        <md-radio v-model="aliquotas.formaPagamentoTrimestrais" value="cotas">Pagamento em cotas</md-radio>        
+        <md-radio class="md-primary" v-model="aliquotas.formaPagamentoTrimestrais" value="adiantamento">Adiantamento</md-radio>
+        <md-radio class="md-primary" v-model="aliquotas.formaPagamentoTrimestrais" value="acumulado">Acumulado por trimestre</md-radio>
+        <md-radio class="md-primary" v-model="aliquotas.formaPagamentoTrimestrais" value="cotas">Pagamento em cotas</md-radio>        
       </div>
     </md-dialog-content>
 

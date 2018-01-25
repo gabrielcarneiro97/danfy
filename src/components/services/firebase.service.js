@@ -1,14 +1,14 @@
 import * as firebase from 'firebase'
 import store from '../../store'
 import { sair, autenticar, adicionarPessoa, adicionarNota, adicionarNotaServico, carregarDominio, adicionarEmpresa } from '../../store/actions'
-
+import { apiKey, messagingSenderId } from './apiKey'
 var config = {
-  apiKey: 'apiKey',
+  apiKey: apiKey,
   authDomain: 'danfy-4d504.firebaseapp.com',
   databaseURL: 'https://danfy-4d504.firebaseio.com',
   projectId: 'danfy-4d504',
   storageBucket: 'danfy-4d504.appspot.com',
-  messagingSenderId: 'messagingSenderId'
+  messagingSenderId: messagingSenderId
 }
 firebase.initializeApp(config)
 
@@ -404,10 +404,23 @@ export function gravarDominio (dados, callback) {
         if (!dados.cnpj) {
           callback(new Error(`Para registrar um domínio único é necessário informar um CNPJ!`))
         } else {
-          db.ref('Dominios/' + dados.nome).set({
-            tipo: 'unico',
-            empresa: dados.cnpj
-          }, err => { callback(err) })
+          pegarDominioPorNome(dados.dominioPai, (err, dominio) => {
+            if (err) {
+              console.error(err)
+            } else {
+              let empresas = dominio.empresas
+
+              if (Object.values(empresas).includes(dados.cnpj)) {
+                db.ref('Dominios/' + dados.nome).set({
+                  tipo: 'unico',
+                  empresa: dados.cnpj,
+                  dominioPai: dados.dominioPai
+                }, err => { callback(err) })
+              } else {
+                callback(new Error('Esse CNPJ não consta no seu domínio!'))
+              }
+            }
+          })
         }
       } else {
         db.ref('Dominios/' + dados.nome).set({
@@ -428,6 +441,13 @@ export function pegarDominio (callback) {
   }, err => {
     callback(err, null)
   })
+}
+
+export function pegarDominioPorNome (nome, callback) {
+  db.ref('Dominios/' + nome).once('value', snap => {
+    let dominio = snap.val()
+    callback(null, dominio)
+  }, err => { callback(err, null) })
 }
 
 export function pegarTodosDominios (callback) {

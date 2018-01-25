@@ -76,7 +76,7 @@
         <md-table-head>DESTINO (GNRE)</md-table-head>        
       </md-table-row>
 
-      <md-table-row v-for="(movimento, index) in movimentos" v-bind:key="index">
+      <md-table-row v-for="(movimento, index) in ordenarMovimentos" v-bind:key="index">
         <md-table-cell md-numeric v-if="notas[movimento.notaFinal]"><md-button class="md-icon-button" :disabled="numeroDesativo" @click="definirDeletar(index, pegaIndex(index))">{{parseInt(notas[movimento.notaFinal].geral.numero)}}</md-button></md-table-cell>
         <md-table-cell v-if="notas[movimento.notaInicial]"><nota-dialogo :chave="movimento.notaInicial">{{R$(notas[movimento.notaInicial].valor.total)}}</nota-dialogo></md-table-cell>
         <md-table-cell v-else><md-button disabled>SEM NOTA INICIAL</md-button></md-table-cell>       
@@ -342,7 +342,8 @@ export default {
       notas: {},
       trimestre: {},
       tipoTabela: null,
-      mostraTudo: false
+      mostraTudo: false,
+      usuario: {}
     }
   },
   created () {
@@ -372,6 +373,7 @@ export default {
           this.$data.carregado = true
         })
       }
+      this.$data.usuario = usuario
     })
   },
   methods: {
@@ -388,13 +390,17 @@ export default {
     },
     deletarServico () {
       let servicoId = this.$data.deletar.servicoId
-      delete this.$data.servicos[servicoId]
-      if (_.isEmpty(this.$data.servicos)) {
-        this.$data.servicos = {}
+      if (this.$data.servicos[servicoId].dominio === this.$data.usuario.dominio || this.$data.servicos[servicoId].dominio === undefined || this.$data.usuario.dominio === 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855') {
+        delete this.$data.servicos[servicoId]
+        if (_.isEmpty(this.$data.servicos)) {
+          this.$data.servicos = {}
+        }
+        excluirServico(this.$data.empresaSelecionada.pessoa.cnpj, servicoId, err => {
+          if (err) console.error(err)
+        })
+      } else {
+        this.chamarMensagem(new Error('Esse serviço não pertence ao seu domínio, você não pode excluí-lo!'))
       }
-      excluirServico(this.$data.empresaSelecionada.pessoa.cnpj, servicoId, err => {
-        if (err) console.error(err)
-      })
     },
     definirDeletarServico (id, num) {
       this.$data.deletar.mensagem = `Tem certeza que deseja deletar o servico ${num}?`
@@ -407,10 +413,14 @@ export default {
     },
     deletarMovimento () {
       let movimentoId = this.$data.deletar.movimentoId
-      delete this.$data.movimentos[movimentoId]
-      excluirMovimento(this.$data.empresaSelecionada.pessoa.cnpj, movimentoId, err => {
-        if (err) console.error(err)
-      })
+      if (this.$data.movimentos[movimentoId].dominio === this.$data.usuario.dominio || this.$data.movimentos[movimentoId].dominio === undefined || this.$data.usuario.dominio === 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855') {
+        delete this.$data.movimentos[movimentoId]
+        excluirMovimento(this.$data.empresaSelecionada.pessoa.cnpj, movimentoId, err => {
+          if (err) console.error(err)
+        })
+      } else {
+        this.chamarMensagem(new Error('Esse movimento não pertence ao seu domínio, você não pode excluí-lo!'))
+      }
     },
     definirDeletar (id, num) {
       this.$data.deletar.mensagem = `Tem certeza que deseja deletar o movimento ${num}?`
@@ -655,6 +665,9 @@ export default {
       }
 
       return { cotaCsll: cotaCsll, cotaIr: cotaIr }
+    },
+    ordenarMovimentos () {
+      return _.orderBy(this.$data.movimentos, 'data')
     }
   }
 }
