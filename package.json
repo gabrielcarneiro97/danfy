@@ -3,6 +3,18 @@
   "description": "A Vue.js project",
   "version": "1.0.0",
   "author": "Gabriel Carneiro <gabriel.carneiro97@live.com>",
+  "maintainers": [
+    {"name": "Ariel Santos", "url": "https://ariel.santos.nom.br"}
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gabrielcarneiro97/danfy/"
+  },
+  "bugs": {
+    "url": "https://github.com/gabrielcarneiro97/danfy/issues"
+  },
+  "homepage": "https://gabrielcarneiro97.github.io/danfy",
+  "icon": "icon.png",
   "license": "MIT",
   "private": true,
   "scripts": {
