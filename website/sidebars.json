@@ -1,0 +1,11 @@
+{
+  "info": {
+    "Básicos": ["intro", "why"]
+  },
+  "tutoriais": {
+    "":["how"]
+  },
+  "docs": {
+    "Docs": ["docs", "api"]
+  }
+}
