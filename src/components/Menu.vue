@@ -5,7 +5,7 @@
       <md-card style="min-height: 90vh;">
         <md-card-content style="margin-top: 1vh">
           <div class="md-layout md-layout-item md-size-100 md-alignment-top-right">
-            <md-button disabled class="md-layout-item md-size-100 md-primary"><div class="md-title" style="color: black">MENU</div></md-button>
+            <md-button disabled class="md-layout-item md-size-100 md-primary"><h1 class="md-title" style="color: black">MENU</h1><span id="label" style="color: black">{{version}}</span></md-button>
           </div>
           <md-divider style="margin-bottom: 1vh; margin-top: 1vh"></md-divider>          
           <div class="md-layout md-layout-item md-size-100 md-alignment-top-right">
@@ -28,13 +28,15 @@
 <script>
 import FontAwesomeIcon from '@fortawesome/vue-fontawesome'
 import { faFileAlt } from '@fortawesome/fontawesome-free-regular'
+import { version } from './services'
 
 export default {
   components: {
     FontAwesomeIcon
   },
   computed: {
-    faFileAlt: _ => faFileAlt
+    faFileAlt: _ => faFileAlt,
+    version: _ => version
   }
 
 }
@@ -52,5 +54,6 @@ export default {
 #label {
   font-size: 8.5px;
   vertical-align: text-top;
+  width: 100%;
 }
 </style>

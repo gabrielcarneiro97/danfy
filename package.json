@@ -1,7 +1,7 @@
 {
   "name": "danfy",
   "description": "A Vue.js project",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": "Gabriel Carneiro <gabriel.carneiro97@live.com>",
   "maintainers": [
     {"name": "Ariel Santos", "url": "https://ariel.santos.nom.br"}
