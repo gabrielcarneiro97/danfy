@@ -234,30 +234,30 @@ export default {
                 data: nota.geral.dataHora,
                 conferido: false
               }
-              procurarNotaPar(nota, (err, notaRetorno) => {
+              procurarNotaPar(nota, (err, movimentoRet) => {
                 if (err) {
                   console.error(err)
-                } else if (notaRetorno) {
-                  validarMovimento(notaRetorno, nota, err => {
+                } else if (!_.isEmpty(movimentoRet)) {
+                  calcularImpostosMovimento(movimentoRet.notaInicial, movimentoRet.notaFinal, (err, valores) => {
                     if (err) {
-                      this.$data.movimentos.push(movimento)
                       console.error(err)
                     } else {
-                      movimento.notaInicial = notaRetorno.chave
-                      calcularImpostosMovimento(notaRetorno, nota, (err, valores) => {
-                        if (err) {
-                          console.error(err)
-                        } else {
-                          movimento.valores = valores
-                          this.$data.movimentos.push(movimento)
-                        }
-                      })
-                    }
-                    this.$data.notas = {
-                      ...this.$data.notas,
-                      [notaRetorno.chave]: notaRetorno
+                      movimento.notaFinal = movimentoRet.notaFinal.chave
+                      movimento.notaInicial = movimentoRet.notaInicial.chave
+                      movimento.valores = valores
+                      this.$data.notas = {
+                        ...this.$data.notas,
+                        [movimentoRet.notaInicial.chave]: movimentoRet.notaInicial,
+                        [movimentoRet.notaFinal.chave]: movimentoRet.notaFinal
+                      }
+                      this.$data.movimentos.push(movimento)
                     }
                   })
+                  this.$data.notas = {
+                    ...this.$data.notas,
+                    [movimentoRet.notaInicial]: movimentoRet.notaInicial,
+                    [movimentoRet.notaFinal]: movimentoRet.notaFinal
+                  }
                 } else {
                   this.$data.movimentos.push(movimento)
                 }

@@ -62,27 +62,37 @@ export function procurarNotaPar (notaParametro, callback) {
     let produtosParametro = notaParametro.produtos
     let tipoParametro = notaParametro.geral.tipo
 
-    let notaCb = null
+    let movimentoCb = {}
 
     Object.keys(produtosParametro).forEach(key => {
       pegarNotaProduto(key, produtosParametro[key], (err, notas) => {
         if (err) {
-          callback(err, null, null)
+          callback(err, null)
         } else if (notas) {
           for (let notaKey in notas) {
-            if (notas[notaKey].geral.numero !== notaParametro.geral.numero) {
-              if (!notaCb) {
-                notaCb = notas[notaKey]
-              } else {
-                if (tipoParametro === '0' && (notas[notaKey].geral.numero < notaCb.geral.numero) && (notaCb.geral.numero > notaParametro.geral.numero) && (notas[notaKey].geral.cfop !== '1202' || notas[notaKey].geral.cfop !== '2202')) {
-                  notaCb = notas[notaKey]
-                } else if ((tipoParametro === '1' || (notas[notaKey].geral.cfop === '1202' || notas[notaKey].geral.cfop === '2202')) && (notas[notaKey].geral.numero > notaCb.geral.numero) && (notaCb.geral.numero < notaParametro.geral.numero)) {
-                  notaCb = notas[notaKey]
+            let notaPar = notas[notaKey]
+
+            if (tipoParametro === '1' || notaParametro.geral.cfop === '1113' || notaParametro.geral.cfop === '1202' || notaParametro.geral.cfop === '2202') {
+              validarMovimento(notaPar, notaParametro, err => {
+                if (!err) {
+                  movimentoCb = {
+                    notaInicial: notaPar,
+                    notaFinal: notaParametro
+                  }
                 }
-              }
+              })
+            } else {
+              validarMovimento(notaParametro, notaPar, err => {
+                if (!err) {
+                  movimentoCb = {
+                    notaInicial: notaParametro,
+                    notaFinal: notaPar
+                  }
+                }
+              })
             }
           }
-          callback(null, notaCb)
+          callback(null, movimentoCb)
         }
       })
     })
