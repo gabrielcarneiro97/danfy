@@ -257,10 +257,6 @@ export default {
       }
     },
     pegarDominio (nome) {
-      if (nome === 'motherload') {
-        this.$data.dominioSelecionado.nome = this.$data.usuario.dominio
-        nome = this.$data.usuario.dominio
-      }
       pegarDominioPorNome(nome, (err, dominio) => {
         if (err) {
           console.error(err)

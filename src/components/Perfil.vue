@@ -1,44 +1,99 @@
 <template>
-   <div class="md-layout md-alignment-top-center" id="main">
-    <div class="md-layout-item md-size-30 md-elevation-2">
-      <md-content id="menu" class="md-layout">
-        <md-button class="menu-btn md-layout-item md-size-100">Teste</md-button>
-        <md-button class="menu-btn md-layout-item md-size-100">Teste</md-button>
-      </md-content>
-    </div>
-    <div class="md-layout-item md-size-60 md-elevation-2" id="infos">
-      <md-content class="md-layout md-alignment-top-center">
-        <md-field class="md-layout-item md-size-90 dados">
-          <label>NOME</label>
-          <md-input v-model="nome"></md-input>
-        </md-field>
-        <md-field class="md-layout-item md-size-90 dados">
-          <label>E-MAIL</label>
-          <md-input v-model="email"></md-input>
-        </md-field>
-        <md-field class="md-layout-item md-size-90 dados">
-          <label>DOMÍNIO</label>
-          <md-input v-model="dominio"></md-input>
-        </md-field>
-        <div class="md-layout md-alignment-top-right">
-          <md-button class="md-layout-item md-size-45 trocar">ATUALIZAR</md-button>
+  <div class="md-layout md-alignment-top-center" id="main">  
+    <md-card class="md-layout-item md-size-90">
+      <md-card-header class="md-layout" style="background-color: rgb(67, 160, 71)">
+        <md-content class="md-primary titulo" style="font-size:200%">Gerenciar Conta</md-content>
+      </md-card-header>
+      <md-card-content>
+        <md-divider></md-divider>        
+        <div class="md-layout md-alignment-right-top">
+          <div class="md-layout-item titulo">Geral</div>
         </div>
-      </md-content>
-    </div>
+        <div class="md-layout md-alignment-center-left">
+          
+          <md-field class="md-layout-item md-size-78">
+            <label>Nome</label>
+            <md-input v-model="usuario.nome"></md-input>
+          </md-field>
+          <md-button class="md-primary md-layout-item md-size-20" :disabled="desligarNome" @click="alterarCampo(usuario.nome, 'nome')">
+            ALTERAR
+          </md-button>
+
+          <md-field class="md-layout-item md-size-78">
+            <label>dominio</label>
+            <md-input v-model="usuario.dominio"></md-input>
+          </md-field>
+          <md-button class="md-primary md-layout-item md-size-20" :disabled="desligarDominio" @click="alterarCampo(usuario.nome, 'dominio')">
+            ALTERAR
+          </md-button>
+
+        </div>
+        <div class="md-layout md-alignment-center-left">
+          
+          <md-field class="md-layout-item md-size-100">
+            <label>E-mail</label>
+            <md-input v-model="usuario.email" disabled></md-input>
+          </md-field>
+
+        </div>
+
+        <md-divider></md-divider>        
+        <div class="md-layout md-alignment-right-top">
+          <div class="md-layout-item titulo">Alterar Senha</div>
+        </div>
+        <div class="md-layout md-alignment-center-left">
+          
+          <md-field class="md-layout-item md-size-78">
+            <label>Senha antiga</label>
+            <md-input v-model="senha.antiga" type="password"></md-input>
+          </md-field>
+          <md-field class="md-layout-item md-size-78">
+            <label>Nova</label>
+            <md-input v-model="senha.nova" type="password"></md-input>
+          </md-field>
+          <md-field class="md-layout-item md-size-78">
+            <label>Confirmar Nova</label>
+            <md-input v-model="senha.confirmacao" type="password"></md-input>
+          </md-field>
+          <md-button class="md-primary md-layout-item md-size-20" @click="trocarSenha">
+            ALTERAR
+          </md-button>
+
+        </div>
+      </md-card-content>
+
+    </md-card>
+
+      <md-dialog-alert
+      :md-active.sync="erro.mostra"
+      :md-content="erro.mensagem"
+      md-confirm-text="Ok" />
+
   </div>
 </template>
 
 <script>
 import store from '../store'
-import { usuarioAtivo } from './services'
+import { usuarioAtivo, trocarSenha, alterarDadoUsuario } from './services'
 
 export default {
   data () {
     return {
-      nome: null,
-      dominio: null,
-      email: null,
-      id: null
+      usuario: {
+        nome: '',
+        dominio: '',
+        email: ''
+      },
+      senha: {
+        nova: '',
+        antiga: '',
+        confirmacao: ''
+      },
+      erro: {
+        mostra: false,
+        mensagem: ''
+      },
+      store: null
     }
   },
   created () {
@@ -46,20 +101,62 @@ export default {
       if (!ativo) {
         this.$router.push('/login')
       } else {
-        this.$data.nome = usuario.nome
-        this.$data.dominio = usuario.dominio
-        this.$data.email = usuario.email
-        this.$data.id = usuario.id
+        this.$data.usuario = {
+          ...usuario,
+          email: ativo.email,
+          id: ativo.uid
+        }
+        this.$data.store = store.getState()
       }
     })
   },
   methods: {
-    change () {
-      let usuario = store.getState().usuario
-
-      if (this.$data.nome !== usuario.nome ||
-      this.$data.email !== usuario.email ||
-      this.$data.dominio !== usuario.dominio) {
+    chamarMensagem (mensagem) {
+      this.$data.erro.mensagem = mensagem.message
+      this.$data.erro.mostra = true
+    },
+    trocarSenha () {
+      if (this.$data.senha.nova !== this.$data.senha.confirmacao) {
+        this.chamarMensagem(new Error('A nova senha e a confirmação não batem!'))
+      } else {
+        trocarSenha(this.$data.senha.nova, this.$data.senha.antiga, this.$data.usuario.email, (err) => {
+          if (!err.code) {
+            this.chamarMensagem(err)
+          } else {
+            if (err.code === 'auth/wrong-password') {
+              this.chamarMensagem(new Error('A senha antiga está errada!'))
+            } else if (err.code === 'auth/weak-password') {
+              this.chamarMensagem(new Error('A nova senha é muito fraca!'))
+            }
+          }
+        })
+      }
+    },
+    alterarCampo (dado, campo) {
+      console.log(store.getState())
+      alterarDadoUsuario(dado, campo, this.$data.usuario.id, (err) => {
+        if (err) {
+          this.chamarMensagem(err)
+        } else {
+          this.chamarMensagem(new Error('Campo alterado com sucesso!'))
+          this.$data.campoAlterado = true
+        }
+      })
+    }
+  },
+  computed: {
+    desligarNome () {
+      if (this.$data.store) {
+        return this.$data.usuario.nome === store.getState().usuario.nome
+      } else {
+        return true
+      }
+    },
+    desligarDominio () {
+      if (this.$data.store) {
+        return this.$data.usuario.dominio === store.getState().usuario.dominio
+      } else {
+        return true
       }
     }
   }
@@ -70,10 +167,15 @@ export default {
 <style lang="scss" scoped>
 
   #main {
-    margin-top: 6%;
+    margin-top: 3%;
   }
-  #infos {
-    margin-left: .5%;
+
+  .titulo {
+    font-size: 180%;
+    margin-bottom: 1%;
+    margin-top: 2%;    
+    font-weight: 300;
+    color: Black;
   }
 
 </style>

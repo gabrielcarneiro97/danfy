@@ -147,7 +147,7 @@
         <md-table-head>TOTAL</md-table-head>
       </md-table-row>
 
-      <md-table-row v-for="(servico, index) in servicos" v-bind:key="index">
+      <md-table-row v-for="(servico, index) in ordenarServicos" v-bind:key="index">
         <md-table-cell md-numeric v-if="notasServico[servico.nota]"><md-button class="md-icon-button" :disabled="numeroDesativo" @click="definirDeletarServico(index, pegaIndexServico(index))">{{parseInt(notasServico[servico.nota].geral.numero.replace(competenciaSelecionada.ano, ''))}}</md-button></md-table-cell>
         <md-table-cell>{{R$(servico.valores.impostos.baseDeCalculo)}}</md-table-cell>
         <md-table-cell>{{notasServico[servico.nota].geral.status}}</md-table-cell>        
@@ -166,7 +166,9 @@
       </md-table-row>
 
       <md-table-row>
-        <md-table-head colspan="3">TOTAIS IMPOSTOS</md-table-head>
+        <md-table-head>TOTAIS</md-table-head>
+        <md-table-head>{{R$(trimestre[competenciaSelecionada.mes].servicos.total)}}</md-table-head> 
+        <md-table-head>IMPOSTOS</md-table-head>               
         <md-table-head>{{R$(trimestre[competenciaSelecionada.mes].servicos.impostos.retencoes.iss)}}</md-table-head>
         <md-table-head>{{R$(trimestre[competenciaSelecionada.mes].servicos.impostos.retencoes.pis)}}</md-table-head>
         <md-table-head>{{R$(trimestre[competenciaSelecionada.mes].servicos.impostos.retencoes.cofins)}}</md-table-head>
@@ -483,47 +485,47 @@ export default {
               })
             })
           })
-          pegarServicosMes(pessoaEmpresa.cnpj, competencia, (err, servicos) => {
+        }
+        pegarServicosMes(pessoaEmpresa.cnpj, competencia, (err, servicos) => {
+          if (err) {
+            console.error(err)
+          }
+          if (_.isEmpty(servicos)) {
+            this.$data.semServicos = true
+            totaisTrimestrais(pessoaEmpresa.cnpj, competencia, (err, trimestre) => {
+              if (err) {
+                console.error(err)
+              }
+              this.$data.trimestre = trimestre
+              this.$data.semMovimentos = false
+            })
+            this.chamarMensagem(new Error(`Não foram encontrados serviços na competência: ${mesEscrito}/${competencia.ano} da empresa Nº${numeroEmpresa} (${pessoaEmpresa.nome})`))
+          } else {
+            this.$data.servicos = servicos
+            Object.keys(servicos).forEach(key => {
+              let chave = servicos[key].nota
+              pegarNotaServicoChave(chave, (err, notaServico) => {
+                if (err) {
+                  console.error(err)
+                } else {
+                  this.$data.notasServico = {
+                    ...this.$data.notasServico,
+                    [chave]: notaServico
+                  }
+                }
+              })
+            })
+          }
+          totaisTrimestrais(pessoaEmpresa.cnpj, competencia, (err, trimestre) => {
             if (err) {
               console.error(err)
             }
-            if (_.isEmpty(servicos)) {
-              this.$data.semServicos = true
-              totaisTrimestrais(pessoaEmpresa.cnpj, competencia, (err, trimestre) => {
-                if (err) {
-                  console.error(err)
-                }
-                this.$data.trimestre = trimestre
-                this.$data.semMovimentos = false
-              })
-              this.chamarMensagem(new Error(`Não foram encontrados serviços na competência: ${mesEscrito}/${competencia.ano} da empresa Nº${numeroEmpresa} (${pessoaEmpresa.nome})`))
-            } else {
-              this.$data.servicos = servicos
-              Object.keys(servicos).forEach(key => {
-                let chave = servicos[key].nota
-                pegarNotaServicoChave(chave, (err, notaServico) => {
-                  if (err) {
-                    console.error(err)
-                  } else {
-                    this.$data.notasServico = {
-                      ...this.$data.notasServico,
-                      [chave]: notaServico
-                    }
-                  }
-                })
-              })
-              totaisTrimestrais(pessoaEmpresa.cnpj, competencia, (err, trimestre) => {
-                if (err) {
-                  console.error(err)
-                }
-                cursorNormal()
-                this.$data.trimestre = trimestre
-                this.$data.semMovimentos = false
-                this.$data.semServicos = false
-              })
-            }
+            cursorNormal()
+            this.$data.trimestre = trimestre
+            this.$data.semMovimentos = false
+            this.$data.semServicos = false
           })
-        }
+        })
       })
     },
     pegaIndex (index) {
@@ -666,6 +668,9 @@ export default {
     },
     ordenarMovimentos () {
       return _.orderBy(this.$data.movimentos, 'data')
+    },
+    ordenarServicos () {
+      return _.orderBy(this.$data.servicos, 'nota')
     }
   }
 }

@@ -2,6 +2,7 @@ import * as firebase from 'firebase'
 import store from '../../store'
 import { sair, autenticar, adicionarPessoa, adicionarNota, adicionarNotaServico, carregarDominio, adicionarEmpresa } from '../../store/actions'
 import { apiKey, messagingSenderId } from './apiKey'
+import dominio from '../../store/reducers/dominio';
 var config = {
   apiKey: apiKey,
   authDomain: 'danfy-4d504.firebaseapp.com',
@@ -62,11 +63,37 @@ export function usuarioAtivo (callback) {
 
         pegarDominio((err, dominio) => {
           if (err) console.error(err)
-          callback(user, store.getState().usuario, dominio.tipo)
+          callback(user, usuario, dominio.tipo)
         })
       })
     } else {
       callback(user, null, null)
+    }
+  })
+}
+export function trocarSenha (senhaNova, senhaAntiga, login, callback) {
+  auth.signInWithEmailAndPassword(login, senhaAntiga).then(user => {
+    console.log(user)
+    user.updatePassword(senhaNova).then(() => {
+      callback(new Error(`Senha alterada com sucesso!`))
+    }, err => callback(err))
+  }, err => {
+    callback(err)
+  }, err => {
+    console.error(err)
+  })
+}
+
+export function alterarDadoUsuario (dado, campo, id, callback) {
+  db.ref('Usuarios/' + id + '/' + campo).set(dado, err => {
+    if (err) {
+      callback(err)
+    } else {
+      let estado = store.getState().usuario
+      estado[campo] = dado
+
+      store.dispatch(autenticar(estado))
+      callback(null)
     }
   })
 }

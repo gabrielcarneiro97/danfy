@@ -291,7 +291,7 @@ export default {
                   console.error(err)
                 } else {
                   let servico = {
-                    conferido: false,
+                    conferido: true,
                     nota: notaServico.chave,
                     data: notaServico.geral.dataHora,
                     valores: valores,

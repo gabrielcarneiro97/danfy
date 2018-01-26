@@ -14,6 +14,9 @@
           <div class="md-layout md-layout-item md-size-100 md-alignment-top-right">
             <md-button class="md-layout-item md-size-100 md-primary" to="/mostrarMovimentos">VISUALIZAR MOVIMENTOS</md-button>
           </div>
+          <div class="md-layout md-layout-item md-size-100 md-alignment-top-right">
+            <md-button class="md-layout-item md-size-100 md-primary" to="/perfil">GERENCIAR CONTA</md-button>
+          </div>
           <div v-if="perm > 1" class="md-layout md-layout-item md-size-100 md-alignment-top-right">
             <md-button class="md-layout-item md-size-100 md-primary" to="/admin">PAINEL DO ADMINISTRADOR</md-button>
           </div>
