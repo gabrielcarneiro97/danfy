@@ -6,7 +6,7 @@
       <div class="md-layout-item md-size-25"></div>
       
       <div class="md-layout-item md-size-50" style="text-align: center; padding-top: 1%">
-        <h1 style="font-size: 300%">DANFY <span id="label">ALPHA</span></h1>
+        <h1 style="font-size: 300%">DANFY <span id="label">ALPHA ({{version}})</span></h1>
         <div class="titulo" style="color: black; margin-top: 0%">Um novo modo de controlar o seu movimento fiscal!</div>
       </div>
       <div class="md-layout-item md-size-20" style="text-align: left;">
@@ -147,13 +147,16 @@
 </template>
 
 <script>
+import { version } from './services'
 import FontAwesomeIcon from '@fortawesome/vue-fontawesome'
 import { faFileAlt } from '@fortawesome/fontawesome-free-regular'
-import { faDownload, faFire, faMagic, faMoneyBillAlt, faFileCode, faArrowRight, faRocket, faUsers,
-  faSpaceShuttle, faFastForward, faCheck, faHandshake, faClock, faDatabase, faQuestion, faListOl, faCodeBranch } from '@fortawesome/fontawesome-free-solid'
+import { faDownload, faFire, faMagic, faMoneyBillAlt, faFileCode, faArrowRight,
+  faRocket, faUsers, faSpaceShuttle, faFastForward, faCheck, faHandshake, faClock,
+  faDatabase, faQuestion, faListOl, faCodeBranch } from '@fortawesome/fontawesome-free-solid'
 
 export default {
   computed: {
+    version: _ => version,
     faFileAlt: _ => faFileAlt,
     faDownload: _ => faDownload,
     faFileCode: _ => faFileCode,
@@ -181,7 +184,7 @@ export default {
 
 <style lang="scss" scoped>
   #label {
-    font-size: 8.5px;
+    font-size: 7px;
     vertical-align: text-top;
   }
   .p1 {
