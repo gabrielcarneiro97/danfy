@@ -1,5 +1,5 @@
 <template>
-  <div class="md-layout md-alignment-top-center" style="margin-top: 3%">
+  <div class="md-layout md-alignment-top-center" style="margin-top: 3%" v-if="temUsuario">
     <md-card class="md-layout-item md-size-90">
       <md-card-header>
         <div class="md-title">Domínio</div>
@@ -53,7 +53,7 @@
                 </div>
 
                 <md-button class="md-icon-button md-list-action md-primary" @click="mostrarDeletar(nome)">
-                  <md-icon><font-awesome-icon :icon="faTrash" /></md-icon>
+                  <font-awesome-icon :icon="faTrash" size="lg" />
                 </md-button>
               </md-list-item>
             </md-list>
@@ -81,6 +81,39 @@
 
     </md-card>
 
+    <md-dialog :md-active.sync="gerenciar.mostra">
+      <md-dialog-title>
+        {{dominioSelecionado.nome}}
+      </md-dialog-title>
+
+      <md-dialog-content>
+        <md-table v-if="dominioSelecionado.empresas">
+          <md-table-row>
+            <md-table-head>Número</md-table-head>
+            <md-table-head>Nome</md-table-head>
+            <md-table-head>CNPJ</md-table-head>            
+            <md-table-head>Apagar</md-table-head>            
+          </md-table-row>
+
+          <md-table-row v-for="(cnpj, num) in dominioSelecionado.empresas" v-bind:key="cnpj + num + 'ger'">
+            <md-table-cell>{{num}}</md-table-cell>
+            <md-table-cell v-if="pessoas[cnpj]">{{pessoas[cnpj].nome}}</md-table-cell>
+            <md-table-cell>{{cnpj}}</md-table-cell>            
+            <md-table-cell> 
+              <md-button class="md-icon-button md-list-action md-primary" @click="mostraDeletarEmpresa(num, dominioSelecionado.nome)">
+                  <font-awesome-icon :icon="faTrash" />
+                </md-button>
+            </md-table-cell>            
+          </md-table-row>
+
+        </md-table>
+      </md-dialog-content>
+
+      <md-dialog-actions>
+        <md-button @click="gerenciar.mostra = false">FECHAR</md-button>
+      </md-dialog-actions>
+    </md-dialog>
+
 
     <md-dialog-alert
       :md-active.sync="erro.mostra"
@@ -94,17 +127,30 @@
       md-cancel-text="Cancelar"
       @md-cancel="deletar.mostra = false"
       @md-confirm="deletarDominio" />
+
+    <md-dialog-confirm
+      :md-active.sync="deletar.mostra2"
+      md-title="Tem certeza?"
+      :md-content="deletar.mensagem"
+      md-confirm-text="Confirma"
+      md-cancel-text="Cancelar"
+      @md-cancel="deletar.mostra2 = false"
+      @md-confirm="deletarEmpresaDominio" />
+    
   </div>
 </template>
 
 <script>
-import { usuarioAtivo, gravarDominio, pegarTodosDominios, deletarDominio, pegarDominioPorNome } from './services'
+import { usuarioAtivo, gravarDominio, pegarTodosDominios,
+  deletarDominio, pegarDominioPorNome, deletarEmpresaDominio,
+  cursorCarregando, cursorNormal, pegarPessoaId } from './services'
 import FontAwesomeIcon from '@fortawesome/vue-fontawesome'
 import { faPlus, faListUl, faTrash, faSitemap } from '@fortawesome/fontawesome-free-solid'
+import _ from 'lodash'
 
 export default {
   created () {
-    console.log(process.env.apiKeyFirebase)
+    cursorCarregando()
     usuarioAtivo((u, usuario) => {
       if (u) {
         if (usuario.nivel <= 2 || !usuario.nivel) {
@@ -126,7 +172,6 @@ export default {
               }
             })
           }
-          console.log(usuario)
         }
       } else {
         this.$router.push('/')
@@ -136,7 +181,9 @@ export default {
   data () {
     return {
       todosDominios: {},
+      pessoas: {},
       dominioSelecionado: {
+        empresas: false,
         nome: ''
       },
       gerenciar: {
@@ -152,6 +199,7 @@ export default {
       },
       deletar: {
         mostra: false,
+        mostra2: false,
         mensagem: ''
       },
       erro: {
@@ -189,6 +237,23 @@ export default {
         }
       })
     },
+    deletarEmpresaDominio () {},
+    mostraDeletarEmpresa (num, dominio) {
+      this.$data.deletar.mensagem = `Tem certeza que deseja deletar a empresa ${num} do domínio ${dominio}?`
+      this.$data.deletar.mostra2 = true
+
+      this.deletarEmpresaDominio = () => {
+        deletarEmpresaDominio(dominio, num, (err) => {
+          if (err) {
+            this.chamarErro(err)
+          } else {
+            this.$data.deletar.mostra2 = false
+            delete this.$data.dominioSelecionado.empresas[num]
+            this.chamarErro(new Error(`Empresa ${num} deletada com sucesso!`))
+          }
+        })
+      }
+    },
     deletarDominio () {},
     mostrarDeletar (nome) {
       this.$data.deletar.mensagem = `Tem certeza que deseja deletar o domínio ${nome}?`
@@ -223,7 +288,22 @@ export default {
                 nome: nome,
                 ...dominio
               }
-              this.$data.gerenciar.mostra = true
+
+              Object.keys(dominio.empresas).forEach((num, id, arr) => {
+                let tam = arr.length
+
+                pegarPessoaId(dominio.empresas[num], (err, pessoa) => {
+                  if (err) {
+                    console.error(err)
+                  } else {
+                    this.$data.pessoas[dominio.empresas[num]] = pessoa
+
+                    if (tam - 1 === id) {
+                      this.$data.gerenciar.mostra = true
+                    }
+                  }
+                })
+              })
             }
           } else {
             this.chamarErro(new Error('Domínio não localizado!'))
@@ -239,7 +319,22 @@ export default {
     faPlus: _ => faPlus,
     faListUl: _ => faListUl,
     faTrash: _ => faTrash,
-    faSitemap: _ => faSitemap
+    faSitemap: _ => faSitemap,
+    temUsuario () {
+      return !_.isEmpty(this.$data.usuario)
+    },
+    temPessoas () {
+      return !_.isEmpty(this.$data.pessoas)
+    }
+  },
+  watch: {
+    temUsuario (data) {
+      if (data) {
+        cursorNormal()
+      } else {
+        cursorCarregando()
+      }
+    }
   }
 }
 </script>

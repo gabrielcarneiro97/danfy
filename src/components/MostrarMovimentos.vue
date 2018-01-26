@@ -280,7 +280,7 @@
 <script>
 import { pegarDominio, usuarioAtivo, pegarPessoaId, pegarMovimentosMes, pegarServicosMes,
   pegarNotaChave, pegarNotaServicoChave, excluirMovimento, excluirServico, totaisTrimestrais,
-  R$, pegarEmpresaImpostos, retornarTipo } from './services'
+  R$, pegarEmpresaImpostos, retornarTipo, cursorCarregando, cursorNormal } from './services'
 import notaDialogo from './notaDialogo'
 import _ from 'lodash'
 import { Printd } from 'printd'
@@ -454,6 +454,7 @@ export default {
       }
     },
     selecionarMovimento () {
+      cursorCarregando()
       let competencia = this.$data.competenciaSelecionada
       let mesEscrito = this.$data.meses[parseInt(competencia.mes) - 1].nome
       let pessoaEmpresa = this.$data.empresaSelecionada.pessoa
@@ -461,8 +462,6 @@ export default {
 
       pegarMovimentosMes(pessoaEmpresa.cnpj, competencia, (err, movimentos) => {
         if (err) console.error(err)
-
-        console.log(movimentos)
 
         if (_.isEmpty(movimentos)) {
           this.chamarMensagem(new Error(`Não foram encontrados movimentos na competência: ${mesEscrito}/${competencia.ano} da empresa Nº${numeroEmpresa} (${pessoaEmpresa.nome})`))
@@ -490,12 +489,10 @@ export default {
             }
             if (_.isEmpty(servicos)) {
               this.$data.semServicos = true
-              console.log('aqui')
               totaisTrimestrais(pessoaEmpresa.cnpj, competencia, (err, trimestre) => {
                 if (err) {
                   console.error(err)
                 }
-                console.log('aqui2')
                 this.$data.trimestre = trimestre
                 this.$data.semMovimentos = false
               })
@@ -519,6 +516,7 @@ export default {
                 if (err) {
                   console.error(err)
                 }
+                cursorNormal()
                 this.$data.trimestre = trimestre
                 this.$data.semMovimentos = false
                 this.$data.semServicos = false

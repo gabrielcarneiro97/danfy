@@ -430,7 +430,6 @@ export function gravarDominio (dados, callback) {
     }
   })
 }
-
 export function pegarDominio (callback) {
   let dominioId = store.getState().usuario.dominio
   let dominio
@@ -442,30 +441,31 @@ export function pegarDominio (callback) {
     callback(err, null)
   })
 }
-
 export function pegarDominioPorNome (nome, callback) {
   db.ref('Dominios/' + nome).once('value', snap => {
     let dominio = snap.val()
     callback(null, dominio)
   }, err => { callback(err, null) })
 }
-
 export function pegarTodosDominios (callback) {
   db.ref('Dominios').once('value', snap => {
     callback(null, snap.val())
   }, err => callback(err, null))
 }
-
 export function deletarDominio (nome, callback) {
   db.ref('Dominios/' + nome).set({}, err => { callback(err) })
 }
-
 export function adicionarEmpresaDominio (empresa, callback) {
   let dominioId = store.getState().usuario.dominio
 
   db.ref('Dominios/' + dominioId + '/empresas/' + empresa.num).set(empresa.cnpj, err => {
     store.dispatch(adicionarEmpresa(empresa.num, empresa.cnpj))
     callback(err, store.getState().dominio)
+  })
+}
+export function deletarEmpresaDominio (dominio, numero, callback) {
+  db.ref('Dominios/' + dominio + '/empresas/' + numero).set({}, err => {
+    callback(err)
   })
 }
 // FIM ACESSO DB DOMINIO
