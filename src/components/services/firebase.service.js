@@ -2,7 +2,7 @@ import * as firebase from 'firebase'
 import store from '../../store'
 import { sair, autenticar, adicionarPessoa, adicionarNota, adicionarNotaServico, carregarDominio, adicionarEmpresa } from '../../store/actions'
 import { apiKey, messagingSenderId } from './apiKey'
-import dominio from '../../store/reducers/dominio';
+
 var config = {
   apiKey: apiKey,
   authDomain: 'danfy-4d504.firebaseapp.com',
@@ -21,10 +21,20 @@ export function entrar (login, senha, callback) {
   auth.signInWithEmailAndPassword(login, senha).then(user => {
     db.ref('Usuarios/' + user.uid).once('value').then(value => {
       let usuario = value.val()
-
-      store.dispatch(autenticar({ email: user.email, token: user.getIdToken(), id: user.uid, nome: usuario.nome, dominio: usuario.dominio }))
-
-      callback(null, store.getState().usuario)
+      db.ref('Dominios/' + usuario.dominio).once('value', snap => {
+        store.dispatch(autenticar({ email: user.email, token: user.getIdToken(), id: user.uid, nome: usuario.nome, dominio: usuario.dominio }))
+        if (snap.val()) {
+          callback(null, store.getState().usuario)
+        } else {
+          deslogar(err => {
+            if (!err) {
+              let erro = new Error(`Domínio ${usuario.dominio} não encontrado, favor entrar em contato com o suporte.`)
+              erro.code = 'dominio/null'
+              callback(erro)
+            }
+          })
+        }
+      })
     })
   }, err => {
     callback(err, null)
@@ -62,8 +72,13 @@ export function usuarioAtivo (callback) {
         store.dispatch(autenticar({ email: user.email, token: user.getIdToken(), id: user.uid, nome: usuario.nome, dominio: usuario.dominio, nivel: usuario.nivel }))
 
         pegarDominio((err, dominio) => {
-          if (err) console.error(err)
-          callback(user, usuario, dominio.tipo)
+          if (err) {
+            console.error(err)
+          } else if (dominio) {
+            callback(user, usuario, dominio.tipo)
+          } else {
+            callback(user, usuario, null)
+          }
         })
       })
     } else {

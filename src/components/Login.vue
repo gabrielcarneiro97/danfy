@@ -49,7 +49,7 @@ export default {
       if (ativo) {
         if (tipoDominio === 'unico') {
           this.$router.push('/mostrarMovimentos')
-        } else {
+        } else if (tipoDominio === 'mult') {
           this.$router.push('/menu')
         }
       }
@@ -88,6 +88,9 @@ export default {
               break
             case 'auth/wrong-password':
               this.chamarMensagem(new Error('Senha incorreta!'))
+              break
+            case 'dominio/null':
+              this.chamarMensagem(err)
               break
             default:
               break
