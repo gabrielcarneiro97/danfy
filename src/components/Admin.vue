@@ -37,12 +37,15 @@
 
           <md-list-item md-expand @click="pegarTodosDominios">
             <md-icon><font-awesome-icon :icon="faListUl" /></md-icon>
-            <span class="md-list-item-text">Mostrar Domínios Gerenciados</span>
+            <span class="md-list-item-text">Gerenciar</span>
 
             <md-list class="md-double-line" slot="md-expand">
-              <md-list-item v-for="(dominio, nome) in todosDominios" v-if="(perm <= 5 && dominio.dominioPai === usuario.dominio) || perm > 5" v-bind:key="nome + 'dominioMostrar'">
+              <md-list-item v-for="(dominio, nome) in todosDominios" v-if="(perm <= 5 && (dominio.dominioPai === usuario.dominio || nome === usuario.dominio)) || perm > 5" v-bind:key="nome + 'dominioMostrar'">
+               
                 <md-icon>
-                  <font-awesome-icon :icon="faSitemap" />
+                  <md-button class="md-icon-button md-list-action md-primary" @click="pegarDominio(nome)">
+                    <font-awesome-icon :icon="faSitemap" size="lg" />
+                  </md-button>
                 </md-icon>
 
                 <div class="md-list-item-text">
@@ -57,24 +60,6 @@
                 </md-button>
               </md-list-item>
             </md-list>
-          </md-list-item>
-
-          <md-list-item md-expand @click="pegarTodosDominios">
-            <md-icon><font-awesome-icon :icon="faListUl" /></md-icon>
-            <span class="md-list-item-text">Gerenciar Domínio</span>
-
-            <md-list slot="md-expand">
-              <md-list-item class="md-inset">
-                <md-field>
-                  <label>Nome do Domínio</label>
-                  <md-input v-model="dominioSelecionado.nome" :disabled="perm <=5"></md-input>
-                </md-field>
-              </md-list-item>
-              <md-list-item class="md-inset" style="text-align: right">
-                <md-button @click="pegarDominio(dominioSelecionado.nome)">MOSTRAR</md-button>
-              </md-list-item>
-            </md-list>
-
           </md-list-item>
         </md-list>
       </md-card-content>
@@ -288,22 +273,25 @@ export default {
                 nome: nome,
                 ...dominio
               }
+              if (dominio.empresas) {
+                Object.keys(dominio.empresas).forEach((num, id, arr) => {
+                  let tam = arr.length
 
-              Object.keys(dominio.empresas).forEach((num, id, arr) => {
-                let tam = arr.length
+                  pegarPessoaId(dominio.empresas[num], (err, pessoa) => {
+                    if (err) {
+                      console.error(err)
+                    } else {
+                      this.$data.pessoas[dominio.empresas[num]] = pessoa
 
-                pegarPessoaId(dominio.empresas[num], (err, pessoa) => {
-                  if (err) {
-                    console.error(err)
-                  } else {
-                    this.$data.pessoas[dominio.empresas[num]] = pessoa
-
-                    if (tam - 1 === id) {
-                      this.$data.gerenciar.mostra = true
+                      if (tam - 1 === id) {
+                        this.$data.gerenciar.mostra = true
+                      }
                     }
-                  }
+                  })
                 })
-              })
+              } else {
+                this.chamarErro(new Error(`Domínio selecionado não tem empresas cadastradas!`))
+              }
             }
           } else {
             this.chamarErro(new Error('Domínio não localizado!'))
