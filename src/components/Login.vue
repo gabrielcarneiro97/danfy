@@ -24,6 +24,11 @@
       </md-card>
     </div>
 
+    <md-dialog-alert
+      :md-active.sync="erro.mostra"
+      :md-content="erro.mensagem"
+      md-confirm-text="Ok" />
+
   </div>
 </template>
 <script>
@@ -52,18 +57,42 @@ export default {
   },
   data () {
     return {
+      erro: {
+        mostra: false,
+        mensagem: ''
+      },
       login: '',
       senha: ''
     }
   },
   methods: {
+    chamarMensagem (mensagem) {
+      this.$data.erro.mensagem = mensagem.message
+      this.$data.erro.mostra = true
+    },
     entrar () {
       let login = this.$data.login
       let senha = this.$data.senha
 
       entrar(login, senha, (err, usuario) => {
-        if (err) console.error(err)
-        else {
+        if (err) {
+          switch (err.code) {
+            case 'auth/invalid-email':
+              this.chamarMensagem(new Error('E-mail invalido!'))
+              break
+            case 'auth/user-disabled':
+              this.chamarMensagem(new Error('Usuário desabilitado!'))
+              break
+            case 'auth/user-not-found':
+              this.chamarMensagem(new Error('Usuário não encontrado!'))
+              break
+            case 'auth/wrong-password':
+              this.chamarMensagem(new Error('Senha incorreta!'))
+              break
+            default:
+              break
+          }
+        } else {
           usuarioAtivo((ativo, usuario, tipoDominio) => {
             if (ativo) {
               if (tipoDominio === 'unico') {

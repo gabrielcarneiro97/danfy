@@ -64,7 +64,7 @@
 
     </md-card>
 
-      <md-dialog-alert
+    <md-dialog-alert
       :md-active.sync="erro.mostra"
       :md-content="erro.mensagem"
       md-confirm-text="Ok" />
