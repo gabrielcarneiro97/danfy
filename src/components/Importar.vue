@@ -229,8 +229,6 @@ export default {
           this.$data.foraDominio = {}
           let dominio = this.$store.state.dominio
 
-          console.log(this.$store.state)
-
           Object.keys(pessoas).forEach(keyPessoa => {
             if (keyPessoa.length === 11) return 0
 

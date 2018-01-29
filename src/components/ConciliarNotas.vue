@@ -190,7 +190,6 @@ import { R$, calcularImpostosMovimento, calcularImpostosServico, pegarDominio,
   usuarioAtivo, pegarNotaChave, procurarNotaPar, estaNoDominio, validarMovimento,
   pegarNotaNumeroEmitente, lerNotasInput, gravarMovimentos, gravarServicos, gravarNotaSlim } from './services'
 import notaDialogo from './notaDialogo'
-import { store } from '../store'
 import _ from 'lodash'
 import FontAwesomeIcon from '@fortawesome/vue-fontawesome'
 import { faTrash } from '@fortawesome/fontawesome-free-solid'
@@ -239,8 +238,8 @@ export default {
         pegarDominio((err, dominio) => {
           if (err) console.error(err)
 
-          this.$data.notas = store.getState().notas
-          this.$data.notasServico = store.getState().notasServico
+          this.$data.notas = this.$store.state.notas
+          this.$data.notasServico = this.$store.state.notasServico
 
           Object.keys(this.$data.notas).forEach((id, index, arr) => {
             let nota = this.$data.notas[id]
@@ -399,7 +398,7 @@ export default {
                   } else {
                     this.$data.movimentos[movimentoId].notaInicial = notaInicial.chave
                     this.$data.movimentos[movimentoId].valores = valores
-                    this.$data.notas = store.getState().notas
+                    this.$data.notas = this.$store.state.notas
                     this.$data.mostraAdicionarNota = false
                     this.$data.adicionarNumeroEmitenteInfo.numeroNota = null
                     this.$data.adicionarNumeroEmitenteInfo.emitente = null
@@ -439,7 +438,7 @@ export default {
                   } else {
                     this.$data.movimentos[movimentoId].notaInicial = notaInicial.chave
                     this.$data.movimentos[movimentoId].valores = valores
-                    this.$data.notas = store.getState().notas
+                    this.$data.notas = this.$store.state.notas
                     this.$data.mostraAdicionarNota = false
                     this.$data.adicionarNumeroEmitenteInfo.numeroNota = null
                     this.$data.adicionarNumeroEmitenteInfo.emitente = null
@@ -481,7 +480,7 @@ export default {
                     } else {
                       this.$data.movimentos[movimentoId].notaInicial = chave
                       this.$data.movimentos[movimentoId].valores = valores
-                      this.$data.notas = store.getState().notas
+                      this.$data.notas = this.$store.state.notas
                       this.$data.mostraAdicionarNota = false
                       this.chamarMensagem(new Error('Nota Adicionada com sucesso!'))
                     }
@@ -537,7 +536,7 @@ export default {
               console.log('aqui')
               this.$data.movimentos[movimentoId].notaInicial = notaInicial.chave
               this.$data.movimentos[movimentoId].valores = valores
-              this.$data.notas = store.getState().notas
+              this.$data.notas = this.$store.state.notas
               this.$data.mostraAdicionarNota = false
               this.chamarMensagem(new Error('Nota Adicionada com sucesso!'))
               this.$data.valorDaNota = null

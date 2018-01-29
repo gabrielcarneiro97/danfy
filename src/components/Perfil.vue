@@ -73,7 +73,6 @@
 </template>
 
 <script>
-import { store } from '../store'
 import { usuarioAtivo, trocarSenha, alterarDadoUsuario } from './services'
 
 export default {
@@ -92,8 +91,7 @@ export default {
       erro: {
         mostra: false,
         mensagem: ''
-      },
-      store: null
+      }
     }
   },
   created () {
@@ -106,7 +104,6 @@ export default {
           email: ativo.email,
           id: ativo.uid
         }
-        this.$data.store = store.getState()
       }
     })
   },
@@ -133,7 +130,6 @@ export default {
       }
     },
     alterarCampo (dado, campo) {
-      console.log(store.getState())
       alterarDadoUsuario(dado, campo, this.$data.usuario.id, (err) => {
         if (err) {
           this.chamarMensagem(err)
@@ -146,18 +142,10 @@ export default {
   },
   computed: {
     desligarNome () {
-      if (this.$data.store) {
-        return this.$data.usuario.nome === store.getState().usuario.nome
-      } else {
-        return true
-      }
+      return this.$data.usuario.nome === this.$store.state.usuario.nome
     },
     desligarDominio () {
-      if (this.$data.store) {
-        return this.$data.usuario.dominio === store.getState().usuario.dominio
-      } else {
-        return true
-      }
+      return this.$data.usuario.dominio === this.$store.state.usuario.dominio
     }
   }
 

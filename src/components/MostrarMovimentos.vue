@@ -393,7 +393,7 @@ export default {
     deletarServico () {
       let servicoId = this.$data.deletar.servicoId
       if (this.$data.servicos[servicoId].dominio === this.$data.usuario.dominio || this.$data.servicos[servicoId].dominio === undefined || this.$data.usuario.dominio === 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855') {
-        delete this.$data.servicos[servicoId]
+        this.$delete(this.$data.servicos, servicoId)
         if (_.isEmpty(this.$data.servicos)) {
           this.$data.servicos = {}
         }
@@ -405,8 +405,8 @@ export default {
       }
     },
     definirDeletarServico (id, num) {
-      this.$data.deletar.mensagem = `Tem certeza que deseja deletar o servico ${num}?`
-      this.$data.deletar.servicoId = id
+      this.$data.deletar.mensagem = `Tem certeza que deseja deletar o servico ${num + 1}?`
+      this.$data.deletar.servicoId = _.findKey(this.$data.servicos, this.ordenarServicos[id])
       this.$data.deletar.mostra = true
     },
     pegaIndexServico (index) {
@@ -415,8 +415,9 @@ export default {
     },
     deletarMovimento () {
       let movimentoId = this.$data.deletar.movimentoId
+      console.log(this.$data.movimentos)
       if (this.$data.movimentos[movimentoId].dominio === this.$data.usuario.dominio || this.$data.movimentos[movimentoId].dominio === undefined || this.$data.usuario.dominio === 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855') {
-        delete this.$data.movimentos[movimentoId]
+        this.$delete(this.$data.movimentos, movimentoId)
         excluirMovimento(this.$data.empresaSelecionada.pessoa.cnpj, movimentoId, err => {
           if (err) console.error(err)
         })
@@ -425,8 +426,8 @@ export default {
       }
     },
     definirDeletar (id, num) {
-      this.$data.deletar.mensagem = `Tem certeza que deseja deletar o movimento ${num}?`
-      this.$data.deletar.movimentoId = id
+      this.$data.deletar.mensagem = `Tem certeza que deseja deletar o movimento ${num + 1}?`
+      this.$data.deletar.movimentoId = _.findKey(this.$data.movimentos, this.ordenarMovimentos[id])
       this.$data.deletar.mostra = true
     },
     chamarMensagem (mensagem) {

@@ -238,8 +238,8 @@ export function lerNfe (obj, callback) {
       },
       estado: emit.enderEmit.UF['_text'],
       pais: {
-        codigo: emit.enderEmit.cPais['_text'],
-        nome: emit.enderEmit.xPais['_text']
+        codigo: emit.enderEmit.cPais ? emit.enderEmit.cPais['_text'] : '',
+        nome: emit.enderEmit.xPais ? emit.enderEmit.xPais['_text'] : ''
       },
       cep: emit.enderEmit.CEP ? emit.enderEmit.CEP['_text'] : null
     }

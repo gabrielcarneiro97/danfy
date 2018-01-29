@@ -54,7 +54,7 @@ export function criarUsuario (dados, callback) {
   firebase.auth().createUserWithEmailAndPassword(dados.login, dados.senha).then(user => {
     store.dispatch(autenticar({ nome: dados.nome, dominio: dados.dominio, email: dados.login, token: user.getIdToken(), id: user.uid, nivel: 1 }))
     storeVuex.commit(autenticar({ nome: dados.nome, dominio: dados.dominio, email: dados.login, token: user.getIdToken(), id: user.uid, nivel: 1 }))
-    let usuario = store.getState().usuario
+    let usuario = storeVuex.state.usuario
 
     db.ref('Usuarios/' + usuario.id).set({
       nome: dados.nome,
@@ -124,7 +124,7 @@ export function alterarDadoUsuario (dado, campo, id, callback) {
 
 // ACESSO DB PESSOAS
 export function gravarPessoas (callback) {
-  let pessoas = store.getState().pessoas
+  let pessoas = storeVuex.state.pessoas
   let keys = Object.keys(pessoas)
   if (keys.length !== 0) {
     keys.forEach((key, index, arr) => {
@@ -148,14 +148,14 @@ export function gravarPessoa (id, pessoa, callback) {
 export function pegarPessoaId (id, callback) {
   let pessoa
   let storePessoas = store.getState().pessoas
-  let storeVuexPessoas = store.state.pessoas
+  let storeVuexPessoas = storeVuex.state.pessoas
   if (storeVuexPessoas[id]) {
     callback(null, storeVuexPessoas[id])
   } else {
     db.ref('Pessoas/' + id).once('value').then(value => {
       pessoa = value.val()
       store.dispatch(adicionarPessoa(id, pessoa))
-      storeVuex(adicionarPessoa(id, pessoa))
+      storeVuex.commit(adicionarPessoa(id, pessoa))
       callback(null, pessoa)
     }, err => {
       callback(err, null)
@@ -166,7 +166,7 @@ export function pegarPessoaId (id, callback) {
 
 // ACESSO DB NOTAS
 export function gravarNotas (callback) {
-  let notas = store.getState().notas
+  let notas = storeVuex.state.notas
   let keys = Object.keys(notas)
   if (keys.length !== 0) {
     keys.forEach((key, index, arr) => {
@@ -240,7 +240,7 @@ export function pegarNotaProduto (produtoId, produto, callback) {
 }
 export function pegarNotaChave (chave, callback) {
   let nota
-  let storeNotas = store.getState().notas
+  let storeNotas = storeVuex.state.notas
   if (storeNotas[chave]) {
     callback(null, storeNotas[chave])
   } else {
@@ -255,7 +255,7 @@ export function pegarNotaChave (chave, callback) {
   }
 }
 export function pegarNotaNumeroEmitente (numero, emitente, callback) {
-  let storeNotas = store.getState().notas
+  let storeNotas = storeVuex.state.notas
   let nota = null
 
   Object.keys(storeNotas).forEach(key => {
@@ -306,7 +306,7 @@ export function pegarTodasNotasPessoa (id, callback) {
 
 // ACESSO DB NOTAS SERVICO
 export function gravarNotasServico (callback) {
-  let notasServico = store.getState().notasServico
+  let notasServico = storeVuex.state.notasServico
   let keys = Object.keys(notasServico)
   if (keys.length !== 0) {
     keys.forEach((key, index, arr) => {
@@ -329,7 +329,7 @@ export function gravarNotaServico (chave, nota, callback) {
 }
 export function pegarNotaServicoChave (chave, callback) {
   let notaServico
-  let storeNotasServico = store.getState().notasServico
+  let storeNotasServico = storeVuex.state.notasServico
   if (storeNotasServico[chave]) {
     callback(null, storeNotasServico[chave])
   } else {
@@ -487,7 +487,7 @@ export function gravarDominio (dados, callback) {
   })
 }
 export function pegarDominio (callback) {
-  let dominioId = store.getState().usuario.dominio
+  let dominioId = storeVuex.state.usuario.dominio
   let dominio
   db.ref('Dominios/' + dominioId).once('value').then(value => {
     dominio = value.val()
@@ -513,12 +513,12 @@ export function deletarDominio (nome, callback) {
   db.ref('Dominios/' + nome).set({}, err => { callback(err) })
 }
 export function adicionarEmpresaDominio (empresa, callback) {
-  let dominioId = store.getState().usuario.dominio
+  let dominioId = storeVuex.state.usuario.dominio
 
   db.ref('Dominios/' + dominioId + '/empresas/' + empresa.num).set(empresa.cnpj, err => {
     store.dispatch(adicionarEmpresa(empresa.num, empresa.cnpj))
     storeVuex.commit(adicionarEmpresa(empresa.num, empresa.cnpj))
-    callback(err, store.getState().dominio)
+    callback(err, storeVuex.state.dominio)
   })
 }
 export function deletarEmpresaDominio (dominio, numero, callback) {
