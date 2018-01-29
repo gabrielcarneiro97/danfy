@@ -11,7 +11,9 @@ export const moduleNotas = {
       Vue.delete(state, payload.id)
     },
     [LIMPAR_NOTAS] (state) {
-      state = {}
+      Object.keys(state).forEach(key => {
+        Vue.delete(state, key)
+      })
     }
   }
 }

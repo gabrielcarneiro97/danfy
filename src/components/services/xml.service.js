@@ -1,5 +1,4 @@
 import { xml2js } from 'xml-js'
-import { store } from '../../store'
 import { storeVuex } from '../../main'
 import { adicionarPessoa, adicionarNota, adicionarNotaServico } from '../../store/actions'
 import { gravarNota, gravarNotaServico, gravarPessoa } from './index'
@@ -100,7 +99,6 @@ export function lerNotasInput (files, callback) {
                 console.error(err)
               }
             })
-            store.dispatch(adicionarNota(id, notas[id]))
             storeVuex.commit(adicionarNota(id, notas[id]))
           }
         })
@@ -193,10 +191,6 @@ export function lerNfse (obj, callback) {
 
   notaServico.chave = notaServico.emitente + notaServico.geral.numero
   notaServico.servico = true
-
-  store.dispatch(adicionarNotaServico(notaServico.chave, notaServico))
-  store.dispatch(adicionarPessoa(notaServico.emitente, emitente))
-  store.dispatch(adicionarPessoa(notaServico.destinatario, destinatario))
 
   storeVuex.commit(adicionarNotaServico(notaServico.chave, notaServico))
   storeVuex.commit(adicionarPessoa(notaServico.emitente, emitente))
@@ -293,7 +287,7 @@ export function lerNfe (obj, callback) {
 
   if (!Array.isArray(det)) {
     let prod = det.prod
-    let codigo = prod.cProd['_text']
+    let codigo = prod.cProd['_text'].replace(/\.|#|\/|\[|\]|\$/g, '-')
 
     nota.geral.cfop = prod.CFOP['_text']
 
@@ -315,7 +309,7 @@ export function lerNfe (obj, callback) {
   } else {
     det.forEach(val => {
       let prod = val.prod
-      let codigo = prod.cProd['_text']
+      let codigo = prod.cProd['_text'].replace(/\.|#|\/|\[|\]|\$/g, '-')
 
       nota.geral.cfop = prod.CFOP['_text']
 
@@ -343,10 +337,6 @@ export function lerNfe (obj, callback) {
     notaReferencia: info.ide.NFref ? info.ide.NFref.refNFe['_text'] : null,
     textoComplementar: info.infAdic ? info.infAdic.infCpl ? info.infAdic.infCpl['_text'] : info.infAdic.infAdFisco ? info.infAdic.infAdFisco['_text'] : null : null
   }
-
-  store.dispatch(adicionarNota(notaId, nota))
-  store.dispatch(adicionarPessoa(emitenteId, emitente))
-  store.dispatch(adicionarPessoa(destinatarioId, destinatario))
 
   storeVuex.commit(adicionarNota(notaId, nota))
   storeVuex.commit(adicionarPessoa(emitenteId, emitente))

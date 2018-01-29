@@ -11,7 +11,9 @@ export const modulePessoas = {
       Vue.delete(state, payload.id)
     },
     [LIMPAR_PESSOAS] (state) {
-      state = {}
+      Object.keys(state).forEach(key => {
+        Vue.delete(state, key)
+      })
     }
   }
 }
