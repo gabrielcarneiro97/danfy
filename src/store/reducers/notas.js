@@ -18,3 +18,18 @@ export default function notas (state = {}, action) {
       return state
   }
 }
+
+export const moduleNotas = {
+  state: {},
+  mutations: {
+    [ADICIONAR_NOTA] (state, payload) {
+      state[payload.id] = payload.nota
+    },
+    [REMOVER_NOTA] (state, payload) {
+      state[payload.id] = undefined
+    },
+    [LIMPAR_NOTAS] (state) {
+      state = {}
+    }
+  }
+}

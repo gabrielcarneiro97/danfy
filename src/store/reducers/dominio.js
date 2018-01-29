@@ -1,6 +1,6 @@
 import { CARREGAR_DOMINIO, ADICIONAR_EMPRESA, LIMPAR_DOMINIO } from '../actions'
 
-export default function dominio (state = {}, action) {
+export function dominio (state = {}, action) {
   switch (action.type) {
     case CARREGAR_DOMINIO:
       return action.dominio
@@ -17,8 +17,21 @@ export default function dominio (state = {}, action) {
   }
 }
 
-export moduloDominio = {
+export const moduloDominio = {
   state: {
     empresas: {}
+  },
+  mutations: {
+    [CARREGAR_DOMINIO] (state, payload) {
+      state = payload
+    },
+    [ADICIONAR_EMPRESA] (state, payload) {
+      state[payload.empresaNum] = payload.empresaCnpj
+    },
+    [LIMPAR_DOMINIO] (state) {
+      state = {
+        empresas: {}
+      }
+    }
   }
 }
