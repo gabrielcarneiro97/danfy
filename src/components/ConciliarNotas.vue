@@ -243,7 +243,8 @@ export default {
 
           Object.keys(this.$data.notas).forEach((id, index, arr) => {
             let nota = this.$data.notas[id]
-            if ((nota.geral.tipo === '1' || nota.geral.cfop === '1113' || nota.geral.cfop === '1202' || nota.geral.cfop === '2202') && estaNoDominio(nota.emitente)) {
+            console.log(nota)
+            if ((nota.geral.tipo === '1' || nota.geral.cfop === '1113' || nota.geral.cfop === '1202' || nota.geral.cfop === '2202') && estaNoDominio(nota.emitente) && nota.geral.status !== 'CANCELADA') {
               let movimento = {
                 notaFinal: id,
                 notaInicial: null,

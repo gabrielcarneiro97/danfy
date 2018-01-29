@@ -29,7 +29,7 @@
         <md-table-head>Status</md-table-head>
       </md-table-row>
 
-      <md-table-row v-for="nota in ordenarNotas" v-bind:key="nota.emitente + nota.geral.numero">
+      <md-table-row v-for="nota in ordenarNotas" v-bind:key="nota.chave">
 
         <md-table-cell md-numeric>{{nota.geral.numero}}</md-table-cell>
 

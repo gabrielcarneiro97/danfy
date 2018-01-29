@@ -56,6 +56,11 @@ export function lerNotasInput (files, callback) {
           canceladas[obj.envEvento.evento.infEvento.chNFe['_text']] = true
           return 0
         }
+      } else if (obj.procEventoNFe) {
+        if (obj.procEventoNFe.evento.Signature) {
+          canceladas[obj.procEventoNFe.evento.infEvento.chNFe['_text']] = true
+          return true
+        }
       } else {
         lerNfe(obj, (nota, emitente, destinatario) => {
           notas = {
@@ -257,7 +262,7 @@ export function lerNfe (obj, callback) {
         codigo: dest.enderDest.cPais['_text'],
         nome: dest.enderDest.xPais['_text']
       },
-      cep: dest.enderDest.CEP['_text']
+      cep: dest.enderDest.CEP ? dest.enderDest.CEP['_text'] : ''
     }
   }
 
@@ -273,7 +278,7 @@ export function lerNfe (obj, callback) {
     geral: {
       dataHora: info.ide.dhSaiEnt ? info.ide.dhSaiEnt['_text'] : info.ide.dhEmi['_text'],
       naturezaOperacao: info.ide.natOp['_text'],
-      numero: info.ide.cNF['_text'],
+      numero: info.ide.nNF['_text'],
       tipo: info.ide.tpNF['_text'],
       status: 'NORMAL'
     },
