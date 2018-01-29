@@ -16,3 +16,22 @@ export function dominio (state = {}, action) {
       return state
   }
 }
+
+export const moduleDominio = {
+  state: {
+    empresas: {}
+  },
+  mutations: {
+    [CARREGAR_DOMINIO] (state, payload) {
+      state = payload
+    },
+    [ADICIONAR_EMPRESA] (state, payload) {
+      state[payload.empresaNum] = payload.empresaCnpj
+    },
+    [LIMPAR_DOMINIO] (state) {
+      state = {
+        empresas: {}
+      }
+    }
+  }
+}

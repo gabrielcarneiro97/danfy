@@ -1,6 +1,6 @@
 import { ADICIONAR_NOTA, REMOVER_NOTA, LIMPAR_NOTAS } from '../actions'
 
-export default function notas (state = {}, action) {
+export function notas (state = {}, action) {
   switch (action.type) {
     case ADICIONAR_NOTA:
       return { ...state,
@@ -16,20 +16,5 @@ export default function notas (state = {}, action) {
       }
     default:
       return state
-  }
-}
-
-export const moduleNotas = {
-  state: {},
-  mutations: {
-    [ADICIONAR_NOTA] (state, payload) {
-      state[payload.id] = payload.nota
-    },
-    [REMOVER_NOTA] (state, payload) {
-      state[payload.id] = undefined
-    },
-    [LIMPAR_NOTAS] (state) {
-      state = {}
-    }
   }
 }

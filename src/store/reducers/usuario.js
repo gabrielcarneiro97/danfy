@@ -1,6 +1,6 @@
 import { SAIR, AUTENTICAR } from '../actions'
 
-export default function usuario (state = {}, action) {
+export function usuario (state = {}, action) {
   switch (action.type) {
     case AUTENTICAR:
       return {
@@ -16,31 +16,5 @@ export default function usuario (state = {}, action) {
       }
     default:
       return state
-  }
-}
-
-export const moduleUsuario = {
-  state: {
-    nome: null,
-    dominio: null,
-    email: null,
-    token: null,
-    nivel: null,
-    id: null
-  },
-  mutations: {
-    [AUTENTICAR] (state, payload) {
-      state = payload
-    },
-    [SAIR] (state) {
-      state = {
-        nome: null,
-        dominio: null,
-        email: null,
-        token: null,
-        nivel: null,
-        id: null
-      }
-    }
   }
 }
