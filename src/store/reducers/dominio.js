@@ -16,3 +16,9 @@ export default function dominio (state = {}, action) {
       return state
   }
 }
+
+export moduloDominio = {
+  state: {
+    empresas: {}
+  }
+}

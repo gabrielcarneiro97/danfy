@@ -24,7 +24,7 @@ export function entrar (login, senha, callback) {
       db.ref('Dominios/' + usuario.dominio).once('value', snap => {
         store.dispatch(autenticar({ email: user.email, token: user.getIdToken(), id: user.uid, nome: usuario.nome, dominio: usuario.dominio }))
         if (snap.val()) {
-          callback(null, store.getState().usuario)
+          callback(null, usuario)
         } else {
           deslogar(err => {
             if (!err) {
