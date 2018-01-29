@@ -77,7 +77,7 @@
       </md-table-row>
 
       <md-table-row v-for="(movimento, index) in ordenarMovimentos" v-bind:key="index">
-        <md-table-cell md-numeric v-if="notas[movimento.notaFinal]"><md-button class="md-icon-button" :disabled="numeroDesativo" @click="definirDeletar(index, pegaIndex(index))">{{parseInt(notas[movimento.notaFinal].geral.numero)}}</md-button></md-table-cell>
+        <md-table-cell md-numeric v-if="notas[movimento.notaFinal]"><md-button class="md-icon-button" :disabled="numeroDesativo" @click="definirDeletar(index)">{{parseInt(notas[movimento.notaFinal].geral.numero)}}</md-button></md-table-cell>
         <md-table-cell v-if="notas[movimento.notaInicial]"><nota-dialogo :chave="movimento.notaInicial">{{R$(notas[movimento.notaInicial].valor.total)}}</nota-dialogo></md-table-cell>
         <md-table-cell v-else><md-button disabled>SEM NOTA INICIAL</md-button></md-table-cell>       
         <md-table-cell v-if="notas[movimento.notaFinal]"><nota-dialogo :chave="movimento.notaFinal">{{R$(notas[movimento.notaFinal].valor.total)}}</nota-dialogo></md-table-cell>
@@ -148,9 +148,9 @@
       </md-table-row>
 
       <md-table-row v-for="(servico, index) in ordenarServicos" v-bind:key="index">
-        <md-table-cell md-numeric v-if="notasServico[servico.nota]"><md-button class="md-icon-button" :disabled="numeroDesativo" @click="definirDeletarServico(index, pegaIndexServico(index))">{{parseInt(notasServico[servico.nota].geral.numero.replace(competenciaSelecionada.ano, ''))}}</md-button></md-table-cell>
+        <md-table-cell md-numeric v-if="notasServico[servico.nota]"><md-button class="md-icon-button" :disabled="numeroDesativo" @click="definirDeletarServico(index)">{{parseInt(notasServico[servico.nota].geral.numero.replace(competenciaSelecionada.ano, ''))}}</md-button></md-table-cell>
         <md-table-cell>{{R$(servico.valores.impostos.baseDeCalculo)}}</md-table-cell>
-        <md-table-cell>{{notasServico[servico.nota].geral.status}}</md-table-cell>        
+        <md-table-cell v-if="notasServico[servico.nota]">{{notasServico[servico.nota].geral.status}}</md-table-cell>        
         <md-table-cell>{{R$(servico.valores.impostos.retencoes.iss)}}</md-table-cell>
         <md-table-cell>{{R$(servico.valores.impostos.retencoes.pis)}}</md-table-cell>
         <md-table-cell>{{R$(servico.valores.impostos.retencoes.cofins)}}</md-table-cell>
@@ -404,18 +404,13 @@ export default {
         this.chamarMensagem(new Error('Esse serviço não pertence ao seu domínio, você não pode excluí-lo!'))
       }
     },
-    definirDeletarServico (id, num) {
-      this.$data.deletar.mensagem = `Tem certeza que deseja deletar o servico ${num + 1}?`
+    definirDeletarServico (id) {
+      this.$data.deletar.mensagem = `Tem certeza que deseja deletar o servico ${id + 1}?`
       this.$data.deletar.servicoId = _.findKey(this.$data.servicos, this.ordenarServicos[id])
       this.$data.deletar.mostra = true
     },
-    pegaIndexServico (index) {
-      let servicos = this.$data.servicos
-      return Object.keys(servicos).indexOf(index) + 1
-    },
     deletarMovimento () {
       let movimentoId = this.$data.deletar.movimentoId
-      console.log(this.$data.movimentos)
       if (this.$data.movimentos[movimentoId].dominio === this.$data.usuario.dominio || this.$data.movimentos[movimentoId].dominio === undefined || this.$data.usuario.dominio === 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855') {
         this.$delete(this.$data.movimentos, movimentoId)
         excluirMovimento(this.$data.empresaSelecionada.pessoa.cnpj, movimentoId, err => {
@@ -425,8 +420,8 @@ export default {
         this.chamarMensagem(new Error('Esse movimento não pertence ao seu domínio, você não pode excluí-lo!'))
       }
     },
-    definirDeletar (id, num) {
-      this.$data.deletar.mensagem = `Tem certeza que deseja deletar o movimento ${num + 1}?`
+    definirDeletar (id) {
+      this.$data.deletar.mensagem = `Tem certeza que deseja deletar o movimento ${id + 1}?`
       this.$data.deletar.movimentoId = _.findKey(this.$data.movimentos, this.ordenarMovimentos[id])
       this.$data.deletar.mostra = true
     },
@@ -528,10 +523,6 @@ export default {
           })
         })
       })
-    },
-    pegaIndex (index) {
-      let movimentos = this.$data.movimentos
-      return Object.keys(movimentos).indexOf(index) + 1
     },
     imprimirTabela () {
       let printer = new Printd()
