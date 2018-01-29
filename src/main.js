@@ -6,12 +6,18 @@ import 'vue-material/dist/vue-material.min.css'
 import 'vue-material/dist/theme/default-dark.css'
 import './assets/theme.scss'
 import router from './router'
+import { modules } from './store'
 
 Vue.use(Vuex)
 Vue.use(VueMaterial)
 
+export const storeVuex = new Vuex.Store({
+  modules: modules
+})
+
 new Vue({
   el: '#app',
   router,
+  store: storeVuex,
   render: h => h(App)
 })

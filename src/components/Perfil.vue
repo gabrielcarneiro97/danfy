@@ -73,7 +73,7 @@
 </template>
 
 <script>
-import store from '../store'
+import { store } from '../store'
 import { usuarioAtivo, trocarSenha, alterarDadoUsuario } from './services'
 
 export default {

@@ -1,6 +1,7 @@
 import { createStore } from 'redux'
+import Vuex from 'vuex'
 import reducer from './reducers'
 
-let store = createStore(reducer)
+export const store = createStore(reducer)
 
-export default store
+export * from './modules'

@@ -1,6 +1,8 @@
 import * as firebase from 'firebase'
-import store from '../../store'
-import { sair, autenticar, adicionarPessoa, adicionarNota, adicionarNotaServico, carregarDominio, adicionarEmpresa } from '../../store/actions'
+import { store } from '../../store'
+import { storeVuex } from '../../main'
+import { sair, autenticar, adicionarPessoa, adicionarNota, adicionarNotaServico,
+  carregarDominio, adicionarEmpresa } from '../../store/actions'
 import { apiKey, messagingSenderId } from './apiKey'
 
 var config = {
@@ -23,6 +25,7 @@ export function entrar (login, senha, callback) {
       let usuario = value.val()
       db.ref('Dominios/' + usuario.dominio).once('value', snap => {
         store.dispatch(autenticar({ email: user.email, token: user.getIdToken(), id: user.uid, nome: usuario.nome, dominio: usuario.dominio }))
+        storeVuex.commit(autenticar({ email: user.email, token: user.getIdToken(), id: user.uid, nome: usuario.nome, dominio: usuario.dominio, nivel: usuario.nivel }))
         if (snap.val()) {
           callback(null, usuario)
         } else {
@@ -43,13 +46,14 @@ export function entrar (login, senha, callback) {
 export function deslogar (callback) {
   auth.signOut().then(value => {
     store.dispatch(sair())
+    storeVuex.commit(sair())
     callback()
   })
 }
 export function criarUsuario (dados, callback) {
   firebase.auth().createUserWithEmailAndPassword(dados.login, dados.senha).then(user => {
-    store.dispatch(autenticar({ nome: dados.nome, dominio: dados.dominio, email: dados.login, token: user.getIdToken(), id: user.uid }))
-
+    store.dispatch(autenticar({ nome: dados.nome, dominio: dados.dominio, email: dados.login, token: user.getIdToken(), id: user.uid, nivel: 1 }))
+    storeVuex.commit(autenticar({ nome: dados.nome, dominio: dados.dominio, email: dados.login, token: user.getIdToken(), id: user.uid, nivel: 1 }))
     let usuario = store.getState().usuario
 
     db.ref('Usuarios/' + usuario.id).set({
@@ -70,7 +74,8 @@ export function usuarioAtivo (callback) {
         let usuario = value.val()
 
         store.dispatch(autenticar({ email: user.email, token: user.getIdToken(), id: user.uid, nome: usuario.nome, dominio: usuario.dominio, nivel: usuario.nivel }))
-
+        storeVuex.commit(autenticar({ email: user.email, token: user.getIdToken(), id: user.uid, nome: usuario.nome, dominio: usuario.dominio, nivel: usuario.nivel }))
+        
         pegarDominio((err, dominio) => {
           if (err) {
             console.error(err)
@@ -88,7 +93,6 @@ export function usuarioAtivo (callback) {
 }
 export function trocarSenha (senhaNova, senhaAntiga, login, callback) {
   auth.signInWithEmailAndPassword(login, senhaAntiga).then(user => {
-    console.log(user)
     user.updatePassword(senhaNova).then(() => {
       callback(new Error(`Senha alterada com sucesso!`))
     }, err => callback(err))
@@ -104,10 +108,14 @@ export function alterarDadoUsuario (dado, campo, id, callback) {
     if (err) {
       callback(err)
     } else {
-      let estado = store.getState().usuario
+      let estado = {...store.getState().usuario}
+      let estadoVuex = {...storeVuex.state.usuario}
       estado[campo] = dado
+      estadoVuex[campo] = dado
 
       store.dispatch(autenticar(estado))
+      storeVuex.commit(autenticar(estado))
+
       callback(null)
     }
   })
@@ -140,12 +148,14 @@ export function gravarPessoa (id, pessoa, callback) {
 export function pegarPessoaId (id, callback) {
   let pessoa
   let storePessoas = store.getState().pessoas
-  if (storePessoas[id]) {
-    callback(null, storePessoas[id])
+  let storeVuexPessoas = store.state.pessoas
+  if (storeVuexPessoas[id]) {
+    callback(null, storeVuexPessoas[id])
   } else {
     db.ref('Pessoas/' + id).once('value').then(value => {
       pessoa = value.val()
       store.dispatch(adicionarPessoa(id, pessoa))
+      storeVuex(adicionarPessoa(id, pessoa))
       callback(null, pessoa)
     }, err => {
       callback(err, null)
@@ -190,6 +200,7 @@ export function gravarNotaSlim (nota, callback) {
         nota.chave = chave
         db.ref('Notas/' + chave).set(nota, err => {
           store.dispatch(adicionarNota(chave, nota))
+          storeVuex.commit(adicionarNota(chave, nota))
           callback(err, nota)
         })
       })
@@ -236,6 +247,7 @@ export function pegarNotaChave (chave, callback) {
     db.ref('Notas/' + chave).once('value').then(value => {
       nota = value.val()
       store.dispatch(adicionarNota(chave, nota))
+      storeVuex.commit(adicionarNota(chave, nota))
       callback(null, nota)
     }, err => {
       callback(err, null)
@@ -258,6 +270,7 @@ export function pegarNotaNumeroEmitente (numero, emitente, callback) {
       let val = snap.val()
       if (parseInt(val.geral.numero) === parseInt(numero)) {
         store.dispatch(adicionarNota(snap.key, val))
+        storeVuex.commit(adicionarNota(snap.key, val))
         nota = val
       }
     }, err => {
@@ -323,6 +336,7 @@ export function pegarNotaServicoChave (chave, callback) {
     db.ref('NotasServico/' + chave).once('value').then(value => {
       notaServico = value.val()
       store.dispatch(adicionarNotaServico(chave, notaServico))
+      storeVuex.commit(adicionarNotaServico(chave, notaServico))
       callback(null, notaServico)
     }, err => {
       callback(err, null)
@@ -478,6 +492,7 @@ export function pegarDominio (callback) {
   db.ref('Dominios/' + dominioId).once('value').then(value => {
     dominio = value.val()
     store.dispatch(carregarDominio(dominio))
+    storeVuex.commit(carregarDominio(dominio))
     callback(null, dominio)
   }, err => {
     callback(err, null)
@@ -502,6 +517,7 @@ export function adicionarEmpresaDominio (empresa, callback) {
 
   db.ref('Dominios/' + dominioId + '/empresas/' + empresa.num).set(empresa.cnpj, err => {
     store.dispatch(adicionarEmpresa(empresa.num, empresa.cnpj))
+    storeVuex.commit(adicionarEmpresa(empresa.num, empresa.cnpj))
     callback(err, store.getState().dominio)
   })
 }

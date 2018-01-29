@@ -1,6 +1,6 @@
 import { ADICIONAR_PESSOA, REMOVER_PESSOA, LIMPAR_PESSOAS } from '../actions'
 
-export default function pessoas (state = {}, action) {
+export function pessoas (state = {}, action) {
   switch (action.type) {
     case ADICIONAR_PESSOA:
       return { ...state,

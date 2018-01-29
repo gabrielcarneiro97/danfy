@@ -1,13 +1,14 @@
 import { ADICIONAR_NOTA_SERVICO, REMOVER_NOTA_SERVICO, LIMPAR_NOTAS_SERVICO } from '../actions'
+import Vue from 'vue'
 
 export const moduleNotasServico = {
   state: {},
   mutations: {
     [ADICIONAR_NOTA_SERVICO] (state, payload) {
-      state[payload.id] = payload.notaServico
+      Vue.set(state, payload.id, payload.notaServico)
     },
     [REMOVER_NOTA_SERVICO] (state, payload) {
-      state[payload.id] = undefined
+      Vue.delete(state, payload.id)
     },
     [LIMPAR_NOTAS_SERVICO] (state) {
       state = {}

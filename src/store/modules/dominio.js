@@ -1,35 +1,22 @@
 import { CARREGAR_DOMINIO, ADICIONAR_EMPRESA, LIMPAR_DOMINIO } from '../actions'
-
-export function dominio (state = {}, action) {
-  switch (action.type) {
-    case CARREGAR_DOMINIO:
-      return action.dominio
-    case ADICIONAR_EMPRESA:
-      let obj = {...state}
-      obj.empresas = { ...state.empresas,
-        [action.empresaNum]: action.empresaCnpj
-      }
-      return obj
-    case LIMPAR_DOMINIO:
-      return {}
-    default:
-      return state
-  }
-}
+import Vue from 'vue'
 
 export const moduleDominio = {
   state: {
+    tipo: '',
     empresas: {}
   },
   mutations: {
     [CARREGAR_DOMINIO] (state, payload) {
-      state = payload
+      Vue.set(state, 'tipo', payload.dominio.tipo)
+      Vue.set(state, 'empresas', payload.dominio.empresas)
     },
     [ADICIONAR_EMPRESA] (state, payload) {
-      state[payload.empresaNum] = payload.empresaCnpj
+      Vue.set(state.empresas, payload.empresaNum, payload.empresaCnpj)
     },
     [LIMPAR_DOMINIO] (state) {
       state = {
+        tipo: '',
         empresas: {}
       }
     }

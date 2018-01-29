@@ -1,13 +1,14 @@
 import { ADICIONAR_PESSOA, REMOVER_PESSOA, LIMPAR_PESSOAS } from '../actions'
+import Vue from 'vue'
 
 export const modulePessoas = {
   state: {},
   mutations: {
     [ADICIONAR_PESSOA] (state, payload) {
-      state[payload.id] = payload.pessoa
+      Vue.set(state, payload.id, payload.pessoa)
     },
     [REMOVER_PESSOA] (state, payload) {
-      state[payload.id] = undefined
+      Vue.delete(state, payload.id)
     },
     [LIMPAR_PESSOAS] (state) {
       state = {}

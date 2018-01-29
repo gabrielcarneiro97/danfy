@@ -1,5 +1,6 @@
 import { xml2js } from 'xml-js'
-import store from '../../store'
+import { store } from '../../store'
+import { storeVuex } from '../../main'
 import { adicionarPessoa, adicionarNota, adicionarNotaServico } from '../../store/actions'
 import { gravarNota, gravarNotaServico, gravarPessoa } from './index'
 
@@ -100,6 +101,7 @@ export function lerNotasInput (files, callback) {
               }
             })
             store.dispatch(adicionarNota(id, notas[id]))
+            storeVuex.commit(adicionarNota(id, notas[id]))
           }
         })
 
@@ -195,6 +197,10 @@ export function lerNfse (obj, callback) {
   store.dispatch(adicionarNotaServico(notaServico.chave, notaServico))
   store.dispatch(adicionarPessoa(notaServico.emitente, emitente))
   store.dispatch(adicionarPessoa(notaServico.destinatario, destinatario))
+
+  storeVuex.commit(adicionarNotaServico(notaServico.chave, notaServico))
+  storeVuex.commit(adicionarPessoa(notaServico.emitente, emitente))
+  storeVuex.commit(adicionarPessoa(notaServico.destinatario, destinatario))
 
   callback(notaServico, emitente, destinatario)
 }
@@ -341,6 +347,10 @@ export function lerNfe (obj, callback) {
   store.dispatch(adicionarNota(notaId, nota))
   store.dispatch(adicionarPessoa(emitenteId, emitente))
   store.dispatch(adicionarPessoa(destinatarioId, destinatario))
+
+  storeVuex.commit(adicionarNota(notaId, nota))
+  storeVuex.commit(adicionarPessoa(emitenteId, emitente))
+  storeVuex.commit(adicionarPessoa(destinatarioId, destinatario))
 
   callback(nota, emitente, destinatario)
 }

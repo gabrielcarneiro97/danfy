@@ -190,7 +190,7 @@ import { R$, calcularImpostosMovimento, calcularImpostosServico, pegarDominio,
   usuarioAtivo, pegarNotaChave, procurarNotaPar, estaNoDominio, validarMovimento,
   pegarNotaNumeroEmitente, lerNotasInput, gravarMovimentos, gravarServicos, gravarNotaSlim } from './services'
 import notaDialogo from './notaDialogo'
-import store from '../store'
+import { store } from '../store'
 import _ from 'lodash'
 import FontAwesomeIcon from '@fortawesome/vue-fontawesome'
 import { faTrash } from '@fortawesome/fontawesome-free-solid'

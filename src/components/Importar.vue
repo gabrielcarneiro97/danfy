@@ -163,7 +163,6 @@
 
 <script>
 import _ from 'lodash'
-import store from '../store'
 import { usuarioAtivo, lerNotasInput, adicionarDominioEImpostos, limparNotasStore, limparNotasServicoStore } from './services'
 
 export default {
@@ -228,7 +227,9 @@ export default {
           this.$data.pessoas = pessoas
           this.$data.clicaEnviar = true
           this.$data.foraDominio = {}
-          let dominio = store.getState().dominio
+          let dominio = this.$store.state.dominio
+
+          console.log(this.$store.state)
 
           Object.keys(pessoas).forEach(keyPessoa => {
             if (keyPessoa.length === 11) return 0
