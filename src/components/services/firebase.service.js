@@ -334,13 +334,37 @@ export function pegarNotaServicoChave (chave, callback) {
 // ACESSO DB MOVIMENTO
 export function gravarMovimentos (movimentos, callback) {
   Object.keys(movimentos).forEach((cnpj, index, arr) => {
+    let erro
+
     if (movimentos[cnpj]) {
       movimentos[cnpj].forEach(movimento => {
         db.ref('Movimentos/' + cnpj).orderByChild('notaFinal').equalTo(movimento.notaFinal).once('value', snap => {
-          if (snap.val()) {
-            let erro = new Error('Nota já registrada em outro movimento! ID: ' + Object.keys(snap.val())[0])
-            erro.idMovimento = Object.keys(snap.val())[0]
-            callback(erro)
+          let movimentosRelacionados = snap.val()
+          if (movimentosRelacionados) {
+            Object.keys(movimentosRelacionados).forEach(key => {
+              let movimentoRel = movimentosRelacionados[key]
+              if (movimentoRel.metaDados) {
+                if (movimentoRel.metaDados.status !== 'CANCELADO') {
+                  erro = new Error('Nota já registrada em outro movimento! ID: ' + Object.keys(snap.val())[0])
+                  erro.idMovimento = key
+                } else {
+                  movimento.metaDados.movimentoRef = key
+                  movimento.metaDados.tipo = 'SUB'
+                }
+              } else {
+                erro = new Error('Nota já registrada em outro movimento! ID: ' + Object.keys(snap.val())[0])
+                erro.idMovimento = key
+              }
+            })
+            if (erro) {
+              callback(erro)
+            } else {
+              db.ref('Movimentos/' + cnpj).push(movimento, err => {
+                if (arr.length - 1 === index) {
+                  callback(err)
+                }
+              })
+            }
           } else {
             db.ref('Movimentos/' + cnpj).push(movimento, err => {
               if (arr.length - 1 === index) {
@@ -363,7 +387,14 @@ export function pegarMovimentosMes (cnpj, competencia, callback) {
     let mes = (data.getUTCMonth() + 1).toString()
     let ano = data.getUTCFullYear().toString()
 
-    if (mes === competencia.mes && ano === competencia.ano) {
+    if (movimento.metaDados) {
+      if (movimento.metaDados.status !== 'CANCELADO' && mes === competencia.mes && ano === competencia.ano) {
+        movimentos = {
+          ...movimentos,
+          [movimentoId]: movimento
+        }
+      }
+    } else if (mes === competencia.mes && ano === competencia.ano) {
       movimentos = {
         ...movimentos,
         [movimentoId]: movimento
@@ -376,9 +407,51 @@ export function pegarMovimentosMes (cnpj, competencia, callback) {
     callback(err, null)
   })
 }
-export function excluirMovimento (cnpj, id, callback) {
-  db.ref('Movimentos/' + cnpj + '/' + id).set({}, err => {
-    callback(err)
+export function pegarMovimentosPorGeracao (cnpj, competencia, callback) {
+  let movimentos = {}
+  let query = db.ref('Movimentos/' + cnpj)
+  query.orderByChild('data').on('child_added', snap => {
+    let movimento = snap.val()
+
+    if (movimento.metaDados) {
+      let movimentoId = snap.key
+      let data = new Date(movimento.metaDados.dataCriacao)
+      let mes = (data.getUTCMonth() + 1).toString()
+      let ano = data.getUTCFullYear().toString()
+
+      if (movimento.metaDados.status === 'ATIVO' && mes === competencia.mes && ano === competencia.ano) {
+        movimentos = {
+          ...movimentos,
+          [movimentoId]: movimento
+        }
+      }
+    }
+  })
+  query.once('value', snap => {
+    callback(null, movimentos)
+  }, err => {
+    callback(err, null)
+  })
+}
+export function cancelarMovimento (cnpj, id, callback) {
+  console.log('aqui')
+  db.ref('Movimentos/' + cnpj + '/' + id).once('value', snap => {
+    let movimento = snap.val()
+    console.log(snap.key)
+    if (movimento.metaDados) {
+      movimento.metaDados.status = 'CANCELADO'
+    } else {
+      movimento.metaDados = {
+        criadoPor: 'DESCONHECIDO',
+        dataCriacao: new Date('07/19/1997').toISOString(),
+        status: 'CANCELADO',
+        canceladoPor: storeVuex.state.usuario.email,
+        tipo: 'PRIM'
+      }
+    }
+    db.ref('Movimentos/' + cnpj + '/' + id).set(movimento, err => {
+      callback(err)
+    })
   })
 }
 // FIM ACESSO DB MOVIMENTO

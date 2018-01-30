@@ -47,7 +47,7 @@
             <div v-else>
               OPERAÇÃO INTERESTADUAL {{notas[movimento.notaFinal].informacoesEstaduais.estadoGerador}} -> {{notas[movimento.notaFinal].informacoesEstaduais.estadoDestino}} COM<span v-if="notas[movimento.notaFinal].informacoesEstaduais.destinatarioContribuinte !== '1'"> NÃO</span> CONTRIBUINTE
             </div>
-          </md-table-cell>
+          </md-table-cell>      
           <md-table-cell  md-numeric>
             <md-checkbox v-model="movimento.conferido" class="md-primary"></md-checkbox>
           </md-table-cell>
@@ -74,7 +74,7 @@
 
           <md-table-cell>{{notasServico[servico.nota].geral.numero}}</md-table-cell>
           <md-table-cell>{{notasServico[servico.nota].geral.status}}</md-table-cell>                  
-          <md-table-cell>{{R$(notasServico[servico.nota].valor.servico)}}</md-table-cell>        
+          <md-table-cell>{{R$(notasServico[servico.nota].valor.servico)}}</md-table-cell>
           <md-table-cell  md-numeric>
             <md-checkbox v-model="servico.conferido"></md-checkbox>
           </md-table-cell>
@@ -243,14 +243,20 @@ export default {
 
           Object.keys(this.$data.notas).forEach((id, index, arr) => {
             let nota = this.$data.notas[id]
-            console.log(nota)
             if ((nota.geral.tipo === '1' || nota.geral.cfop === '1113' || nota.geral.cfop === '1202' || nota.geral.cfop === '2202') && estaNoDominio(nota.emitente) && nota.geral.status !== 'CANCELADA') {
               let movimento = {
                 notaFinal: id,
                 notaInicial: null,
                 data: nota.geral.dataHora,
                 conferido: false,
-                dominio: this.$data.usuario.dominio
+                dominio: this.$data.usuario.dominio,
+                metaDados: {
+                  criadoPor: this.$store.state.usuario.email,
+                  dataCriacao: new Date().toISOString(),
+                  status: 'ATIVO',
+                  tipo: 'PRIM',
+                  movimentoRef: ''
+                }
               }
               procurarNotaPar(nota, (err, movimentoRet) => {
                 if (err) {
@@ -295,7 +301,11 @@ export default {
                     nota: notaServico.chave,
                     data: notaServico.geral.dataHora,
                     valores: valores,
-                    dominio: this.$data.usuario.dominio
+                    dominio: this.$data.usuario.dominio,
+                    metaDados: {
+                      criadoPor: this.$store.state.usuario.email,
+                      dataCriacao: new Date().toISOString()
+                    }
                   }
                   this.$data.servicos.push(servico)
                 }
@@ -534,7 +544,6 @@ export default {
             if (err) {
               console.error(err)
             } else {
-              console.log('aqui')
               this.$data.movimentos[movimentoId].notaInicial = notaInicial.chave
               this.$data.movimentos[movimentoId].valores = valores
               this.$data.notas = this.$store.state.notas

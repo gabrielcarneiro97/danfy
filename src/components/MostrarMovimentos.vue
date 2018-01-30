@@ -52,7 +52,7 @@
     <md-table v-if="temMovimentos" class="md-layout-item md-size-90" v-show="tipoTabela === 'movimentos' || mostraTudo" ref="tabelaMovimentos">
 
       <md-table-toolbar>
-        <h1 class="md-title">Vendas {{meses[parseInt(competenciaSelecionada.mes) - 1].nome}}/{{competenciaSelecionada.ano}} - {{empresaSelecionada.pessoa.nome}}</h1>
+        <h1 class="md-title">Vendas {{meses[parseInt(competenciaSelecionada.mes) - 1].nome}}/{{competenciaSelecionada.ano}} - ({{empresaSelecionada.numero}}) {{empresaSelecionada.pessoa.nome}} {{empresaSelecionada.pessoa.cnpj}}</h1>
       </md-table-toolbar>
 
       <md-table-row>
@@ -281,7 +281,7 @@
 </template>
 <script>
 import { pegarDominio, usuarioAtivo, pegarPessoaId, pegarMovimentosMes, pegarServicosMes,
-  pegarNotaChave, pegarNotaServicoChave, excluirMovimento, excluirServico, totaisTrimestrais,
+  pegarNotaChave, pegarNotaServicoChave, cancelarMovimento, excluirServico, totaisTrimestrais,
   R$, pegarEmpresaImpostos, retornarTipo, cursorCarregando, cursorNormal } from './services'
 import notaDialogo from './notaDialogo'
 import _ from 'lodash'
@@ -413,7 +413,7 @@ export default {
       let movimentoId = this.$data.deletar.movimentoId
       if (this.$data.movimentos[movimentoId].dominio === this.$data.usuario.dominio || this.$data.movimentos[movimentoId].dominio === undefined || this.$data.usuario.dominio === 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855') {
         this.$delete(this.$data.movimentos, movimentoId)
-        excluirMovimento(this.$data.empresaSelecionada.pessoa.cnpj, movimentoId, err => {
+        cancelarMovimento(this.$data.empresaSelecionada.pessoa.cnpj, movimentoId, err => {
           if (err) console.error(err)
         })
       } else {
