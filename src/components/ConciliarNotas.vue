@@ -577,7 +577,7 @@ export default {
       return this.$store.state.notas
     },
     notasServico () {
-      return this.$store.state.notaServico
+      return this.$store.state.notasServico
     },
     movimentosAEnviar () {
       let movimentos = this.$data.movimentos
