@@ -21,7 +21,7 @@
 
           <md-table-cell>
             <div v-if="movimento.notaInicial" class="md-layout md-alignment-center-center">
-              <nota-dialogo :chave="movimento.notaInicial" class="md-layout-item">{{notas[movimento.notaInicial].geral.numero}}</nota-dialogo>
+              <nota-dialogo :chave="movimento.notaInicial" class="md-layout-item">{{parseInt(notas[movimento.notaInicial].geral.numero)}}</nota-dialogo>
               <md-button class="md-icon-button md-list-action md-primary md-layout-item" @click="confirmaRemoverInicial(movimentos.indexOf(movimento))">
                 <font-awesome-icon :icon="faTrash" size="lg" />
               </md-button>
@@ -30,7 +30,7 @@
           </md-table-cell>
 
           <md-table-cell>
-            <nota-dialogo :chave="movimento.notaFinal">{{notas[movimento.notaFinal].geral.numero}}</nota-dialogo>
+            <nota-dialogo :chave="movimento.notaFinal">{{parseInt(notas[movimento.notaFinal].geral.numero)}}</nota-dialogo>
           </md-table-cell>
           <md-table-cell>
             <span v-if="movimento.valores">
@@ -75,8 +75,8 @@
           <md-table-cell>{{notasServico[servico.nota].geral.numero}}</md-table-cell>
           <md-table-cell>{{notasServico[servico.nota].geral.status}}</md-table-cell>                  
           <md-table-cell>{{R$(notasServico[servico.nota].valor.servico)}}</md-table-cell>
-          <md-table-cell  md-numeric>
-            <md-checkbox v-model="servico.conferido"></md-checkbox>
+          <md-table-cell md-numeric>
+            <md-checkbox v-model="servico.conferido" class="md-primary"></md-checkbox>
           </md-table-cell>
         </md-table-row>
       </md-table>
@@ -261,6 +261,7 @@ export default {
                     if (err) {
                       console.error(err)
                     } else {
+                      movimento.conferido = true
                       movimento.notaFinal = movimentoRet.notaFinal.chave
                       movimento.notaInicial = movimentoRet.notaInicial.chave
                       movimento.valores = valores
@@ -558,7 +559,7 @@ export default {
             console.error(err)
           } else {
             this.$data.movimentos[id].valores = valores
-            console.log(this.$data.movimentos[id].valores)            
+            this.$data.movimentos[id].conferido = false
           }
         })
         this.$data.remover.mostra = false
