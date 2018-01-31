@@ -340,12 +340,9 @@ export default {
       movimentos: {},
       semServicos: true,
       servicos: {},
-      notasServico: {},
-      notas: {},
       trimestre: {},
       tipoTabela: null,
-      mostraTudo: false,
-      usuario: {}
+      mostraTudo: false
     }
   },
   created () {
@@ -375,7 +372,6 @@ export default {
           this.$data.carregado = true
         })
       }
-      this.$data.usuario = usuario
     })
   },
   methods: {
@@ -392,7 +388,7 @@ export default {
     },
     deletarServico () {
       let servicoId = this.$data.deletar.servicoId
-      if (this.$data.servicos[servicoId].dominio === this.$data.usuario.dominio || this.$data.servicos[servicoId].dominio === undefined || this.$data.usuario.dominio === 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855') {
+      if (this.$data.servicos[servicoId].dominio === this.usuario.dominio || this.$data.servicos[servicoId].dominio === undefined || this.usuario.dominio === 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855') {
         this.$delete(this.$data.servicos, servicoId)
         if (_.isEmpty(this.$data.servicos)) {
           this.$data.servicos = {}
@@ -411,7 +407,7 @@ export default {
     },
     deletarMovimento () {
       let movimentoId = this.$data.deletar.movimentoId
-      if (this.$data.movimentos[movimentoId].dominio === this.$data.usuario.dominio || this.$data.movimentos[movimentoId].dominio === undefined || this.$data.usuario.dominio === 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855') {
+      if (this.$data.movimentos[movimentoId].dominio === this.usuario.dominio || this.$data.movimentos[movimentoId].dominio === undefined || this.usuario.dominio === 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855') {
         this.$delete(this.$data.movimentos, movimentoId)
         cancelarMovimento(this.$data.empresaSelecionada.pessoa.cnpj, movimentoId, err => {
           if (err) console.error(err)
@@ -473,11 +469,6 @@ export default {
               if (err) console.error(err)
               pegarNotaChave(chaveInicial, (err, notaInicial) => {
                 if (err) console.error(err)
-                this.$data.notas = {
-                  ...this.$data.notas,
-                  [chaveFinal]: notaFinal,
-                  [chaveInicial]: notaInicial
-                }
               })
             })
           })
@@ -503,11 +494,6 @@ export default {
               pegarNotaServicoChave(chave, (err, notaServico) => {
                 if (err) {
                   console.error(err)
-                } else {
-                  this.$data.notasServico = {
-                    ...this.$data.notasServico,
-                    [chave]: notaServico
-                  }
                 }
               })
             })
@@ -621,6 +607,15 @@ export default {
       } else {
         return false
       }
+    },
+    usuario () {
+      return this.$store.state.usuario
+    },
+    notas () {
+      return this.$store.state.notas
+    },
+    notasServico () {
+      return this.$store.state.notaServico
     },
     temMovimentos () {
       return !this.$data.semMovimentos && !_.isEmpty(this.$data.movimentos)

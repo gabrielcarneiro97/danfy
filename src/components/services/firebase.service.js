@@ -97,7 +97,6 @@ export function trocarSenha (senhaNova, senhaAntiga, login, callback) {
     console.error(err)
   })
 }
-
 export function alterarDadoUsuario (dado, campo, id, callback) {
   db.ref('Usuarios/' + id + '/' + campo).set(dado, err => {
     if (err) {
@@ -222,6 +221,19 @@ export function pegarNotaProduto (produtoId, produto, callback) {
     }
   })
   query.once('value', snap => {
+    Object.keys(notas).forEach(key => {
+      pegarPessoaId(notas[key].emitente, (err) => {
+        if (err) {
+          console.error(err)
+        }
+      })
+      pegarPessoaId(notas[key].destinatario, (err) => {
+        if (err) {
+          console.error(err)
+        }
+      })
+      storeVuex.commit(adicionarNota(notas[key].chave, notas[key]))
+    })
     callback(null, notas)
   }, err => {
     callback(err, null)
@@ -281,6 +293,19 @@ export function pegarTodasNotasPessoa (id, callback) {
         ...notas,
         ...v2
       }
+      Object.keys(notas).forEach(key => {
+        pegarPessoaId(notas[key].emitente, (err) => {
+          if (err) {
+            console.error(err)
+          }
+        })
+        pegarPessoaId(notas[key].destinatario, (err) => {
+          if (err) {
+            console.error(err)
+          }
+        })
+        storeVuex.commit(adicionarNota(notas[key].chave, notas[key]))
+      })
       callback(null, notas)
     }, err => {
       callback(err, null)
@@ -618,4 +643,4 @@ export function adicionarDominioEImpostos (empresa, callback) {
     }
   })
 }
-// FINAL CONCATENAÇÃO
+// FIM CONCATENAÇÃO

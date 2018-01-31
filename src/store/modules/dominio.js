@@ -15,10 +15,8 @@ export const moduleDominio = {
       Vue.set(state.empresas, payload.empresaNum, payload.empresaCnpj)
     },
     [LIMPAR_DOMINIO] (state) {
-      state = {
-        tipo: '',
-        empresas: {}
-      }
+      Vue.set(state, 'tipo', '')
+      Vue.set(state, 'empresas', {})
     }
   }
 }

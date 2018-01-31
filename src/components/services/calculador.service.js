@@ -40,14 +40,11 @@ export function calcularImpostosServico (notaServico, callback) {
 
       valores.servico = notaServico.valor.servico
 
-      console.log(notaServico)
-
       let baseDeCalculo = notaServico.geral.status === 'NORMAL' ? notaServico.valor.baseDeCalculo : 0
 
       let retencoes = notaServico.valor.retencoes
-      let iss = notaServico.valor.iss ? (notaServico.valor.iss.valor ? notaServico.valor.iss.valor : 0) : (baseDeCalculo * aliquotas.iss)
-      let aliquotaIr = 0.048
-      let aliquotaCsll = 0.0288
+      let aliquotaIss = notaServico.valor.iss ? (notaServico.valor.iss.aliquota ? parseFloat(notaServico.valor.iss.aliquota) : aliquotas.iss) : aliquotas.iss
+      let iss = notaServico.valor.iss ? (notaServico.valor.iss.valor ? notaServico.valor.iss.valor : 0) : (baseDeCalculo * aliquotaIss)
 
       valores.impostos = {
         baseDeCalculo: notaServico.valor.baseDeCalculo,
@@ -60,11 +57,11 @@ export function calcularImpostosServico (notaServico, callback) {
           total: notaServico.geral.status === 'NORMAL' ? (parseFloat(retencoes.iss) + parseFloat(retencoes.pis) + parseFloat(retencoes.cofins) + parseFloat(retencoes.csll) + parseFloat(retencoes.irpj)) : 0
         },
         iss: notaServico.geral.status === 'NORMAL' ? iss : 0,
-        pis: (baseDeCalculo * aliquotas.pis),
-        cofins: (baseDeCalculo * aliquotas.cofins),
-        csll: (baseDeCalculo * aliquotaCsll),
-        irpj: (baseDeCalculo * aliquotaIr),
-        total: notaServico.geral.status === 'NORMAL' ? (parseFloat(iss) + (baseDeCalculo * aliquotaIr) + (baseDeCalculo * aliquotas.pis) + (baseDeCalculo * aliquotas.cofins) + (baseDeCalculo * aliquotaCsll)) : 0
+        pis: 0,
+        cofins: 0,
+        csll: 0,
+        irpj: 0,
+        total: notaServico.geral.status === 'NORMAL' ? iss : 0
       }
       callback(null, valores)
     }

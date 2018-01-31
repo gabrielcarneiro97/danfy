@@ -217,8 +217,6 @@ export default {
         numeroNota: null
       },
       chaveParaAdicionar: null,
-      notas: {},
-      notasServico: {},
       movimentos: [],
       servicos: [],
       erro: {
@@ -238,11 +236,8 @@ export default {
         pegarDominio((err, dominio) => {
           if (err) console.error(err)
 
-          this.$data.notas = this.$store.state.notas
-          this.$data.notasServico = this.$store.state.notasServico
-
-          Object.keys(this.$data.notas).forEach((id, index, arr) => {
-            let nota = this.$data.notas[id]
+          Object.keys(this.$store.state.notas).forEach((id, index, arr) => {
+            let nota = this.$store.state.notas[id]
             if ((nota.geral.tipo === '1' || nota.geral.cfop === '1113' || nota.geral.cfop === '1202' || nota.geral.cfop === '2202') && estaNoDominio(nota.emitente) && nota.geral.status !== 'CANCELADA') {
               let movimento = {
                 notaFinal: id,
@@ -269,28 +264,25 @@ export default {
                       movimento.notaFinal = movimentoRet.notaFinal.chave
                       movimento.notaInicial = movimentoRet.notaInicial.chave
                       movimento.valores = valores
-                      this.$data.notas = {
-                        ...this.$data.notas,
-                        [movimentoRet.notaInicial.chave]: movimentoRet.notaInicial,
-                        [movimentoRet.notaFinal.chave]: movimentoRet.notaFinal
-                      }
                       this.$data.movimentos.push(movimento)
                     }
                   })
-                  this.$data.notas = {
-                    ...this.$data.notas,
-                    [movimentoRet.notaInicial]: movimentoRet.notaInicial,
-                    [movimentoRet.notaFinal]: movimentoRet.notaFinal
-                  }
                 } else {
-                  this.$data.movimentos.push(movimento)
+                  calcularImpostosMovimento(null, nota, (err, valores) => {
+                    if (err) {
+                      console.error(err)
+                    } else {
+                      movimento.valores = valores
+                      this.$data.movimentos.push(movimento)
+                    }
+                  })
                 }
               })
             }
           })
 
-          Object.keys(this.$data.notasServico).forEach(id => {
-            let notaServico = this.$data.notasServico[id]
+          Object.keys(this.$store.state.notasServico).forEach(id => {
+            let notaServico = this.$store.state.notasServico[id]
             if (estaNoDominio(notaServico.emitente)) {
               calcularImpostosServico(notaServico, (err, valores) => {
                 if (err) {
@@ -328,7 +320,7 @@ export default {
     enviarServicos () {
       let servicos = this.$data.servicos
       let paraGravar = {}
-      let notasServico = this.$data.notasServico
+      let notasServico = this.$store.state.notasServico
       let contador = 0
 
       servicos.forEach(servico => {
@@ -356,7 +348,7 @@ export default {
     enviarMovimentos () {
       let movimentos = this.$data.movimentos
       let paraGravar = {}
-      let notas = this.$data.notas
+      let notas = this.$store.state.notas
       let contador = 0
 
       movimentos.forEach(movimento => {
@@ -386,7 +378,7 @@ export default {
       this.adicionarPorNumeroEmitente = () => {
         let emitente
         let num = this.$data.adicionarNumeroEmitenteInfo.numeroNota
-        let notas = this.$data.notas
+        let notas = this.$store.state.notas
         let movimentoId = id
         let notaFinal = notas[this.$data.movimentos[movimentoId].notaFinal]
 
@@ -409,7 +401,6 @@ export default {
                   } else {
                     this.$data.movimentos[movimentoId].notaInicial = notaInicial.chave
                     this.$data.movimentos[movimentoId].valores = valores
-                    this.$data.notas = this.$store.state.notas
                     this.$data.mostraAdicionarNota = false
                     this.$data.adicionarNumeroEmitenteInfo.numeroNota = null
                     this.$data.adicionarNumeroEmitenteInfo.emitente = null
@@ -426,7 +417,7 @@ export default {
       this.adicionarPorXml = (e) => {
         if (e.target.files) {
           let movimentoId = id
-          let notas = this.$data.notas
+          let notas = this.$store.state.notas
           let notaFinal = notas[this.$data.movimentos[movimentoId].notaFinal]
 
           lerNotasInput(e.target.files, (notaBruto) => {
@@ -449,7 +440,6 @@ export default {
                   } else {
                     this.$data.movimentos[movimentoId].notaInicial = notaInicial.chave
                     this.$data.movimentos[movimentoId].valores = valores
-                    this.$data.notas = this.$store.state.notas
                     this.$data.mostraAdicionarNota = false
                     this.$data.adicionarNumeroEmitenteInfo.numeroNota = null
                     this.$data.adicionarNumeroEmitenteInfo.emitente = null
@@ -467,7 +457,7 @@ export default {
         }
 
         let chave = this.$data.chaveParaAdicionar.toString()
-        let notas = this.$data.notas
+        let notas = this.$store.state.notas
         let movimentoId = id
         let notaFinal = notas[this.$data.movimentos[movimentoId].notaFinal]
         let notaInicial
@@ -491,7 +481,6 @@ export default {
                     } else {
                       this.$data.movimentos[movimentoId].notaInicial = chave
                       this.$data.movimentos[movimentoId].valores = valores
-                      this.$data.notas = this.$store.state.notas
                       this.$data.mostraAdicionarNota = false
                       this.chamarMensagem(new Error('Nota Adicionada com sucesso!'))
                     }
@@ -503,7 +492,7 @@ export default {
         }
       }
       this.adicionarValor = () => {
-        let notas = this.$data.notas
+        let notas = this.$store.state.notas
         let movimentoId = id
         let notaFinal = notas[this.$data.movimentos[movimentoId].notaFinal]
         let valor = parseFloat(this.$data.valorDaNota.toString().replace(',', '.'))
@@ -546,7 +535,6 @@ export default {
             } else {
               this.$data.movimentos[movimentoId].notaInicial = notaInicial.chave
               this.$data.movimentos[movimentoId].valores = valores
-              this.$data.notas = this.$store.state.notas
               this.$data.mostraAdicionarNota = false
               this.chamarMensagem(new Error('Nota Adicionada com sucesso!'))
               this.$data.valorDaNota = null
@@ -565,7 +553,14 @@ export default {
 
       this.removerInicial = () => {
         this.$data.movimentos[id].notaInicial = null
-        this.$data.movimentos[id].valores = null
+        calcularImpostosMovimento(null, this.$store.state.notas[this.$data.movimentos[id].notaFinal], (err, valores) => {
+          if (err) {
+            console.error(err)
+          } else {
+            this.$data.movimentos[id].valores = valores
+            console.log(this.$data.movimentos[id].valores)            
+          }
+        })
         this.$data.remover.mostra = false
       }
     },
@@ -577,6 +572,12 @@ export default {
   },
   computed: {
     faTrash: _ => faTrash,
+    notas () {
+      return this.$store.state.notas
+    },
+    notasServico () {
+      return this.$store.state.notaServico
+    },
     movimentosAEnviar () {
       let movimentos = this.$data.movimentos
 

@@ -33,8 +33,8 @@
 
         <md-table-cell md-numeric>{{nota.geral.numero}}</md-table-cell>
 
-        <md-table-cell>{{pessoas[nota.emitente].nome}}</md-table-cell>
-        <md-table-cell>{{pessoas[nota.destinatario].nome}}</md-table-cell>
+        <md-table-cell v-if="pessoas[nota.emitente]">{{pessoas[nota.emitente].nome}}</md-table-cell>
+        <md-table-cell v-if="pessoas[nota.destinatario]">{{pessoas[nota.destinatario].nome}}</md-table-cell>
 
         <md-table-cell>{{nota.geral.naturezaOperacao}}</md-table-cell>
         <md-table-cell>{{nota.valor.total}}</md-table-cell>
@@ -60,8 +60,8 @@
 
         <md-table-cell md-numeric>{{notaServico.geral.numero}}</md-table-cell>
 
-        <md-table-cell>{{pessoas[notaServico.emitente].nome}}</md-table-cell>
-        <md-table-cell>{{pessoas[notaServico.destinatario].nome}}</md-table-cell>
+        <md-table-cell v-if="pessoas[notaServico.emitente]">{{pessoas[notaServico.emitente].nome}}</md-table-cell>
+        <md-table-cell v-if="pessoas[notaServico.destinatario]">{{pessoas[notaServico.destinatario].nome}}</md-table-cell>
         <md-table-cell>{{notaServico.valor.servico}}</md-table-cell>
         <md-table-cell>{{notaServico.geral.status}}</md-table-cell>
       </md-table-row>
@@ -80,7 +80,7 @@
 
         <md-table-row v-for="empresa in foraDominio" v-bind:key="empresa.cnpj + 'adicionar'">
 
-          <md-table-cell>{{pessoas[empresa.cnpj].nome}}</md-table-cell>
+          <md-table-cell v-if="pessoas[empresa.cnpj]">{{pessoas[empresa.cnpj].nome}}</md-table-cell>
 
           <md-table-cell>{{empresa.cnpj}}</md-table-cell>
 
@@ -168,9 +168,6 @@ import { usuarioAtivo, lerNotasInput, adicionarDominioEImpostos, limparNotasStor
 export default {
   data () {
     return {
-      notas: {},
-      notasServico: {},
-      pessoas: {},
       foraDominio: {},
       aliquotasPadrao: {
         formaPagamentoTrimestrais: '',
@@ -222,9 +219,6 @@ export default {
     ler (e) {
       if (e.target.files) {
         lerNotasInput(e.target.files, (notas, notasServico, pessoas) => {
-          this.$data.notas = notas
-          this.$data.notasServico = notasServico
-          this.$data.pessoas = pessoas
           this.$data.clicaEnviar = true
           this.$data.foraDominio = {}
           let dominio = this.$store.state.dominio
@@ -318,17 +312,26 @@ export default {
     }
   },
   computed: {
+    pessoas () {
+      return this.$store.state.pessoas
+    },
+    notas () {
+      return this.$store.state.notas
+    },
+    notasServico () {
+      return this.$store.state.notasServico
+    },
     ordenarNotas () {
-      return _.orderBy(this.$data.notas, 'geral.numero')
+      return _.orderBy(this.notas, 'geral.numero')
     },
     ordenarNotasServico () {
-      return _.orderBy(this.$data.notasServico, 'geral.numero')
+      return _.orderBy(this.notasServico, 'geral.numero')
     },
     semNotas () {
-      return _.isEmpty(this.$data.notas)
+      return _.isEmpty(this.notas)
     },
     semNotasServico () {
-      return _.isEmpty(this.$data.notasServico)
+      return _.isEmpty(this.notasServico)
     },
     podeAdicionar () {
       if (this.$data.empresaParaAdicionar.num && this.$data.aliquotas.tributacao !== '' && this.$data.aliquotas.formaPagamentoTrimestrais) {

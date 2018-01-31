@@ -99,7 +99,6 @@
       </md-dialog-actions>
     </md-dialog>
 
-
     <md-dialog-alert
       :md-active.sync="erro.mostra"
       :md-content="erro.mensagem" />
@@ -233,7 +232,7 @@ export default {
             this.chamarErro(err)
           } else {
             this.$data.deletar.mostra2 = false
-            delete this.$data.dominioSelecionado.empresas[num]
+            this.$delete(this.$data.dominioSelecionado.empresas, num)
             this.chamarErro(new Error(`Empresa ${num} deletada com sucesso!`))
           }
         })
@@ -250,7 +249,7 @@ export default {
             console.error(err)
           } else {
             this.$data.deletar.mostra = false
-            delete this.$data.todosDominios[nome]
+            this.$delete(this.$data.todosDominios, nome)
             this.chamarErro(new Error(`Dominio ${nome} deletado com sucesso!`))
           }
         })
