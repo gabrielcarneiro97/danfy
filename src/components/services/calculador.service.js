@@ -1,4 +1,4 @@
-import { pegarEmpresaImpostos, pegarMovimentosMes, pegarServicosMes } from './index'
+import { pegarEmpresaImpostos, pegarMovimentosMes, pegarServicosMes, pegarMovimentoNotaFinal } from './index'
 
 export function calcularImpostosServico (notaServico, callback) {
   pegarEmpresaImpostos(notaServico.emitente, (err, aliquotas) => {
@@ -102,143 +102,161 @@ export function calcularImpostosMovimento (notaInicial, notaFinal, callback) {
           }
         })
       } else {
-        let valores = {
-          lucro: lucro,
-          valorSaida: valorSaida,
-          impostos: {
-            pis: (lucro * aliquotas.pis),
-            cofins: (lucro * aliquotas.cofins),
-            csll: (lucro * aliquotas.csll),
-            irpj: (lucro * aliquotas.irpj),
-            total: ((lucro * aliquotas.irpj) + (lucro * aliquotas.pis) + (lucro * aliquotas.cofins) + (lucro * aliquotas.csll))
+        var proximoPasso = () => {
+          let valores = {
+            lucro: lucro,
+            valorSaida: valorSaida,
+            impostos: {
+              pis: (lucro * aliquotas.pis),
+              cofins: (lucro * aliquotas.cofins),
+              csll: (lucro * aliquotas.csll),
+              irpj: (lucro * aliquotas.irpj),
+              total: ((lucro * aliquotas.irpj) + (lucro * aliquotas.pis) + (lucro * aliquotas.cofins) + (lucro * aliquotas.csll))
+            }
           }
-        }
 
-        let icmsEstados = {
-          SC: {
-            externo: 0.12,
-            interno: 0.12
-          },
-          DF: {
-            externo: 0.07,
-            interno: 0.12
-          },
-          MS: {
-            externo: 0.07,
-            interno: 0.17
-          },
-          MT: {
-            externo: 0.07,
-            interno: 0.17
-          },
-          SP: {
-            externo: 0.12,
-            interno: 0.18
-          },
-          RJ: {
-            externo: 0.12,
-            interno: 0.18
-          },
-          GO: {
-            externo: 0.07,
-            interno: 0.17
-          },
-          RO: {
-            externo: 0.07,
-            interno: 0.175
-          },
-          ES: {
-            externo: 0.07,
-            interno: 0.12
-          },
-          AC: {
-            externo: 0.07,
-            interno: 0.17
-          },
-          CE: {
-            externo: 0.07,
-            interno: 0.17
-          },
-          PR: {
-            externo: 0.12,
-            interno: 0.18
-          },
-          PI: {
-            externo: 0.07,
-            interno: 0.17
-          },
-          PE: {
-            externo: 0.12,
-            interno: 0.18
-          },
-          MA: {
-            externo: 0.07,
-            interno: 0.18
-          },
-          PA: {
-            externo: 0.07,
-            interno: 0.17
-          },
-          RN: {
-            externo: 0.07,
-            interno: 0.18
-          },
-          BA: {
-            externo: 0.07,
-            interno: 0.18
-          },
-          RS: {
-            externo: 0.12,
-            interno: 0.18
-          },
-          TO: {
-            externo: 0.07,
-            interno: 0.18
+          let icmsEstados = {
+            SC: {
+              externo: 0.12,
+              interno: 0.12
+            },
+            DF: {
+              externo: 0.07,
+              interno: 0.12
+            },
+            MS: {
+              externo: 0.07,
+              interno: 0.17
+            },
+            MT: {
+              externo: 0.07,
+              interno: 0.17
+            },
+            SP: {
+              externo: 0.12,
+              interno: 0.18
+            },
+            RJ: {
+              externo: 0.12,
+              interno: 0.18
+            },
+            GO: {
+              externo: 0.07,
+              interno: 0.17
+            },
+            RO: {
+              externo: 0.07,
+              interno: 0.175
+            },
+            ES: {
+              externo: 0.07,
+              interno: 0.12
+            },
+            AC: {
+              externo: 0.07,
+              interno: 0.17
+            },
+            CE: {
+              externo: 0.07,
+              interno: 0.17
+            },
+            PR: {
+              externo: 0.12,
+              interno: 0.18
+            },
+            PI: {
+              externo: 0.07,
+              interno: 0.17
+            },
+            PE: {
+              externo: 0.12,
+              interno: 0.18
+            },
+            MA: {
+              externo: 0.07,
+              interno: 0.18
+            },
+            PA: {
+              externo: 0.07,
+              interno: 0.17
+            },
+            RN: {
+              externo: 0.07,
+              interno: 0.18
+            },
+            BA: {
+              externo: 0.07,
+              interno: 0.18
+            },
+            RS: {
+              externo: 0.12,
+              interno: 0.18
+            },
+            TO: {
+              externo: 0.07,
+              interno: 0.18
+            }
           }
-        }
 
-        let estadosSemReducao = ['RN', 'BA', 'RS', 'TO']
+          let estadosSemReducao = ['RN', 'BA', 'RS', 'TO']
 
-        if (estadoGerador === estadoDestino) {
-          valores.impostos.icms = {
-            baseDeCalculo: (lucro * aliquotas.icms.reducao),
-            proprio: (lucro * aliquotas.icms.reducao * aliquotas.icms.aliquota)
-          }
-          valores.impostos.total = (parseFloat(valores.impostos.total) + (lucro * aliquotas.icms.reducao * aliquotas.icms.aliquota))
-        } else {
-          if (destinatarioContribuinte === '2' || destinatarioContribuinte === '9') {
-            let composicaoDaBase = valorSaida / (1 - icmsEstados[estadoDestino].interno)
-            let baseDeCalculo = 0.05 * composicaoDaBase
-            let baseDifal = estadosSemReducao.includes(estadoDestino) ? composicaoDaBase : baseDeCalculo
-            let proprio = baseDifal * icmsEstados[estadoDestino].externo
-            let difal = (baseDifal * icmsEstados[estadoDestino].interno) - proprio
-
+          if (estadoGerador === estadoDestino) {
             valores.impostos.icms = {
-              composicaoDaBase: composicaoDaBase,
-              baseDeCalculo: baseDeCalculo,
-              proprio: proprio,
-              difal: {
-                origem: (difal * 0.8),
-                destino: (difal * 0.2)
+              baseDeCalculo: (lucro * aliquotas.icms.reducao),
+              proprio: (lucro * aliquotas.icms.reducao * aliquotas.icms.aliquota)
+            }
+            valores.impostos.total = (parseFloat(valores.impostos.total) + (lucro * aliquotas.icms.reducao * aliquotas.icms.aliquota))
+          } else {
+            if (destinatarioContribuinte === '2' || destinatarioContribuinte === '9') {
+              let composicaoDaBase = valorSaida / (1 - icmsEstados[estadoDestino].interno)
+              let baseDeCalculo = 0.05 * composicaoDaBase
+              let baseDifal = estadosSemReducao.includes(estadoDestino) ? composicaoDaBase : baseDeCalculo
+              let proprio = baseDifal * icmsEstados[estadoDestino].externo
+              let difal = (baseDifal * icmsEstados[estadoDestino].interno) - proprio
+
+              valores.impostos.icms = {
+                composicaoDaBase: composicaoDaBase,
+                baseDeCalculo: baseDeCalculo,
+                proprio: proprio,
+                difal: {
+                  origem: (difal * 0.8),
+                  destino: (difal * 0.2)
+                }
               }
-            }
 
-            valores.impostos.total = (parseFloat(valores.impostos.total) + (difal * 0.8) + (difal * 0.2) + proprio)
-          } else if (destinatarioContribuinte === '1') {
-            let baseDeCalculo = 0.05 * valorSaida
-            let valor = baseDeCalculo * icmsEstados[estadoDestino].externo
+              valores.impostos.total = (parseFloat(valores.impostos.total) + (difal * 0.8) + (difal * 0.2) + proprio)
+            } else if (destinatarioContribuinte === '1') {
+              let baseDeCalculo = 0.05 * valorSaida
+              let valor = baseDeCalculo * icmsEstados[estadoDestino].externo
 
-            valores.impostos.icms = {
-              composicaoDaBase: null,
-              difal: null,
-              baseDeCalculo: baseDeCalculo,
-              proprio: valor
+              valores.impostos.icms = {
+                composicaoDaBase: null,
+                difal: null,
+                baseDeCalculo: baseDeCalculo,
+                proprio: valor
+              }
+              valores.impostos.total = parseFloat(valores.impostos.total) + valor
             }
-            valores.impostos.total = parseFloat(valores.impostos.total) + valor
           }
-        }
 
-        callback(null, valores)
+          callback(null, valores)
+        }
+        if (notaFinal.geral.cfop === '1202' || notaFinal.geral.cfop === '2202') {
+          pegarMovimentoNotaFinal(notaFinal.emitente, notaInicial.chave, (err, movimentoAnterior) => {
+            if (err) {
+              console.error(err)
+            } else if (movimentoAnterior) {
+              lucro = (-1) * movimentoAnterior.valores.lucro
+              valorSaida = 0
+              proximoPasso()
+            } else {
+              valorSaida = 0
+              proximoPasso()
+            }
+          })
+        } else {
+          proximoPasso()
+        }
       }
     }
   })

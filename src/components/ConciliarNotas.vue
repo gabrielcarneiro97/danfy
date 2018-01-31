@@ -15,7 +15,7 @@
           <md-table-head>Confirmar Movimento</md-table-head>
         </md-table-row>
 
-        <md-table-row v-for="(movimento, index) in ordenarMovimentos" v-bind:key="movimentos.indexOf(movimento) + 'movimentos'">
+        <md-table-row v-for="(movimento, index) in ordenarMovimentos" v-bind:key="index + 'movimentos'">
 
           <md-table-cell md-numeric>{{index+1}}</md-table-cell>
 
@@ -569,6 +569,33 @@ export default {
     chamarMensagem (mensagem) {
       this.$data.erro.mensagem = mensagem.message
       this.$data.erro.mostra = true
+    }
+  },
+  watch: {
+    movimentos (movimentos) {
+      if (!_.isEmpty(movimentos)) {
+        movimentos.forEach(movimento => {
+          console.log(movimento)
+          let notaFinal = this.$store.state.notas[movimento.notaFinal]
+          let notaInicial = this.$store.state.notas[movimento.notaInicial]
+
+          if ((notaFinal.geral.cfop === '1202' || notaFinal.geral.cfop === '2202') && (movimento.valores.lucro >= 0)) {
+            movimentos.forEach(movimento2 => {
+              console.log(movimento2)
+              if (movimento.notaInicial === movimento2.notaFinal) {
+                notaInicial.valor.total = parseFloat(movimento2.valores.lucro) + parseFloat(notaInicial.valor.total)
+                calcularImpostosMovimento(notaInicial, notaFinal, (err, valores) => {
+                  if (err) {
+                    console.error(err)
+                  } else {
+                    movimento.valores = valores
+                  }
+                })
+              }
+            })
+          }
+        })
+      }
     }
   },
   computed: {

@@ -458,11 +458,27 @@ export function pegarMovimentosPorGeracao (cnpj, competencia, callback) {
     callback(err, null)
   })
 }
+export function pegarMovimentoNotaFinal (cnpj, chaveNota, callback) {
+  let query = db.ref('Movimentos/' + cnpj).orderByChild('notaFinal').equalTo(chaveNota)
+
+  let jaFoi = false
+
+  query.on('child_added', snap => {
+    let movimento = snap.val()
+    if (movimento.metaDados.status === 'ATIVO') {
+      callback(null, movimento)
+      jaFoi = true
+    }
+  })
+  query.once('value', snap => {
+    if (!jaFoi) {
+      callback(null, null)
+    }
+  })
+}
 export function cancelarMovimento (cnpj, id, callback) {
-  console.log('aqui')
   db.ref('Movimentos/' + cnpj + '/' + id).once('value', snap => {
     let movimento = snap.val()
-    console.log(snap.key)
     if (movimento.metaDados) {
       movimento.metaDados.status = 'CANCELADO'
     } else {
