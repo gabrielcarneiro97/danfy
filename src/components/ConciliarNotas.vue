@@ -21,7 +21,7 @@
 
           <md-table-cell>
             <div v-if="movimento.notaInicial" class="md-layout md-alignment-center-center">
-              <nota-dialogo :chave="movimento.notaInicial" class="md-layout-item">{{parseInt(notas[movimento.notaInicial].geral.numero)}}</nota-dialogo>
+              <nota-dialogo :chave="movimento.notaInicial" class="md-layout-item">{{isNaN(parseInt(notas[movimento.notaInicial].geral.numero)) ? notas[movimento.notaInicial].geral.numero : parseInt(notas[movimento.notaInicial].geral.numero)}}</nota-dialogo>
               <md-button class="md-icon-button md-list-action md-primary md-layout-item" @click="confirmaRemoverInicial(movimentos.indexOf(movimento))">
                 <font-awesome-icon :icon="faTrash" size="lg" />
               </md-button>

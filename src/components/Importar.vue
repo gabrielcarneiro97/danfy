@@ -2,6 +2,7 @@
 <div>
   <div class="md-layout md-alignment-top-center" id="form">
     <div class="md-layout-item md-size-90" id="inner">
+
         <md-field class="md-layout-item md-size-100">
           <label>Notas</label>
           <md-file multiple @change="ler" accept=".xml" />
@@ -361,7 +362,14 @@ export default {
   margin-bottom: 2%;
 }
 #inner {
+  background-color: rgb(255, 255, 255);
   padding: 1%;
-  background-color: rgb(255, 255, 255)
 }
+  .titulo {
+    font-size: 180%;
+    margin-bottom: 1%;
+    margin-top: 2%;    
+    font-weight: 300;
+    color: Black;
+  }
 </style>

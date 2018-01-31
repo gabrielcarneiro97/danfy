@@ -321,6 +321,7 @@ export function totaisTrimestrais (cnpj, competencia, callback) {
           irpj: 0,
           csll: 0,
           icms: {
+            baseDeCalculo: 0,
             proprio: 0,
             difal: {
               origem: 0,
@@ -398,6 +399,7 @@ export function totaisTrimestrais (cnpj, competencia, callback) {
           trimestre[mes].movimentos.impostos.csll += parseFloat(movimento.valores.impostos.csll)
           trimestre[mes].movimentos.impostos.irpj += parseFloat(movimento.valores.impostos.irpj)
           trimestre[mes].movimentos.impostos.icms.proprio += parseFloat(movimento.valores.impostos.icms.proprio)
+          trimestre[mes].movimentos.impostos.icms.baseDeCalculo += parseFloat(movimento.valores.impostos.icms.baseDeCalculo)
           if (movimento.valores.impostos.icms.difal) {
             trimestre[mes].movimentos.impostos.icms.difal.origem += parseFloat(movimento.valores.impostos.icms.difal.origem)
             trimestre[mes].movimentos.impostos.icms.difal.destino += parseFloat(movimento.valores.impostos.icms.difal.destino)

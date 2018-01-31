@@ -103,7 +103,7 @@
         <md-table-head>{{R$(trimestre[competenciaSelecionada.mes].movimentos.totalSaida)}}</md-table-head>
         <md-table-head></md-table-head>        
         <md-table-head>{{R$(trimestre[competenciaSelecionada.mes].movimentos.lucro)}}</md-table-head>
-        <md-table-head colspan="1" style="text-align:center">IMPOSTOS</md-table-head>
+        <md-table-head colspan="1" style="text-align:center">{{R$(trimestre[competenciaSelecionada.mes].movimentos.impostos.icms.baseDeCalculo)}}</md-table-head>
         <md-table-head>{{R$(trimestre[competenciaSelecionada.mes].movimentos.impostos.icms.proprio)}}</md-table-head>
         <md-table-head>{{R$(trimestre[competenciaSelecionada.mes].movimentos.impostos.icms.difal.origem)}}</md-table-head>
         <md-table-head>{{R$(trimestre[competenciaSelecionada.mes].movimentos.impostos.icms.difal.destino)}}</md-table-head>
