@@ -615,7 +615,7 @@ export default {
       return this.$store.state.notas
     },
     notasServico () {
-      return this.$store.state.notaServico
+      return this.$store.state.notasServico
     },
     temMovimentos () {
       return !this.$data.semMovimentos && !_.isEmpty(this.$data.movimentos)
