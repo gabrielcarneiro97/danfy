@@ -620,7 +620,7 @@ export default {
       }
     },
     ordenarMovimentos () {
-      return _.orderBy(this.$data.movimentos, 'data')
+      return _.orderBy(this.$data.movimentos, 'notaFinal')
     }
   }
 }

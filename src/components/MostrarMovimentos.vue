@@ -43,7 +43,7 @@
         </md-field>
         <div class="md-layout md-layout-item md-size-100 md-alignment-top-right">
           <md-button class="md-layout-item md-size-25 md-primary" @click="selecionarMovimento" :disabled="!tudoPreenchido">SELECIONAR</md-button>
-          <md-button class="md-layout-item md-size-25 md-primary" @click="imprimirTabela" :disabled="!temMovimentos">IMPRIMIR</md-button>
+          <md-button class="md-layout-item md-size-25 md-primary" @click="imprimirTabela" :disabled="!temMovimentos && !temServicos">IMPRIMIR</md-button>
         </div>
     </div>
   </div>
@@ -190,8 +190,8 @@
       </md-table-toolbar>
 
       <md-table-row>
-        <md-table-head>ISS</md-table-head>
-        <md-table-head>ICMS</md-table-head>
+        <md-table-head v-if="temServicos">ISS</md-table-head>
+        <md-table-head v-if="temMovimentos">ICMS</md-table-head>
         <md-table-head>PIS</md-table-head>
         <md-table-head>COFINS</md-table-head>        
         <md-table-head v-if="empresaSelecionada.pessoa.formaPagamento === 'adiantamento'">CSLL</md-table-head>
@@ -200,8 +200,8 @@
       </md-table-row>
 
       <md-table-row>
-        <md-table-cell>{{R$(trimestre[competenciaSelecionada.mes].totais.impostos.iss - trimestre[competenciaSelecionada.mes].totais.impostos.retencoes.iss)}}</md-table-cell>
-        <md-table-cell>{{R$(trimestre[competenciaSelecionada.mes].totais.impostos.icms.proprio + trimestre[competenciaSelecionada.mes].totais.impostos.icms.difal.origem)}}</md-table-cell>
+        <md-table-cell v-if="temServicos">{{R$(trimestre[competenciaSelecionada.mes].totais.impostos.iss - trimestre[competenciaSelecionada.mes].totais.impostos.retencoes.iss)}}</md-table-cell>
+        <md-table-cell v-if="temMovimentos">{{R$(trimestre[competenciaSelecionada.mes].totais.impostos.icms.proprio + trimestre[competenciaSelecionada.mes].totais.impostos.icms.difal.origem)}}</md-table-cell>
         <md-table-cell>{{R$(trimestre[competenciaSelecionada.mes].totais.impostos.pis - trimestre[competenciaSelecionada.mes].totais.impostos.retencoes.pis)}}</md-table-cell>
         <md-table-cell>{{R$(trimestre[competenciaSelecionada.mes].totais.impostos.cofins - trimestre[competenciaSelecionada.mes].totais.impostos.retencoes.cofins)}}</md-table-cell>
         <md-table-cell v-if="empresaSelecionada.pessoa.formaPagamento === 'adiantamento'">{{R$(trimestre[competenciaSelecionada.mes].totais.impostos.csll - trimestre[competenciaSelecionada.mes].totais.impostos.retencoes.csll)}}</md-table-cell>        

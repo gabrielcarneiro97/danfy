@@ -2,6 +2,7 @@ import { pegarNotaProduto } from './index'
 
 export let cfopCompra = ['1102', '2102']
 export let cfopDevolucao = ['1202', '2202']
+export let cfopDevolucaoCompra = ['5202']
 export let cfopVenda = ['5102', '6102', '6108']
 export let cfopConsignacao = ['1917', '2917']
 export let cfopCompraConsignacao = ['1113']
@@ -12,7 +13,7 @@ export function retornarTipo (cfop) {
   if (cfopCompra.includes(cfop)) {
     return 'COMPRA'
   } else if (cfopDevolucao.includes(cfop)) {
-    return 'DEVOLUÇÃO'
+    return 'DEVOLUÇÃO DE VENDA'
   } else if (cfopVenda.includes(cfop) || cfopVendaConsignacao.includes(cfop)) {
     return 'VENDA'
   } else if (cfopConsignacao.includes(cfop)) {
@@ -21,6 +22,8 @@ export function retornarTipo (cfop) {
     return 'COMPRA DEFINITIVA'
   } else if (cfopDevolucaoConsignacao.includes(cfop)) {
     return 'DEVOLUÇÃO DE CONSIGNAÇÃO'
+  } else if (cfopDevolucaoCompra.includes(cfop)) {
+    return 'DEVOLUÇÃO DE COMPRA'
   }
 }
 
@@ -39,6 +42,8 @@ export function compararCFOP (notaInicial, notaFinal) {
   } else if (cfopVenda.includes(cfopInicial) && cfopDevolucao.includes(cfopFinal)) {
     return true
   } else if (cfopDevolucao.includes(cfopInicial) && cfopVenda.includes(cfopFinal)) {
+    return true
+  } else if (cfopCompra.includes(cfopInicial) && cfopDevolucaoCompra.includes(cfopFinal)) {
     return true
   } else if ((cfopVenda.includes(cfopInicial) && cfopVenda.includes(cfopFinal)) && (notaFinal.emitente !== notaInicial.emitente)) {
     return true
