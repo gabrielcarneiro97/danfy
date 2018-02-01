@@ -19,17 +19,17 @@ var db = firebase.database()
 
 //  INICIO FUNÇÕES RELACIONADAS A AUTENTICAÇÃO
 
-/*
-* {Function} entrar (login, senha, callback): responsável por entrar no sistema
-*   @param {String} login: contendo o e-mail do usuário
-*   @param {String} senha: contendo a senha do usuário
-*   @param {Function} callback (err, usuario): chamada ao fim da autenticação
-*     |-> @param {Error} err: contém um erro caso a autenticação falhe
-*     |-> @param {Object} usuario: contém os dados do usuário auntenticado
-*           |-> @attr {String} nome: contém o nome completo do usuário
-*           |-> @attr {String} login: contém o e-mail do usuário
-*           |-> @attr {String} dominio: contém o domínio do usuário, responsável por uma segunda camada de autenticação
-*/
+/**
+* @function entrar responsável por entrar no sistema
+*   @param {String} login contendo o e-mail do usuário
+*   @param {String} senha contendo a senha do usuário
+*   @param {Function} callback chamada ao fim da autenticação
+*     |-> @param {Error} err contém um erro caso a autenticação falhe
+*     |-> @param {Object} usuario contém os dados do usuário auntenticado
+*           |-> @prop {String} nome contém o nome completo do usuário
+*           |-> @prop {String} login contém o e-mail do usuário
+*           |-> @prop {String} domini: contém o domínio do usuário, responsável por uma segunda camada de autenticação
+**/
 export function entrar (login, senha, callback) {
   auth.signInWithEmailAndPassword(login, senha).then(user => {
     db.ref('Usuarios/' + user.uid).once('value').then(value => {
@@ -55,11 +55,11 @@ export function entrar (login, senha, callback) {
   })
 }
 
-/*
-* {Function} deslogar (callback): responsável por dar signout no usuário auntenticado
-*   @param {Function} callback (err): chamada ao fim do signout
-*     |-> @param {Error} err: contém um erro caso o signout falhe
-*/
+/**
+* @function deslogar responsável por dar signout no usuário auntenticado
+*   @param {Function} callback chamada ao fim do signout
+*     |-> @param {Error} err contém um erro caso o signout falhe
+**/
 export function deslogar (callback) {
   auth.signOut().then(value => {
     storeVuex.commit(sair())
@@ -67,20 +67,20 @@ export function deslogar (callback) {
   }, err => { callback(err) })
 }
 
-/*
-* {Function} criarUsuario (dados, callback): responsável por criar os usuários no sistema, tanto no firebase.auth, quando no firebase.db. Autentica no final da criação
-*   @param {Object} dados: contém os dados do usuário
-*     |-> @attr {String} nome: contém o nome completo do usuário
-*     |-> @attr {String} login: contém o e-mail do usuário
-*     |-> @attr {String} senha: contém a senha do usuário
-*     |-> @attr {String} dominio: contém o domínio do usuário, responsável por uma segunda camada de autenticação
-*   @param {Function} callback(err, usuario): chamada ao final da criação do usuário
-*     |-> @param {Error} err: contém um erro caso a criação de usuário falhe
-*     |-> @param {Object} usuario: contém os dados do usuário criado
-*           |-> @attr {String} nome: contém o nome completo do usuário
-*           |-> @attr {String} login: contém o e-mail do usuário
-*           |-> @attr {String} dominio: contém o domínio do usuário, responsável por uma segunda camada de autenticação
-*/
+/**
+* @function criarUsuario responsável por criar os usuários no sistema, tanto no firebase.auth, quando no firebase.db. Autentica no final da criação
+*   @param {Object} dados contém os dados do usuário
+*     |-> @prop {String} nome contém o nome completo do usuário
+*     |-> @prop {String} login contém o e-mail do usuário
+*     |-> @prop {String} senha contém a senha do usuário
+*     |-> @prop {String} dominio contém o domínio do usuário, responsável por uma segunda camada de autenticação
+*   @param {Function} callback chamada ao final da criação do usuário
+*     |-> @param {Error} err contém um erro caso a criação de usuário falhe
+*     |-> @param {Object} usuario contém os dados do usuário criado
+*           |-> @prop {String} nome contém o nome completo do usuário
+*           |-> @prop {String} login contém o e-mail do usuário
+*           |-> @prop {String} dominio contém o domínio do usuário, responsável por uma segunda camada de autenticação
+**/
 export function criarUsuario (dados, callback) {
   firebase.auth().createUserWithEmailAndPassword(dados.login, dados.senha).then(user => {
     storeVuex.commit(autenticar({ nome: dados.nome, dominio: dados.dominio, email: dados.login, token: user.getIdToken(), id: user.uid, nivel: 1 }))
@@ -101,16 +101,16 @@ export function criarUsuario (dados, callback) {
   })
 }
 
-/*
-* {Fucntion} usuarioAtivo (callback): checa se tem algum usuário autenticado no sistema
-*   @param {Function} callback (user, usuario, dominio.tipo): chamada após conferir se existe ou não usuário ativo
-*     |-> @param {Object} user: objeto recebido da consulta no auth, caso ele seja null significa que não existe usuário autenticado
-*     |-> @param {Object} usuario: contem as informações contidas no firebase.db do usuário
-*           |-> @attr {String} nome: contém o nome completo do usuário
-*           |-> @attr {String} nivel: contém o nível de permissões do úsuario
-*           |-> @attr {String} dominio: contém o domínio do usuário, responsável por uma segunda camada de autenticação
-*     |-> @param {String} dominio.tipo: contém o tipo do domíno, podendo ser 'mult' ou 'unico'
-*/
+/**
+* @function usuarioAtivo checa se tem algum usuário autenticado no sistema
+*   @param {Function} callback chamada após conferir se existe ou não usuário ativo
+*     |-> @param {Object} user objeto recebido da consulta no auth, caso ele seja null significa que não existe usuário autenticado
+*     |-> @param {Object} usuario contem as informações contidas no firebase.db do usuário
+*           |-> @prop {String} nome:contém o nome completo do usuário
+*           |-> @prop {String} nivel contém o nível de permissões do úsuario
+*           |-> @prop {String} dominio contém o domínio do usuário, responsável por uma segunda camada de autenticação
+*     |-> @param {String} dominio.tipo contém o tipo do domíno, podendo ser 'mult' ou 'unico'
+**/
 export function usuarioAtivo (callback) {
   auth.onAuthStateChanged(user => {
     if (user) {
@@ -135,14 +135,14 @@ export function usuarioAtivo (callback) {
   })
 }
 
-/*
-* {Function} trocarSenha (senhaNova, senhaAntiga, login, callback): troca a senha do usuário autenticado, antes, porém, reautentica o usuário
-*   @param {String} senhaNova: contém a nova senha do usuário
-*   @param {String} senhaAntiga: contém a senha antiga do usuário
-*   @param {String} login: contém o e-mail do usuário
-*   @param {Function} callback (err): função chamada após a troca da senha
-*     |-> @param {Error} err: contém um erro informando se a troca foi bem sucedida ou não
-*/
+/**
+* @function trocarSenha troca a senha do usuário autenticado, antes, porém, reautentica o usuário
+*   @param {String} senhaNova contém a nova senha do usuário
+*   @param {String} senhaAntiga contém a senha antiga do usuário
+*   @param {String} login contém o e-mail do usuário
+*   @param {Function} callback função chamada após a troca da senha
+*     |-> @param {Error} err contém um erro informando se a troca foi bem sucedida ou não
+**/
 export function trocarSenha (senhaNova, senhaAntiga, login, callback) {
   auth.signInWithEmailAndPassword(login, senhaAntiga).then(user => {
     user.updatePassword(senhaNova).then(() => {
@@ -155,14 +155,14 @@ export function trocarSenha (senhaNova, senhaAntiga, login, callback) {
   })
 }
 
-/*
-* {Function} alterarDadoUsuario (dado, campo, id, callback): troca um dado do usuário, podendo ser nome ou domínio
-*   @param {String} dado: contém a nova informação do campo
-*   @param {String} campo: contém o campo que vai ser alterado
-*   @param {String} id: contém o id único do usuário
-*   @param {Function} callback (err): função chamada após a troca do dado
-*     |-> @param {Error} err: chama erro caso não tenha sucesso em trocar o campo
-*/
+/**
+* @function alterarDadoUsuario troca um dado do usuário, podendo ser nome ou domínio
+*   @param {String} dado contém a nova informação do campo
+*   @param {String} campo contém o campo que vai ser alterado
+*   @param {String} id contém o id único do usuário
+*   @param {Function} callback função chamada após a troca do dado
+*     |-> @param {Error} err chama erro caso não tenha sucesso em trocar o campo
+**/
 export function alterarDadoUsuario (dado, campo, id, callback) {
   db.ref('Usuarios/' + id + '/' + campo).set(dado, err => {
     if (err) {
@@ -182,11 +182,11 @@ export function alterarDadoUsuario (dado, campo, id, callback) {
 
 // ACESSO DB PESSOAS
 
-/*
-* {Function} gravarPessoas (callback): pega as pessoas no store e grava no firebase.db
-*   @param {Function} callback (err): chamado após gravar as pessoas no firebase.db
-*     |-> @param {Error} err: contém um erro caso alguma coisa saia errado
-*/
+/**
+* @function gravarPessoas pega as pessoas no store e grava no firebase.db
+*   @param {Function} callback chamado após gravar as pessoas no firebase.db
+*     |-> @param {Error} err contém um erro caso alguma coisa saia errado
+**/
 export function gravarPessoas (callback) {
   let pessoas = storeVuex.state.pessoas
   let keys = Object.keys(pessoas)
@@ -205,54 +205,54 @@ export function gravarPessoas (callback) {
   }
 }
 
-/*
-* {Function} gravarPessoa (id, pessoa, callback): recebe uma pessoa específica e grava no firebase.db
-*   @param {String} id: contém o id da pessoa, podendo ser CPF ou CNPJ
-*   @param {Object} pessoa: contém os dados da pessoa, exatamente como é esperado pelo firebase.db
-*     |-> @attr {String} nome: contém o nome ou razão social da pessoa
-*     |-> @attr {Object} endereco: contém o endereço da pessoa
-*           |-> @attr {String} logradouro: contém o logradouro do endereço
-*           |-> @attr {String} numero: contém o número do endereço
-*           |-> @attr {String} complemento: contém o complemento do endereço
-*           |-> @attr {String} bairro: contém o bairro do endereço
-*           |-> @attr {String} estado: contém a sigla do estado do endereço
-*           |-> @attr {String} cep: contém o CEP do endereço
-*           |-> @attr {Object} municipio: contém o munícipio do endereço
-*                 |-> @attr {String} codigo: contém o código IBGE do municípo
-*                 |-> @attr {String} nome: contém o nome da cidade
-*           |-> @attr {Object} pais: contém o país do endereço
-*                 |-> @attr {String} codigo: contém o código do país
-*                 |-> @attr {String} nome: contém o nome do país
-*   @param {Function} callback (err): chamado após a gravação
-*     |-> @param {Error} err: contém um erro caso a gravação dê errado
-*/
+/**
+* @function gravarPessoa recebe uma pessoa específica e grava no firebase.db
+*   @param {String} id contém o id da pessoa, podendo ser CPF ou CNPJ
+*   @param {Object} pessoa contém os dados da pessoa, exatamente como é esperado pelo firebase.db
+*     |-> @prop {String} nome contém o nome ou razão social da pessoa
+*     |-> @prop {Object} endereco contém o endereço da pessoa
+*           |-> @prop {String} logradouro contém o logradouro do endereço
+*           |-> @prop {String} numero contém o número do endereço
+*           |-> @prop {String} complemento contém o complemento do endereço
+*           |-> @prop {String} bairro contém o bairro do endereço
+*           |-> @prop {String} estado contém a sigla do estado do endereço
+*           |-> @prop {String} cep contém o CEP do endereço
+*           |-> @prop {Object} municipio contém o munícipio do endereço
+*                 |-> @prop {String} codigo contém o código IBGE do municípo
+*                 |-> @prop {String} nome contém o nome da cidade
+*           |-> @prop {Object} pais contém o país do endereço
+*                 |-> @prop {String} codigo contém o código do país
+*                 |-> @prop {String} nome contém o nome do país
+*   @param {Function} callback chamado após a gravação
+*     |-> @param {Error} err contém um erro caso a gravação dê errado
+**/
 export function gravarPessoa (id, pessoa, callback) {
   db.ref('Pessoas/' + id).set(pessoa, err => {
     callback(err)
   })
 }
 
-/*
-* {Function} pegarPessoaId (id, callback): recupera uma pessoa do firebase.db ou do store baseado no id (CPF ou CNPJ)
-*   |-> @param {String} id: CPF ou CNPJ da pessoa a ser recuperada
-*   |-> @param {Function} callback (err, pessoa): função chamada após a recuperação dos dados
-*         |-> @param {Error} err: contém um erro caso a recuperação falhe
-*         |-> @param {Object} pessoa: contém os dados da pessoa encontrados no firebase.db ou no store
-*               |-> @attr {String} nome: contém o nome ou razão social da pessoa
-*               |-> @attr {Object} endereco: contém o endereço da pessoa
-*                     |-> @attr {String} logradouro: contém o logradouro do endereço
-*                     |-> @attr {String} numero: contém o número do endereço
-*                     |-> @attr {String} complemento: contém o complemento do endereço
-*                     |-> @attr {String} bairro: contém o bairro do endereço
-*                     |-> @attr {String} estado: contém a sigla do estado do endereço
-*                     |-> @attr {String} cep: contém o CEP do endereço
-*                     |-> @attr {Object} municipio: contém o munícipio do endereço
-*                           |-> @attr {String} codigo: contém o código IBGE do municípo
-*                           |-> @attr {String} nome: contém o nome da cidade
-*                     |-> @attr {Object} pais: contém o país do endereço
-*                           |-> @attr {String} codigo: contém o código do país
-*                           |-> @attr {String} nome: contém o nome do país
-*/
+/**
+* @function pegarPessoaId recupera uma pessoa do firebase.db ou do store baseado no id (CPF ou CNPJ)
+*   |-> @param {String} id CPF ou CNPJ da pessoa a ser recuperada
+*   |-> @param {Function} callback função chamada após a recuperação dos dados
+*         |-> @param {Error} err contém um erro caso a recuperação falhe
+*         |-> @param {Object} pessoa contém os dados da pessoa encontrados no firebase.db ou no store
+*               |-> @prop {String} nome contém o nome ou razão social da pessoa
+*               |-> @prop {Object} endereco contém o endereço da pessoa
+*                     |-> @prop {String} logradouro contém o logradouro do endereço
+*                     |-> @prop {String} numero contém o número do endereço
+*                     |-> @prop {String} complemento contém o complemento do endereço
+*                     |-> @prop {String} bairro contém o bairro do endereço
+*                     |-> @prop {String} estado contém a sigla do estado do endereço
+*                     |-> @prop {String} cep contém o CEP do endereço
+*                     |-> @prop {Object} municipio contém o munícipio do endereço
+*                           |-> @prop {String} codigo contém o código IBGE do municípo
+*                           |-> @prop {String} nome contém o nome da cidade
+*                     |-> @prop {Object} pais contém o país do endereço
+*                           |-> @prop {String} codigo contém o código do país
+*                           |-> @prop {String} nome contém o nome do país
+**/
 export function pegarPessoaId (id, callback) {
   let pessoa
   let storeVuexPessoas = storeVuex.state.pessoas
@@ -272,11 +272,11 @@ export function pegarPessoaId (id, callback) {
 
 // ACESSO DB NOTAS
 
-/*
-* {Function} gravarNotas (callback): pega as notas no store e grava no firebase.db
-*   @param {Function} callback (err): chamado após gravar as notas no firebase.db
-*     |-> @param {Error} err: contém um erro caso alguma coisa saia errado
-*/
+/**
+* @function gravarNotas pega as notas no store e grava no firebase.db
+*   @param {Function} callback chamado após gravar as notas no firebase.db
+*     |-> @param {Error} err contém um erro caso alguma coisa saia errado
+**/
 export function gravarNotas (callback) {
   let notas = storeVuex.state.notas
   let keys = Object.keys(notas)
@@ -295,75 +295,75 @@ export function gravarNotas (callback) {
   }
 }
 
-/*
-* {Function} gravarNota (chave, nota, callback): recebe uma nota específica e grava no firebase.db
-*   @param {String} chave: contém a chave da nota fiscal
-*   @param {Object} nota: contém os dados da nota, exatamente como é esperado pelo firebase.db
-*     |-> @attr {String} chave: contém a chave da nota
-*     |-> @attr {String} destinatario: contém o id do destinatário, podendo ser um CPF ou CNPJ
-*     |-> @attr {String} emitente: contém o id do emitente, sendo necessariamente um CNPJ
-*     |-> @attr {Object} geral: contém sas informações gerais da nota
-*           |-> @attr {String} cfop: contém o cfop da nota
-*           |-> @attr {String} numero: contém o número da nota
-*           |-> @attr {Date.ISOString} dataHora: contém data e hora da emissão da nota em ISO String
-*           |-> @attr {String} naturezaOperacao: contém a natureza da operação
-*           |-> @attr {String} status: contém o status da nota
-*           |-> @attr {String} tipo: contém o tipo da nota, 0 para entrada, 1 para saída
-*           |-> @attr {Object} valor: contém os valores totais da nota
-*                 |-> @attr {String} total: contém o valor total da nota
-*           |-> @attr {Object} informacoesEstaduais: contém as informações estaduais da nota
-*                 |-> @attr {String} destinatarioContribuinte: contém a informação se o destinatário tem ou não IE
-*                 |-> @attr {String} estadoDestino: contém a sigla do estado do destinatário da nota
-*                 |-> @attr {String} estadoGerador: contém a sigla do estado do emitente da nota
-*           |-> @attr {Object} produtos: contém os produtos da nota
-*                 |-> @attr {Object} [codigoProduto]: contém as informações de um produto, podendo ser a ocorrência 1-*
-*                       |-> @attr {String} descricao: contém a descrição do produto
-*                       |-> @attr {Object} quantidade: contém a quantidade desse produto
-*                             |-> @attr {String} numero: contém o número da quantidade do produto
-*                             |-> @attr {String} tipo: contém a unidade de medida da quantidade
-*                       |-> @attr {Object} valor: contém os valores do produto
-*                             |-> @attr {String} total: contém o valor total do produto
-*   @param {Function} callback (err): chamado após a gravação
-*     |-> @param {Error} err: contém um erro caso a gravação dê errado
-*/
+/**
+* @function gravarNota recebe uma nota específica e grava no firebase.db
+*   @param {String} chave contém a chave da nota fiscal
+*   @param {Object} nota contém os dados da nota, exatamente como é esperado pelo firebase.db
+*     |-> @prop {String} chave contém a chave da nota
+*     |-> @prop {String} destinatario contém o id do destinatário, podendo ser um CPF ou CNPJ
+*     |-> @prop {String} emitente contém o id do emitente, sendo necessariamente um CNPJ
+*     |-> @prop {Object} geral contém sas informações gerais da nota
+*           |-> @prop {String} cfop contém o cfop da nota
+*           |-> @prop {String} numero contém o número da nota
+*           |-> @prop {Date.ISOString} dataHora contém data e hora da emissão da nota em ISO String
+*           |-> @prop {String} naturezaOperacao contém a natureza da operação
+*           |-> @prop {String} status contém o status da nota
+*           |-> @prop {String} tipo contém o tipo da nota, 0 para entrada, 1 para saída
+*           |-> @prop {Object} valor contém os valores totais da nota
+*                 |-> @prop {String} total contém o valor total da nota
+*           |-> @prop {Object} informacoesEstaduais contém as informações estaduais da nota
+*                 |-> @prop {String} destinatarioContribuinte contém a informação se o destinatário tem ou não IE
+*                 |-> @prop {String} estadoDestino contém a sigla do estado do destinatário da nota
+*                 |-> @prop {String} estadoGerador contém a sigla do estado do emitente da nota
+*           |-> @prop {Object} produtos contém os produtos da nota
+*                 |-> @prop {Object} [codigoProduto] contém as informações de um produto, podendo ser a ocorrência 1-*
+*                       |-> @prop {String} descricao contém a descrição do produto
+*                       |-> @prop {Object} quantidade contém a quantidade desse produto
+*                             |-> @prop {String} numero contém o número da quantidade do produto
+*                             |-> @prop {String} tipo contém a unidade de medida da quantidade
+*                       |-> @prop {Object} valor contém os valores do produto
+*                             |-> @prop {String} total contém o valor total do produto
+*   @param {Function} callback chamado após a gravação
+*     |-> @param {Error} err contém um erro caso a gravação dê errado
+**/
 export function gravarNota (chave, nota, callback) {
   db.ref('Notas/' + chave).set(nota, err => {
     callback(err)
   })
 }
 
-/*
-* {Function} gravarNotaSlim (nota, callback): recebe uma nota específica e grava no firebase.db com um id aleatório,
+/**
+* @function gravarNotaSlim recebe uma nota específica e grava no firebase.db com um id aleatório,
 * esse tipo de nota não contém todas as informações de uma nota comum, notas slim não são exibidas pelo componente NotaDialogo
-*   @param {Object} nota: contém os dados da nota, exatamente como é esperado pelo firebase.db
-*     |-> @attr {String} chave: contém a chave da nota
-*     |-> @attr {String} destinatario: contém o id do destinatário, podendo ser um CPF ou CNPJ
-*     |-> @attr {String} emitente: contém o id do emitente, sendo necessariamente um CNPJ
-*     |-> @attr {Object} geral: contém sas informações gerais da nota
-*           |-> @attr {String} cfop: contém o cfop da nota
-*           |-> @attr {String} numero: contém o número da nota
-*           |-> @attr {Date.ISOString} dataHora: contém data e hora da emissão da nota em ISO String
-*           |-> @attr {String} naturezaOperacao: contém a natureza da operação
-*           |-> @attr {String} status: contém o status da nota
-*           |-> @attr {String} tipo: contém o tipo da nota, 0 para entrada, 1 para saída
-*           |-> @attr {Object} valor: contém os valores totais da nota
-*                 |-> @attr {String} total: contém o valor total da nota
-*           |-> @attr {Object} informacoesEstaduais: contém as informações estaduais da nota
-*                 |-> @attr {String} destinatarioContribuinte: contém a informação se o destinatário tem ou não IE
-*                 |-> @attr {String} estadoDestino: contém a sigla do estado do destinatário da nota
-*                 |-> @attr {String} estadoGerador: contém a sigla do estado do emitente da nota
-*           |-> @attr {Object} produtos: contém os produtos da nota
-*                 |-> @attr {Object} [codigoProduto]: contém as informações de um produto, podendo ser a ocorrência 1-*
-*                       |-> @attr {String} descricao: contém a descrição do produto
-*                       |-> @attr {Object} quantidade: contém a quantidade desse produto
-*                             |-> @attr {String} numero: contém o número da quantidade do produto
-*                             |-> @attr {String} tipo: contém a unidade de medida da quantidade
-*                       |-> @attr {Object} valor: contém os valores do produto
-*                             |-> @attr {String} total: contém o valor total do produto
-*   @param {Function} callback (err, nota): chamado após a gravação
-*     |-> @param {Error} err: contém um erro caso a gravação dê errado
-*     |-> @param {Object} nota: contém a nota exatamente como passado para a função gravaNotaSlim, mudando apenas a chave para a correta
-*/
+*   @param {Object} nota contém os dados da nota, exatamente como é esperado pelo firebase.db
+*     |-> @prop {String} chave contém a chave da nota
+*     |-> @prop {String} destinatario contém o id do destinatário, podendo ser um CPF ou CNPJ
+*     |-> @prop {String} emitente contém o id do emitente, sendo necessariamente um CNPJ
+*     |-> @prop {Object} geral contém sas informações gerais da nota
+*           |-> @prop {String} cfop contém o cfop da nota
+*           |-> @prop {String} numero contém o número da nota
+*           |-> @prop {Date.ISOString} dataHora contém data e hora da emissão da nota em ISO String
+*           |-> @prop {String} naturezaOperacao contém a natureza da operação
+*           |-> @prop {String} status contém o status da nota
+*           |-> @prop {String} tipo contém o tipo da nota, 0 para entrada, 1 para saída
+*           |-> @prop {Object} valor contém os valores totais da nota
+*                 |-> @prop {String} total contém o valor total da nota
+*           |-> @prop {Object} informacoesEstaduais contém as informações estaduais da nota
+*                 |-> @prop {String} destinatarioContribuinte contém a informação se o destinatário tem ou não IE
+*                 |-> @prop {String} estadoDestino contém a sigla do estado do destinatário da nota
+*                 |-> @prop {String} estadoGerador contém a sigla do estado do emitente da nota
+*           |-> @prop {Object} produtos contém os produtos da nota
+*                 |-> @prop {Object} [codigoProduto] contém as informações de um produto, podendo ser a ocorrência 1-*
+*                       |-> @prop {String} descricao contém a descrição do produto
+*                       |-> @prop {Object} quantidade contém a quantidade desse produto
+*                             |-> @prop {String} numero contém o número da quantidade do produto
+*                             |-> @prop {String} tipo contém a unidade de medida da quantidade
+*                       |-> @prop {Object} valor contém os valores do produto
+*                             |-> @prop {String} total contém o valor total do produto
+*   @param {Function} callback chamado após a gravação
+*     |-> @param {Error} err contém um erro caso a gravação dê errado
+*     |-> @param {Object} nota contém a nota exatamente como passado para a função gravaNotaSlim, mudando apenas a chave para a correta
+**/
 export function gravarNotaSlim (nota, callback) {
   let mockChave = '999999999'
   nota.chave = mockChave
@@ -384,45 +384,45 @@ export function gravarNotaSlim (nota, callback) {
   })
 }
 
-/*
-* {Function} pegarNotaProduto (produtoId, produto, callback): função que pega notas olhando a partir do produto
-*   @param {String} produtoId: contém o ID único do produto, esse ID só é único dentro da mesma empresa
-*   @param {Object} produto: contém as informações do produto
-*     |-> @attr {String} descricao: contém a descrição do produto
-*     |-> @attr {Object} quantidade: contém a quantidade desse produto
-*           |-> @attr {String} numero: contém o número da quantidade do produto
-*           |-> @attr {String} tipo: contém a unidade de medida da quantidade
-*     |-> @attr {Object} valor: contém os valores do produto
-*           |-> @attr {String} total: contém o valor total do produto
-*   @param {Function} callback(err, notas): função chamada ao final da recuperação das notas
-*     |-> @param {Error} err: contém um erro caso dê algum problema na recuperação das notas
-*     |-> @param {Object} notas: contém as notas recuperadas, sendo a ocorrência 0-*
-*           |-> @attr {Object} [chave]: informações de cada nota
-*                 |-> @attr {String} chave: contém a chave da nota
-*                 |-> @attr {String} destinatario: contém o id do destinatário, podendo ser um CPF ou CNPJ
-*                 |-> @attr {String} emitente: contém o id do emitente, sendo necessariamente um CNPJ
-*                 |-> @attr {Object} geral: contém sas informações gerais da nota
-*                       |-> @attr {String} cfop: contém o cfop da nota
-*                       |-> @attr {String} numero: contém o número da nota
-*                       |-> @attr {Date.ISOString} dataHora: contém data e hora da emissão da nota em ISO String
-*                       |-> @attr {String} naturezaOperacao: contém a natureza da operação
-*                       |-> @attr {String} status: contém o status da nota
-*                       |-> @attr {String} tipo: contém o tipo da nota, 0 para entrada, 1 para saída
-*                       |-> @attr {Object} valor: contém os valores totais da nota
-*                             |-> @attr {String} total: contém o valor total da nota
-*                       |-> @attr {Object} informacoesEstaduais: contém as informações estaduais da nota
-*                             |-> @attr {String} destinatarioContribuinte: contém a informação se o destinatário tem ou não IE
-*                             |-> @attr {String} estadoDestino: contém a sigla do estado do destinatário da nota
-*                             |-> @attr {String} estadoGerador: contém a sigla do estado do emitente da nota
-*                       |-> @attr {Object} produtos: contém os produtos da nota
-*                             |-> @attr {Object} [codigoProduto]: contém as informações de um produto, podendo ser a ocorrência 1-*
-*                                   |-> @attr {String} descricao: contém a descrição do produto
-*                                   |-> @attr {Object} quantidade: contém a quantidade desse produto
-*                                         |-> @attr {String} numero: contém o número da quantidade do produto
-*                                         |-> @attr {String} tipo: contém a unidade de medida da quantidade
-*                                   |-> @attr {Object} valor: contém os valores do produto
-*                                         |-> @attr {String} total: contém o valor total do produto
-*/
+/**
+* @function pegarNotaProduto função que pega notas olhando a partir do produto
+*   @param {String} produtoId contém o ID único do produto, esse ID só é único dentro da mesma empresa
+*   @param {Object} produto contém as informações do produto
+*     |-> @prop {String} descricao contém a descrição do produto
+*     |-> @prop {Object} quantidade contém a quantidade desse produto
+*           |-> @prop {String} numero contém o número da quantidade do produto
+*           |-> @prop {String} tipo contém a unidade de medida da quantidade
+*     |-> @prop {Object} valor contém os valores do produto
+*           |-> @prop {String} total contém o valor total do produto
+*   @param {Function} callback função chamada ao final da recuperação das notas
+*     |-> @param {Error} err contém um erro caso dê algum problema na recuperação das notas
+*     |-> @param {Object} notas contém as notas recuperadas, sendo a ocorrência 0-*
+*           |-> @prop {Object} [chave] informações de cada nota
+*                 |-> @prop {String} chave contém a chave da nota
+*                 |-> @prop {String} destinatario contém o id do destinatário, podendo ser um CPF ou CNPJ
+*                 |-> @prop {String} emitente contém o id do emitente, sendo necessariamente um CNPJ
+*                 |-> @prop {Object} geral contém sas informações gerais da nota
+*                       |-> @prop {String} cfop contém o cfop da nota
+*                       |-> @prop {String} numero contém o número da nota
+*                       |-> @prop {Date.ISOString} dataHora contém data e hora da emissão da nota em ISO String
+*                       |-> @prop {String} naturezaOperacao contém a natureza da operação
+*                       |-> @prop {String} status contém o status da nota
+*                       |-> @prop {String} tipo contém o tipo da nota, 0 para entrada, 1 para saída
+*                       |-> @prop {Object} valor contém os valores totais da nota
+*                             |-> @prop {String} total contém o valor total da nota
+*                       |-> @prop {Object} informacoesEstaduais contém as informações estaduais da nota
+*                             |-> @prop {String} destinatarioContribuinte contém a informação se o destinatário tem ou não IE
+*                             |-> @prop {String} estadoDestino contém a sigla do estado do destinatário da nota
+*                             |-> @prop {String} estadoGerador contém a sigla do estado do emitente da nota
+*                       |-> @prop {Object} produtos contém os produtos da nota
+*                             |-> @prop {Object} [codigoProduto] contém as informações de um produto, podendo ser a ocorrência 1-*
+*                                   |-> @prop {String} descricao contém a descrição do produto
+*                                   |-> @prop {Object} quantidade contém a quantidade desse produto
+*                                         |-> @prop {String} numero contém o número da quantidade do produto
+*                                         |-> @prop {String} tipo contém a unidade de medida da quantidade
+*                                   |-> @prop {Object} valor contém os valores do produto
+*                                         |-> @prop {String} total contém o valor total do produto
+**/
 export function pegarNotaProduto (produtoId, produto, callback) {
   let notas = {}
 
@@ -468,37 +468,37 @@ export function pegarNotaProduto (produtoId, produto, callback) {
   })
 }
 
-/*
-* {Function} pegarNotaChave (chave, callback): função que pega nota olhando a partir da chave
-*   @param {String} chave: contém a chave da nota
-*   @param {Function} callback(err, nota): função chamada ao final da recuperação da nota
-*     |-> @param {Error} err: contém um erro caso dê algum problema na recuperação da nota
-*     |-> @param {Object} nota: contém a nota recuperada
-*           |-> @attr {String} chave: contém a chave da nota
-*           |-> @attr {String} destinatario: contém o id do destinatário, podendo ser um CPF ou CNPJ
-*           |-> @attr {String} emitente: contém o id do emitente, sendo necessariamente um CNPJ
-*           |-> @attr {Object} geral: contém sas informações gerais da nota
-*                 |-> @attr {String} cfop: contém o cfop da nota
-*                 |-> @attr {String} numero: contém o número da nota
-*                 |-> @attr {Date.ISOString} dataHora: contém data e hora da emissão da nota em ISO String
-*                 |-> @attr {String} naturezaOperacao: contém a natureza da operação
-*                 |-> @attr {String} status: contém o status da nota
-*                 |-> @attr {String} tipo: contém o tipo da nota, 0 para entrada, 1 para saída
-*                 |-> @attr {Object} valor: contém os valores totais da nota
-*                       |-> @attr {String} total: contém o valor total da nota
-*                 |-> @attr {Object} informacoesEstaduais: contém as informações estaduais da nota
-*                       |-> @attr {String} destinatarioContribuinte: contém a informação se o destinatário tem ou não IE
-*                       |-> @attr {String} estadoDestino: contém a sigla do estado do destinatário da nota
-*                       |-> @attr {String} estadoGerador: contém a sigla do estado do emitente da nota
-*                 |-> @attr {Object} produtos: contém os produtos da nota
-*                       |-> @attr {Object} [codigoProduto]: contém as informações de um produto, podendo ser a ocorrência 1-*
-*                             |-> @attr {String} descricao: contém a descrição do produto
-*                             |-> @attr {Object} quantidade: contém a quantidade desse produto
-*                                   |-> @attr {String} numero: contém o número da quantidade do produto
-*                                   |-> @attr {String} tipo: contém a unidade de medida da quantidade
-*                             |-> @attr {Object} valor: contém os valores do produto
-*                                   |-> @attr {String} total: contém o valor total do produto
-*/
+/**
+* @function pegarNotaChave função que pega nota olhando a partir da chave
+*   @param {String} chave contém a chave da nota
+*   @param {Function} callback função chamada ao final da recuperação da nota
+*     |-> @param {Error} err contém um erro caso dê algum problema na recuperação da nota
+*     |-> @param {Object} nota contém a nota recuperada
+*           |-> @prop {String} chave contém a chave da nota
+*           |-> @prop {String} destinatario contém o id do destinatário, podendo ser um CPF ou CNPJ
+*           |-> @prop {String} emitente contém o id do emitente, sendo necessariamente um CNPJ
+*           |-> @prop {Object} geral contém sas informações gerais da nota
+*                 |-> @prop {String} cfop contém o cfop da nota
+*                 |-> @prop {String} numero contém o número da nota
+*                 |-> @prop {Date.ISOString} dataHora contém data e hora da emissão da nota em ISO String
+*                 |-> @prop {String} naturezaOperacao contém a natureza da operação
+*                 |-> @prop {String} status contém o status da nota
+*                 |-> @prop {String} tipo contém o tipo da nota, 0 para entrada, 1 para saída
+*                 |-> @prop {Object} valor contém os valores totais da nota
+*                       |-> @prop {String} total contém o valor total da nota
+*                 |-> @prop {Object} informacoesEstaduais contém as informações estaduais da nota
+*                       |-> @prop {String} destinatarioContribuinte contém a informação se o destinatário tem ou não IE
+*                       |-> @prop {String} estadoDestino contém a sigla do estado do destinatário da nota
+*                       |-> @prop {String} estadoGerador contém a sigla do estado do emitente da nota
+*                 |-> @prop {Object} produtos contém os produtos da nota
+*                       |-> @prop {Object} [codigoProduto] contém as informações de um produto, podendo ser a ocorrência 1-*
+*                             |-> @prop {String} descricao contém a descrição do produto
+*                             |-> @prop {Object} quantidade contém a quantidade desse produto
+*                                   |-> @prop {String} numero contém o número da quantidade do produto
+*                                   |-> @prop {String} tipo contém a unidade de medida da quantidade
+*                             |-> @prop {Object} valor contém os valores do produto
+*                                   |-> @prop {String} total contém o valor total do produto
+**/
 export function pegarNotaChave (chave, callback) {
   let nota
   let storeNotas = storeVuex.state.notas
@@ -515,38 +515,38 @@ export function pegarNotaChave (chave, callback) {
   }
 }
 
-/*
-* {Function} pegarNotaNumeroEmitente (numero, emitente, callback): função que pega notas olhando a partir do número da nota e do emitente
-*   @param {String} numero: contém o numero da nota
-*   @param {String} emitente: contém o CNPJ do emitente
-*   @param {Function} callback(err, nota): função chamada ao final da recuperação da nota
-*     |-> @param {Error} err: contém um erro caso dê algum problema na recuperação da nota
-*     |-> @param {Object} nota: contém a nota recuperada
-*           |-> @attr {String} chave: contém a chave da nota
-*           |-> @attr {String} destinatario: contém o id do destinatário, podendo ser um CPF ou CNPJ
-*           |-> @attr {String} emitente: contém o id do emitente, sendo necessariamente um CNPJ
-*           |-> @attr {Object} geral: contém sas informações gerais da nota
-*                 |-> @attr {String} cfop: contém o cfop da nota
-*                 |-> @attr {String} numero: contém o número da nota
-*                 |-> @attr {Date.ISOString} dataHora: contém data e hora da emissão da nota em ISO String
-*                 |-> @attr {String} naturezaOperacao: contém a natureza da operação
-*                 |-> @attr {String} status: contém o status da nota
-*                 |-> @attr {String} tipo: contém o tipo da nota, 0 para entrada, 1 para saída
-*                 |-> @attr {Object} valor: contém os valores totais da nota
-*                       |-> @attr {String} total: contém o valor total da nota
-*                 |-> @attr {Object} informacoesEstaduais: contém as informações estaduais da nota
-*                       |-> @attr {String} destinatarioContribuinte: contém a informação se o destinatário tem ou não IE
-*                       |-> @attr {String} estadoDestino: contém a sigla do estado do destinatário da nota
-*                       |-> @attr {String} estadoGerador: contém a sigla do estado do emitente da nota
-*                 |-> @attr {Object} produtos: contém os produtos da nota, podendo sendo a ocorrência 1-*
-*                       |-> @attr {Object} [codigoProduto]: contém as informações de um produto
-*                             |-> @attr {String} descricao: contém a descrição do produto
-*                             |-> @attr {Object} quantidade: contém a quantidade desse produto
-*                                   |-> @attr {String} numero: contém o número da quantidade do produto
-*                                   |-> @attr {String} tipo: contém a unidade de medida da quantidade
-*                             |-> @attr {Object} valor: contém os valores do produto
-*                                   |-> @attr {String} total: contém o valor total do produto
-*/
+/**
+* @function pegarNotaNumeroEmitente função que pega notas olhando a partir do número da nota e do emitente
+*   @param {String} numero contém o numero da nota
+*   @param {String} emitente contém o CNPJ do emitente
+*   @param {Function} callback função chamada ao final da recuperação da nota
+*     |-> @param {Error} err contém um erro caso dê algum problema na recuperação da nota
+*     |-> @param {Object} nota contém a nota recuperada
+*           |-> @prop {String} chave contém a chave da nota
+*           |-> @prop {String} destinatario contém o id do destinatário, podendo ser um CPF ou CNPJ
+*           |-> @prop {String} emitente contém o id do emitente, sendo necessariamente um CNPJ
+*           |-> @prop {Object} geral contém sas informações gerais da nota
+*                 |-> @prop {String} cfop contém o cfop da nota
+*                 |-> @prop {String} numero contém o número da nota
+*                 |-> @prop {Date.ISOString} dataHora contém data e hora da emissão da nota em ISO String
+*                 |-> @prop {String} naturezaOperacao contém a natureza da operação
+*                 |-> @prop {String} status contém o status da nota
+*                 |-> @prop {String} tipo contém o tipo da nota, 0 para entrada, 1 para saída
+*                 |-> @prop {Object} valor contém os valores totais da nota
+*                       |-> @prop {String} total contém o valor total da nota
+*                 |-> @prop {Object} informacoesEstaduais contém as informações estaduais da nota
+*                       |-> @prop {String} destinatarioContribuinte contém a informação se o destinatário tem ou não IE
+*                       |-> @prop {String} estadoDestino contém a sigla do estado do destinatário da nota
+*                       |-> @prop {String} estadoGerador contém a sigla do estado do emitente da nota
+*                 |-> @prop {Object} produtos contém os produtos da nota, podendo sendo a ocorrência 1-*
+*                       |-> @prop {Object} [codigoProduto] contém as informações de um produto
+*                             |-> @prop {String} descricao contém a descrição do produto
+*                             |-> @prop {Object} quantidade contém a quantidade desse produto
+*                                   |-> @prop {String} numero contém o número da quantidade do produto
+*                                   |-> @prop {String} tipo contém a unidade de medida da quantidade
+*                             |-> @prop {Object} valor contém os valores do produto
+*                                   |-> @prop {String} total contém o valor total do produto
+**/
 export function pegarNotaNumeroEmitente (numero, emitente, callback) {
   let storeNotas = storeVuex.state.notas
   let nota = null
@@ -576,38 +576,38 @@ export function pegarNotaNumeroEmitente (numero, emitente, callback) {
   }
 }
 
-/*
-* {Function} pegarTodasNotasPessoa (id, callback): função que pega notas onde a pessoa referenciada é encontrada, tanto como emitente quanto como destinatário
-*   @param {String} id: contém o CNPJ ou CPF da pessoa
-*   @param {Function} callback(err, notas): função chamada ao final da recuperação das notas
-*     |-> @param {Error} err: contém um erro caso dê algum problema na recuperação das notas
-*     |-> @param {Object} notas: contém as notas recuperadas
-*           |-> @attr {Object} [chave]: informações de cada nota, sendo a ocorrência 0-*
-*                 |-> @attr {String} chave: contém a chave da nota
-*                 |-> @attr {String} destinatario: contém o id do destinatário, podendo ser um CPF ou CNPJ
-*                 |-> @attr {String} emitente: contém o id do emitente, sendo necessariamente um CNPJ
-*                 |-> @attr {Object} geral: contém sas informações gerais da nota
-*                       |-> @attr {String} cfop: contém o cfop da nota
-*                       |-> @attr {String} numero: contém o número da nota
-*                       |-> @attr {Date.ISOString} dataHora: contém data e hora da emissão da nota em ISO String
-*                       |-> @attr {String} naturezaOperacao: contém a natureza da operação
-*                       |-> @attr {String} status: contém o status da nota
-*                       |-> @attr {String} tipo: contém o tipo da nota, 0 para entrada, 1 para saída
-*                       |-> @attr {Object} valor: contém os valores totais da nota
-*                             |-> @attr {String} total: contém o valor total da nota
-*                       |-> @attr {Object} informacoesEstaduais: contém as informações estaduais da nota
-*                             |-> @attr {String} destinatarioContribuinte: contém a informação se o destinatário tem ou não IE
-*                             |-> @attr {String} estadoDestino: contém a sigla do estado do destinatário da nota
-*                             |-> @attr {String} estadoGerador: contém a sigla do estado do emitente da nota
-*                       |-> @attr {Object} produtos: contém os produtos da nota
-*                             |-> @attr {Object} [codigoProduto]: contém as informações de um produto,, podendo ser a ocorrência 1-*
-*                                   |-> @attr {String} descricao: contém a descrição do produto
-*                                   |-> @attr {Object} quantidade: contém a quantidade desse produto
-*                                         |-> @attr {String} numero: contém o número da quantidade do produto
-*                                         |-> @attr {String} tipo: contém a unidade de medida da quantidade
-*                                   |-> @attr {Object} valor: contém os valores do produto
-*                                         |-> @attr {String} total: contém o valor total do produto
-*/
+/**
+* @function pegarTodasNotasPessoa função que pega notas onde a pessoa referenciada é encontrada, tanto como emitente quanto como destinatário
+*   @param {String} id contém o CNPJ ou CPF da pessoa
+*   @param {Function} callback função chamada ao final da recuperação das notas
+*     |-> @param {Error} err contém um erro caso dê algum problema na recuperação das notas
+*     |-> @param {Object} notas contém as notas recuperadas
+*           |-> @prop {Object} [chave] informações de cada nota, sendo a ocorrência 0-*
+*                 |-> @prop {String} chave contém a chave da nota
+*                 |-> @prop {String} destinatario contém o id do destinatário, podendo ser um CPF ou CNPJ
+*                 |-> @prop {String} emitente contém o id do emitente, sendo necessariamente um CNPJ
+*                 |-> @prop {Object} geral contém sas informações gerais da nota
+*                       |-> @prop {String} cfop contém o cfop da nota
+*                       |-> @prop {String} numero contém o número da nota
+*                       |-> @prop {Date.ISOString} dataHora contém data e hora da emissão da nota em ISO String
+*                       |-> @prop {String} naturezaOperacao contém a natureza da operação
+*                       |-> @prop {String} status contém o status da nota
+*                       |-> @prop {String} tipo contém o tipo da nota, 0 para entrada, 1 para saída
+*                       |-> @prop {Object} valor contém os valores totais da nota
+*                             |-> @prop {String} total contém o valor total da nota
+*                       |-> @prop {Object} informacoesEstaduais contém as informações estaduais da nota
+*                             |-> @prop {String} destinatarioContribuinte contém a informação se o destinatário tem ou não IE
+*                             |-> @prop {String} estadoDestino contém a sigla do estado do destinatário da nota
+*                             |-> @prop {String} estadoGerador contém a sigla do estado do emitente da nota
+*                       |-> @prop {Object} produtos contém os produtos da nota
+*                             |-> @prop {Object} [codigoProduto] contém as informações de um produto,, podendo ser a ocorrência 1-*
+*                                   |-> @prop {String} descricao contém a descrição do produto
+*                                   |-> @prop {Object} quantidade contém a quantidade desse produto
+*                                         |-> @prop {String} numero contém o número da quantidade do produto
+*                                         |-> @prop {String} tipo contém a unidade de medida da quantidade
+*                                   |-> @prop {Object} valor contém os valores do produto
+*                                         |-> @prop {String} total contém o valor total do produto
+**/
 export function pegarTodasNotasPessoa (id, callback) {
   let notas = {}
   db.ref('Notas/').orderByChild('emitente').equalTo(id).once('value').then(value => {
@@ -644,11 +644,11 @@ export function pegarTodasNotasPessoa (id, callback) {
 
 // ACESSO DB NOTAS SERVICO
 
-/*
-* {Function} gravarNotas (callback): pega as notas de serviço no store e grava no firebase.db
-*   @param {Function} callback (err): chamado após gravar as notas de serviço no firebase.db
-*     |-> @param {Error} err: contém um erro caso alguma coisa saia errado
-*/
+/**
+* @function gravarNotas pega as notas de serviço no store e grava no firebase.db
+*   @param {Function} callback chamado após gravar as notas de serviço no firebase.db
+*     |-> @param {Error} err contém um erro caso alguma coisa saia errado
+**/
 export function gravarNotasServico (callback) {
   let notasServico = storeVuex.state.notasServico
   let keys = Object.keys(notasServico)
@@ -667,66 +667,66 @@ export function gravarNotasServico (callback) {
   }
 }
 
-/*
-* {Function} gravarNotaServico (chave, nota, callback): função que grava uma nota especifica de serviço
-*   @param {String} chave: contém a chave da nota que é composta pelo número da nota + CNPJ do emitente
-*   @param {Object} nota: contém a nota a ser gravada
-*     |-> @attr {String} chave: contém a chave da nota que é composta pelo número da nota + CNPJ do emitente
-*     |-> @attr {String} emitente: contém o CNPJ do emitente
-*     |-> @attr {String} destinatário: contém o CNPJ ou CPF do destinatário
-*     |-> @attr {Object} geral: contém informações gerais da nota
-*           |-> @attr {Date.ISOString} dataHora: contém a data de emissão da nota
-*           |-> @attr {String} numero: contém o número da nota
-*           |-> @attr {String} status: contém o status da nota, se 'CANCELADA' ou 'NORMAL'
-*     |-> @attr {Object} valor: contém os valores da nota
-*           |-> @attr {String} servico: contém o valor do servico
-*           |-> @attr {String} baseDeCalculo: contém a base dos impostos
-*           |-> @attr {Object} iss: contém as informações do ISS
-*                 |-> @attr {String} aliquota: contém a aliquota do ISS
-*                 |-> @attr {String} valor: contém o valor total do ISS
-*           |-> @attr {Object} retencoes: contém o valor das retenções da nota
-*                 |-> @attr {String} irpj: contém o valor da retenção de IRPJ
-*                 |-> @attr {String} pis: contém o valor da retenção de PIS
-*                 |-> @attr {String} cofins: contém o valor da retenção de COFINS
-*                 |-> @attr {String} csll: contém o valor da retenção de CSLL
-*                 |-> @attr {String} iss: contém o valor da retenção de ISS
-*                 |-> @attr {String} inss: contém o valor da retenção de INSS
-*   @param {Function} callback(err): chamada após a gravação da nota de serviço
-*     |-> @param {Error} err: contém um erro caso ocorra algum problema na gravação
-*/
+/**
+* @function gravarNotaServico função que grava uma nota especifica de serviço
+*   @param {String} chave contém a chave da nota que é composta pelo número da nota + CNPJ do emitente
+*   @param {Object} nota contém a nota a ser gravada
+*     |-> @prop {String} chave contém a chave da nota que é composta pelo número da nota + CNPJ do emitente
+*     |-> @prop {String} emitente contém o CNPJ do emitente
+*     |-> @prop {String} destinatário contém o CNPJ ou CPF do destinatário
+*     |-> @prop {Object} geral contém informações gerais da nota
+*           |-> @prop {Date.ISOString} dataHora contém a data de emissão da nota
+*           |-> @prop {String} numero contém o número da nota
+*           |-> @prop {String} status contém o status da nota, se 'CANCELADA' ou 'NORMAL'
+*     |-> @prop {Object} valor contém os valores da nota
+*           |-> @prop {String} servico contém o valor do servico
+*           |-> @prop {String} baseDeCalculo contém a base dos impostos
+*           |-> @prop {Object} iss contém as informações do ISS
+*                 |-> @prop {String} aliquota contém a aliquota do ISS
+*                 |-> @prop {String} valor contém o valor total do ISS
+*           |-> @prop {Object} retencoes contém o valor das retenções da nota
+*                 |-> @prop {String} irpj contém o valor da retenção de IRPJ
+*                 |-> @prop {String} pis contém o valor da retenção de PIS
+*                 |-> @prop {String} cofins contém o valor da retenção de COFINS
+*                 |-> @prop {String} csll contém o valor da retenção de CSLL
+*                 |-> @prop {String} iss contém o valor da retenção de ISS
+*                 |-> @prop {String} inss contém o valor da retenção de INSS
+*   @param {Function} callback chamada após a gravação da nota de serviço
+*     |-> @param {Error} err contém um erro caso ocorra algum problema na gravação
+**/
 export function gravarNotaServico (chave, nota, callback) {
   db.ref('NotasServico/' + chave).set(nota, err => {
     callback(err)
   })
 }
 
-/*
-* {Function} pegarNotaServicoChave (chave, callback): função que pega nota de serviço olhando a partir da chave
-*   @param {String} chave: contém a chave da nota que é composta pelo número da nota + CNPJ do emitente
-*   @param {Function} callback(err, nota): função chamada ao final da recuperação da nota de serviço
-*     |-> @param {Error} err: contém um erro caso dê algum problema na recuperação da nota de serviço
-*     |-> @param {Object} nota: contém a nota recuperada
-*           |-> @attr {String} chave: contém a chave da nota que é composta pelo número da nota + CNPJ do emitente
-*           |-> @attr {String} emitente: contém o CNPJ do emitente
-*           |-> @attr {String} destinatário: contém o CNPJ ou CPF do destinatário
-*           |-> @attr {Object} geral: contém informações gerais da nota
-*                 |-> @attr {Date.ISOString} dataHora: contém a data de emissão da nota
-*                 |-> @attr {String} numero: contém o número da nota
-*                 |-> @attr {String} status: contém o status da nota, se 'CANCELADA' ou 'NORMAL'
-*           |-> @attr {Object} valor: contém os valores da nota
-*                 |-> @attr {String} servico: contém o valor do servico
-*                 |-> @attr {String} baseDeCalculo: contém a base dos impostos
-*                 |-> @attr {Object} iss: contém as informações do ISS
-*                       |-> @attr {String} aliquota: contém a aliquota do ISS
-*                       |-> @attr {String} valor: contém o valor total do ISS
-*                 |-> @attr {Object} retencoes: contém o valor das retenções da nota
-*                       |-> @attr {String} irpj: contém o valor da retenção de IRPJ
-*                       |-> @attr {String} pis: contém o valor da retenção de PIS
-*                       |-> @attr {String} cofins: contém o valor da retenção de COFINS
-*                       |-> @attr {String} csll: contém o valor da retenção de CSLL
-*                       |-> @attr {String} iss: contém o valor da retenção de ISS
-*                       |-> @attr {String} inss: contém o valor da retenção de INSS
-*/
+/**
+* @function pegarNotaServicoChave função que pega nota de serviço olhando a partir da chave
+*   @param {String} chave contém a chave da nota que é composta pelo número da nota + CNPJ do emitente
+*   @param {Function} callback função chamada ao final da recuperação da nota de serviço
+*     |-> @param {Error} err contém um erro caso dê algum problema na recuperação da nota de serviço
+*     |-> @param {Object} nota contém a nota recuperada
+*           |-> @prop {String} chave contém a chave da nota que é composta pelo número da nota + CNPJ do emitente
+*           |-> @prop {String} emitente contém o CNPJ do emitente
+*           |-> @prop {String} destinatário contém o CNPJ ou CPF do destinatário
+*           |-> @prop {Object} geral contém informações gerais da nota
+*                 |-> @prop {Date.ISOString} dataHora contém a data de emissão da nota
+*                 |-> @prop {String} numero contém o número da nota
+*                 |-> @prop {String} status contém o status da nota, se 'CANCELADA' ou 'NORMAL'
+*           |-> @prop {Object} valor contém os valores da nota
+*                 |-> @prop {String} servico contém o valor do servico
+*                 |-> @prop {String} baseDeCalculo contém a base dos impostos
+*                 |-> @prop {Object} iss contém as informações do ISS
+*                       |-> @prop {String} aliquota contém a aliquota do ISS
+*                       |-> @prop {String} valor contém o valor total do ISS
+*                 |-> @prop {Object} retencoes contém o valor das retenções da nota
+*                       |-> @prop {String} irpj contém o valor da retenção de IRPJ
+*                       |-> @prop {String} pis contém o valor da retenção de PIS
+*                       |-> @prop {String} cofins contém o valor da retenção de COFINS
+*                       |-> @prop {String} csll contém o valor da retenção de CSLL
+*                       |-> @prop {String} iss contém o valor da retenção de ISS
+*                       |-> @prop {String} inss contém o valor da retenção de INSS
+**/
 export function pegarNotaServicoChave (chave, callback) {
   let notaServico
   let storeNotasServico = storeVuex.state.notasServico
