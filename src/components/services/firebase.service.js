@@ -315,8 +315,8 @@ export function gravarNotas (callback) {
 *                 |-> @attr {String} destinatarioContribuinte: contém a informação se o destinatário tem ou não IE
 *                 |-> @attr {String} estadoDestino: contém a sigla do estado do destinatário da nota
 *                 |-> @attr {String} estadoGerador: contém a sigla do estado do emitente da nota
-*           |-> @attr {Object} produtos: contém os produtos da nota, podendo sendo a ocorrência 1-*
-*                 |-> @attr {Object} [codigoProduto]: contém as informações de um produto
+*           |-> @attr {Object} produtos: contém os produtos da nota
+*                 |-> @attr {Object} [codigoProduto]: contém as informações de um produto, podendo ser a ocorrência 1-*
 *                       |-> @attr {String} descricao: contém a descrição do produto
 *                       |-> @attr {Object} quantidade: contém a quantidade desse produto
 *                             |-> @attr {String} numero: contém o número da quantidade do produto
@@ -352,8 +352,8 @@ export function gravarNota (chave, nota, callback) {
 *                 |-> @attr {String} destinatarioContribuinte: contém a informação se o destinatário tem ou não IE
 *                 |-> @attr {String} estadoDestino: contém a sigla do estado do destinatário da nota
 *                 |-> @attr {String} estadoGerador: contém a sigla do estado do emitente da nota
-*           |-> @attr {Object} produtos: contém os produtos da nota, podendo sendo a ocorrência 1-*
-*                 |-> @attr {Object} [codigoProduto]: contém as informações de um produto
+*           |-> @attr {Object} produtos: contém os produtos da nota
+*                 |-> @attr {Object} [codigoProduto]: contém as informações de um produto, podendo ser a ocorrência 1-*
 *                       |-> @attr {String} descricao: contém a descrição do produto
 *                       |-> @attr {Object} quantidade: contém a quantidade desse produto
 *                             |-> @attr {String} numero: contém o número da quantidade do produto
@@ -414,8 +414,8 @@ export function gravarNotaSlim (nota, callback) {
 *                             |-> @attr {String} destinatarioContribuinte: contém a informação se o destinatário tem ou não IE
 *                             |-> @attr {String} estadoDestino: contém a sigla do estado do destinatário da nota
 *                             |-> @attr {String} estadoGerador: contém a sigla do estado do emitente da nota
-*                       |-> @attr {Object} produtos: contém os produtos da nota, podendo sendo a ocorrência 1-*
-*                             |-> @attr {Object} [codigoProduto]: contém as informações de um produto
+*                       |-> @attr {Object} produtos: contém os produtos da nota
+*                             |-> @attr {Object} [codigoProduto]: contém as informações de um produto, podendo ser a ocorrência 1-*
 *                                   |-> @attr {String} descricao: contém a descrição do produto
 *                                   |-> @attr {Object} quantidade: contém a quantidade desse produto
 *                                         |-> @attr {String} numero: contém o número da quantidade do produto
@@ -490,8 +490,8 @@ export function pegarNotaProduto (produtoId, produto, callback) {
 *                       |-> @attr {String} destinatarioContribuinte: contém a informação se o destinatário tem ou não IE
 *                       |-> @attr {String} estadoDestino: contém a sigla do estado do destinatário da nota
 *                       |-> @attr {String} estadoGerador: contém a sigla do estado do emitente da nota
-*                 |-> @attr {Object} produtos: contém os produtos da nota, podendo sendo a ocorrência 1-*
-*                       |-> @attr {Object} [codigoProduto]: contém as informações de um produto
+*                 |-> @attr {Object} produtos: contém os produtos da nota
+*                       |-> @attr {Object} [codigoProduto]: contém as informações de um produto, podendo ser a ocorrência 1-*
 *                             |-> @attr {String} descricao: contém a descrição do produto
 *                             |-> @attr {Object} quantidade: contém a quantidade desse produto
 *                                   |-> @attr {String} numero: contém o número da quantidade do produto
@@ -581,8 +581,8 @@ export function pegarNotaNumeroEmitente (numero, emitente, callback) {
 *   @param {String} id: contém o CNPJ ou CPF da pessoa
 *   @param {Function} callback(err, notas): função chamada ao final da recuperação das notas
 *     |-> @param {Error} err: contém um erro caso dê algum problema na recuperação das notas
-*     |-> @param {Object} notas: contém as notas recuperadas, sendo a ocorrência 0-*
-*           |-> @attr {Object} [chave]: informações de cada nota
+*     |-> @param {Object} notas: contém as notas recuperadas
+*           |-> @attr {Object} [chave]: informações de cada nota, sendo a ocorrência 0-*
 *                 |-> @attr {String} chave: contém a chave da nota
 *                 |-> @attr {String} destinatario: contém o id do destinatário, podendo ser um CPF ou CNPJ
 *                 |-> @attr {String} emitente: contém o id do emitente, sendo necessariamente um CNPJ
@@ -599,8 +599,8 @@ export function pegarNotaNumeroEmitente (numero, emitente, callback) {
 *                             |-> @attr {String} destinatarioContribuinte: contém a informação se o destinatário tem ou não IE
 *                             |-> @attr {String} estadoDestino: contém a sigla do estado do destinatário da nota
 *                             |-> @attr {String} estadoGerador: contém a sigla do estado do emitente da nota
-*                       |-> @attr {Object} produtos: contém os produtos da nota, podendo sendo a ocorrência 1-*
-*                             |-> @attr {Object} [codigoProduto]: contém as informações de um produto
+*                       |-> @attr {Object} produtos: contém os produtos da nota
+*                             |-> @attr {Object} [codigoProduto]: contém as informações de um produto,, podendo ser a ocorrência 1-*
 *                                   |-> @attr {String} descricao: contém a descrição do produto
 *                                   |-> @attr {Object} quantidade: contém a quantidade desse produto
 *                                         |-> @attr {String} numero: contém o número da quantidade do produto
