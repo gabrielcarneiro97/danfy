@@ -469,7 +469,7 @@ export function pegarNotaProduto (produtoId, produto, callback) {
 }
 
 /*
-* {Function} pegarNotaChave (chave, callback): função que pega notas olhando a partir da chave
+* {Function} pegarNotaChave (chave, callback): função que pega nota olhando a partir da chave
 *   @param {String} chave: contém a chave da nota
 *   @param {Function} callback(err, nota): função chamada ao final da recuperação da nota
 *     |-> @param {Error} err: contém um erro caso dê algum problema na recuperação da nota
@@ -643,6 +643,12 @@ export function pegarTodasNotasPessoa (id, callback) {
 // FIM ACESSO DB NOTAS
 
 // ACESSO DB NOTAS SERVICO
+
+/*
+* {Function} gravarNotas (callback): pega as notas de serviço no store e grava no firebase.db
+*   @param {Function} callback (err): chamado após gravar as notas de serviço no firebase.db
+*     |-> @param {Error} err: contém um erro caso alguma coisa saia errado
+*/
 export function gravarNotasServico (callback) {
   let notasServico = storeVuex.state.notasServico
   let keys = Object.keys(notasServico)
@@ -660,11 +666,67 @@ export function gravarNotasServico (callback) {
     callback(null)
   }
 }
+
+/*
+* {Function} gravarNotaServico (chave, nota, callback): função que grava uma nota especifica de serviço
+*   @param {String} chave: contém a chave da nota que é composta pelo número da nota + CNPJ do emitente
+*   @param {Object} nota: contém a nota a ser gravada
+*     |-> @attr {String} chave: contém a chave da nota que é composta pelo número da nota + CNPJ do emitente
+*     |-> @attr {String} emitente: contém o CNPJ do emitente
+*     |-> @attr {String} destinatário: contém o CNPJ ou CPF do destinatário
+*     |-> @attr {Object} geral: contém informações gerais da nota
+*           |-> @attr {Date.ISOString} dataHora: contém a data de emissão da nota
+*           |-> @attr {String} numero: contém o número da nota
+*           |-> @attr {String} status: contém o status da nota, se 'CANCELADA' ou 'NORMAL'
+*     |-> @attr {Object} valor: contém os valores da nota
+*           |-> @attr {String} servico: contém o valor do servico
+*           |-> @attr {String} baseDeCalculo: contém a base dos impostos
+*           |-> @attr {Object} iss: contém as informações do ISS
+*                 |-> @attr {String} aliquota: contém a aliquota do ISS
+*                 |-> @attr {String} valor: contém o valor total do ISS
+*           |-> @attr {Object} retencoes: contém o valor das retenções da nota
+*                 |-> @attr {String} irpj: contém o valor da retenção de IRPJ
+*                 |-> @attr {String} pis: contém o valor da retenção de PIS
+*                 |-> @attr {String} cofins: contém o valor da retenção de COFINS
+*                 |-> @attr {String} csll: contém o valor da retenção de CSLL
+*                 |-> @attr {String} iss: contém o valor da retenção de ISS
+*                 |-> @attr {String} inss: contém o valor da retenção de INSS
+*   @param {Function} callback(err): chamada após a gravação da nota de serviço
+*     |-> @param {Error} err: contém um erro caso ocorra algum problema na gravação
+*/
 export function gravarNotaServico (chave, nota, callback) {
   db.ref('NotasServico/' + chave).set(nota, err => {
     callback(err)
   })
 }
+
+/*
+* {Function} pegarNotaServicoChave (chave, callback): função que pega nota de serviço olhando a partir da chave
+*   @param {String} chave: contém a chave da nota que é composta pelo número da nota + CNPJ do emitente
+*   @param {Function} callback(err, nota): função chamada ao final da recuperação da nota de serviço
+*     |-> @param {Error} err: contém um erro caso dê algum problema na recuperação da nota de serviço
+*     |-> @param {Object} nota: contém a nota recuperada
+*           |-> @attr {String} chave: contém a chave da nota que é composta pelo número da nota + CNPJ do emitente
+*           |-> @attr {String} emitente: contém o CNPJ do emitente
+*           |-> @attr {String} destinatário: contém o CNPJ ou CPF do destinatário
+*           |-> @attr {Object} geral: contém informações gerais da nota
+*                 |-> @attr {Date.ISOString} dataHora: contém a data de emissão da nota
+*                 |-> @attr {String} numero: contém o número da nota
+*                 |-> @attr {String} status: contém o status da nota, se 'CANCELADA' ou 'NORMAL'
+*           |-> @attr {Object} valor: contém os valores da nota
+*                 |-> @attr {String} servico: contém o valor do servico
+*                 |-> @attr {String} baseDeCalculo: contém a base dos impostos
+*                 |-> @attr {Object} iss: contém as informações do ISS
+*                       |-> @attr {String} aliquota: contém a aliquota do ISS
+*                       |-> @attr {String} valor: contém o valor total do ISS
+*                 |-> @attr {Object} retencoes: contém o valor das retenções da nota
+*                       |-> @attr {String} irpj: contém o valor da retenção de IRPJ
+*                       |-> @attr {String} pis: contém o valor da retenção de PIS
+*                       |-> @attr {String} cofins: contém o valor da retenção de COFINS
+*                       |-> @attr {String} csll: contém o valor da retenção de CSLL
+*                       |-> @attr {String} iss: contém o valor da retenção de ISS
+*                       |-> @attr {String} inss: contém o valor da retenção de INSS
+*/
 export function pegarNotaServicoChave (chave, callback) {
   let notaServico
   let storeNotasServico = storeVuex.state.notasServico

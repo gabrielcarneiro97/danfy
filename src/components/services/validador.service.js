@@ -51,6 +51,7 @@ export function compararCFOP (notaInicial, notaFinal) {
     return false
   }
 }
+
 export function compararProduto (notaInicial, notaFinal) {
   let retorno = false
 
@@ -66,6 +67,7 @@ export function compararProduto (notaInicial, notaFinal) {
 
   return retorno
 }
+
 export function compararData (notaInicial, notaFinal) {
   let dataInicial = new Date(notaInicial.geral.dataHora).getTime()
   let dataFinal = new Date(notaFinal.geral.dataHora).getTime()
@@ -76,6 +78,7 @@ export function compararData (notaInicial, notaFinal) {
     return false
   }
 }
+
 export function procurarNotaPar (notaParametro, callback) {
   if (!notaParametro || !notaParametro.geral) {
     callback(new Error('O primeiro paramêtro não é uma nota Válida!'), null)
@@ -119,6 +122,7 @@ export function procurarNotaPar (notaParametro, callback) {
     })
   }
 }
+
 export function validarMovimento (notaInicial, notaFinal, callback) {
   let err = null
 

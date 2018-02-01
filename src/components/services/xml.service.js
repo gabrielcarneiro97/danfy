@@ -112,6 +112,7 @@ export function lerNotasInput (files, callback) {
     }
   }
 }
+
 export function lerNfse (obj, callback) {
   if (!obj.CompNfse.Nfse.Signature) {
     return 0
@@ -194,7 +195,6 @@ export function lerNfse (obj, callback) {
   }
 
   notaServico.chave = notaServico.emitente + notaServico.geral.numero
-  notaServico.servico = true
 
   storeVuex.commit(adicionarNotaServico(notaServico.chave, notaServico))
   storeVuex.commit(adicionarPessoa(notaServico.emitente, emitente))
@@ -202,6 +202,7 @@ export function lerNfse (obj, callback) {
 
   callback(notaServico, emitente, destinatario)
 }
+
 export function lerNfe (obj, callback) {
   if (obj.nfeProc) {
     if (!obj.nfeProc.NFe) {
