@@ -352,6 +352,7 @@ export default {
     }
   },
   created () {
+    cursorCarregando()
     usuarioAtivo((ativo, usuario, tipoDominio) => {
       if (!ativo) {
         this.$router.push('/login')
@@ -369,6 +370,7 @@ export default {
             this.$data.numeroDesativo = true
             this.$data.dominio = dominio
             this.$data.carregado = true
+            cursorNormal()
           })
         })
       } else {
@@ -376,6 +378,7 @@ export default {
           if (err) console.error(err)
           this.$data.dominio = dominio
           this.$data.carregado = true
+          cursorNormal()
         })
       }
     })

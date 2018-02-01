@@ -240,7 +240,7 @@ export function gravarPessoa (id, pessoa, callback) {
 *         |-> @param {Object} pessoa: contém os dados da pessoa encontrados no firebase.db ou no store
 *               |-> @attr {String} nome: contém o nome ou razão social da pessoa
 *               |-> @attr {Object} endereco: contém o endereço da pessoa
-*                    |-> @attr {String} logradouro: contém o logradouro do endereço
+*                     |-> @attr {String} logradouro: contém o logradouro do endereço
 *                     |-> @attr {String} numero: contém o número do endereço
 *                     |-> @attr {String} complemento: contém o complemento do endereço
 *                     |-> @attr {String} bairro: contém o bairro do endereço
@@ -853,7 +853,12 @@ export function pegarMovimentoNotaFinal (cnpj, chaveNota, callback) {
 
   query.on('child_added', snap => {
     let movimento = snap.val()
-    if (movimento.metaDados.status === 'ATIVO') {
+    if (movimento.metaDados) {
+      if (movimento.metaDados.status === 'ATIVO') {
+        callback(null, movimento)
+        jaFoi = true
+      }
+    } else {
       callback(null, movimento)
       jaFoi = true
     }

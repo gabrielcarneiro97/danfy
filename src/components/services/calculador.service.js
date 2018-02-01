@@ -7,7 +7,7 @@ export function calcularImpostosServico (notaServico, callback) {
     } else if (aliquotas.tributacao !== 'SN') {
       let valores = {}
 
-      valores.servico = notaServico.valor.servico
+      valores.servico = notaServico.geral.status === 'NORMAL' ? notaServico.valor.servico : 0
 
       let baseDeCalculo = notaServico.geral.status === 'NORMAL' ? notaServico.valor.baseDeCalculo : 0
 
@@ -17,7 +17,7 @@ export function calcularImpostosServico (notaServico, callback) {
       let aliquotaCsll = 0.0288
 
       valores.impostos = {
-        baseDeCalculo: notaServico.valor.baseDeCalculo,
+        baseDeCalculo: baseDeCalculo,
         retencoes: {
           iss: notaServico.geral.status === 'NORMAL' ? retencoes.iss : 0,
           pis: notaServico.geral.status === 'NORMAL' ? retencoes.pis : 0,
@@ -38,7 +38,7 @@ export function calcularImpostosServico (notaServico, callback) {
     } else {
       let valores = {}
 
-      valores.servico = notaServico.valor.servico
+      valores.servico = notaServico.geral.status === 'NORMAL' ? notaServico.valor.servico : 0
 
       let baseDeCalculo = notaServico.geral.status === 'NORMAL' ? notaServico.valor.baseDeCalculo : 0
 
@@ -47,7 +47,7 @@ export function calcularImpostosServico (notaServico, callback) {
       let iss = notaServico.valor.iss ? (notaServico.valor.iss.valor ? notaServico.valor.iss.valor : 0) : (baseDeCalculo * aliquotaIss)
 
       valores.impostos = {
-        baseDeCalculo: notaServico.valor.baseDeCalculo,
+        baseDeCalculo: baseDeCalculo,
         retencoes: {
           iss: notaServico.geral.status === 'NORMAL' ? retencoes.iss : 0,
           pis: notaServico.geral.status === 'NORMAL' ? retencoes.pis : 0,
@@ -494,6 +494,11 @@ export function totaisTrimestrais (cnpj, competencia, callback) {
   })
 }
 
+/*
+* {Function} R$ (valor): recebe um {Number} e converte em uma {String} com formatação numérica brasileira
+*   @param {Number} valor: número qualquer
+*   @return {String}: contém o valor na formatação numérica brasileira, substituindo '.' por ',' e colocando um '.' a cada três número antes da ','
+*/
 export function R$ (valor) {
   valor = parseFloat(valor).toFixed(2)
 

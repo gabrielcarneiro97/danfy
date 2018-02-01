@@ -169,7 +169,7 @@
 
 <script>
 import _ from 'lodash'
-import { usuarioAtivo, lerNotasInput, adicionarDominioEImpostos, limparNotasStore, limparNotasServicoStore } from './services'
+import { usuarioAtivo, lerNotasInput, adicionarDominioEImpostos, limparNotasStore, limparNotasServicoStore, cursorCarregando, cursorNormal } from './services'
 
 export default {
   data () {
@@ -210,22 +210,21 @@ export default {
     }
   },
   created () {
+    limparNotasStore()
+    limparNotasServicoStore()
     usuarioAtivo((ativo, user, tipoDominio) => {
       if (!ativo) {
         this.$router.push('/login')
       } else if (tipoDominio !== 'mult') {
         this.$router.push('/mostrarMovimentos')
-      } else {
-        limparNotasStore()
-        limparNotasServicoStore()
       }
     })
   },
   methods: {
     ler (e) {
       if (e.target.files) {
+        cursorCarregando()
         lerNotasInput(e.target.files, (notas, notasServico, pessoas) => {
-          this.$data.clicaEnviar = true
           this.$data.foraDominio = {}
           let dominio = this.$store.state.dominio
 
@@ -242,6 +241,8 @@ export default {
               this.$data.foraDominio[keyPessoa] = {cnpj: keyPessoa, num: null}
             }
           })
+          this.$data.clicaEnviar = true
+          cursorNormal()
         })
       }
     },

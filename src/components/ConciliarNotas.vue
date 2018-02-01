@@ -186,8 +186,8 @@
 </template>
 
 <script>
-import { R$, calcularImpostosMovimento, calcularImpostosServico, pegarDominio,
-  usuarioAtivo, pegarNotaChave, procurarNotaPar, estaNoDominio, validarMovimento,
+import { R$, calcularImpostosMovimento, calcularImpostosServico, pegarDominio, cursorNormal,
+  usuarioAtivo, pegarNotaChave, procurarNotaPar, estaNoDominio, validarMovimento, cursorCarregando,
   pegarNotaNumeroEmitente, lerNotasInput, gravarMovimentos, gravarServicos, gravarNotaSlim } from './services'
 import notaDialogo from './notaDialogo'
 import _ from 'lodash'
@@ -226,6 +226,7 @@ export default {
     }
   },
   created () {
+    cursorCarregando()
     usuarioAtivo((ativo, usuario, tipoDominio) => {
       if (!ativo) {
         this.$router.push('/login')
@@ -574,7 +575,7 @@ export default {
   watch: {
     movimentos (movimentos) {
       if (!_.isEmpty(movimentos)) {
-        movimentos.forEach(movimento => {
+        movimentos.forEach((movimento, index) => {
           let notaFinal = this.$store.state.notas[movimento.notaFinal]
           let notaInicial = this.$store.state.notas[movimento.notaInicial]
 
@@ -592,8 +593,14 @@ export default {
               }
             })
           }
+          if (movimentos.length - 1 === index) {
+            cursorNormal()
+          }
         })
       }
+    },
+    servicos (servicos) {
+      cursorNormal()
     }
   },
   computed: {
