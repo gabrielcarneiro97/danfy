@@ -3,12 +3,17 @@
   <div class="md-layout md-alignment-top-center" id="form">
     <div class="md-layout-item md-size-90" id="inner">
 
-        <md-field class="md-layout-item md-size-100">
+      <div class="md-layout-item md-size-100">
+        <p class="titulo">Importar</p>
+        <md-divider></md-divider>
+      </div>
+
+        <md-field class="md-layout-item md-size-100" style="margin-top:2%">
           <label>Notas</label>
           <md-file multiple @change="ler" accept=".xml" />
         </md-field>
         <div class="md-layout md-layout-item md-size-100 md-alignment-top-right">
-          <md-button class="md-layout-item md-size-25 md-primary" @click="enviar" :disabled="!clicaEnviar">ENVIAR</md-button>
+          <md-button class="md-layout-item md-size-15 md-primary" @click="enviar" :disabled="!clicaEnviar">ENVIAR</md-button>
         </div>
 
     </div>
@@ -358,7 +363,7 @@ export default {
 
 <style lang="scss" scoped>
 #form {
-  margin-top: 5%;
+  margin-top: 2%;
   margin-bottom: 2%;
 }
 #inner {
@@ -366,10 +371,8 @@ export default {
   padding: 1%;
 }
   .titulo {
-    font-size: 180%;
-    margin-bottom: 1%;
-    margin-top: 2%;    
-    font-weight: 300;
+    font-size: 160%;  
+    font-weight: 400;
     color: Black;
   }
 </style>

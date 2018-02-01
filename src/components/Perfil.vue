@@ -1,8 +1,8 @@
 <template>
   <div class="md-layout md-alignment-top-center" id="main">  
     <md-card class="md-layout-item md-size-90">
-      <md-card-header class="md-layout" style="background-color: rgb(67, 160, 71)">
-        <md-content class="md-primary titulo" style="font-size:200%">Gerenciar Conta</md-content>
+      <md-card-header class="md-layout">
+        <p class="titulo" style="font-size:190%">Gerenciar Conta</p>
       </md-card-header>
       <md-card-content>
         <md-divider></md-divider>        
@@ -159,7 +159,7 @@ export default {
   }
 
   .titulo {
-    font-size: 180%;
+    font-size: 160%;
     margin-bottom: 1%;
     margin-top: 2%;    
     font-weight: 300;

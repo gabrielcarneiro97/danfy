@@ -575,13 +575,11 @@ export default {
     movimentos (movimentos) {
       if (!_.isEmpty(movimentos)) {
         movimentos.forEach(movimento => {
-          console.log(movimento)
           let notaFinal = this.$store.state.notas[movimento.notaFinal]
           let notaInicial = this.$store.state.notas[movimento.notaInicial]
 
           if ((notaFinal.geral.cfop === '1202' || notaFinal.geral.cfop === '2202') && (movimento.valores.lucro >= 0)) {
             movimentos.forEach(movimento2 => {
-              console.log(movimento2)
               if (movimento.notaInicial === movimento2.notaFinal) {
                 notaInicial.valor.total = parseFloat(movimento2.valores.lucro) + parseFloat(notaInicial.valor.total)
                 calcularImpostosMovimento(notaInicial, notaFinal, (err, valores) => {

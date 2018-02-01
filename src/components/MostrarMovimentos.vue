@@ -2,6 +2,12 @@
 <div v-if="carregado">
   <div class="md-layout md-alignment-top-center" id="form">
     <div class="md-layout md-layout-item md-size-90" id="inner">
+
+      <div class="md-layout-item md-size-100">
+        <p class="titulo">Visualizar Movimentos</p>
+        <md-divider></md-divider>        
+      </div>
+
         <md-field class="md-layout-item md-size-20">
           <label>Número</label>
           <md-input v-model="empresaSelecionada.numero" @input="selecionaPorNumero" :disabled="numeroDesativo"></md-input>
@@ -33,7 +39,7 @@
           </md-select>
         </md-field>
         <md-field class="md-layout-item md-size-40">
-          <label for="tipoTabela">ESCOLHA A TABELA</label>
+          <label for="tipoTabela">TABELA</label>
           <md-select v-model="tipoTabela" name="tipoTabela" id="tipoTabela">
             <md-option value="movimentos">VENDAS</md-option>
             <md-option value="servicos">SERVIÇOS</md-option>
@@ -122,7 +128,7 @@
 
     <md-table v-if="temServicos" class="md-layout-item md-size-90" v-show="tipoTabela === 'servicos' || mostraTudo" ref="tabelaServicos">
       <md-table-toolbar>
-        <h1 class="md-title">Servicos {{meses[parseInt(competenciaSelecionada.mes) - 1].nome}}/{{competenciaSelecionada.ano}} - {{empresaSelecionada.pessoa.nome}}</h1>
+        <h1 class="md-title">Servicos {{meses[parseInt(competenciaSelecionada.mes) - 1].nome}}/{{competenciaSelecionada.ano}} - ({{empresaSelecionada.numero}}) {{empresaSelecionada.pessoa.nome}} {{empresaSelecionada.pessoa.cnpj}}</h1>
       </md-table-toolbar>
 
       <md-table-row>
@@ -341,7 +347,7 @@ export default {
       semServicos: true,
       servicos: {},
       trimestre: {},
-      tipoTabela: null,
+      tipoTabela: 'movimentos',
       mostraTudo: false
     }
   },
@@ -665,7 +671,7 @@ export default {
 
 <style lang="scss" scoped>
 #form {
-  margin-top: 5%;
+  margin-top: 2%;
   margin-bottom: 2%;
 }
 #tabela {
@@ -674,5 +680,10 @@ export default {
 #inner {
   padding: 1%;
   background-color: rgb(255, 255, 255)
+}
+.titulo {
+  font-size: 160%;  
+  font-weight: 400;
+  color: Black;
 }
 </style>

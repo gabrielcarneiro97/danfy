@@ -158,8 +158,6 @@ export default {
             nota = notaBruto[key]
           })
 
-          console.log(nota)
-
           this.$data.notaDialogo = {
             ...nota,
             id: chave
