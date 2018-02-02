@@ -707,7 +707,7 @@ export default {
   font-weight: 400;
   color: Black;
 }
-.esconderNaImpressao {
-  display: none;
-}
+// .esconderNaImpressao {
+//   display: none;
+// }
 </style>

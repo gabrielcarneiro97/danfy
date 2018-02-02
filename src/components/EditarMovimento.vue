@@ -8,24 +8,24 @@
       <md-dialog-content class="md-layout">
         <md-field class="md-layout-item md-size-50">
           <label>IRPJ</label>
-          <md-input v-model="movimentoNovo.valores.impostos.irpj"></md-input>
+          <md-input type="number" step="0.01" v-model="movimentoNovo.valores.impostos.irpj"></md-input>
         </md-field>
         <md-field class="md-layout-item md-size-50">
           <label>CSLL</label>
-          <md-input v-model="movimentoNovo.valores.impostos.csll"></md-input>
+          <md-input type="number" step="0.01" v-model="movimentoNovo.valores.impostos.csll"></md-input>
         </md-field>
         <md-field class="md-layout-item md-size-50">
           <label>PIS</label>
-          <md-input v-model="movimentoNovo.valores.impostos.pis"></md-input>
+          <md-input type="number" step="0.01" v-model="movimentoNovo.valores.impostos.pis"></md-input>
         </md-field>
         <md-field class="md-layout-item md-size-50">
           <label>COFINS</label>
-          <md-input v-model="movimentoNovo.valores.impostos.cofins"></md-input>
+          <md-input type="number" step="0.01" v-model="movimentoNovo.valores.impostos.cofins"></md-input>
         </md-field>
         <md-divider></md-divider>
         <md-field class="md-layout-item md-size-50">
           <label>BASE ICMS</label>
-          <md-input v-model="movimentoNovo.valores.impostos.icms.baseDeCalculo"></md-input>
+          <md-input type="number" step="0.01" v-model="movimentoNovo.valores.impostos.icms.baseDeCalculo"></md-input>
         </md-field>
         <md-field class="md-layout-item md-size-50">
           <label>ICMS</label>
@@ -34,11 +34,11 @@
 
         <md-field class="md-layout-item md-size-50" v-if="movimentoNovo.valores.impostos.icms.difal">
           <label>DIFAL ORIGEM</label>
-          <md-input v-model="movimentoNovo.valores.impostos.icms.difal.origem"></md-input>
+          <md-input type="number" step="0.01" v-model="movimentoNovo.valores.impostos.icms.difal.origem"></md-input>
         </md-field>
         <md-field class="md-layout-item md-size-50" v-if="movimentoNovo.valores.impostos.icms.difal">
           <label>DIFAL DESTINO</label>
-          <md-input v-model="movimentoNovo.valores.impostos.icms.difal.destino"></md-input>
+          <md-input type="number" step="0.01" v-model="movimentoNovo.valores.impostos.icms.difal.destino"></md-input>
         </md-field>
       </md-dialog-content>
 
@@ -105,7 +105,9 @@ export default {
       this.$data.erro.mensagem = err.message
     },
     editar () {
-      editarMovimento(this.$data.movimentoNovo, this.$props.cnpj, err => {
+      let movimentoNovo = this.$data.movimentoNovo
+
+      editarMovimento(movimentoNovo, this.$props.cnpj, err => {
         if (err) {
           console.error(err)
         } else {
@@ -133,5 +135,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { 
+  -webkit-appearance: none; 
+  margin: 0; 
+}
 </style>

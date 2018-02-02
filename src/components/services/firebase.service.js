@@ -600,7 +600,7 @@ export function pegarNotaNumeroEmitente (numero, emitente, callback) {
 *                             |-> @prop {String} estadoDestino contém a sigla do estado do destinatário da nota
 *                             |-> @prop {String} estadoGerador contém a sigla do estado do emitente da nota
 *                       |-> @prop {Object} produtos contém os produtos da nota
-*                             |-> @prop {Object} [codigoProduto] contém as informações de um produto,, podendo ser a ocorrência 1-*
+*                             |-> @prop {Object} [codigoProduto] contém as informações de um produto, podendo ser a ocorrência 1-*
 *                                   |-> @prop {String} descricao contém a descrição do produto
 *                                   |-> @prop {Object} quantidade contém a quantidade desse produto
 *                                         |-> @prop {String} numero contém o número da quantidade do produto
@@ -745,6 +745,42 @@ export function pegarNotaServicoChave (chave, callback) {
 // FIM ACESSO DB NOTAS SERVICO
 
 // ACESSO DB MOVIMENTO
+
+/**
+* @function gravarMovimentos responsável por gravar os movimentos no firebase.db
+*   @param {Object} movimentos elemento que contém os movimentos a serem gravados
+*     |-> @prop {Array} [empresa] contém os movimentos de uma empresa, a ocorrência pode ser 0-*
+*           |-> @prop {Object} [movimento] contém um movimento, a ocorrência pode ser 0-*
+*                 |-> @prop {Boolean} conferido informa se o movimento foi conferido, ele só é gravado se for true
+*                 |-> @prop {Date.ISOString} data contém a data de emissão da nota final
+*                 |-> @prop {String} dominio contém o domínio do usuário que criou o movimento
+*                 |-> @prop {String} notaFinal contém a chave da nota final
+*                 |-> @prop {String} notaInicial contém a chave da nota inicial
+*                 |-> @prop {Object} metaDados contém os meta dados do movimento
+*                       |-> @prop {String} criadoPor contém o e-mail do usuário que criou o movimento
+*                       |-> @prop {Date.ISOString} dataCriacao contém a data de criação do movimento
+*                       |-> @prop {String} tipo contém o tipo da nota primária (PRIM) ou de substituição (SUB)
+*                       |-> @prop {String} movimentoRef contém o movimento anterior caso este movimento seja do tipo 'SUB'
+*                       |-> @prop {String} status contém o estado do movimento, se ativo ou cancelado. Uma nota só pode ser final em um movimento ativo.
+*                       |-> @prop {String} canceladoPor contém o e-mail que cancelou o movimento, caso o status esteja CANCELADO
+*                 |-> @prop {Object} valores contém os valores do movimento
+*                       |-> @prop {Number} lucro contém o lucro do movimento
+*                       |-> @prop {Number} valorSaida cotém o valor da nota de saída
+*                       |-> @prop {Object} impostos cotém o valor dos impostos do movimento
+*                             |-> @prop {String|Number} irpj contém o valor do IRPJ do movimento
+*                             |-> @prop {String|Number} csll contém o valor do CSLL do movimento
+*                             |-> @prop {String|Number} pis contém o valor do PIS do movimento
+*                             |-> @prop {String|Number} cofins contém o valor do COFINS do movimento
+*                             |-> @prop {Object} icms contém as informações do ICMS
+*                                   |-> @prop {Object} icms contém as informações do ICMS
+*                                         |-> @prop {String|Number} baseDeCalculo contém a base de calculo do ICMS
+*                                         |-> @prop {String|Number} proprio contém o valor do ICMS próprio
+*                                         |-> @prop {Object} [difal] contém as informações da DIFAL, ocorrência 0-1
+*                                               |-> @prop {String|Number} origem valor da DIFAL no estado de origem
+*                                               |-> @prop {String|Number} destino valor da DIFAL no estado de destino
+*   @param {Function} callback função chamada após a gravação dos movimentos
+*     |-> @param err contém um erro caso dê algum problema na gravação
+**/
 export function gravarMovimentos (movimentos, callback) {
   Object.keys(movimentos).forEach((cnpj, index, arr) => {
     let erro
@@ -874,6 +910,7 @@ export function cancelarMovimento (cnpj, id, callback) {
     let movimento = snap.val()
     if (movimento.metaDados) {
       movimento.metaDados.status = 'CANCELADO'
+      movimento.metaDados.canceladoPor = storeVuex.state.usuario.email
     } else {
       movimento.metaDados = {
         criadoPor: 'DESCONHECIDO',
