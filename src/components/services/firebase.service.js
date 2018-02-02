@@ -888,6 +888,23 @@ export function cancelarMovimento (cnpj, id, callback) {
     })
   })
 }
+export function editarMovimento (movimentoNovo, cnpj, callback) {
+  let idMovimentoAntigo = movimentoNovo.metaDados.movimentoRef
+
+  if (!idMovimentoAntigo) {
+    callback(new Error('O movimento não tem movimento referenciado nos meta dados'))
+  } else {
+    cancelarMovimento(cnpj, idMovimentoAntigo, err => {
+      if (err) {
+        callback(err)
+      } else {
+        db.ref('Movimentos/' + cnpj).push(movimentoNovo, err => {
+          callback(err)
+        })
+      }
+    })
+  }
+}
 // FIM ACESSO DB MOVIMENTO
 
 // ACESSO DB SERVICOS

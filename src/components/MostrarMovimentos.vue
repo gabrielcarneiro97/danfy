@@ -62,7 +62,7 @@
       </md-table-toolbar>
 
       <md-table-row>
-        <!-- <md-table-head rowspan="2" class="esconderNaImpressao" v-if="!numeroDesativo">Editar</md-table-head>         -->
+        <md-table-head rowspan="2" class="esconderNaImpressao" v-if="!numeroDesativo">Editar</md-table-head>        
         <md-table-head rowspan="2">Número</md-table-head>
         <md-table-head rowspan="2">Valor Nota Inicial</md-table-head>
         <md-table-head rowspan="2">Valor Nota Final</md-table-head>
@@ -84,7 +84,7 @@
       </md-table-row>
 
       <md-table-row v-for="(movimento, index) in ordenarMovimentos" v-bind:key="index">
-        <!-- <md-table-cell md-numeric class="esconderNaImpressao" v-if="notas[movimento.notaFinal] && !numeroDesativo"><md-button class="md-icon-button" :disabled="numeroDesativo" @click="definirDeletar(index)"><font-awesome-icon :icon="faEdit" /></md-button></md-table-cell>         -->
+        <md-table-cell md-numeric class="esconderNaImpressao" v-if="notas[movimento.notaFinal] && !numeroDesativo"><editar-movimento :editado="selecionarMovimento" :cnpj="empresaSelecionada.pessoa.cnpj" :id="chaveMovimento(movimento)" :movimento="movimento"></editar-movimento></md-table-cell>        
         <md-table-cell md-numeric v-if="notas[movimento.notaFinal]"><md-button class="md-icon-button" :disabled="numeroDesativo" @click="definirDeletar(index)">{{parseInt(notas[movimento.notaFinal].geral.numero)}}</md-button></md-table-cell>
         <md-table-cell v-if="notas[movimento.notaInicial]"><nota-dialogo :chave="movimento.notaInicial">{{R$(notas[movimento.notaInicial].valor.total)}}</nota-dialogo></md-table-cell>
         <md-table-cell v-else><md-button disabled>SEM NOTA INICIAL</md-button></md-table-cell>       
@@ -107,7 +107,7 @@
       </md-table-row>
 
       <md-table-row>
-        <!-- <md-table-head class="esconderNaImpressao" v-if="!numeroDesativo"></md-table-head>         -->
+        <md-table-head class="esconderNaImpressao" v-if="!numeroDesativo"></md-table-head>        
         <md-table-head colspan="2" style="text-align:center">TOTAIS</md-table-head>
         <md-table-head style="text-align:center">{{R$(trimestre[competenciaSelecionada.mes].movimentos.totalSaida)}}</md-table-head>
         <md-table-head></md-table-head>        
@@ -295,13 +295,15 @@ import { pegarDominio, usuarioAtivo, pegarPessoaId, pegarMovimentosMes, pegarSer
 import FontAwesomeIcon from '@fortawesome/vue-fontawesome'
 import { faTrash, faEdit, faCheck } from '@fortawesome/fontawesome-free-solid'
 import notaDialogo from './notaDialogo'
+import EditarMovimento from './EditarMovimento'
 import _ from 'lodash'
 import { Printd } from 'printd'
 
 export default {
   components: {
     notaDialogo,
-    FontAwesomeIcon
+    FontAwesomeIcon,
+    EditarMovimento
   },
   data () {
     return {
@@ -400,6 +402,9 @@ export default {
         this.deletarServico()
         this.$data.deletar.servicoId = null
       }
+    },
+    chaveMovimento (movimento) {
+      return _.findKey(this.$data.movimentos, movimento)
     },
     deletarServico () {
       let servicoId = this.$data.deletar.servicoId
@@ -701,5 +706,8 @@ export default {
   font-size: 160%;  
   font-weight: 400;
   color: Black;
+}
+.esconderNaImpressao {
+  display: none;
 }
 </style>
