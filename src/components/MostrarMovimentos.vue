@@ -62,6 +62,7 @@
       </md-table-toolbar>
 
       <md-table-row>
+        <!-- <md-table-head rowspan="2" class="esconderNaImpressao" v-if="!numeroDesativo">Editar</md-table-head>         -->
         <md-table-head rowspan="2">Número</md-table-head>
         <md-table-head rowspan="2">Valor Nota Inicial</md-table-head>
         <md-table-head rowspan="2">Valor Nota Final</md-table-head>
@@ -83,6 +84,7 @@
       </md-table-row>
 
       <md-table-row v-for="(movimento, index) in ordenarMovimentos" v-bind:key="index">
+        <!-- <md-table-cell md-numeric class="esconderNaImpressao" v-if="notas[movimento.notaFinal] && !numeroDesativo"><md-button class="md-icon-button" :disabled="numeroDesativo" @click="definirDeletar(index)"><font-awesome-icon :icon="faEdit" /></md-button></md-table-cell>         -->
         <md-table-cell md-numeric v-if="notas[movimento.notaFinal]"><md-button class="md-icon-button" :disabled="numeroDesativo" @click="definirDeletar(index)">{{parseInt(notas[movimento.notaFinal].geral.numero)}}</md-button></md-table-cell>
         <md-table-cell v-if="notas[movimento.notaInicial]"><nota-dialogo :chave="movimento.notaInicial">{{R$(notas[movimento.notaInicial].valor.total)}}</nota-dialogo></md-table-cell>
         <md-table-cell v-else><md-button disabled>SEM NOTA INICIAL</md-button></md-table-cell>       
@@ -105,8 +107,9 @@
       </md-table-row>
 
       <md-table-row>
+        <!-- <md-table-head class="esconderNaImpressao" v-if="!numeroDesativo"></md-table-head>         -->
         <md-table-head colspan="2" style="text-align:center">TOTAIS</md-table-head>
-        <md-table-head>{{R$(trimestre[competenciaSelecionada.mes].movimentos.totalSaida)}}</md-table-head>
+        <md-table-head style="text-align:center">{{R$(trimestre[competenciaSelecionada.mes].movimentos.totalSaida)}}</md-table-head>
         <md-table-head></md-table-head>        
         <md-table-head>{{R$(trimestre[competenciaSelecionada.mes].movimentos.lucro)}}</md-table-head>
         <md-table-head colspan="1" style="text-align:center">{{R$(trimestre[competenciaSelecionada.mes].movimentos.impostos.icms.baseDeCalculo)}}</md-table-head>
@@ -289,13 +292,16 @@
 import { pegarDominio, usuarioAtivo, pegarPessoaId, pegarMovimentosMes, pegarServicosMes,
   pegarNotaChave, pegarNotaServicoChave, cancelarMovimento, excluirServico, totaisTrimestrais,
   R$, pegarEmpresaImpostos, retornarTipo, cursorCarregando, cursorNormal } from './services'
+import FontAwesomeIcon from '@fortawesome/vue-fontawesome'
+import { faTrash, faEdit, faCheck } from '@fortawesome/fontawesome-free-solid'
 import notaDialogo from './notaDialogo'
 import _ from 'lodash'
 import { Printd } from 'printd'
 
 export default {
   components: {
-    notaDialogo
+    notaDialogo,
+    FontAwesomeIcon
   },
   data () {
     return {
@@ -494,7 +500,6 @@ export default {
               }
               this.$data.trimestre = trimestre
               this.$data.semMovimentos = false
-              console.log(trimestre)
             })
             this.chamarMensagem(new Error(`Não foram encontrados serviços na competência: ${mesEscrito}/${competencia.ano} da empresa Nº${numeroEmpresa} (${pessoaEmpresa.nome})`))
           } else {
@@ -513,7 +518,6 @@ export default {
               console.error(err)
             }
             cursorNormal()
-            console.log(trimestre)            
             this.$data.trimestre = trimestre
             this.$data.semMovimentos = false
             this.$data.semServicos = false
@@ -528,6 +532,10 @@ export default {
       let css = `  * {
           font-family: Helvetica, Arial, sans-serif;
         }
+        .esconderNaImpressao {
+          display: none;
+        }
+
         .md-content {
           color: #333;
           text-align: center;
@@ -612,6 +620,9 @@ export default {
     }
   },
   computed: {
+    faCheck: _ => faCheck,
+    faEdit: _ => faEdit,
+    faTrash: _ => faTrash,
     tudoPreenchido () {
       if (!_.isEmpty(this.$data.empresaSelecionada.pessoa) && this.$data.competenciaSelecionada.ano && this.$data.competenciaSelecionada.mes) {
         return true

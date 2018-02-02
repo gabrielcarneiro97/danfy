@@ -85,7 +85,7 @@ export function calcularImpostosMovimento (notaInicial, notaFinal, callback) {
       if (lucro < 0 && estadoGerador !== estadoDestino) {
         lucro = 0
       }
-      if ((lucro < 0 && notaFinal.geral.cfop !== '1202' && notaFinal.geral.cfop !== '2202') || (notaFinal.geral.cfop === '6918' || notaFinal.geral.cfop === '5918')) {
+      if ((lucro < 0 && notaFinal.geral.cfop !== '1202' && notaFinal.geral.cfop !== '2202') || (notaFinal.geral.cfop === '6918' || notaFinal.geral.cfop === '5918') || (notaFinal.geral.cfop === '6913' || notaFinal.geral.cfop === '5913')) {
         callback(null, {
           lucro: 0,
           valorSaida: valorSaida,

@@ -8,6 +8,7 @@ export let cfopConsignacao = ['1917', '2917']
 export let cfopCompraConsignacao = ['1113']
 export let cfopVendaConsignacao = ['5115', '6115', '5114']
 export let cfopDevolucaoConsignacao = ['5918', '6918']
+export let cfopDevolucaoDemonstracao = ['6913', '5913']
 
 export function retornarTipo (cfop) {
   if (cfopCompra.includes(cfop)) {
@@ -24,6 +25,8 @@ export function retornarTipo (cfop) {
     return 'DEVOLUÇÃO DE CONSIGNAÇÃO'
   } else if (cfopDevolucaoCompra.includes(cfop)) {
     return 'DEVOLUÇÃO DE COMPRA'
+  } else if (cfopDevolucaoDemonstracao.includes(cfop)) {
+    return 'DEVOLUÇÃO DEMONSTRAÇÃO'
   }
 }
 
