@@ -242,7 +242,7 @@ export function calcularImpostosMovimento (notaInicial, notaFinal, callback) {
           callback(null, valores)
         }
         if (notaFinal.geral.cfop === '1202' || notaFinal.geral.cfop === '2202') {
-          pegarMovimentoNotaFinal(notaFinal.emitente, notaInicial.chave, (err, movimentoAnterior) => {
+          pegarMovimentoNotaFinal(notaFinal.emitente, notaInicial ? notaInicial.chave : notaInicial, (err, movimentoAnterior) => {
             if (err) {
               console.error(err)
             } else if (movimentoAnterior) {

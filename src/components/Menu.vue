@@ -34,11 +34,12 @@
 <script>
 import FontAwesomeIcon from '@fortawesome/vue-fontawesome'
 import { faFileAlt } from '@fortawesome/fontawesome-free-regular'
-import { version, usuarioAtivo } from './services'
+import { version, usuarioAtivo, cursorNormal } from './services'
 
 export default {
   created () {
     usuarioAtivo((u, usuario, tipoDominio) => {
+      cursorNormal()
       if (u) {
         if (tipoDominio !== 'mult') {
           this.$router.push('/login')
