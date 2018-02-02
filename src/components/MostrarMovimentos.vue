@@ -494,6 +494,7 @@ export default {
               }
               this.$data.trimestre = trimestre
               this.$data.semMovimentos = false
+              console.log(trimestre)
             })
             this.chamarMensagem(new Error(`Não foram encontrados serviços na competência: ${mesEscrito}/${competencia.ano} da empresa Nº${numeroEmpresa} (${pessoaEmpresa.nome})`))
           } else {
@@ -512,6 +513,7 @@ export default {
               console.error(err)
             }
             cursorNormal()
+            console.log(trimestre)            
             this.$data.trimestre = trimestre
             this.$data.semMovimentos = false
             this.$data.semServicos = false
