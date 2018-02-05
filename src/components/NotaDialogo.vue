@@ -3,7 +3,7 @@
     <md-button @click="abrirNota" :disabled="interno"><slot>NOTA</slot></md-button>
 
     <md-dialog v-if="notaDialogo && !interno" :md-active.sync="mostra" class="md-layout">
-      <md-dialog-content class="md-layout-item md-size-90">
+      <md-dialog-content class="md-layout-item md-size-90" style="width: 90vw">
         <md-toolbar :md-elevation="1">
           <span class="md-title">{{notaDialogo.id}}</span>
         </md-toolbar>
@@ -64,7 +64,7 @@
         </md-list>
       </md-dialog-content>
 
-      <md-dialog-actions>
+      <md-dialog-actions style="width: 78vw">
         <md-button class="md-primary" @click="mostra = false">FECHAR</md-button>
       </md-dialog-actions>
     </md-dialog>

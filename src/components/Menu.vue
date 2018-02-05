@@ -34,11 +34,12 @@
 <script>
 import FontAwesomeIcon from '@fortawesome/vue-fontawesome'
 import { faFileAlt } from '@fortawesome/fontawesome-free-regular'
-import { version, usuarioAtivo, cursorNormal } from './services'
+import { version, usuarioAtivo, cursorNormal, limparStore } from './services'
 
 export default {
   created () {
     usuarioAtivo((u, usuario, tipoDominio) => {
+      limparStore()
       cursorNormal()
       if (u) {
         if (tipoDominio !== 'mult') {

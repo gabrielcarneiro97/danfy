@@ -1,5 +1,5 @@
 export function cursorCarregando () {
-  document.getElementsByTagName('body')[0].style.cursor = 'wait'
+  document.getElementsByTagName('body')[0].style.cursor = 'progress'
 }
 
 export function cursorNormal () {
