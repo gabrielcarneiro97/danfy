@@ -20,7 +20,7 @@
           <label>NOME</label>
           <md-input v-model="empresaSelecionada.pessoa.nome" disabled></md-input>
         </md-field>
-        <md-field class="md-layout-item md-size-100">
+        <md-field class="md-layout-item md-size-100" v-if="!simples">
           <label>Forma de Pagamento Impostos Trimestrais</label>
           <md-input v-if="empresaSelecionada.pessoa.formaPagamento === 'cotas'" v-model="cotas" disabled></md-input>
           <md-input v-if="empresaSelecionada.pessoa.formaPagamento === 'adiantamento'" v-model="adiantamento" disabled></md-input>
@@ -136,15 +136,16 @@
 
       <md-table-row>
         <md-table-head rowspan="2">Nota</md-table-head>
+        <md-table-head rowspan="2">Status</md-table-head>
+        <md-table-head rowspan="2">Data</md-table-head>
         <md-table-head rowspan="2">Valor Serviço</md-table-head>
-        <md-table-head rowspan="2">Status</md-table-head>        
         <md-table-head colspan="6" style="text-align:center">RETENÇÕES</md-table-head>
-        <md-table-head rowspan="2">ISS</md-table-head>
-        <md-table-head rowspan="2">PIS</md-table-head>
-        <md-table-head rowspan="2">COFINS</md-table-head>
-        <md-table-head rowspan="2">CSLL</md-table-head>
-        <md-table-head rowspan="2">IRPJ</md-table-head>
-        <md-table-head rowspan="2">TOTAL</md-table-head>
+        <md-table-head rowspan="2" v-if="!simples">ISS</md-table-head>
+        <md-table-head rowspan="2" v-if="!simples">PIS</md-table-head>
+        <md-table-head rowspan="2" v-if="!simples">COFINS</md-table-head>
+        <md-table-head rowspan="2" v-if="!simples">CSLL</md-table-head>
+        <md-table-head rowspan="2" v-if="!simples">IRPJ</md-table-head>
+        <md-table-head rowspan="2" v-if="!simples">TOTAL</md-table-head>
       </md-table-row>
 
       <md-table-row>
@@ -157,43 +158,43 @@
       </md-table-row>
 
       <md-table-row v-for="(servico, index) in ordenarServicos" v-bind:key="index">
-        <md-table-cell md-numeric v-if="notasServico[servico.nota]"><md-button class="md-icon-button" :disabled="numeroDesativo" @click="definirDeletarServico(index)">{{parseInt(notasServico[servico.nota].geral.numero.replace(competenciaSelecionada.ano, ''))}}</md-button></md-table-cell>
-        <md-table-cell>{{R$(servico.valores.impostos.baseDeCalculo)}}</md-table-cell>
-        <md-table-cell v-if="notasServico[servico.nota]">{{notasServico[servico.nota].geral.status}}</md-table-cell>        
+        <md-table-cell md-numeric><md-button class="md-icon-button" :disabled="numeroDesativo" @click="definirDeletarServico(index)">{{servico.notaNumero}}</md-button></md-table-cell>
+        <md-table-cell>{{servico.notaStatus}}</md-table-cell>        
+        <md-table-cell>{{formataData(new Date(servico.data))}}</md-table-cell>
+        <md-table-cell>{{R$(servico.valores.impostos.baseDeCalculo)}}</md-table-cell>        
         <md-table-cell>{{R$(servico.valores.impostos.retencoes.iss)}}</md-table-cell>
         <md-table-cell>{{R$(servico.valores.impostos.retencoes.pis)}}</md-table-cell>
         <md-table-cell>{{R$(servico.valores.impostos.retencoes.cofins)}}</md-table-cell>
         <md-table-cell>{{R$(servico.valores.impostos.retencoes.csll)}}</md-table-cell>
         <md-table-cell>{{R$(servico.valores.impostos.retencoes.irpj)}}</md-table-cell>
         <md-table-cell>{{R$(servico.valores.impostos.retencoes.total)}}</md-table-cell>
-        <md-table-cell>{{R$(servico.valores.impostos.iss)}}</md-table-cell>
-        <md-table-cell>{{R$(servico.valores.impostos.pis)}}</md-table-cell>
-        <md-table-cell>{{R$(servico.valores.impostos.cofins)}}</md-table-cell>
-        <md-table-cell>{{R$(servico.valores.impostos.csll)}}</md-table-cell>
-        <md-table-cell>{{R$(servico.valores.impostos.irpj)}}</md-table-cell>
-        <md-table-cell>{{R$(servico.valores.impostos.total)}}</md-table-cell>
+        <md-table-cell v-if="!simples">{{R$(servico.valores.impostos.iss)}}</md-table-cell>
+        <md-table-cell v-if="!simples">{{R$(servico.valores.impostos.pis)}}</md-table-cell>
+        <md-table-cell v-if="!simples">{{R$(servico.valores.impostos.cofins)}}</md-table-cell>
+        <md-table-cell v-if="!simples">{{R$(servico.valores.impostos.csll)}}</md-table-cell>
+        <md-table-cell v-if="!simples">{{R$(servico.valores.impostos.irpj)}}</md-table-cell>
+        <md-table-cell v-if="!simples">{{R$(servico.valores.impostos.total)}}</md-table-cell>
       </md-table-row>
 
       <md-table-row>
-        <md-table-head>TOTAIS</md-table-head>
-        <md-table-head>{{R$(trimestre[competenciaSelecionada.mes].servicos.total)}}</md-table-head> 
-        <md-table-head>IMPOSTOS</md-table-head>               
+        <md-table-head colspan="3" style="text-align:center">TOTAIS</md-table-head>
+        <md-table-head>{{R$(trimestre[competenciaSelecionada.mes].servicos.total)}}</md-table-head>                      
         <md-table-head>{{R$(trimestre[competenciaSelecionada.mes].servicos.impostos.retencoes.iss)}}</md-table-head>
         <md-table-head>{{R$(trimestre[competenciaSelecionada.mes].servicos.impostos.retencoes.pis)}}</md-table-head>
         <md-table-head>{{R$(trimestre[competenciaSelecionada.mes].servicos.impostos.retencoes.cofins)}}</md-table-head>
         <md-table-head>{{R$(trimestre[competenciaSelecionada.mes].servicos.impostos.retencoes.csll)}}</md-table-head>
         <md-table-head>{{R$(trimestre[competenciaSelecionada.mes].servicos.impostos.retencoes.irpj)}}</md-table-head>
         <md-table-head>{{R$(trimestre[competenciaSelecionada.mes].servicos.impostos.retencoes.total)}}</md-table-head>
-        <md-table-head>{{R$(trimestre[competenciaSelecionada.mes].servicos.impostos.iss)}}</md-table-head>
-        <md-table-head>{{R$(trimestre[competenciaSelecionada.mes].servicos.impostos.pis)}}</md-table-head>
-        <md-table-head>{{R$(trimestre[competenciaSelecionada.mes].servicos.impostos.cofins)}}</md-table-head>
-        <md-table-head>{{R$(trimestre[competenciaSelecionada.mes].servicos.impostos.csll)}}</md-table-head>
-        <md-table-head>{{R$(trimestre[competenciaSelecionada.mes].servicos.impostos.irpj)}}</md-table-head>
-        <md-table-head>{{R$(trimestre[competenciaSelecionada.mes].servicos.impostos.total)}}</md-table-head>
+        <md-table-head v-if="!simples">{{R$(trimestre[competenciaSelecionada.mes].servicos.impostos.iss)}}</md-table-head>
+        <md-table-head v-if="!simples">{{R$(trimestre[competenciaSelecionada.mes].servicos.impostos.pis)}}</md-table-head>
+        <md-table-head v-if="!simples">{{R$(trimestre[competenciaSelecionada.mes].servicos.impostos.cofins)}}</md-table-head>
+        <md-table-head v-if="!simples">{{R$(trimestre[competenciaSelecionada.mes].servicos.impostos.csll)}}</md-table-head>
+        <md-table-head v-if="!simples">{{R$(trimestre[competenciaSelecionada.mes].servicos.impostos.irpj)}}</md-table-head>
+        <md-table-head v-if="!simples">{{R$(trimestre[competenciaSelecionada.mes].servicos.impostos.total)}}</md-table-head>
       </md-table-row>
     </md-table>
 
-    <md-table class="md-layout-item md-size-90" v-show="tipoTabela === 'acumulado' || mostraTudo" v-if="temAcumulado">
+    <md-table class="md-layout-item md-size-90" v-show="tipoTabela === 'acumulado' || mostraTudo" v-if="temAcumulado && !simples">
       <md-table-toolbar>
         <h1 class="md-title">Guias Mensais {{meses[parseInt(competenciaSelecionada.mes) - 1].nome}}/{{competenciaSelecionada.ano}} - {{empresaSelecionada.pessoa.nome}}</h1>
       </md-table-toolbar>
@@ -221,7 +222,7 @@
 
     </md-table>
 
-    <md-table class="md-layout-item md-size-90 meia-tabela" v-show="tipoTabela === 'acumulado' || mostraTudo" v-if="temAcumulado" ref="tabelaTrimestre">
+    <md-table class="md-layout-item md-size-90 meia-tabela" v-show="tipoTabela === 'acumulado' || mostraTudo" v-if="temAcumulado && !simples" ref="tabelaTrimestre">
       <md-table-toolbar>
         <h1 class="md-title">Acumulado - {{empresaSelecionada.pessoa.nome}}</h1>
       </md-table-toolbar>
@@ -277,6 +278,16 @@
       :md-content="erro.mensagem"
       md-confirm-text="Ok" />
 
+
+  <md-snackbar md-position="left" :md-duration="3000" :md-active.sync="snackServicos">
+    <span>Sem serviços na competência selecionada!</span>
+    <md-button class="md-primary" @click="snackServicos = false">FECHAR</md-button>
+  </md-snackbar>
+  <md-snackbar md-position="left" :md-duration="3000" :md-active.sync="snackMovimentos">
+    <span>Sem movimentos na competência selecionada!</span>
+    <md-button class="md-primary" @click="snackMovimentos = false">FECHAR</md-button>
+  </md-snackbar>
+
   <md-dialog-confirm
       :md-active.sync="deletar.mostra"
       md-title="Excluir Movimento"
@@ -288,16 +299,24 @@
 
 </div>
 </template>
+
 <script>
 import { pegarDominio, usuarioAtivo, pegarPessoaId, pegarMovimentosMes, pegarServicosMes,
-  pegarNotaChave, pegarNotaServicoChave, cancelarMovimento, excluirServico, totaisTrimestrais,
-  R$, pegarEmpresaImpostos, retornarTipo, cursorCarregando, cursorNormal } from './services'
+  pegarNotaChave, cancelarMovimento, excluirServico, totaisTrimestrais,
+  R$, pegarEmpresaImpostos, retornarTipo, cursorCarregando, cursorNormal, limparStore } from './services'
 import FontAwesomeIcon from '@fortawesome/vue-fontawesome'
 import { faTrash, faEdit, faCheck } from '@fortawesome/fontawesome-free-solid'
 import notaDialogo from './notaDialogo'
 import EditarMovimento from './EditarMovimento'
 import _ from 'lodash'
 import { Printd } from 'printd'
+
+let formatador = new Intl.DateTimeFormat({
+  timeZone: 'America/Sao_Paulo',
+  month: '2-digit',
+  day: '2-digit',
+  year: 'numeric'
+})
 
 export default {
   components: {
@@ -307,9 +326,12 @@ export default {
   },
   data () {
     return {
+      snackMovimentos: false,
+      snackServicos: false,
       cotas: 'Pagamento em Cotas',
       adiantamento: 'Pagamento Adiantado',
       acumulado: 'Pagamento Acumulado no Final do Trimestre',
+      simples: false,
       deletar: {
         mostra: false,
         mensagem: null,
@@ -392,6 +414,9 @@ export default {
     })
   },
   methods: {
+    formataData (data) {
+      return formatador.format(data)
+    },
     R$: R$,
     retornarTipo: retornarTipo,
     escolherDeletar () {
@@ -459,6 +484,7 @@ export default {
               }
               pessoa.formaPagamento = impostos.formaPagamentoTrimestrais
               pessoa.cnpj = cnpj
+              this.$data.simples = impostos.tributacao === 'SN'
               this.$data.empresaSelecionada.pessoa = pessoa
             })
           }
@@ -469,16 +495,15 @@ export default {
     },
     selecionarMovimento () {
       cursorCarregando()
+      this.removerMovimentosEServicos()
       let competencia = this.$data.competenciaSelecionada
-      let mesEscrito = this.$data.meses[parseInt(competencia.mes) - 1].nome
       let pessoaEmpresa = this.$data.empresaSelecionada.pessoa
-      let numeroEmpresa = this.$data.empresaSelecionada.numero
 
       pegarMovimentosMes(pessoaEmpresa.cnpj, competencia, (err, movimentos) => {
         if (err) console.error(err)
 
         if (_.isEmpty(movimentos)) {
-          this.chamarMensagem(new Error(`Não foram encontrados movimentos na competência: ${mesEscrito}/${competencia.ano} da empresa Nº${numeroEmpresa} (${pessoaEmpresa.nome})`))
+          this.$data.snackMovimentos = true
           this.$data.semMovimentos = true
         } else {
           this.$data.movimentos = movimentos
@@ -498,24 +523,14 @@ export default {
             console.error(err)
           }
           if (_.isEmpty(servicos)) {
+            this.$data.snackServicos = true
             this.$data.semServicos = true
-            totaisTrimestrais(pessoaEmpresa.cnpj, competencia, (err, trimestre) => {
-              if (err) {
-                console.error(err)
-              }
-              this.$data.trimestre = trimestre
-              this.$data.semMovimentos = false
-            })
-            this.chamarMensagem(new Error(`Não foram encontrados serviços na competência: ${mesEscrito}/${competencia.ano} da empresa Nº${numeroEmpresa} (${pessoaEmpresa.nome})`))
           } else {
             this.$data.servicos = servicos
             Object.keys(servicos).forEach(key => {
-              let chave = servicos[key].nota
-              pegarNotaServicoChave(chave, (err, notaServico) => {
-                if (err) {
-                  console.error(err)
-                }
-              })
+              let servico = servicos[key]
+              let numero = servicos[key].nota.slice(18)
+              servico.notaNumero = parseInt(numero)
             })
           }
           totaisTrimestrais(pessoaEmpresa.cnpj, competencia, (err, trimestre) => {
@@ -607,6 +622,7 @@ export default {
       })
     },
     removerMovimentosEServicos () {
+      limparStore()
       this.$data.movimentos = {}
       this.$data.semMovimentos = true
       this.$data.servicos = {}

@@ -294,6 +294,7 @@ export default {
                     conferido: true,
                     nota: notaServico.chave,
                     data: notaServico.geral.dataHora,
+                    notaStatus: notaServico.geral.status,
                     valores: valores,
                     dominio: this.$data.usuario.dominio,
                     metaDados: {

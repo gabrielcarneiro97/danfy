@@ -103,47 +103,47 @@
   <md-dialog :md-active.sync="mostraImpostos" v-if="empresaParaAdicionar.cnpj">
     <md-dialog-title>{{pessoas[empresaParaAdicionar.cnpj].nome}}</md-dialog-title>
     <md-dialog-content class="md-layout">
-      <md-field class="md-layout-item md-size-50">
+      <md-field class="md-layout-item md-size-100">
         <label>NÚMERO</label>
         <md-input v-model="empresaParaAdicionar.num"></md-input>
       </md-field>
       <div class="md-layout-item md-size-50">
-        <md-checkbox class="md-primary" v-model="temLiminar">Liminar de Redução</md-checkbox>
-      </div>
-      <md-divider></md-divider>
-      <md-field class="md-layout-item md-size-50">
-        <label>IRPJ</label>
-        <md-input v-model="aliquotas.irpj" disabled></md-input>
-      </md-field>
-      <md-field class="md-layout-item md-size-50">
-        <label>CSLL</label>
-        <md-input v-model="aliquotas.csll" disabled></md-input>
-      </md-field>
-      <md-field class="md-layout-item md-size-50">
-        <label>PIS</label>
-        <md-input v-model="aliquotas.pis" disabled></md-input>
-      </md-field>
-      <md-field class="md-layout-item md-size-50">
-        <label>COFINS</label>
-        <md-input v-model="aliquotas.cofins" disabled></md-input>
-      </md-field>
-      <md-field class="md-layout-item md-size-50">
-        <label>ICMS</label>
-        <md-input v-model="aliquotas.icms.aliquota"></md-input>
-      </md-field>
-      <md-field class="md-layout-item md-size-50">
-        <label>REDUÇÃO NO ICMS</label>
-        <md-input v-model="aliquotas.icms.reducao"></md-input>
-      </md-field>
-      <md-field class="md-layout-item md-size-100">
-        <label>ISS</label>
-        <md-input v-model="aliquotas.iss"></md-input>
-      </md-field>
-      <div class="md-layout-item md-size-100">
         <md-radio class="md-primary" v-model="aliquotas.tributacao" value="SN">Simples Nacional</md-radio>
         <md-radio class="md-primary" v-model="aliquotas.tributacao" value="LP">Lucro Presumido</md-radio>
       </div>
-      <div class="md-layout-item md-size-100">
+      <div class="md-layout-item md-size-50" v-if="aliquotas.tributacao === 'LP'">
+        <md-checkbox class="md-primary" v-model="temLiminar">Liminar de Redução</md-checkbox>
+      </div>
+      <md-divider></md-divider>
+      <md-field class="md-layout-item md-size-50" v-if="aliquotas.tributacao === 'LP'">
+        <label>IRPJ</label>
+        <md-input v-model="aliquotas.irpj" disabled></md-input>
+      </md-field>
+      <md-field class="md-layout-item md-size-50" v-if="aliquotas.tributacao === 'LP'">
+        <label>CSLL</label>
+        <md-input v-model="aliquotas.csll" disabled></md-input>
+      </md-field>
+      <md-field class="md-layout-item md-size-50" v-if="aliquotas.tributacao === 'LP'">
+        <label>PIS</label>
+        <md-input v-model="aliquotas.pis" disabled></md-input>
+      </md-field>
+      <md-field class="md-layout-item md-size-50" v-if="aliquotas.tributacao === 'LP'">
+        <label>COFINS</label>
+        <md-input v-model="aliquotas.cofins" disabled></md-input>
+      </md-field>
+      <md-field class="md-layout-item md-size-50" v-if="aliquotas.tributacao === 'LP'"> 
+        <label>ICMS</label>
+        <md-input v-model="aliquotas.icms.aliquota"></md-input>
+      </md-field>
+      <md-field class="md-layout-item md-size-50" v-if="aliquotas.tributacao === 'LP'">
+        <label>REDUÇÃO NO ICMS</label>
+        <md-input v-model="aliquotas.icms.reducao"></md-input>
+      </md-field>
+      <md-field class="md-layout-item md-size-100" v-if="aliquotas.tributacao === 'LP'">
+        <label>ISS</label>
+        <md-input v-model="aliquotas.iss"></md-input>
+      </md-field>
+      <div class="md-layout-item md-size-100" v-if="aliquotas.tributacao === 'LP'">
         <md-radio class="md-primary" v-model="aliquotas.formaPagamentoTrimestrais" value="adiantamento">Adiantamento</md-radio>
         <md-radio class="md-primary" v-model="aliquotas.formaPagamentoTrimestrais" value="acumulado">Acumulado por trimestre</md-radio>
         <md-radio class="md-primary" v-model="aliquotas.formaPagamentoTrimestrais" value="cotas">Pagamento em cotas</md-radio>        
@@ -342,6 +342,9 @@ export default {
     },
     podeAdicionar () {
       if (this.$data.empresaParaAdicionar.num && this.$data.aliquotas.tributacao !== '' && this.$data.aliquotas.formaPagamentoTrimestrais) {
+        return true
+      } else if (this.$data.empresaParaAdicionar.num && this.$data.aliquotas.tributacao === 'SN') {
+        this.$data.aliquotas.formaPagamentoTrimestrais = 'simples'
         return true
       } else {
         return false
