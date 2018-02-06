@@ -219,8 +219,8 @@ export function calcularImpostosMovimento (notaInicial, notaFinal, callback) {
                 baseDeCalculo: baseDeCalculo,
                 proprio: proprio,
                 difal: {
-                  origem: (difal * 0.8),
-                  destino: (difal * 0.2)
+                  origem: (difal * 0.2),
+                  destino: (difal * 0.8)
                 }
               }
 

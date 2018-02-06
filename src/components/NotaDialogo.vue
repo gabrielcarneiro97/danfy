@@ -107,34 +107,6 @@ export default {
       }
     }
   },
-  created () {
-    let chave = this.$props.chave
-    pegarNotaChave(chave, (err, nota) => {
-      if (err) {
-        console.error(err)
-      } else if (nota.emitente === 'INTERNO') {
-        this.$data.interno = true
-      } else {
-        if (nota) {
-          this.$data.notaDialogo = {
-            ...nota,
-            id: chave
-          }
-          pegarPessoaId(nota.emitente, (err, emit) => {
-            if (err) {
-              console.error(err)
-            } else {
-              pegarPessoaId(nota.destinatario, (err, dest) => {
-                if (err) {
-                  console.error(err)
-                }
-              })
-            }
-          })
-        }
-      }
-    })
-  },
   computed: {
     pessoas () { return this.$store.state.pessoas }
   },
@@ -169,11 +141,36 @@ export default {
       }
     },
     abrirNota () {
-      if (this.$data.notaDialogo) {
-        this.$data.mostra = true
-      } else {
-        this.$data.mostraAdicionarNota = true
-      }
+      let chave = this.$props.chave
+      pegarNotaChave(chave, (err, nota) => {
+        if (err) {
+          console.error(err)
+        } else if (nota.emitente === 'INTERNO') {
+          this.$data.interno = true
+        } else {
+          if (nota) {
+            this.$data.notaDialogo = {
+              ...nota,
+              id: chave
+            }
+            pegarPessoaId(nota.emitente, (err, emit) => {
+              if (err) {
+                console.error(err)
+              } else {
+                pegarPessoaId(nota.destinatario, (err, dest) => {
+                  if (err) {
+                    console.error(err)
+                  } else {
+                    this.$data.mostra = true
+                  }
+                })
+              }
+            })
+          } else {
+            this.$data.mostraAdicionarNota = true
+          }
+        }
+      })
     }
   }
 }

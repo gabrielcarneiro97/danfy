@@ -301,8 +301,9 @@
 </template>
 
 <script>
-import { pegarDominio, usuarioAtivo, pegarPessoaId, pegarMovimentosMes, pegarServicosMes,
-  pegarNotaChave, cancelarMovimento, excluirServico, totaisTrimestrais,
+import axios from 'axios'
+import { adicionarNota } from '../store/actions'
+import { pegarDominio, usuarioAtivo, pegarPessoaId, cancelarMovimento, excluirServico,
   R$, pegarEmpresaImpostos, retornarTipo, cursorCarregando, cursorNormal, limparStore } from './services'
 import FontAwesomeIcon from '@fortawesome/vue-fontawesome'
 import { faTrash, faEdit, faCheck } from '@fortawesome/fontawesome-free-solid'
@@ -498,51 +499,43 @@ export default {
       this.removerMovimentosEServicos()
       let competencia = this.$data.competenciaSelecionada
       let pessoaEmpresa = this.$data.empresaSelecionada.pessoa
+      let link = `https://us-central1-danfy-4d504.cloudfunctions.net/pegarTudoTrimestre?cnpj=${pessoaEmpresa.cnpj}&mes=${competencia.mes}&ano=${competencia.ano}`
 
-      pegarMovimentosMes(pessoaEmpresa.cnpj, competencia, (err, movimentos) => {
-        if (err) console.error(err)
+      axios.get(link).then(res => {
+        let data = res.data
+        let movimentos = data.movimentos
+        let servicos = data.servicos
+        let trimestre = data.trimestre
+        let notas = data.notas
 
         if (_.isEmpty(movimentos)) {
           this.$data.snackMovimentos = true
           this.$data.semMovimentos = true
         } else {
           this.$data.movimentos = movimentos
-          Object.keys(movimentos).forEach(key => {
-            let chaveFinal = movimentos[key].notaFinal
-            let chaveInicial = movimentos[key].notaInicial
-            pegarNotaChave(chaveFinal, (err, notaFinal) => {
-              if (err) console.error(err)
-              pegarNotaChave(chaveInicial, (err, notaInicial) => {
-                if (err) console.error(err)
-              })
-            })
+          Object.keys(notas).forEach(key => {
+            let nota = notas[key]
+            this.$store.commit(adicionarNota(key, nota))
           })
+          this.$data.semMovimentos = false
         }
-        pegarServicosMes(pessoaEmpresa.cnpj, competencia, (err, servicos) => {
-          if (err) {
-            console.error(err)
-          }
-          if (_.isEmpty(servicos)) {
-            this.$data.snackServicos = true
-            this.$data.semServicos = true
-          } else {
-            this.$data.servicos = servicos
-            Object.keys(servicos).forEach(key => {
-              let servico = servicos[key]
-              let numero = servicos[key].nota.slice(18)
-              servico.notaNumero = parseInt(numero)
-            })
-          }
-          totaisTrimestrais(pessoaEmpresa.cnpj, competencia, (err, trimestre) => {
-            if (err) {
-              console.error(err)
-            }
-            cursorNormal()
-            this.$data.trimestre = trimestre
-            this.$data.semMovimentos = false
-            this.$data.semServicos = false
+
+        if (_.isEmpty(servicos)) {
+          this.$data.snackServicos = true
+          this.$data.semServicos = true
+        } else {
+          this.$data.servicos = servicos
+          Object.keys(servicos).forEach(key => {
+            let servico = servicos[key]
+            let numero = servicos[key].nota.slice(18)
+            servico.notaNumero = parseInt(numero)
           })
-        })
+          this.$data.semServicos = false
+        }
+
+        this.$data.trimestre = trimestre
+
+        cursorNormal()
       })
     },
     imprimirTabela () {
