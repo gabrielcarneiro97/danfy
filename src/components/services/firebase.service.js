@@ -1,4 +1,5 @@
 import * as firebase from 'firebase'
+import axios from 'axios'
 import { storeVuex } from '../../main'
 import { sair, autenticar, adicionarPessoa, adicionarNota, adicionarNotaServico,
   carregarDominio, adicionarEmpresa } from '../../store/actions'
@@ -425,46 +426,12 @@ export function gravarNotaSlim (nota, callback) {
 **/
 export function pegarNotaProduto (produtoId, produto, callback) {
   let notas = {}
+  let link = `https://us-central1-danfy-4d504.cloudfunctions.net/pegarNotaProduto?prodId=${produtoId}&prodDesc=${produto.descricao}`
 
-  let query = db.ref('Notas/').orderByChild('emitente')
-  query.on('child_added', snap => {
-    let nota = snap.val()
-    let chave = snap.key
-    let listaProdutos = Object.keys(nota.produtos)
+  axios.get(link).then(res => {
+    notas = res.data.notas
 
-    if (listaProdutos.includes(produtoId)) {
-      notas = {
-        ...notas,
-        [chave]: nota
-      }
-    } else {
-      listaProdutos.forEach(key => {
-        if (nota.produtos[key].descricao === produto.descricao) {
-          notas = {
-            ...notas,
-            [chave]: nota
-          }
-        }
-      })
-    }
-  })
-  query.once('value', snap => {
-    Object.keys(notas).forEach(key => {
-      pegarPessoaId(notas[key].emitente, (err) => {
-        if (err) {
-          console.error(err)
-        }
-      })
-      pegarPessoaId(notas[key].destinatario, (err) => {
-        if (err) {
-          console.error(err)
-        }
-      })
-      storeVuex.commit(adicionarNota(notas[key].chave, notas[key]))
-    })
     callback(null, notas)
-  }, err => {
-    callback(err, null)
   })
 }
 

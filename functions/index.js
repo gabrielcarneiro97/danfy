@@ -5,8 +5,36 @@ admin.initializeApp(functions.config().firebase)
 
 var db = admin.database()
 
-// Create and Deploy Your First Cloud Functions
-// https://firebase.google.com/docs/functions/write-firebase-functions
+exports.pegarNotaProduto = functions.https.onRequest((request, response) => {
+  cors(request, response, () => {
+    let notas = {}
+
+    let produtoId = request.query.prodId
+    let descricao = request.query.prodDesc
+
+    let query = db.ref('Notas/').orderByChild('emitente')
+    query.on('child_added', snap => {
+      let nota = snap.val()
+      let chave = snap.key
+      let listaProdutos = Object.keys(nota.produtos)
+
+      if (listaProdutos.includes(produtoId)) {
+        notas[chave] = nota
+      } else {
+        listaProdutos.forEach(key => {
+          if (nota.produtos[key].descricao === descricao) {
+            notas[chave] = nota
+          }
+        })
+      }
+    })
+    query.once('value', snap => {
+      let data = {}
+      data.notas = notas
+      response.send(data)
+    })
+  })
+})
 
 exports.pegarTudoTrimestre = functions.https.onRequest((request, response) => {
   cors(request, response, () => {
