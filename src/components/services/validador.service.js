@@ -1,4 +1,6 @@
 import { pegarNotaProduto } from './index'
+import { storeVuex } from '../../main'
+import { adicionarNota } from '../../store/actions'
 
 export let cfopCompra = ['1102', '2102']
 export let cfopDevolucao = ['1202', '2202']
@@ -82,48 +84,71 @@ export function compararData (notaInicial, notaFinal) {
   }
 }
 
-export function procurarNotaPar (notaParametro, callback) {
-  if (!notaParametro || !notaParametro.geral) {
-    callback(new Error('O primeiro paramêtro não é uma nota Válida!'), null)
-  } else {
-    let produtosParametro = notaParametro.produtos
-    let tipoParametro = notaParametro.geral.tipo
+export function procurarNotaPar (notas, callback) {
+  let produtos = []
 
-    let movimentoCb = {}
+  let notasKey = Object.keys(notas)
 
-    Object.keys(produtosParametro).forEach(key => {
-      pegarNotaProduto(key, produtosParametro[key], (err, notas) => {
-        if (err) {
-          callback(err, null)
-        } else if (notas) {
-          for (let notaKey in notas) {
-            let notaPar = notas[notaKey]
+  notasKey.forEach(key => {
+    let nota = notas[key]
+    produtos = produtos.concat(Object.keys(nota.produtos))
+  })
 
-            if (tipoParametro === '1' || notaParametro.geral.cfop === '1113' || notaParametro.geral.cfop === '1202' || notaParametro.geral.cfop === '2202') {
-              validarMovimento(notaPar, notaParametro, err => {
-                if (!err) {
-                  movimentoCb = {
-                    notaInicial: notaPar,
-                    notaFinal: notaParametro
+  let movimentos = []
+
+  pegarNotaProduto(produtos, (err, notas) => {
+    if (err) {
+      callback(err, null)
+    }
+
+    Object.keys(notas).forEach((prod, i, arr) => {
+      let todas = notas[prod]
+      let todasKey = Object.keys(todas)
+
+      todasKey.forEach(kN1 => {
+        if (notasKey.includes(kN1)) {
+          let n1 = todas[kN1]
+          let rmN1 = todasKey.filter(item => item !== kN1)
+
+          if (rmN1.length > 0) {
+            rmN1.forEach(kN2 => {
+              let n2 = todas[kN2]
+
+              if (n1.geral.tipo === '1' || n1.geral.cfop === '1113' || n1.geral.cfop === '1202' || n1.geral.cfop === '2202') {
+                validarMovimento(n2, n1, err => {
+                  if (!err) {
+                    movimentos.push({
+                      notaInicial: n2,
+                      notaFinal: n1
+                    })
+                    storeVuex.commit(adicionarNota(n2.chave, n2))
                   }
-                }
-              })
-            } else {
-              validarMovimento(notaParametro, notaPar, err => {
-                if (!err) {
-                  movimentoCb = {
-                    notaInicial: notaParametro,
-                    notaFinal: notaPar
+                  if (i === arr.length - 1) {
+                    callback(null, movimentos)
                   }
-                }
-              })
-            }
+                })
+              } else {
+                validarMovimento(n1, n2, err => {
+                  if (!err) {
+                    movimentos.push({
+                      notaInicial: n1,
+                      notaFinal: n2
+                    })
+                    storeVuex.commit(adicionarNota(n2.chave, n2))
+                  }
+                  if (i === arr.length - 1) {
+                    callback(null, movimentos)
+                  }
+                })
+              }
+            })
+          } else if (i === arr.length - 1) {
+            callback(null, movimentos)
           }
-          callback(null, movimentoCb)
         }
       })
     })
-  }
+  })
 }
 
 export function validarMovimento (notaInicial, notaFinal, callback) {

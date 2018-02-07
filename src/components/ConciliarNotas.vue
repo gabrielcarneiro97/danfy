@@ -186,9 +186,10 @@
 </template>
 
 <script>
+import axios from 'axios'
 import { R$, calcularImpostosMovimento, calcularImpostosServico, pegarDominio, cursorNormal,
   usuarioAtivo, pegarNotaChave, procurarNotaPar, estaNoDominio, validarMovimento, cursorCarregando,
-  pegarNotaNumeroEmitente, lerNotasInput, gravarMovimentos, gravarServicos, gravarNotaSlim } from './services'
+  pegarNotaNumeroEmitente, lerNotasInput, gravarMovimentos, gravarServicos, gravarNotaSlim, pegarEmpresaImpostos } from './services'
 import notaDialogo from './notaDialogo'
 import _ from 'lodash'
 import FontAwesomeIcon from '@fortawesome/vue-fontawesome'
@@ -237,50 +238,37 @@ export default {
         pegarDominio((err, dominio) => {
           if (err) console.error(err)
 
+          let notasFinais = []
+
           Object.keys(this.$store.state.notas).forEach((id, index, arr) => {
             let nota = this.$store.state.notas[id]
             if ((nota.geral.tipo === '1' || nota.geral.cfop === '1113' || nota.geral.cfop === '1202' || nota.geral.cfop === '2202') && estaNoDominio(nota.emitente) && nota.geral.status !== 'CANCELADA') {
-              let movimento = {
-                notaFinal: id,
-                notaInicial: null,
-                data: nota.geral.dataHora,
-                conferido: false,
-                dominio: this.$data.usuario.dominio,
-                metaDados: {
-                  criadoPor: this.$store.state.usuario.email,
-                  dataCriacao: new Date().toISOString(),
-                  status: 'ATIVO',
-                  tipo: 'PRIM',
-                  movimentoRef: ''
-                }
-              }
-              procurarNotaPar(nota, (err, movimentoRet) => {
-                if (err) {
-                  console.error(err)
-                } else if (!_.isEmpty(movimentoRet)) {
-                  calcularImpostosMovimento(movimentoRet.notaInicial, movimentoRet.notaFinal, (err, valores) => {
+              notasFinais.push(nota.chave)
+            }
+          })
+
+          axios.post('https://us-central1-danfy-4d504.cloudfunctions.net/gerarMovimentos', {notasFinais: notasFinais, usuario: this.$store.state.usuario}).then(res => {
+            let movimentos = res.data.movimentos
+            let promises = []
+            movimentos.forEach(movimento => {
+              let p = new Promise(resolve => {
+                if (!this.$store.state.notas[movimento.notaInicial]) {
+                  pegarNotaChave(movimento.notaInicial, err => {
                     if (err) {
                       console.error(err)
-                    } else {
-                      movimento.conferido = true
-                      movimento.notaFinal = movimentoRet.notaFinal.chave
-                      movimento.notaInicial = movimentoRet.notaInicial.chave
-                      movimento.valores = valores
-                      this.$data.movimentos.push(movimento)
                     }
+                    resolve(movimento)
                   })
                 } else {
-                  calcularImpostosMovimento(null, nota, (err, valores) => {
-                    if (err) {
-                      console.error(err)
-                    } else {
-                      movimento.valores = valores
-                      this.$data.movimentos.push(movimento)
-                    }
-                  })
+                  resolve(movimento)
                 }
               })
-            }
+              promises.push(p)
+            })
+
+            Promise.all(promises).then(arr => {
+              this.$data.movimentos = this.$data.movimentos.concat(arr)
+            })
           })
 
           Object.keys(this.$store.state.notasServico).forEach(id => {

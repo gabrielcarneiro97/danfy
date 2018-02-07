@@ -5,12 +5,110 @@ admin.initializeApp(functions.config().firebase)
 
 var db = admin.database()
 
+exports.gerarMovimentos = functions.https.onRequest((req, res) => {
+  cors(req, res, () => {
+    let notasFinais = req.body.notasFinais
+    let usuario = req.body.usuario
+
+    let promises = []
+
+    notasFinais.forEach(chave => {
+      let p = new Promise(resolve => {
+        db.ref('Notas/' + chave).once('value', snap => {
+          let nota = snap.val()
+          let movimento = {
+            notaFinal: chave,
+            notaInicial: null,
+            data: nota.geral.dataHora,
+            conferido: false,
+            dominio: usuario.dominio,
+            valores: {},
+            metaDados: {
+              criadoPor: usuario.email,
+              dataCriacao: new Date().toISOString(),
+              status: 'ATIVO',
+              tipo: 'PRIM',
+              movimentoRef: ''
+            }
+          }
+          let query = db.ref('Notas/').orderByChild('emitente').equalTo(nota.emitente)
+          query.on('child_added', snap => {
+            let nota2 = snap.val()
+            if (nota2.chave !== nota.chave) {
+              let produtos = Object.keys(nota.produtos)
+              let produtos2 = Object.keys(nota2.produtos)
+              if (!movimento.notaInicial) {
+                produtos2.forEach(produto => {
+                  if (produtos.includes(produto)) {
+                    validarMovimento(nota2, nota, err => {
+                      if (!err) {
+                        movimento.notaInicial = nota2.chave
+                        pegarEmpresaImpostos(nota.emitente, (err, aliquotas) => {
+                          if (err) {
+                            console.error(err)
+                          } else {
+                            calcularImpostosMovimento(nota2, nota, aliquotas, (err, valores) => {
+                              if (err) {
+                                console.error(err)
+                              } else {
+                                movimento.valores = valores
+                                movimento.conferido = true
+                                resolve(movimento)
+                              }
+                            })
+                          }
+                        })
+                      }
+                    })
+                  }
+                })
+              }
+            }
+          })
+          query.once('value', snap => {
+            if (!movimento.notaInicial) {
+              pegarEmpresaImpostos(nota.emitente, (err, aliquotas) => {
+                if (err) {
+                  console.error(err)
+                } else {
+                  calcularImpostosMovimento(null, nota, aliquotas, (err, valores) => {
+                    if (err) {
+                      console.error(err)
+                    } else {
+                      movimento.valores = valores
+                      resolve(movimento)
+                    }
+                  })
+                }
+              })
+            }
+          })
+        })
+      })
+      promises.push(p)
+    })
+
+    Promise.all(promises).then(arr => {
+      return res.send({movimentos: arr})
+    }).catch(err => {
+      console.error(err)
+    })
+  })
+})
+
 exports.pegarNotaProduto = functions.https.onRequest((request, response) => {
   cors(request, response, () => {
     let notas = {}
 
-    let produtoId = request.query.prodId
-    let descricao = request.query.prodDesc
+    let prodsId = decodeURI(request.query.prodId)
+
+    let arrProds = prodsId.split('|*|')
+
+    arrProds.forEach(id => {
+      if (id !== '') {
+        notas[id] = {}
+      }
+    })
 
     let query = db.ref('Notas/').orderByChild('emitente')
     query.on('child_added', snap => {
@@ -18,15 +116,11 @@ exports.pegarNotaProduto = functions.https.onRequest((request, response) => {
       let chave = snap.key
       let listaProdutos = Object.keys(nota.produtos)
 
-      if (listaProdutos.includes(produtoId)) {
-        notas[chave] = nota
-      } else {
-        listaProdutos.forEach(key => {
-          if (nota.produtos[key].descricao === descricao) {
-            notas[chave] = nota
-          }
-        })
-      }
+      listaProdutos.forEach(prodId => {
+        if (arrProds.includes(prodId)) {
+          notas[prodId][chave] = nota
+        }
+      })
     })
     query.once('value', snap => {
       let data = {}
@@ -396,4 +490,293 @@ function pegarNotaChave (chave, callback) {
     nota = value.val()
     callback(null, nota)
   })
+}
+
+function calcularImpostosMovimento (notaInicial, notaFinal, aliquotas, callback) {
+  let valorSaida = parseFloat(notaFinal.valor.total)
+  let lucro = parseFloat(notaFinal.valor.total) - parseFloat(notaInicial ? notaInicial.valor.total : 0)
+  let estadoGerador = notaFinal.informacoesEstaduais.estadoGerador
+  let estadoDestino = notaFinal.informacoesEstaduais.estadoDestino
+  let destinatarioContribuinte = notaFinal.informacoesEstaduais.destinatarioContribuinte
+
+  if (estadoGerador !== 'MG') {
+    return callback(new Error('Estado informado não suportado! Estado: ' + estadoGerador), null)
+  }
+
+  if (lucro < 0 && estadoGerador !== estadoDestino) {
+    lucro = 0
+  }
+  if ((lucro < 0 && notaFinal.geral.cfop !== '1202' && notaFinal.geral.cfop !== '2202') || (notaFinal.geral.cfop === '6918' || notaFinal.geral.cfop === '5918') || (notaFinal.geral.cfop === '6913' || notaFinal.geral.cfop === '5913')) {
+    return callback(null, {
+      lucro: 0,
+      valorSaida: valorSaida,
+      impostos: {
+        pis: 0,
+        cofins: 0,
+        csll: 0,
+        irpj: 0,
+        icms: {
+          baseDeCalculo: 0,
+          proprio: 0
+        },
+        total: 0
+      }
+    })
+  } else {
+    var proximoPasso = () => {
+      let valores = {
+        lucro: lucro,
+        valorSaida: valorSaida,
+        impostos: {
+          pis: (lucro * aliquotas.pis),
+          cofins: (lucro * aliquotas.cofins),
+          csll: (lucro * aliquotas.csll),
+          irpj: (lucro * aliquotas.irpj),
+          total: ((lucro * aliquotas.irpj) + (lucro * aliquotas.pis) + (lucro * aliquotas.cofins) + (lucro * aliquotas.csll))
+        }
+      }
+
+      let icmsEstados = {
+        SC: {
+          externo: 0.12,
+          interno: 0.12
+        },
+        DF: {
+          externo: 0.07,
+          interno: 0.12
+        },
+        MS: {
+          externo: 0.07,
+          interno: 0.17
+        },
+        MT: {
+          externo: 0.07,
+          interno: 0.17
+        },
+        SP: {
+          externo: 0.12,
+          interno: 0.18
+        },
+        RJ: {
+          externo: 0.12,
+          interno: 0.18
+        },
+        GO: {
+          externo: 0.07,
+          interno: 0.17
+        },
+        RO: {
+          externo: 0.07,
+          interno: 0.175
+        },
+        ES: {
+          externo: 0.07,
+          interno: 0.12
+        },
+        AC: {
+          externo: 0.07,
+          interno: 0.17
+        },
+        CE: {
+          externo: 0.07,
+          interno: 0.17
+        },
+        PR: {
+          externo: 0.12,
+          interno: 0.18
+        },
+        PI: {
+          externo: 0.07,
+          interno: 0.17
+        },
+        PE: {
+          externo: 0.12,
+          interno: 0.18
+        },
+        MA: {
+          externo: 0.07,
+          interno: 0.18
+        },
+        PA: {
+          externo: 0.07,
+          interno: 0.17
+        },
+        RN: {
+          externo: 0.07,
+          interno: 0.18
+        },
+        BA: {
+          externo: 0.07,
+          interno: 0.18
+        },
+        RS: {
+          externo: 0.12,
+          interno: 0.18
+        },
+        TO: {
+          externo: 0.07,
+          interno: 0.18
+        }
+      }
+
+      let estadosSemReducao = ['RN', 'BA', 'RS', 'TO']
+
+      if (estadoGerador === estadoDestino) {
+        valores.impostos.icms = {
+          baseDeCalculo: (lucro * aliquotas.icms.reducao),
+          proprio: (lucro * aliquotas.icms.reducao * aliquotas.icms.aliquota)
+        }
+        valores.impostos.total = (parseFloat(valores.impostos.total) + (lucro * aliquotas.icms.reducao * aliquotas.icms.aliquota))
+      } else {
+        if (destinatarioContribuinte === '2' || destinatarioContribuinte === '9') {
+          let composicaoDaBase = valorSaida / (1 - icmsEstados[estadoDestino].interno)
+          let baseDeCalculo = 0.05 * composicaoDaBase
+          let baseDifal = estadosSemReducao.includes(estadoDestino) ? composicaoDaBase : baseDeCalculo
+          let proprio = baseDifal * icmsEstados[estadoDestino].externo
+          let difal = (baseDifal * icmsEstados[estadoDestino].interno) - proprio
+
+          valores.impostos.icms = {
+            composicaoDaBase: composicaoDaBase,
+            baseDeCalculo: baseDeCalculo,
+            proprio: proprio,
+            difal: {
+              origem: (difal * 0.2),
+              destino: (difal * 0.8)
+            }
+          }
+
+          valores.impostos.total = (parseFloat(valores.impostos.total) + (difal * 0.8) + (difal * 0.2) + proprio)
+        } else if (destinatarioContribuinte === '1') {
+          let baseDeCalculo = 0.05 * valorSaida
+          let valor = baseDeCalculo * icmsEstados[estadoDestino].externo
+
+          valores.impostos.icms = {
+            composicaoDaBase: null,
+            difal: null,
+            baseDeCalculo: baseDeCalculo,
+            proprio: valor
+          }
+          valores.impostos.total = parseFloat(valores.impostos.total) + valor
+        }
+      }
+
+      callback(null, valores)
+    }
+    if (notaFinal.geral.cfop === '1202' || notaFinal.geral.cfop === '2202') {
+      pegarMovimentoNotaFinal(notaFinal.emitente, notaInicial ? notaInicial.chave : notaInicial, (err, movimentoAnterior) => {
+        if (err) {
+          console.error(err)
+        } else if (movimentoAnterior) {
+          lucro = (-1) * movimentoAnterior.valores.lucro
+          valorSaida = 0
+          proximoPasso()
+        } else {
+          valorSaida = 0
+          proximoPasso()
+        }
+      })
+    } else {
+      proximoPasso()
+    }
+  }
+  return 0
+}
+
+function pegarMovimentoNotaFinal (cnpj, chaveNota, callback) {
+  let query = db.ref('Movimentos/' + cnpj).orderByChild('notaFinal').equalTo(chaveNota)
+
+  let jaFoi = false
+
+  query.on('child_added', snap => {
+    let movimento = snap.val()
+    if (movimento.metaDados) {
+      if (movimento.metaDados.status === 'ATIVO') {
+        jaFoi = true
+        return callback(null, movimento)
+      }
+    } else {
+      jaFoi = true
+      return callback(null, movimento)
+    }
+  })
+  query.once('value', snap => {
+    if (!jaFoi) {
+      return callback(null, null)
+    }
+  })
+}
+
+function validarMovimento (notaInicial, notaFinal, callback) {
+  let err = null
+
+  if (!compararCFOP(notaInicial, notaFinal)) {
+    err = new Error(`O CFOP da Nota Inicial ${notaInicial.geral.numero} ${notaInicial.geral.cfop} não é valido para o CFOP da Nota Final ${notaFinal.geral.numero} ${notaFinal.geral.cfop}`)
+  } else if (!compararProduto(notaInicial, notaFinal)) {
+    err = new Error(`O produto da Nota Final ${notaFinal.geral.numero} não foi localizado na Nota Inicial ${notaInicial.geral.numero}!`)
+  } else if (!compararData(notaInicial, notaFinal)) {
+    err = new Error(`A data da Nota Final ${notaFinal.geral.numero} é anterior a data da Nota Inicial ${notaInicial.geral.numero}!`)
+  }
+
+  callback(err)
+}
+
+let cfopCompra = ['1102', '2102']
+let cfopDevolucao = ['1202', '2202']
+let cfopDevolucaoCompra = ['5202']
+let cfopVenda = ['5102', '6102', '6108']
+let cfopConsignacao = ['1917', '2917']
+let cfopCompraConsignacao = ['1113']
+let cfopVendaConsignacao = ['5115', '6115', '5114']
+let cfopDevolucaoConsignacao = ['5918', '6918']
+
+function compararCFOP (notaInicial, notaFinal) {
+  let cfopInicial = notaInicial.geral.cfop
+  let cfopFinal = notaFinal.geral.cfop
+
+  if (cfopCompra.includes(cfopInicial) && cfopVenda.includes(cfopFinal)) {
+    return true
+  } else if (cfopCompraConsignacao.includes(cfopInicial) && cfopVendaConsignacao.includes(cfopFinal)) {
+    return true
+  } else if (cfopConsignacao.includes(cfopInicial) && cfopCompraConsignacao.includes(cfopFinal)) {
+    return true
+  } else if (cfopConsignacao.includes(cfopInicial) && cfopDevolucaoConsignacao.includes(cfopFinal)) {
+    return true
+  } else if (cfopVenda.includes(cfopInicial) && cfopDevolucao.includes(cfopFinal)) {
+    return true
+  } else if (cfopDevolucao.includes(cfopInicial) && cfopVenda.includes(cfopFinal)) {
+    return true
+  } else if (cfopCompra.includes(cfopInicial) && cfopDevolucaoCompra.includes(cfopFinal)) {
+    return true
+  } else if ((cfopVenda.includes(cfopInicial) && cfopVenda.includes(cfopFinal)) && (notaFinal.emitente !== notaInicial.emitente)) {
+    return true
+  } else {
+    return false
+  }
+}
+
+function compararProduto (notaInicial, notaFinal) {
+  let retorno = false
+
+  Object.keys(notaInicial.produtos).forEach(nomeProdutoInicial => {
+    Object.keys(notaFinal.produtos).forEach(nomeProdutoFinal => {
+      if (nomeProdutoFinal === nomeProdutoInicial) {
+        retorno = true
+      } else if (notaInicial.produtos[nomeProdutoInicial].descricao === notaFinal.produtos[nomeProdutoFinal].descricao) {
+        retorno = true
+      }
+    })
+  })
+
+  return retorno
+}
+
+function compararData (notaInicial, notaFinal) {
+  let dataInicial = new Date(notaInicial.geral.dataHora).getTime()
+  let dataFinal = new Date(notaFinal.geral.dataHora).getTime()
+
+  if (dataInicial <= dataFinal) {
+    return true
+  } else {
+    return false
+  }
 }

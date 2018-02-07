@@ -424,11 +424,20 @@ export function gravarNotaSlim (nota, callback) {
 *                                   |-> @prop {Object} valor contém os valores do produto
 *                                         |-> @prop {String} total contém o valor total do produto
 **/
-export function pegarNotaProduto (produtoId, produto, callback) {
+export function pegarNotaProduto (produtosId, callback) {
   let notas = {}
-  let link = `https://us-central1-danfy-4d504.cloudfunctions.net/pegarNotaProduto?prodId=${produtoId}&prodDesc=${produto.descricao}`
 
-  axios.get(link).then(res => {
+  let produtosString = ''
+
+  produtosId.forEach((val, index) => {
+    produtosString += `${val}|*|`
+  })
+
+  produtosString = encodeURI(produtosString)
+
+  let link = `https://us-central1-danfy-4d504.cloudfunctions.net/pegarNotaProduto?prodId=${produtosString}`
+
+  axios.get(link, {headers: {'Access-Control-Allow-Origin': '*'}}).then(res => {
     notas = res.data.notas
 
     callback(null, notas)
