@@ -1,8 +1,13 @@
 {
-  "public": "dist",
   "functions": {
     "predeploy": [
-      "npm --prefix functions run lint"
+      ""
+    ]
+  },
+  "hosting": {
+    "public": "dist",
+    "predeploy": [
+      "cross-env NODE_ENV=production webpack --progress --hide-modules"
     ]
   }
 }

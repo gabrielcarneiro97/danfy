@@ -107,6 +107,16 @@ export default {
     editar () {
       let movimentoNovo = this.$data.movimentoNovo
 
+      let impostos = movimentoNovo.valores.impostos
+
+      impostos.total = parseFloat(impostos.pis) + parseFloat(impostos.cofins) + parseFloat(impostos.irpj) + parseFloat(impostos.csll) + parseFloat(impostos.icms.proprio)
+
+      console.log(impostos)
+
+      if (impostos.icms.difal) {
+        impostos.total += parseFloat(impostos.icms.difal.origem) + parseFloat(impostos.icms.difal.destino)
+      }
+
       editarMovimento(movimentoNovo, this.$props.cnpj, err => {
         if (err) {
           console.error(err)

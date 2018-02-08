@@ -188,7 +188,7 @@
 <script>
 import axios from 'axios'
 import { R$, calcularImpostosMovimento, calcularImpostosServico, pegarDominio, cursorNormal,
-  usuarioAtivo, pegarNotaChave, procurarNotaPar, estaNoDominio, validarMovimento, cursorCarregando,
+  usuarioAtivo, pegarNotaChave, estaNoDominio, validarMovimento, cursorCarregando,
   pegarNotaNumeroEmitente, lerNotasInput, gravarMovimentos, gravarServicos, gravarNotaSlim, pegarEmpresaImpostos } from './services'
 import notaDialogo from './notaDialogo'
 import _ from 'lodash'
@@ -271,29 +271,38 @@ export default {
             })
           })
 
+          let promiseServicos = []
+
           Object.keys(this.$store.state.notasServico).forEach(id => {
             let notaServico = this.$store.state.notasServico[id]
             if (estaNoDominio(notaServico.emitente)) {
-              calcularImpostosServico(notaServico, (err, valores) => {
-                if (err) {
-                  console.error(err)
-                } else {
-                  let servico = {
-                    conferido: true,
-                    nota: notaServico.chave,
-                    data: notaServico.geral.dataHora,
-                    notaStatus: notaServico.geral.status,
-                    valores: valores,
-                    dominio: this.$data.usuario.dominio,
-                    metaDados: {
-                      criadoPor: this.$store.state.usuario.email,
-                      dataCriacao: new Date().toISOString()
+              let p = new Promise(resolve => {
+                calcularImpostosServico(notaServico, (err, valores) => {
+                  if (err) {
+                    console.error(err)
+                  } else {
+                    let servico = {
+                      conferido: true,
+                      nota: notaServico.chave,
+                      data: notaServico.geral.dataHora,
+                      notaStatus: notaServico.geral.status,
+                      valores: valores,
+                      dominio: this.$data.usuario.dominio,
+                      metaDados: {
+                        criadoPor: this.$store.state.usuario.email,
+                        dataCriacao: new Date().toISOString()
+                      }
                     }
+                    resolve(servico)
                   }
-                  this.$data.servicos.push(servico)
-                }
+                })
               })
+              promiseServicos.push(p)
             }
+          })
+
+          Promise.all(promisesServico).then(arr => {
+              this.$data.movimentos = this.$data.servicos.concat(arr)
           })
         })
       }
@@ -386,17 +395,22 @@ export default {
               if (err) {
                 this.chamarMensagem(err)
               } else {
-                calcularImpostosMovimento(notaInicial, notaFinal, (err, valores) => {
+                pegarEmpresaImpostos(notaFinal.emitente, (err, aliquotas) => {
                   if (err) {
-                    this.chamarMensagem(err)
-                  } else {
-                    this.$data.movimentos[movimentoId].notaInicial = notaInicial.chave
-                    this.$data.movimentos[movimentoId].valores = valores
-                    this.$data.mostraAdicionarNota = false
-                    this.$data.adicionarNumeroEmitenteInfo.numeroNota = null
-                    this.$data.adicionarNumeroEmitenteInfo.emitente = null
-                    this.chamarMensagem(new Error('Nota Adicionada com sucesso!'))
+                    console.error(err)
                   }
+                  calcularImpostosMovimento(notaInicial, notaFinal, aliquotas, (err, valores) => {
+                    if (err) {
+                      this.chamarMensagem(err)
+                    } else {
+                      this.$data.movimentos[movimentoId].notaInicial = notaInicial.chave
+                      this.$data.movimentos[movimentoId].valores = valores
+                      this.$data.mostraAdicionarNota = false
+                      this.$data.adicionarNumeroEmitenteInfo.numeroNota = null
+                      this.$data.adicionarNumeroEmitenteInfo.emitente = null
+                      this.chamarMensagem(new Error('Nota Adicionada com sucesso!'))
+                    }
+                  })
                 })
               }
             })
@@ -425,17 +439,22 @@ export default {
               if (err) {
                 this.chamarMensagem(err)
               } else {
-                calcularImpostosMovimento(notaInicial, notaFinal, (err, valores) => {
+                pegarEmpresaImpostos(notaFinal.emitente, (err, aliquotas) => {
                   if (err) {
                     console.error(err)
-                  } else {
-                    this.$data.movimentos[movimentoId].notaInicial = notaInicial.chave
-                    this.$data.movimentos[movimentoId].valores = valores
-                    this.$data.mostraAdicionarNota = false
-                    this.$data.adicionarNumeroEmitenteInfo.numeroNota = null
-                    this.$data.adicionarNumeroEmitenteInfo.emitente = null
-                    this.chamarMensagem(new Error('Nota Adicionada com sucesso!'))
                   }
+                  calcularImpostosMovimento(notaInicial, notaFinal, aliquotas, (err, valores) => {
+                    if (err) {
+                      console.error(err)
+                    } else {
+                      this.$data.movimentos[movimentoId].notaInicial = notaInicial.chave
+                      this.$data.movimentos[movimentoId].valores = valores
+                      this.$data.mostraAdicionarNota = false
+                      this.$data.adicionarNumeroEmitenteInfo.numeroNota = null
+                      this.$data.adicionarNumeroEmitenteInfo.emitente = null
+                      this.chamarMensagem(new Error('Nota Adicionada com sucesso!'))
+                    }
+                  })
                 })
               }
             })
@@ -466,15 +485,20 @@ export default {
                 if (err) {
                   this.chamarMensagem(err)
                 } else {
-                  calcularImpostosMovimento(notaInicial, notaFinal, (err, valores) => {
+                  pegarEmpresaImpostos(notaFinal.emitente, (err, aliquotas) => {
                     if (err) {
                       console.error(err)
-                    } else {
-                      this.$data.movimentos[movimentoId].notaInicial = chave
-                      this.$data.movimentos[movimentoId].valores = valores
-                      this.$data.mostraAdicionarNota = false
-                      this.chamarMensagem(new Error('Nota Adicionada com sucesso!'))
                     }
+                    calcularImpostosMovimento(notaInicial, notaFinal, aliquotas, (err, valores) => {
+                      if (err) {
+                        console.error(err)
+                      } else {
+                        this.$data.movimentos[movimentoId].notaInicial = chave
+                        this.$data.movimentos[movimentoId].valores = valores
+                        this.$data.mostraAdicionarNota = false
+                        this.chamarMensagem(new Error('Nota Adicionada com sucesso!'))
+                      }
+                    })
                   })
                 }
               })
@@ -520,16 +544,21 @@ export default {
             console.error(err)
           }
           notaInicial = notaInicialCompleta
-          calcularImpostosMovimento(notaInicial, notaFinal, (err, valores) => {
+          pegarEmpresaImpostos(notaFinal.emitente, (err, aliquotas) => {
             if (err) {
               console.error(err)
-            } else {
-              this.$data.movimentos[movimentoId].notaInicial = notaInicial.chave
-              this.$data.movimentos[movimentoId].valores = valores
-              this.$data.mostraAdicionarNota = false
-              this.chamarMensagem(new Error('Nota Adicionada com sucesso!'))
-              this.$data.valorDaNota = null
             }
+            calcularImpostosMovimento(notaInicial, notaFinal, aliquotas, (err, valores) => {
+              if (err) {
+                console.error(err)
+              } else {
+                this.$data.movimentos[movimentoId].notaInicial = notaInicial.chave
+                this.$data.movimentos[movimentoId].valores = valores
+                this.$data.mostraAdicionarNota = false
+                this.chamarMensagem(new Error('Nota Adicionada com sucesso!'))
+                this.$data.valorDaNota = null
+              }
+            })
           })
         })
       }
@@ -544,15 +573,20 @@ export default {
 
       this.removerInicial = () => {
         this.$data.movimentos[id].notaInicial = null
-        calcularImpostosMovimento(null, this.$store.state.notas[this.$data.movimentos[id].notaFinal], (err, valores) => {
+        pegarEmpresaImpostos(this.$store.state.notas[this.$data.movimentos[id].notaFinal].emitente, (err, aliquotas) => {
           if (err) {
             console.error(err)
-          } else {
-            this.$data.movimentos[id].valores = valores
-            this.$data.movimentos[id].conferido = false
           }
+          calcularImpostosMovimento(null, this.$store.state.notas[this.$data.movimentos[id].notaFinal], aliquotas, (err, valores) => {
+            if (err) {
+              console.error(err)
+            } else {
+              this.$data.movimentos[id].valores = valores
+              this.$data.movimentos[id].conferido = false
+            }
+          })
+          this.$data.remover.mostra = false
         })
-        this.$data.remover.mostra = false
       }
     },
     removerInicial () {},
@@ -572,12 +606,17 @@ export default {
             movimentos.forEach(movimento2 => {
               if (movimento.notaInicial === movimento2.notaFinal) {
                 notaInicial.valor.total = parseFloat(movimento2.valores.lucro) + parseFloat(notaInicial.valor.total)
-                calcularImpostosMovimento(notaInicial, notaFinal, (err, valores) => {
+                pegarEmpresaImpostos(notaFinal.emitente, (err, aliquotas) => {
                   if (err) {
                     console.error(err)
-                  } else {
-                    movimento.valores = valores
                   }
+                  calcularImpostosMovimento(notaInicial, notaFinal, aliquotas, (err, valores) => {
+                    if (err) {
+                      console.error(err)
+                    } else {
+                      movimento.valores = valores
+                    }
+                  })
                 })
               }
             })

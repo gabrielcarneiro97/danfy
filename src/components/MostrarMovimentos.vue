@@ -85,6 +85,7 @@
 
       <md-table-row v-for="(movimento, index) in ordenarMovimentos" v-bind:key="index">
         <md-table-cell md-numeric class="esconderNaImpressao" v-if="notas[movimento.notaFinal] && !numeroDesativo"><editar-movimento :editado="selecionarMovimento" :cnpj="empresaSelecionada.pessoa.cnpj" :id="chaveMovimento(movimento)" :movimento="movimento"></editar-movimento></md-table-cell>        
+        <md-table-cell md-numeric v-if="notas[movimento.notaFinal]"><md-button class="md-icon-button" :disabled="numeroDesativo" @click="definirDeletar(index)">{{parseInt(notas[movimento.notaFinal].geral.numero)}}</md-button></md-table-cell>                
         <md-table-cell v-if="notas[movimento.notaInicial]"><nota-dialogo :chave="movimento.notaInicial">{{R$(notas[movimento.notaInicial].valor.total)}}</nota-dialogo></md-table-cell>
         <md-table-cell v-else><md-button disabled>SEM NOTA INICIAL</md-button></md-table-cell>       
         <md-table-cell v-if="notas[movimento.notaFinal]"><nota-dialogo :chave="movimento.notaFinal">{{R$(notas[movimento.notaFinal].valor.total)}}</nota-dialogo></md-table-cell>
@@ -103,7 +104,6 @@
         <md-table-cell>{{R$(movimento.valores.impostos.csll)}}</md-table-cell>
         <md-table-cell>{{R$(movimento.valores.impostos.irpj)}}</md-table-cell>
         <md-table-cell>{{R$(movimento.valores.impostos.total)}}</md-table-cell>
-        <md-table-cell md-numeric v-if="notas[movimento.notaFinal]"><md-button class="md-icon-button" :disabled="numeroDesativo" @click="definirDeletar(index)">{{parseInt(notas[movimento.notaFinal].geral.numero)}}</md-button></md-table-cell>        
       </md-table-row>
 
       <md-table-row>
