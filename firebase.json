@@ -1,13 +1,12 @@
 {
   "functions": {
     "predeploy": [
-      ""
     ]
   },
   "hosting": {
     "public": "dist",
     "predeploy": [
-      "cross-env NODE_ENV=production webpack --progress --hide-modules"
+      "npm run build"
     ]
   }
 }
