@@ -5,5 +5,8 @@
         "node": "6.11.5"
       }
     }]
+  ],
+  "plugins": [
+    "@babel/transform-runtime"
   ]
 }

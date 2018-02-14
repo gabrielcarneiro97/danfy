@@ -25,15 +25,11 @@ export function lerNotasInput (files, callback) {
       let obj = xml2js(dados, { compact: true })
       if (obj.CompNfse) {
         lerNfse(obj, (notaServico, emitente, destinatario) => {
-          notasServico = {
-            ...notasServico,
-            [notaServico.chave]: notaServico
-          }
-          pessoas = {
-            ...pessoas,
-            [notaServico.emitente]: emitente,
-            [notaServico.destinatario]: destinatario
-          }
+          notasServico[notaServico.chave] = notaServico
+
+          pessoas[notaServico.emitente] = emitente
+          pessoas[notaServico.destinatario] = destinatario
+
           gravarPessoa(notaServico.emitente, emitente, err => {
             if (err) {
               console.error(err)
@@ -62,15 +58,11 @@ export function lerNotasInput (files, callback) {
         }
       } else {
         lerNfe(obj, (nota, emitente, destinatario) => {
-          notas = {
-            ...notas,
-            [nota.chave]: nota
-          }
-          pessoas = {
-            ...pessoas,
-            [nota.emitente]: emitente,
-            [nota.destinatario]: destinatario
-          }
+          notas[nota.chave] = nota
+
+          pessoas[nota.emitente] = emitente
+          pessoas[nota.destinatario] = destinatario
+
           gravarPessoa(nota.emitente, emitente, err => {
             if (err) {
               console.error(err)
@@ -307,10 +299,7 @@ export function lerNfe (obj, callback) {
       }
     }
 
-    produtos = {
-      ...produtos,
-      [codigo]: produto
-    }
+    produtos[codigo] = produto
   } else {
     det.forEach(val => {
       let prod = val.prod
@@ -329,10 +318,7 @@ export function lerNfe (obj, callback) {
         }
       }
 
-      produtos = {
-        ...produtos,
-        [codigo]: produto
-      }
+      produtos[codigo] = produto
     })
   }
 
