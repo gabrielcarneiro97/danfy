@@ -249,6 +249,7 @@ export default {
 
           axios.post('https://us-central1-danfy-4d504.cloudfunctions.net/gerarMovimentos', {notasFinais: notasFinais, usuario: this.$store.state.usuario}).then(res => {
             let movimentos = res.data.movimentos
+            console.log(movimentos)
             let promises = []
             movimentos.forEach(movimento => {
               let p = new Promise(resolve => {
@@ -301,8 +302,8 @@ export default {
             }
           })
 
-          Promise.all(promisesServico).then(arr => {
-              this.$data.movimentos = this.$data.servicos.concat(arr)
+          Promise.all(promiseServicos).then(arr => {
+              this.$data.servicos = this.$data.servicos.concat(arr)
           })
         })
       }
