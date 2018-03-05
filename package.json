@@ -1,7 +1,7 @@
 {
   "name": "danfy",
   "description": "A Vue.js project",
-  "version": "0.4.4",
+  "version": "0.4.6",
   "author": "Gabriel Carneiro <gabriel.carneiro97@live.com>",
   "maintainers": [
     {
@@ -22,7 +22,7 @@
   "private": true,
   "scripts": {
     "dev": "webpack-dev-server --open --hot --mode=development",
-    "build": "cross-env NODE_ENV=production webpack --progress --hide-modules"
+    "build": "webpack --progress --hide-modules --mode=production"
   },
   "dependencies": {
     "@fortawesome/fontawesome": "^1.1.2",

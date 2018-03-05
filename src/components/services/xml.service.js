@@ -1,4 +1,5 @@
 import { xml2js } from 'xml-js'
+import _ from 'lodash'
 import { storeVuex } from '../../main'
 import { adicionarPessoa, adicionarNota, adicionarNotaServico } from '../../store/actions'
 import { gravarNota, gravarNotaServico, gravarPessoa } from './index'
@@ -210,6 +211,8 @@ export function lerNfe (obj, callback) {
 
   let info = obj.nfeProc ? obj.nfeProc.NFe.infNFe : obj.NFe.infNFe
 
+  console.log(info)
+
   if (!info.ide.tpAmb['_text'] === '1') return 0
 
   let notaId = info['_attributes'].Id.split('NFe')[1]
@@ -324,9 +327,16 @@ export function lerNfe (obj, callback) {
 
   nota.produtos = produtos
 
-  nota.complementar = {
-    notaReferencia: info.ide.NFref ? info.ide.NFref.refNFe['_text'] : null,
-    textoComplementar: info.infAdic ? info.infAdic.infCpl ? info.infAdic.infCpl['_text'] : info.infAdic.infAdFisco ? info.infAdic.infAdFisco['_text'] : null : null
+  if (!_.isArray(info.ide.NFref)) {
+    nota.complementar = {
+      notaReferencia: info.ide.NFref ? info.ide.NFref.refNFe['_text'] : null,
+      textoComplementar: info.infAdic ? info.infAdic.infCpl ? info.infAdic.infCpl['_text'] : info.infAdic.infAdFisco ? info.infAdic.infAdFisco['_text'] : null : null
+    }
+  } else {
+    nota.complementar = {
+      notaReferencia: null,
+      textoComplementar: null
+    }
   }
 
   storeVuex.commit(adicionarNota(notaId, nota))

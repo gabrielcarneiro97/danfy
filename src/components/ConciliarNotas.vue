@@ -303,7 +303,7 @@ export default {
           })
 
           Promise.all(promiseServicos).then(arr => {
-              this.$data.servicos = this.$data.servicos.concat(arr)
+            this.$data.servicos = this.$data.servicos.concat(arr)
           })
         })
       }
