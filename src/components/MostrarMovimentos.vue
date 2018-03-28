@@ -348,8 +348,8 @@ export default {
       meses: [
         { num: '1', nome: 'Janeiro' },
         { num: '2', nome: 'Fevereiro' },
-        { num: '3', nome: 'Abril' },
-        { num: '4', nome: 'Março' },
+        { num: '3', nome: 'Março' },
+        { num: '4', nome: 'Abril' },
         { num: '5', nome: 'Maio' },
         { num: '6', nome: 'Junho' },
         { num: '7', nome: 'Julho' },

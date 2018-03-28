@@ -84,13 +84,14 @@ export function deslogar (callback) {
 **/
 export function criarUsuario (dados, callback) {
   firebase.auth().createUserWithEmailAndPassword(dados.login, dados.senha).then(user => {
+    console.log(user)
     storeVuex.commit(autenticar({ nome: dados.nome, dominio: dados.dominio, email: dados.login, token: user.getIdToken(), id: user.uid, nivel: 1 }))
     let usuario = {
       nome: dados.nome,
       login: dados.login,
       dominio: dados.nome
     }
-    db.ref('Usuarios/' + usuario.id).set({
+    db.ref('Usuarios/' + user.uid).set({
       nome: dados.nome,
       dominio: dados.dominio,
       nivel: 1
@@ -98,6 +99,9 @@ export function criarUsuario (dados, callback) {
       callback(err, usuario)
     })
   }, err => {
+    console.log('aqui')
+    console.log(err.code)
+    console.log(err.message)
     callback(err, null)
   })
 }

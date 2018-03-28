@@ -24,6 +24,7 @@ export function lerNotasInput (files, callback) {
     leitor.onload = () => {
       let dados = leitor.result
       let obj = xml2js(dados, { compact: true })
+      console.log(obj)
       if (obj.CompNfse) {
         lerNfse(obj, (notaServico, emitente, destinatario) => {
           notasServico[notaServico.chave] = notaServico
