@@ -231,24 +231,29 @@
         <md-table-head>MÊS</md-table-head>
         <md-table-head>CSLL</md-table-head>
         <md-table-head>IRPJ</md-table-head>
+        <md-table-head>FATURAMENTO</md-table-head>
       </md-table-row>
 
       <md-table-row v-for="(mes, index) in trimestre" v-if="index !== 'totais'" v-bind:key="index + 'totais'">
         <md-table-cell>{{pegarMes(index)}}</md-table-cell>
         <md-table-cell>{{R$(mes.totais.impostos.csll - mes.totais.impostos.retencoes.csll)}}</md-table-cell>
         <md-table-cell>{{R$(mes.totais.impostos.irpj - mes.totais.impostos.retencoes.irpj)}}</md-table-cell>
+        <md-table-cell>{{R$(mes.totais.lucro + mes.totais.servicos)}}</md-table-cell>
+        
       </md-table-row>
 
       <md-table-row v-if="(parseInt(competenciaSelecionada.mes) % 3 === 0)">
         <md-table-cell>Adicionais</md-table-cell>
-        <md-table-cell>0,00</md-table-cell>
-        <md-table-cell>{{R$(trimestre.totais.impostos.adicionalIr)}}</md-table-cell>        
+        <md-table-cell>-</md-table-cell>
+        <md-table-cell>{{R$(trimestre.totais.impostos.adicionalIr)}}</md-table-cell>
+        <md-table-cell>-</md-table-cell>        
       </md-table-row>
 
       <md-table-row>
         <md-table-head>Trimestre</md-table-head>
         <md-table-head>{{R$(trimestre.totais.impostos.csll - trimestre.totais.impostos.retencoes.csll)}}</md-table-head>
-        <md-table-head>{{R$(trimestre.totais.impostos.irpj - trimestre.totais.impostos.retencoes.irpj + trimestre.totais.impostos.adicionalIr)}}</md-table-head>
+        <md-table-head>{{R$(trimestre.totais.impostos.irpj - trimestre.totais.impostos.retencoes.irpj + trimestre.totais.impostos.adicionalIr)}}</md-table-head>        
+        <md-table-head>{{R$(trimestre.totais.lucro + trimestre.totais.servicos)}}</md-table-head>
       </md-table-row>
     </md-table>
 
@@ -532,6 +537,8 @@ export default {
           })
           this.$data.semServicos = false
         }
+
+        console.log(trimestre)
 
         this.$data.trimestre = trimestre
 
