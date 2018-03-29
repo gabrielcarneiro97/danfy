@@ -814,16 +814,10 @@ export function pegarMovimentosMes (cnpj, competencia, callback) {
 
     if (movimento.metaDados) {
       if (movimento.metaDados.status !== 'CANCELADO' && mes === competencia.mes && ano === competencia.ano) {
-        movimentos = {
-          ...movimentos,
-          [movimentoId]: movimento
-        }
+        movimentos[movimentoId] = movimento
       }
     } else if (mes === competencia.mes && ano === competencia.ano) {
-      movimentos = {
-        ...movimentos,
-        [movimentoId]: movimento
-      }
+      movimentos[movimentoId] = movimento
     }
   })
   query.once('value', snap => {
@@ -845,10 +839,7 @@ export function pegarMovimentosPorGeracao (cnpj, competencia, callback) {
       let ano = data.getUTCFullYear().toString()
 
       if (movimento.metaDados.status === 'ATIVO' && mes === competencia.mes && ano === competencia.ano) {
-        movimentos = {
-          ...movimentos,
-          [movimentoId]: movimento
-        }
+        movimentos[movimentoId] = movimento
       }
     }
   })
@@ -953,10 +944,7 @@ export function pegarServicosMes (cnpj, competencia, callback) {
     let ano = data.getUTCFullYear().toString()
 
     if (mes === competencia.mes && ano === competencia.ano) {
-      servicos = {
-        ...servicos,
-        [servicoId]: servico
-      }
+      servicos[servicoId] = servico
     }
   })
   query.once('value', snap => {
