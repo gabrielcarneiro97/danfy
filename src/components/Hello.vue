@@ -4,7 +4,7 @@
     <md-content class="md-layout-item md-size-100 md-layout md-accent p1">
 
       <div class="md-layout-item md-size-25"></div>
-      
+
       <div class="md-layout-item md-size-50" style="text-align: center; padding-top: 1%">
         <h1 style="font-size: 300%">DANFY <span id="label">ALPHA ({{version}})</span></h1>
         <div class="titulo" style="color: black; margin-top: 0%">Um novo modo de controlar o seu movimento fiscal!</div>
