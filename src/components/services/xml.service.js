@@ -121,8 +121,8 @@ export function lerNfse (obj, callback) {
     servico: valorBruto.ValorServicos['_text'],
     baseDeCalculo: valorBruto.BaseCalculo['_text'],
     iss: {
-      valor: valorBruto.ValorIss ? valorBruto.ValorIss['_text'] : null,
-      aliquota: valorBruto.Aliquota ? valorBruto.Aliquota['_text'] : null
+      valor: valorBruto.ValorIss ? valorBruto.ValorIss['_text'] : '0.0',
+      aliquota: valorBruto.Aliquota ? valorBruto.Aliquota['_text'] : '0.0'
     },
     retencoes: {
       iss: valorBruto.ValorIssRetido ? valorBruto.ValorIssRetido['_text'] : '0.0',

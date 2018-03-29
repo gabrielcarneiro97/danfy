@@ -337,6 +337,8 @@ export default {
         }
       })
 
+      console.log(paraGravar)
+
       gravarServicos(paraGravar, err => {
         if (err) {
           console.error(err)
