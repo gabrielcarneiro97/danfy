@@ -49,7 +49,7 @@
         </md-field>
         <div class="md-layout md-layout-item md-size-100 md-alignment-top-right">
           <md-button class="md-layout-item md-size-25 md-primary" @click="selecionarMovimento" :disabled="!tudoPreenchido">SELECIONAR</md-button>
-          <md-button class="md-layout-item md-size-25 md-primary" @click="imprimirTabela" :disabled="!temMovimentos && !temServicos">IMPRIMIR</md-button>
+          <md-button class="md-layout-item md-size-25 md-primary" @click="imprimirTabela" :disabled="!temMovimentos && !temServicos && !temAcumulado">IMPRIMIR</md-button>
         </div>
     </div>
   </div>
