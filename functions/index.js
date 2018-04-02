@@ -148,7 +148,6 @@ exports.pegarTudoTrimestre = functions.https.onRequest((request, response) => {
             data.err = err
           } else {
             data.trimestre = trim
-            console.log(trim)
             response.send(data)
           }
         })
