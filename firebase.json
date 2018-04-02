@@ -6,7 +6,7 @@
   "hosting": {
     "public": "dist",
     "predeploy": [
-      "npm run build"
+      "webpack --progress --hide-modules --mode=production"
     ]
   }
 }

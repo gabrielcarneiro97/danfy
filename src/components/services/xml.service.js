@@ -255,8 +255,8 @@ export function lerNfe (obj, callback) {
       },
       estado: dest.enderDest.UF['_text'],
       pais: {
-        codigo: dest.enderDest.cPais['_text'],
-        nome: dest.enderDest.xPais['_text']
+        codigo: dest.enderDest.cPais ? dest.enderDest.cPais['_text'] : '',
+        nome: dest.enderDest.xPais ? dest.enderDest.xPais['_text'] : ''
       },
       cep: dest.enderDest.CEP ? dest.enderDest.CEP['_text'] : ''
     }
@@ -330,13 +330,13 @@ export function lerNfe (obj, callback) {
 
   if (!_.isArray(info.ide.NFref)) {
     nota.complementar = {
-      notaReferencia: info.ide.NFref ? info.ide.NFref.refNFe['_text'] : null,
-      textoComplementar: info.infAdic ? info.infAdic.infCpl ? info.infAdic.infCpl['_text'] : info.infAdic.infAdFisco ? info.infAdic.infAdFisco['_text'] : null : null
+      notaReferencia: info.ide.NFref ? info.ide.NFref.refNFe ? info.ide.NFref.refNFe['_text'] : '' : '',
+      textoComplementar: info.infAdic ? info.infAdic.infCpl ? info.infAdic.infCpl['_text'] : info.infAdic.infAdFisco ? info.infAdic.infAdFisco['_text'] : '' : ''
     }
   } else {
     nota.complementar = {
-      notaReferencia: null,
-      textoComplementar: null
+      notaReferencia: '',
+      textoComplementar: ''
     }
   }
 
