@@ -513,6 +513,8 @@ export default {
         let trimestre = data.trimestre
         let notas = data.notas
 
+        console.log(res.data)
+
         if (_.isEmpty(movimentos)) {
           this.$data.snackMovimentos = true
           this.$data.semMovimentos = true
