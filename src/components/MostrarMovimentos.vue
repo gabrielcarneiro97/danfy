@@ -202,8 +202,8 @@
       <md-table-row>
         <md-table-head v-if="temServicos">ISS</md-table-head>
         <md-table-head v-if="temMovimentos">ICMS</md-table-head>
-        <md-table-head>PIS</md-table-head>
-        <md-table-head>COFINS</md-table-head>        
+        <md-table-head>PIS<span v-if="trimestre[competenciaSelecionada.mes].totais.impostos.acumulado.pis > 0"> + ACUMULADO</span></md-table-head>
+        <md-table-head>COFINS<span v-if="trimestre[competenciaSelecionada.mes].totais.impostos.acumulado.cofins > 0"> + ACUMULADO</span></md-table-head>        
         <md-table-head v-if="empresaSelecionada.pessoa.formaPagamento === 'adiantamento'">CSLL</md-table-head>
         <md-table-head v-if="(parseInt(competenciaSelecionada.mes) % 3 === 0) && empresaSelecionada.pessoa.formaPagamento === 'adiantamento'">IRPJ + ADICIONAL</md-table-head>    
         <md-table-head v-else-if="empresaSelecionada.pessoa.formaPagamento === 'adiantamento'">IRPJ</md-table-head>        
@@ -212,8 +212,8 @@
       <md-table-row>
         <md-table-cell v-if="temServicos">{{R$(trimestre[competenciaSelecionada.mes].totais.impostos.iss - trimestre[competenciaSelecionada.mes].totais.impostos.retencoes.iss)}}</md-table-cell>
         <md-table-cell v-if="temMovimentos">{{R$(trimestre[competenciaSelecionada.mes].totais.impostos.icms.proprio + trimestre[competenciaSelecionada.mes].totais.impostos.icms.difal.origem)}}</md-table-cell>
-        <md-table-cell>{{R$(trimestre[competenciaSelecionada.mes].totais.impostos.pis - trimestre[competenciaSelecionada.mes].totais.impostos.retencoes.pis)}}</md-table-cell>
-        <md-table-cell>{{R$(trimestre[competenciaSelecionada.mes].totais.impostos.cofins - trimestre[competenciaSelecionada.mes].totais.impostos.retencoes.cofins)}}</md-table-cell>
+        <md-table-cell>{{R$(trimestre[competenciaSelecionada.mes].totais.impostos.pis - trimestre[competenciaSelecionada.mes].totais.impostos.retencoes.pis + trimestre[competenciaSelecionada.mes].totais.impostos.acumulado.pis)}}</md-table-cell>
+        <md-table-cell>{{R$(trimestre[competenciaSelecionada.mes].totais.impostos.cofins - trimestre[competenciaSelecionada.mes].totais.impostos.retencoes.cofins + trimestre[competenciaSelecionada.mes].totais.impostos.acumulado.cofins)}}</md-table-cell>
         <md-table-cell v-if="empresaSelecionada.pessoa.formaPagamento === 'adiantamento'">{{R$(trimestre[competenciaSelecionada.mes].totais.impostos.csll - trimestre[competenciaSelecionada.mes].totais.impostos.retencoes.csll)}}</md-table-cell>        
         <md-table-cell v-if="(parseInt(competenciaSelecionada.mes) % 3 === 0) && empresaSelecionada.pessoa.formaPagamento === 'adiantamento'">{{R$(trimestre[competenciaSelecionada.mes].totais.impostos.irpj - trimestre[competenciaSelecionada.mes].totais.impostos.retencoes.irpj + trimestre.totais.impostos.adicionalIr)}}</md-table-cell>
         <md-table-cell v-else-if="empresaSelecionada.pessoa.formaPagamento === 'adiantamento'">{{R$(trimestre[competenciaSelecionada.mes].totais.impostos.irpj - trimestre[competenciaSelecionada.mes].totais.impostos.retencoes.irpj)}}</md-table-cell>      
