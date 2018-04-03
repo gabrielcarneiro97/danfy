@@ -133,6 +133,7 @@ exports.pegarNotaProduto = functions.https.onRequest((request, response) => {
 
 exports.pegarTudoTrimestre = functions.https.onRequest((request, response) => {
   cors(request, response, () => {
+    console.log('v1')
     let data = {}
     let cnpj = request.query.cnpj // '10224776000149'
     let mes = request.query.mes
@@ -455,135 +456,11 @@ function totaisTrimestrais (cnpj, competencia, callback) {
   trimestres[competencia.mes].forEach((mes, id, arr) => {
     let ultimoMes = arr[arr.length - 1]
 
-    trimestre[mes] = {
-      servicos: {
-        total: 0,
-        impostos: {
-          retencoes: {
-            iss: 0,
-            irpj: 0,
-            csll: 0,
-            pis: 0,
-            cofins: 0,
-            total: 0
-          },
-          iss: 0,
-          irpj: 0,
-          csll: 0,
-          pis: 0,
-          cofins: 0,
-          total: 0
-        }
-      },
-      movimentos: {
-        totalSaida: 0,
-        lucro: 0,
-        impostos: {
-          cofins: 0,
-          pis: 0,
-          irpj: 0,
-          csll: 0,
-          icms: {
-            baseDeCalculo: 0,
-            proprio: 0,
-            difal: {
-              origem: 0,
-              destino: 0
-            }
-          },
-          total: 0
-        }
-      },
-      totais: {
-        lucro: 0,
-        servicos: 0,
-        impostos: {
-          pis: 0,
-          cofins: 0,
-          csll: 0,
-          irpj: 0,
-          iss: 0,
-          gnre: 0,
-          icms: {
-            proprio: 0,
-            difal: {
-              origem: 0,
-              destino: 0
-            }
-          },
-          total: 0,
-          retencoes: {
-            iss: 0,
-            irpj: 0,
-            csll: 0,
-            pis: 0,
-            cofins: 0,
-            total: 0
-          }
-        }
-      }
-    }
-
-    pegarServicosMes(cnpj, { mes: mes, ano: competencia.ano }, (err, servicos) => {
+    calculaImpostosEmpresa(cnpj, {mes: mes, ano: competencia.ano, mesAnterior: true}, (err, impostos) => {
       if (err) {
         console.error(err)
-      } else if (servicos) {
-        Object.keys(servicos).forEach(key => {
-          let servico = servicos[key]
-          trimestre[mes].servicos.total += parseFloat(servico.valores.servico)
-
-          trimestre[mes].servicos.impostos.total += parseFloat(servico.valores.impostos.total)
-          trimestre[mes].servicos.impostos.iss += parseFloat(servico.valores.impostos.iss)
-          trimestre[mes].servicos.impostos.pis += parseFloat(servico.valores.impostos.pis)
-          trimestre[mes].servicos.impostos.cofins += parseFloat(servico.valores.impostos.cofins)
-          trimestre[mes].servicos.impostos.csll += parseFloat(servico.valores.impostos.csll)
-          trimestre[mes].servicos.impostos.irpj += parseFloat(servico.valores.impostos.irpj)
-
-          trimestre[mes].servicos.impostos.retencoes.total += parseFloat(servico.valores.impostos.retencoes.total)
-          trimestre[mes].servicos.impostos.retencoes.iss += parseFloat(servico.valores.impostos.retencoes.iss)
-          trimestre[mes].servicos.impostos.retencoes.pis += parseFloat(servico.valores.impostos.retencoes.pis)
-          trimestre[mes].servicos.impostos.retencoes.cofins += parseFloat(servico.valores.impostos.retencoes.cofins)
-          trimestre[mes].servicos.impostos.retencoes.csll += parseFloat(servico.valores.impostos.retencoes.csll)
-          trimestre[mes].servicos.impostos.retencoes.irpj += parseFloat(servico.valores.impostos.retencoes.irpj)
-        })
-      }
-      pegarMovimentosMes(cnpj, { mes: mes, ano: competencia.ano }, (err, movimentos) => {
-        if (err) {
-          console.error(err)
-        }
-        Object.keys(movimentos).forEach(key => {
-          let movimento = movimentos[key]
-          trimestre[mes].movimentos.lucro += parseFloat(movimento.valores.lucro)
-          trimestre[mes].movimentos.totalSaida += parseFloat(movimento.valores.valorSaida)
-
-          trimestre[mes].movimentos.impostos.total += parseFloat(movimento.valores.impostos.total)
-          trimestre[mes].movimentos.impostos.pis += parseFloat(movimento.valores.impostos.pis)
-          trimestre[mes].movimentos.impostos.cofins += parseFloat(movimento.valores.impostos.cofins)
-          trimestre[mes].movimentos.impostos.csll += parseFloat(movimento.valores.impostos.csll)
-          trimestre[mes].movimentos.impostos.irpj += parseFloat(movimento.valores.impostos.irpj)
-          trimestre[mes].movimentos.impostos.icms.baseDeCalculo += parseFloat(movimento.valores.impostos.icms.baseDeCalculo)
-          trimestre[mes].movimentos.impostos.icms.proprio += parseFloat(movimento.valores.impostos.icms.proprio)
-          if (movimento.valores.impostos.icms.difal) {
-            trimestre[mes].movimentos.impostos.icms.difal.origem += parseFloat(movimento.valores.impostos.icms.difal.origem)
-            trimestre[mes].movimentos.impostos.icms.difal.destino += parseFloat(movimento.valores.impostos.icms.difal.destino)
-          }
-        })
-
-        trimestre[mes].totais = {
-          servicos: trimestre[mes].servicos.total,
-          lucro: trimestre[mes].movimentos.lucro,
-          impostos: {
-            retencoes: trimestre[mes].servicos.impostos.retencoes,
-            iss: trimestre[mes].servicos.impostos.iss,
-            icms: trimestre[mes].movimentos.impostos.icms,
-            irpj: trimestre[mes].movimentos.impostos.irpj + trimestre[mes].servicos.impostos.irpj,
-            csll: trimestre[mes].movimentos.impostos.csll + trimestre[mes].servicos.impostos.csll,
-            pis: trimestre[mes].movimentos.impostos.pis + trimestre[mes].servicos.impostos.pis,
-            cofins: trimestre[mes].movimentos.impostos.cofins + trimestre[mes].servicos.impostos.cofins,
-            total: trimestre[mes].movimentos.impostos.total + trimestre[mes].servicos.impostos.total
-          }
-        }
-
+      } else {
+        trimestre[mes] = impostos
         trimestre.totais.servicos += trimestre[mes].totais.servicos
         trimestre.totais.lucro += trimestre[mes].totais.lucro
 
@@ -634,7 +511,180 @@ function totaisTrimestrais (cnpj, competencia, callback) {
         } else if (mes === ultimoMes) {
           return callback(null, trimestre)
         }
+      }
+    })
+  })
+}
+
+function calculaImpostosEmpresa (empresaCnpj, competencia, callback) {
+  console.log(competencia)
+  let data = {
+    servicos: {
+      total: 0,
+      impostos: {
+        retencoes: {
+          iss: 0,
+          irpj: 0,
+          csll: 0,
+          pis: 0,
+          cofins: 0,
+          total: 0
+        },
+        iss: 0,
+        irpj: 0,
+        csll: 0,
+        pis: 0,
+        cofins: 0,
+        total: 0
+      }
+    },
+    movimentos: {
+      totalSaida: 0,
+      lucro: 0,
+      impostos: {
+        cofins: 0,
+        pis: 0,
+        irpj: 0,
+        csll: 0,
+        icms: {
+          baseDeCalculo: 0,
+          proprio: 0,
+          difal: {
+            origem: 0,
+            destino: 0
+          }
+        },
+        total: 0
+      }
+    },
+    totais: {
+      lucro: 0,
+      servicos: 0,
+      impostos: {
+        pis: 0,
+        cofins: 0,
+        csll: 0,
+        irpj: 0,
+        iss: 0,
+        gnre: 0,
+        icms: {
+          proprio: 0,
+          difal: {
+            origem: 0,
+            destino: 0
+          }
+        },
+        total: 0,
+        retencoes: {
+          iss: 0,
+          irpj: 0,
+          csll: 0,
+          pis: 0,
+          cofins: 0,
+          total: 0
+        }
+      }
+    }
+  }
+
+  pegarServicosMes(empresaCnpj, { mes: competencia.mes, ano: competencia.ano }, (err, servicos) => {
+    if (err) {
+      return callback(err)
+    } else if (servicos) {
+      Object.keys(servicos).forEach(key => {
+        let servico = servicos[key]
+        data.servicos.total += parseFloat(servico.valores.servico)
+
+        data.servicos.impostos.total += parseFloat(servico.valores.impostos.total)
+        data.servicos.impostos.iss += parseFloat(servico.valores.impostos.iss)
+        data.servicos.impostos.pis += parseFloat(servico.valores.impostos.pis)
+        data.servicos.impostos.cofins += parseFloat(servico.valores.impostos.cofins)
+        data.servicos.impostos.csll += parseFloat(servico.valores.impostos.csll)
+        data.servicos.impostos.irpj += parseFloat(servico.valores.impostos.irpj)
+
+        data.servicos.impostos.retencoes.total += parseFloat(servico.valores.impostos.retencoes.total)
+        data.servicos.impostos.retencoes.iss += parseFloat(servico.valores.impostos.retencoes.iss)
+        data.servicos.impostos.retencoes.pis += parseFloat(servico.valores.impostos.retencoes.pis)
+        data.servicos.impostos.retencoes.cofins += parseFloat(servico.valores.impostos.retencoes.cofins)
+        data.servicos.impostos.retencoes.csll += parseFloat(servico.valores.impostos.retencoes.csll)
+        data.servicos.impostos.retencoes.irpj += parseFloat(servico.valores.impostos.retencoes.irpj)
       })
+    }
+    pegarMovimentosMes(empresaCnpj, { mes: competencia.mes, ano: competencia.ano }, (err, movimentos) => {
+      if (err) {
+        console.error(err)
+      }
+      Object.keys(movimentos).forEach(key => {
+        let movimento = movimentos[key]
+        data.movimentos.lucro += parseFloat(movimento.valores.lucro)
+        data.movimentos.totalSaida += parseFloat(movimento.valores.valorSaida)
+
+        data.movimentos.impostos.total += parseFloat(movimento.valores.impostos.total)
+        data.movimentos.impostos.pis += parseFloat(movimento.valores.impostos.pis)
+        data.movimentos.impostos.cofins += parseFloat(movimento.valores.impostos.cofins)
+        data.movimentos.impostos.csll += parseFloat(movimento.valores.impostos.csll)
+        data.movimentos.impostos.irpj += parseFloat(movimento.valores.impostos.irpj)
+        data.movimentos.impostos.icms.baseDeCalculo += parseFloat(movimento.valores.impostos.icms.baseDeCalculo)
+        data.movimentos.impostos.icms.proprio += parseFloat(movimento.valores.impostos.icms.proprio)
+        if (movimento.valores.impostos.icms.difal) {
+          data.movimentos.impostos.icms.difal.origem += parseFloat(movimento.valores.impostos.icms.difal.origem)
+          data.movimentos.impostos.icms.difal.destino += parseFloat(movimento.valores.impostos.icms.difal.destino)
+        }
+      })
+
+      data.totais = {
+        servicos: data.servicos.total,
+        lucro: data.movimentos.lucro,
+        impostos: {
+          acumulado: {
+            pis: 0,
+            cofins: 0
+          },
+          retencoes: data.servicos.impostos.retencoes,
+          iss: data.servicos.impostos.iss,
+          icms: data.movimentos.impostos.icms,
+          irpj: data.movimentos.impostos.irpj + data.servicos.impostos.irpj,
+          csll: data.movimentos.impostos.csll + data.servicos.impostos.csll,
+          pis: data.movimentos.impostos.pis + data.servicos.impostos.pis,
+          cofins: data.movimentos.impostos.cofins + data.servicos.impostos.cofins,
+          total: data.movimentos.impostos.total + data.servicos.impostos.total
+        }
+      }
+
+      if (competencia.mesAnterior) {
+        console.log('mesAnterior')
+        let anoAnterior = competencia.ano
+        let mesAnterior
+        if (parseInt(competencia.mes) - 1 === 0) {
+          mesAnterior = '12'
+          anoAnterior = (parseInt(anoAnterior) - 1).toString()
+        } else {
+          mesAnterior = (parseInt(competencia.mes) - 1).toString()
+        }
+        calculaImpostosEmpresa(empresaCnpj, { mes: mesAnterior, ano: anoAnterior, mesAnterior: false }, (err, anterior) => {
+          if (err) {
+            callback(err)
+          } else {
+            let pisAnterior = parseFloat(anterior.totais.impostos.pis) - parseFloat(anterior.totais.impostos.retencoes.pis)
+            let cofinsAnterior = parseFloat(anterior.totais.impostos.cofins) - parseFloat(anterior.totais.impostos.retencoes.cofins)
+
+            console.log(`${empresaCnpj}: mes ${competencia.mes} Ant ${mesAnterior}/${anoAnterior} pis ${anterior.totais.impostos.pis} - ${anterior.totais.impostos.retencoes.pis} cofins ${anterior.totais.impostos.cofins} - ${anterior.totais.impostos.retencoes.cofins} `)
+
+            console.log(anterior)
+
+            if (pisAnterior < 10) {
+              data.totais.impostos.acumulado.pis = pisAnterior
+            }
+            if (cofinsAnterior < 10) {
+              data.totais.impostos.acumulado.cofins = cofinsAnterior
+            }
+
+            callback(null, data)
+          }
+        })
+      } else {
+        return callback(null, data)
+      }
     })
   })
 }
