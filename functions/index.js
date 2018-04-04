@@ -689,20 +689,6 @@ function calculaImpostosEmpresa (empresaCnpj, competencia, callback) {
   })
 }
 
-function validarMovimento (notaInicial, notaFinal, callback) {
-  let err = null
-
-  if (!compararCFOP(notaInicial, notaFinal)) {
-    err = new Error(`O CFOP da Nota Inicial ${notaInicial.geral.numero} ${notaInicial.geral.cfop} não é valido para o CFOP da Nota Final ${notaFinal.geral.numero} ${notaFinal.geral.cfop}`)
-  } else if (!compararProduto(notaInicial, notaFinal)) {
-    err = new Error(`O produto da Nota Final ${notaFinal.geral.numero} não foi localizado na Nota Inicial ${notaInicial.geral.numero}!`)
-  } else if (!compararData(notaInicial, notaFinal)) {
-    err = new Error(`A data da Nota Final ${notaFinal.geral.numero} é anterior a data da Nota Inicial ${notaInicial.geral.numero}!`)
-  }
-
-  callback(err)
-}
-
 function pegarServicosMes (cnpj, competencia, callback) {
   let servicos = {}
   let query = db.ref('Servicos/' + cnpj)
@@ -747,6 +733,20 @@ function pegarMovimentosMes (cnpj, competencia, callback) {
   }, err => {
     callback(err, null)
   })
+}
+
+function validarMovimento (notaInicial, notaFinal, callback) {
+  let err = null
+
+  if (!compararCFOP(notaInicial, notaFinal)) {
+    err = new Error(`O CFOP da Nota Inicial ${notaInicial.geral.numero} ${notaInicial.geral.cfop} não é valido para o CFOP da Nota Final ${notaFinal.geral.numero} ${notaFinal.geral.cfop}`)
+  } else if (!compararProduto(notaInicial, notaFinal)) {
+    err = new Error(`O produto da Nota Final ${notaFinal.geral.numero} não foi localizado na Nota Inicial ${notaInicial.geral.numero}!`)
+  } else if (!compararData(notaInicial, notaFinal)) {
+    err = new Error(`A data da Nota Final ${notaFinal.geral.numero} é anterior a data da Nota Inicial ${notaInicial.geral.numero}!`)
+  }
+
+  callback(err)
 }
 
 function pegarMovimentoNotaFinal (cnpj, chaveNota, callback) {
