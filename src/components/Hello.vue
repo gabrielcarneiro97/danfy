@@ -84,61 +84,62 @@
       </v-flex>
     </v-layout>
 
-  <div class="md-layout">
-    <md-content class="md-layout-item md-size-100 md-layout md-gutter md-accent p1" style="padding-bottom: 4%; padding-top: 4%">
-      <div class="md-layout-item" style="text-align: center">
+  <v-layout row class="p2" style="padding-bottom: 3%" text-xs-center>
+    <div class="md-layout-item" style="text-align: center">
         <div>
           <div class="titulo-2" style="font-size: 200%; font-weight: 400; color: black; margin-bottom: 0; margin-top: 0">Como funciona?</div>
         </div>
       </div>
-    </md-content>
-  </div>
-  <div class="md-layout">
-    <md-content class="md-layout-item md-size-100 md-layout md-alignment-center-center md-accent p1" style="padding-top: 0">
-      <div class="md-layout-item md-size-30" style="text-align: center;">
+  </v-layout>
+
+  <v-container style="margin-bottom: 3%">
+    <v-layout row text-xs-center>
+      <v-flex>
         <div style="margin-bottom: 2%">
-          <font-awesome-icon color="black" :icon="faDownload" size="5x"  />
-        </div>
-        <div>
-          <div class="titulo-2" style="color: black">Importe as notas</div>
-        </div>
-      </div>
-      <div class="md-layout-item md-size-5" style="text-align: center;">
+            <font-awesome-icon color="black" :icon="faDownload" size="5x"  />
+          </div>
+          <div>
+            <div class="titulo-2" style="color: black">Importe as notas</div>
+          </div>
+      </v-flex>
+      <v-flex>
         <font-awesome-icon color="black" :icon="faArrowRight" size="5x" />
-      </div>
-      <div class="md-layout-item md-size-30" style="text-align: center;">
+      </v-flex>
+
+      <v-flex>
         <div style="margin-bottom: 2%">
-          <font-awesome-icon color="black" :icon="faCodeBranch" size="5x"  />
-        </div>
-        <div>
-          <div class="titulo-2" style="color: black">Concilie os movimentos</div>
-        </div>
-      </div>
-      <div class="md-layout-item md-size-5" style="text-align: center">
-        <font-awesome-icon color="black" :icon="faArrowRight" size="5x" />
-      </div>
-      <div class="md-layout-item md-size-30" style="text-align: center;">
-        <div style="margin-bottom: 2%">
-          <font-awesome-icon color="black" :icon="faListOl" size="5x"  />
-        </div>
-        <div>
-          <div class="titulo-2" style="color: black">Visualize os relatórios</div>
-        </div>
-      </div>     
-    </md-content>
-  </div>
-  <div class="md-layout">
-    <md-content class="md-layout-item md-size-100 md-layout md-primary p1 md-alignment-top-center">
-      <div class="md-layout-item md-size-10"></div>
+            <font-awesome-icon color="black" :icon="faCodeBranch" size="5x"  />
+          </div>
+          <div>
+            <div class="titulo-2" style="color: black">Concilie os movimentos</div>
+          </div>
+      </v-flex>
       
-      <div class="md-layout-item md-size-50" style="text-align: center; padding-top: 1%">
-        <div class="titulo-2" style="color: white">Aumente a sua produtividade com o DANFY!</div>
-      </div>
-      <div class="md-layout-item md-size-20" style="text-align: left; margin-left: -4vw">
-        <font-awesome-icon color="white" :icon="faFire" size="8x"/>
-      </div>
-    </md-content>
-  </div>
+      <v-flex>
+        <font-awesome-icon color="black" :icon="faArrowRight" size="5x" />
+      </v-flex>
+
+      <v-flex>
+        <div style="margin-bottom: 2%">
+            <font-awesome-icon color="black" :icon="faListOl" size="5x"  />
+          </div>
+          <div>
+            <div class="titulo-2" style="color: black">Visualize os relatórios</div>
+          </div>
+      </v-flex>
+
+      
+    </v-layout>
+  </v-container>
+
+  <v-layout row primary text-xs-center class="p2" style="padding-bottom: 4%">
+    <v-flex offset-xs2 xs6 style="padding-top: 1%">
+        <div class="titulo-2" style="color: white">Aumente a sua produtividade com o DANFY!</div>      
+    </v-flex>
+    <v-flex text-xs-left style="margin-left: -4vw">
+        <font-awesome-icon color="white" :icon="faFire" size="8x"/>      
+    </v-flex>
+  </v-layout>
 </div>
 </template>
 
