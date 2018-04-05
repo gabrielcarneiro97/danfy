@@ -1,35 +1,51 @@
 <template>
-  <div class="md-layout md-alignment-top-right" id="main">
-    <div class="md-layout-item md-size-75 md-layout  md-alignment-center-center" style="min-height: 90vh;">
-      <h1 style="font-size: 380%">DANFY <span id="label">ALPHA</span></h1>
-      <font-awesome-icon style="margin-left:1.5vw" color="black" :icon="faFileAlt" size="7x" />
-    </div>
-    <div class="md-layout-item md-size-25">
-      <md-card style="min-height: 90vh;">
-        <md-card-content style="margin-top: 25vh">
-          <md-field>
-            <label>E-MAIL</label>
-            <md-input v-model="login"></md-input>
-          </md-field>
-          <md-field>
-            <label>SENHA</label>
-            <md-input v-model="senha" type="password"></md-input>
-          </md-field>
-        </md-card-content>
+  <v-layout row wrap fill-height>
+    <v-flex xs9 text-xs-center style="padding-top: 35vh">
+      <h1 style="font-size: 380%">DANFY <span id="label">ALPHA</span>
+      <font-awesome-icon color="black" :icon="faFileAlt" size="2x" />      
+      </h1>
+    </v-flex>
+    <v-flex accent style="padding-top: 21vh">
+      <v-container>
+        <v-text-field
+          name="login"
+          label="E-MAIL"
+          id="login"
+          v-model="login"
+          dark
+        ></v-text-field>
+        <v-text-field
+          name="password"
+          label="SENHA"
+          id="password"
+          v-model="senha"
+          type="password"
+          dark
+        ></v-text-field>
+      </v-container>
+      <v-container row wrap text-xs-center style="margin-top:-8%">
+        <v-flex xs12>
+          <v-btn block @click="entrar">LOGIN</v-btn>
+        </v-flex>
+        <v-flex xs12>
+          <v-btn block @click="registrar">REGISTRAR</v-btn>
+        </v-flex>
+      </v-container>
+    </v-flex>
 
-        <md-card-actions class="md-layout md-alignment-center-center">
-          <md-button class="md-layout-item md-raised md-primary" @click="registrar">REGISTRAR</md-button>
-          <md-button class="md-layout-item md-raised md-primary" @click="entrar">LOGIN</md-button>
-        </md-card-actions>
-      </md-card>
-    </div>
+     <v-dialog v-model="erro.mostra" max-width="20vw">
+        <v-card>
+          <v-card-title>
+            <span>{{erro.mensagem}}</span>
+          </v-card-title>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn color="primary" flat @click.stop="erro.mostra=false">FECHAR</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
 
-    <md-dialog-alert
-      :md-active.sync="erro.mostra"
-      :md-content="erro.mensagem"
-      md-confirm-text="Ok" />
-
-  </div>
+  </v-layout>
 </template>
 <script>
 import FontAwesomeIcon from '@fortawesome/vue-fontawesome'

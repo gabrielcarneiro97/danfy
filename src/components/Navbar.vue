@@ -2,7 +2,7 @@
   <v-toolbar dark color="primary">
     <v-toolbar-title class="white--text">
       <v-btn color="primary" depressed @click="clickIcone">
-        <h3 class="md-title">DANFY <span id="label">ALPHA</span></h3>
+        <h3 class="titulo">DANFY <span id="label">ALPHA</span></h3>
       </v-btn>
     </v-toolbar-title>
     <v-spacer></v-spacer>
@@ -68,5 +68,11 @@ export default {
 #label {
   font-size: 8.5px;
   vertical-align: text-top;
+}
+.titulo {
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: .005em;
+  line-height: 26px;
 }
 </style>
