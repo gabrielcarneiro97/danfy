@@ -1,10 +1,15 @@
 <template>
-  <md-toolbar class="md-primary">
-    <div style="flex: 1"><md-button :md-ripple="false" @click="clickIcone"><h3 class="md-title">DANFY <span id="label">ALPHA</span></h3></md-button></div>
-    <md-button class="md-icon-button md-list-action" @click="click">
+  <v-toolbar dark color="primary">
+    <v-toolbar-title class="white--text">
+      <v-btn color="primary" depressed @click="clickIcone">
+        <h3 class="md-title">DANFY <span id="label">ALPHA</span></h3>
+      </v-btn>
+    </v-toolbar-title>
+    <v-spacer></v-spacer>
+    <v-btn icon @click="click">
       <font-awesome-icon :icon="icone" size="lg" />
-    </md-button>
-  </md-toolbar>
+    </v-btn>
+  </v-toolbar>
 </template>
 
 <script>
