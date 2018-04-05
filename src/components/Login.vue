@@ -2,7 +2,7 @@
   <v-layout row wrap fill-height>
     <v-flex xs9 text-xs-center style="padding-top: 35vh">
       <h1 style="font-size: 380%">DANFY <span id="label">ALPHA</span>
-      <font-awesome-icon color="black" :icon="faFileAlt" size="2x" />      
+        <font-awesome-icon color="black" :icon="faFileAlt" size="2x" />      
       </h1>
     </v-flex>
     <v-flex accent style="padding-top: 21vh">
@@ -32,19 +32,17 @@
         </v-flex>
       </v-container>
     </v-flex>
-
-     <v-dialog v-model="erro.mostra" max-width="20vw">
-        <v-card>
-          <v-card-title>
-            <span>{{erro.mensagem}}</span>
-          </v-card-title>
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn color="primary" flat @click.stop="erro.mostra=false">FECHAR</v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
-
+    <v-dialog v-model="erro.mostra" max-width="20vw">
+      <v-card>
+        <v-card-title>
+          <span>{{erro.mensagem}}</span>
+        </v-card-title>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="primary" flat @click.stop="erro.mostra=false">FECHAR</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-layout>
 </template>
 <script>

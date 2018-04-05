@@ -1,94 +1,90 @@
 <template>
 <div>
+  <v-layout row wrap class="p1" text-xs-center justify-space-between>
+    <v-flex xs8 offset-xs2>
+      <v-layout row wrap>
+        <v-flex xs10>
+          <h1 style="font-size: 300%">DANFY <span id="label">ALPHA ({{version}})</span></h1>
+          <div class="titulo" style="color: black; margin-top: 0%">Um novo modo de controlar o seu movimento fiscal!</div>
+        </v-flex>
+        <v-flex xs2 text-xs-left>  
+          <font-awesome-icon color="black" :icon="faFileAlt" size="10x" />
+        </v-flex>
+      </v-layout>
+    </v-flex>
+  </v-layout>
 
-    <v-layout row wrap class="p1" text-xs-center justify-space-between>
-      <v-flex xs8 offset-xs2>
-        <v-layout row wrap>
-          <v-flex xs10>
-            <h1 style="font-size: 300%">DANFY <span id="label">ALPHA ({{version}})</span></h1>
-            <div class="titulo" style="color: black; margin-top: 0%">Um novo modo de controlar o seu movimento fiscal!</div>
-          </v-flex>
-          <v-flex xs2 text-xs-left>  
-            <font-awesome-icon color="black" :icon="faFileAlt" size="10x" />
-          </v-flex>
-        </v-layout>
-        
-      </v-flex>
+  <v-layout row class="p2" primary text-xs-center>
+    <v-flex xs4>
+      <div style="margin-bottom: 2%">
+        <font-awesome-icon color="white" :icon="faFileCode" size="5x" />
+      </div>
+      <div>
+        <div class="titulo">Entrada de dados via XML</div>
+        <div class="texto">
+          O DANFY lê os dados via XML de notas fiscais, tanto de compra e venda, como de serviços. Fazendo assim com que a entrada de dados seja automatizada, diminuindo os erros humanos!
+        </div>
+      </div>
+    </v-flex>
+    <v-flex xs4>
+      <div style="margin-bottom: 2%">
+        <font-awesome-icon color="white" :icon="faMagic" size="5x" />
+      </div>
+      <div>
+        <div class="titulo">Conciliação automática</div>
+        <div class="texto">
+          O DANFY automaticamente concilia notas fiscais com o mesmo produto, criando um movimento de acordo com as informações da nota!
+        </div>
+      </div>
+    </v-flex>
+    <v-flex xs4>
+      <div style="margin-bottom: 2%">
+        <font-awesome-icon color="white" :icon="faMoneyBillAlt" size="5x" />
+      </div>
+      <div>
+        <div class="titulo">Calculo de impostos</div>
+        <div class="texto">
+          O DANFY calcula os impostos dos movimentos, para simples conferência, garantindo assim os valores calculados por outros sistemas.
+        </div>
+      </div>
+    </v-flex>
+  </v-layout>
 
-
-    </v-layout>
-
-    <v-layout row class="p2" primary text-xs-center>
-      <v-flex xs4>
-        <div style="margin-bottom: 2%">
-          <font-awesome-icon color="white" :icon="faFileCode" size="5x" />
+  <v-layout row class="p2" primary text-xs-center style="padding-bottom: 3%">
+    <v-flex xs4>
+      <div style="margin-bottom: 2%">
+        <font-awesome-icon color="white" :icon="faDatabase" size="5x"  />
+      </div>
+      <div>
+        <div class="titulo">Sem importações</div>
+        <div class="texto">
+          O DANFY não precisa de importação de banco de dados, extraindo todas as informações que precisa diretamente das notas fiscais!
         </div>
-        <div>
-          <div class="titulo">Entrada de dados via XML</div>
-          <div class="texto">
-            O DANFY lê os dados via XML de notas fiscais, tanto de compra e venda, como de serviços. Fazendo assim com que a entrada de dados seja automatizada, diminuindo os erros humanos!
-          </div>
+      </div>
+    </v-flex>
+    <v-flex xs4>
+      <div style="margin-bottom: 2%">
+        <font-awesome-icon color="white" :icon="faFastForward" size="5x" />
+      </div>
+      <div>
+        <div class="titulo">Agilidade</div>
+        <div class="texto">
+          O DANFY agiliza a conciliação e conferência dos movimentos fiscais, aumentando a consistência e confiabilidade dos dados gerados.
         </div>
-      </v-flex>
-      <v-flex xs4>
-        <div style="margin-bottom: 2%">
-          <font-awesome-icon color="white" :icon="faMagic" size="5x" />
+      </div>
+    </v-flex>
+    <v-flex xs4>
+      <div style="margin-bottom: 2%">
+        <font-awesome-icon color="white" :icon="faUsers" size="5x" />
+      </div>
+      <div>
+        <div class="titulo">Acesso aos clientes</div>
+        <div class="texto">
+          O DANFY disponibiliza um acesso limitado aos clientes, onde eles têm acesso as informações referentes somente a sua empresa.
         </div>
-        <div>
-          <div class="titulo">Conciliação automática</div>
-          <div class="texto">
-            O DANFY automaticamente concilia notas fiscais com o mesmo produto, criando um movimento de acordo com as informações da nota!
-          </div>
-        </div>
-      </v-flex>
-      <v-flex xs4>
-        <div style="margin-bottom: 2%">
-          <font-awesome-icon color="white" :icon="faMoneyBillAlt" size="5x" />
-        </div>
-        <div>
-          <div class="titulo">Calculo de impostos</div>
-          <div class="texto">
-            O DANFY calcula os impostos dos movimentos, para simples conferência, garantindo assim os valores calculados por outros sistemas.
-          </div>
-        </div>
-      </v-flex>
-    </v-layout>
-
-    <v-layout row class="p2" primary text-xs-center style="padding-bottom: 3%">
-      <v-flex xs4>
-        <div style="margin-bottom: 2%">
-          <font-awesome-icon color="white" :icon="faDatabase" size="5x"  />
-        </div>
-        <div>
-          <div class="titulo">Sem importações</div>
-          <div class="texto">
-            O DANFY não precisa de importação de banco de dados, extraindo todas as informações que precisa diretamente das notas fiscais!
-          </div>
-        </div>
-      </v-flex>
-      <v-flex xs4>
-        <div style="margin-bottom: 2%">
-          <font-awesome-icon color="white" :icon="faFastForward" size="5x" />
-        </div>
-        <div>
-          <div class="titulo">Agilidade</div>
-          <div class="texto">
-            O DANFY agiliza a conciliação e conferência dos movimentos fiscais, aumentando a consistência e confiabilidade dos dados gerados.
-          </div>
-        </div>
-      </v-flex>
-      <v-flex xs4>
-        <div style="margin-bottom: 2%">
-          <font-awesome-icon color="white" :icon="faUsers" size="5x" />
-        </div>
-        <div>
-          <div class="titulo">Acesso aos clientes</div>
-          <div class="texto">
-            O DANFY disponibiliza um acesso limitado aos clientes, onde eles têm acesso as informações referentes somente a sua empresa.
-          </div>
-        </div>
-      </v-flex>
-    </v-layout>
+      </div>
+    </v-flex>
+  </v-layout>
 
   <v-layout row class="p2" style="padding-bottom: 3%" text-xs-center>
     <v-flex>
@@ -109,7 +105,6 @@
       <v-flex>
         <font-awesome-icon color="black" :icon="faArrowRight" size="5x" />
       </v-flex>
-
       <v-flex>
         <div style="margin-bottom: 2%">
             <font-awesome-icon color="black" :icon="faCodeBranch" size="5x"  />
@@ -117,12 +112,10 @@
           <div>
             <div class="titulo-2" style="color: black">Concilie os movimentos</div>
           </div>
-      </v-flex>
-      
+      </v-flex>  
       <v-flex>
         <font-awesome-icon color="black" :icon="faArrowRight" size="5x" />
       </v-flex>
-
       <v-flex>
         <div style="margin-bottom: 2%">
             <font-awesome-icon color="black" :icon="faListOl" size="5x"  />
@@ -131,8 +124,6 @@
             <div class="titulo-2" style="color: black">Visualize os relatórios</div>
           </div>
       </v-flex>
-
-      
     </v-layout>
   </v-container>
 
