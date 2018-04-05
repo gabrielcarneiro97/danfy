@@ -1,15 +1,21 @@
 <template>
 <div>
 
-    <v-layout row wrap class="p1" text-xs-center>
-      <v-flex xs6 offset-xs3>
-        <h1 style="font-size: 300%">DANFY <span id="label">ALPHA ({{version}})</span></h1>
-        <div class="titulo" style="color: black; margin-top: 0%">Um novo modo de controlar o seu movimento fiscal!</div>
+    <v-layout row wrap class="p1" text-xs-center justify-space-between>
+      <v-flex xs8 offset-xs2>
+        <v-layout row wrap>
+          <v-flex xs10>
+            <h1 style="font-size: 300%">DANFY <span id="label">ALPHA ({{version}})</span></h1>
+            <div class="titulo" style="color: black; margin-top: 0%">Um novo modo de controlar o seu movimento fiscal!</div>
+          </v-flex>
+          <v-flex xs2 text-xs-left>  
+            <font-awesome-icon color="black" :icon="faFileAlt" size="10x" />
+          </v-flex>
+        </v-layout>
+        
       </v-flex>
 
-      <v-flex xs3 text-xs-left>  
-        <font-awesome-icon color="black" :icon="faFileAlt" size="10x" />
-      </v-flex>
+
     </v-layout>
 
     <v-layout row class="p2" primary text-xs-center>
