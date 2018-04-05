@@ -85,11 +85,9 @@
     </v-layout>
 
   <v-layout row class="p2" style="padding-bottom: 3%" text-xs-center>
-    <div style="text-align: center">
-        <div>
-          <div class="titulo-2" style="font-size: 200%; font-weight: 400; color: black; margin-bottom: 0; margin-top: 0">Como funciona?</div>
-        </div>
-      </div>
+    <v-flex>
+      <div class="titulo-2" style="font-size: 200%; font-weight: 400; color: black; margin-bottom: 0; margin-top: 0">Como funciona?</div>    
+    </v-flex>
   </v-layout>
 
   <v-container style="margin-bottom: 3%">
