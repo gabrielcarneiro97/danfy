@@ -198,17 +198,17 @@ export function lerNfse (obj, callback) {
 }
 
 export function lerNfe (obj, callback) {
-  if (obj.nfeProc) {
-    if (!obj.nfeProc.NFe) {
-      return 0
-    } else if (!obj.nfeProc.NFe.Signature) {
-      return 0
-    }
-  } else if (!obj.NFe) {
-    return 0
-  } else if (!obj.NFe.Signature) {
-    return 0
-  }
+  // if (obj.nfeProc) {
+  //   if (!obj.nfeProc.NFe) {
+  //     return 0
+  //   } else if (!obj.nfeProc.NFe.Signature) {
+  //     return 0
+  //   }
+  // } else if (!obj.NFe) {
+  //   return 0
+  // } else if (!obj.NFe.Signature) {
+  //   return 0
+  // }
 
   let info = obj.nfeProc ? obj.nfeProc.NFe.infNFe : obj.NFe.infNFe
 
@@ -236,7 +236,7 @@ export function lerNfe (obj, callback) {
         codigo: emit.enderEmit.cPais ? emit.enderEmit.cPais['_text'] : '',
         nome: emit.enderEmit.xPais ? emit.enderEmit.xPais['_text'] : ''
       },
-      cep: emit.enderEmit.CEP ? emit.enderEmit.CEP['_text'] : null
+      cep: emit.enderEmit.CEP ? emit.enderEmit.CEP['_text'] : ''
     }
   }
 

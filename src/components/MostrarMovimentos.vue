@@ -513,7 +513,7 @@ export default {
         let trimestre = data.trimestre
         let notas = data.notas
 
-        console.log(res.data)
+        console.log(data)
 
         if (_.isEmpty(movimentos)) {
           this.$data.snackMovimentos = true
@@ -539,8 +539,6 @@ export default {
           })
           this.$data.semServicos = false
         }
-
-        console.log(trimestre)
 
         this.$data.trimestre = trimestre
 
