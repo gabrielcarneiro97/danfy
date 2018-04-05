@@ -1,22 +1,19 @@
 <template>
 <div>
-  <div class="md-layout">
-    <md-content class="md-layout-item md-size-100 md-layout md-accent p1">
 
-      <div class="md-layout-item md-size-25"></div>
-
-      <div class="md-layout-item md-size-50" style="text-align: center; padding-top: 1%">
+    <v-layout row wrap class="p1" text-xs-center>
+      <v-flex xs6 offset-xs3>
         <h1 style="font-size: 300%">DANFY <span id="label">ALPHA ({{version}})</span></h1>
         <div class="titulo" style="color: black; margin-top: 0%">Um novo modo de controlar o seu movimento fiscal!</div>
-      </div>
-      <div class="md-layout-item md-size-20" style="text-align: left;">
+      </v-flex>
+
+      <v-flex xs3 text-xs-left>  
         <font-awesome-icon color="black" :icon="faFileAlt" size="10x" />
-      </div>
-    </md-content>
-  </div>
-  <div class="md-layout">
-    <md-content class="md-layout-item md-size-100 md-layout md-gutter md-primary p2">
-      <div class="md-layout-item" style="text-align: center">
+      </v-flex>
+    </v-layout>
+
+    <v-layout row class="p2" primary text-xs-center>
+      <v-flex xs4>
         <div style="margin-bottom: 2%">
           <font-awesome-icon color="white" :icon="faFileCode" size="5x" />
         </div>
@@ -26,8 +23,8 @@
             O DANFY lê os dados via XML de notas fiscais, tanto de compra e venda, como de serviços. Fazendo assim com que a entrada de dados seja automatizada, diminuindo os erros humanos!
           </div>
         </div>
-      </div>
-      <div class="md-layout-item" style="text-align: center">
+      </v-flex>
+      <v-flex xs4>
         <div style="margin-bottom: 2%">
           <font-awesome-icon color="white" :icon="faMagic" size="5x" />
         </div>
@@ -37,8 +34,8 @@
             O DANFY automaticamente concilia notas fiscais com o mesmo produto, criando um movimento de acordo com as informações da nota!
           </div>
         </div>
-      </div>
-      <div class="md-layout-item" style="text-align: center">
+      </v-flex>
+      <v-flex xs4>
         <div style="margin-bottom: 2%">
           <font-awesome-icon color="white" :icon="faMoneyBillAlt" size="5x" />
         </div>
@@ -48,12 +45,11 @@
             O DANFY calcula os impostos dos movimentos, para simples conferência, garantindo assim os valores calculados por outros sistemas.
           </div>
         </div>
-      </div>         
-    </md-content>
-  </div>
-  <div class="md-layout">
-    <md-content class="md-layout-item md-size-100 md-layout md-gutter md-primary p1">
-      <div class="md-layout-item" style="text-align: center">
+      </v-flex>
+    </v-layout>
+
+    <v-layout row class="p2" primary text-xs-center style="padding-bottom: 3%">
+      <v-flex xs4>
         <div style="margin-bottom: 2%">
           <font-awesome-icon color="white" :icon="faDatabase" size="5x"  />
         </div>
@@ -63,8 +59,8 @@
             O DANFY não precisa de importação de banco de dados, extraindo todas as informações que precisa diretamente das notas fiscais!
           </div>
         </div>
-      </div>
-      <div class="md-layout-item" style="text-align: center">
+      </v-flex>
+      <v-flex xs4>
         <div style="margin-bottom: 2%">
           <font-awesome-icon color="white" :icon="faFastForward" size="5x" />
         </div>
@@ -74,8 +70,8 @@
             O DANFY agiliza a conciliação e conferência dos movimentos fiscais, aumentando a consistência e confiabilidade dos dados gerados.
           </div>
         </div>
-      </div>
-      <div class="md-layout-item" style="text-align: center">
+      </v-flex>
+      <v-flex xs4>
         <div style="margin-bottom: 2%">
           <font-awesome-icon color="white" :icon="faUsers" size="5x" />
         </div>
@@ -85,9 +81,9 @@
             O DANFY disponibiliza um acesso limitado aos clientes, onde eles têm acesso as informações referentes somente a sua empresa.
           </div>
         </div>
-      </div>      
-    </md-content>
-  </div>
+      </v-flex>
+    </v-layout>
+
   <div class="md-layout">
     <md-content class="md-layout-item md-size-100 md-layout md-gutter md-accent p1" style="padding-bottom: 4%; padding-top: 4%">
       <div class="md-layout-item" style="text-align: center">
