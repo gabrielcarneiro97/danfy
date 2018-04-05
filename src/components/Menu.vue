@@ -1,34 +1,27 @@
 <template>
-
-  <div class="md-layout md-alignment-top-right" id="main">
-    <div class="md-layout-item md-size-25">
-      <md-card style="min-height: 90vh;">
-        <md-card-content style="margin-top: 1vh">
-          <div class="md-layout md-layout-item md-size-100 md-alignment-top-right">
-            <md-button disabled class="md-layout-item md-size-100 md-primary"><h1 class="md-title" style="color: black">MENU</h1><span id="label" style="color: black">{{version}}</span></md-button>
-          </div>
-          <md-divider style="margin-bottom: 1vh; margin-top: 1vh"></md-divider>          
-          <div class="md-layout md-layout-item md-size-100 md-alignment-top-right">
-            <md-button class="md-layout-item md-size-100 md-primary" to="/importar">IMPORTAR</md-button>
-          </div>
-          <div class="md-layout md-layout-item md-size-100 md-alignment-top-right">
-            <md-button class="md-layout-item md-size-100 md-primary" to="/mostrarMovimentos">VISUALIZAR MOVIMENTOS</md-button>
-          </div>
-          <div class="md-layout md-layout-item md-size-100 md-alignment-top-right">
-            <md-button class="md-layout-item md-size-100 md-primary" to="/perfil">GERENCIAR CONTA</md-button>
-          </div>
-          <div v-if="perm > 1" class="md-layout md-layout-item md-size-100 md-alignment-top-right">
-            <md-button class="md-layout-item md-size-100 md-primary" to="/admin">PAINEL DO ADMINISTRADOR</md-button>
-          </div>
-        </md-card-content>
-      </md-card>
-    </div>
-    <div class="md-layout-item md-size-75 md-layout  md-alignment-center-center" style="min-height: 90vh;">
-      <h1 style="font-size: 380%">DANFY <span id="label">ALPHA</span></h1>
-      <font-awesome-icon style="margin-left:1.5vw" color="black" :icon="faFileAlt" size="7x" />
-    </div>
-  </div>
-
+  <v-layout row wrap fill-height>
+    <v-flex accent>
+      <v-container row wrap text-xs-center>
+        <v-flex xs12>
+          <v-btn block  @click="goTo('/importar')">IMPORTAR</v-btn>
+        </v-flex>
+        <v-flex xs12>
+          <v-btn block @click="goTo('/mostrarMovimentos')">VISUALIZAR MOVIMENTOS</v-btn>
+        </v-flex>
+        <v-flex xs12>
+          <v-btn block @click="goTo('/perfil')">GERENCIAR CONTA</v-btn>
+        </v-flex>
+        <v-flex xs12 v-if="perm > 1">
+          <v-btn block @click="goTo('/admin')">PAINEL DO ADMINISTRADOR</v-btn>
+        </v-flex>
+      </v-container>
+    </v-flex>
+    <v-flex xs9 text-xs-center style="padding-top: 35vh">
+      <h1 style="font-size: 380%">DANFY <span id="label">ALPHA ({{version}})</span>
+        <font-awesome-icon color="black" :icon="faFileAlt" size="2x" />      
+      </h1>
+    </v-flex>
+  </v-layout>
 </template>
 
 <script>
@@ -55,6 +48,11 @@ export default {
   data () {
     return {
       perm: 0
+    }
+  },
+  methods: {
+    goTo (route) {
+      this.$router.push(route)
     }
   },
   components: {
