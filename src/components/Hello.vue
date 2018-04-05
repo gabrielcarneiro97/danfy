@@ -133,11 +133,10 @@
   </v-container>
 
   <v-layout row primary text-xs-center class="p2" style="padding-bottom: 4%">
-    <v-flex offset-xs2 xs6 style="padding-top: 1%">
-        <div class="titulo-2" style="color: white">Aumente a sua produtividade com o DANFY!</div>      
-    </v-flex>
-    <v-flex text-xs-left style="margin-left: -4vw">
-        <font-awesome-icon color="white" :icon="faFire" size="8x"/>      
+    <v-flex offset-xs3 xs6>
+        <div class="titulo-2" style="margin-top: 4%">Aumente a sua produtividade com o DANFY!        
+          <font-awesome-icon color="white" :icon="faFire" size="4x"/>        
+        </div>      
     </v-flex>
   </v-layout>
 </div>
