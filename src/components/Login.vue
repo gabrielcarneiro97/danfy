@@ -32,27 +32,19 @@
         </v-flex>
       </v-container>
     </v-flex>
-    <v-dialog v-model="erro.mostra" max-width="20vw">
-      <v-card>
-        <v-card-title>
-          <span>{{erro.mensagem}}</span>
-        </v-card-title>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="primary" flat @click.stop="erro.mostra=false">FECHAR</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <erro :mensagem="erro.mensagem" :sync="erro.mostra" @fechar-erro="erro.mostra = false" />
   </v-layout>
 </template>
 <script>
 import FontAwesomeIcon from '@fortawesome/vue-fontawesome'
 import { faFileAlt } from '@fortawesome/fontawesome-free-regular'
 import { entrar, usuarioAtivo } from './services'
+import Erro from './Erro'
 
 export default {
   components: {
-    FontAwesomeIcon
+    FontAwesomeIcon,
+    Erro
   },
   computed: {
     faFileAlt: _ => faFileAlt

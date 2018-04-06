@@ -1,98 +1,98 @@
 <template>
   <span>
-    <md-button @click="abrirNota" :disabled="interno"><slot>NOTA</slot></md-button>
+    <v-btn depressed @click="abrirNota" :disabled="interno"><slot>NOTA</slot></v-btn>
 
-    <md-dialog v-if="notaDialogo && !interno" :md-active.sync="mostra" class="md-layout">
-      <md-dialog-content class="md-layout-item md-size-90" style="width: 90vw">
-        <md-toolbar :md-elevation="1">
-          <span class="md-title">{{notaDialogo.id}}</span>
-        </md-toolbar>
-        <md-list>
-          <md-list-item>
-            <h4>Número</h4>
-            <span>{{notaDialogo.geral.numero}}</span>
-          </md-list-item>
-          <md-divider></md-divider>
-          <md-list-item>
-            <h4>Data</h4>
-            <span>{{new Date(notaDialogo.geral.dataHora).toLocaleDateString()}}</span>
-          </md-list-item>
-          <md-divider></md-divider>
-          <md-list-item>
-            <h4>Tipo</h4>
-            <span v-if="notaDialogo.geral.tipo === '1'">SAÍDA</span>
-            <span v-else-if="notaDialogo.geral.tipo === '0'">ENTRADA</span>
-          </md-list-item>
-          <md-divider></md-divider>
-          <md-list-item>
-            <h4>Valor Total</h4>
-            <span>R$ {{notaDialogo.valor.total}}</span>
-          </md-list-item>
-          <md-divider></md-divider>
-          <md-list-item>
-            <h4>Natureza Operação</h4>
-            <span>{{notaDialogo.geral.naturezaOperacao}}</span>
-          </md-list-item>
-          <md-divider></md-divider>
-          <md-list-item>
-            <h4>Produtos</h4>
-          </md-list-item>
-          <md-list-item v-for="(produto, id) in notaDialogo.produtos" v-bind:key="id">
-            <md-list-item class="md-list-item-text">{{id}}: {{produto.descricao}}</md-list-item>
-            <md-list-item class="md-list-item-text">VALOR: {{produto.valor.total}}</md-list-item>
-          </md-list-item>
-          <md-divider></md-divider>
-          <md-list-item>
-            <h4>Emitente</h4>
-            <span v-if="pessoas[notaDialogo.emitente]">{{pessoas[notaDialogo.emitente].nome}}</span>
-            <span>{{notaDialogo.emitente}}</span>
-          </md-list-item>
-          <md-divider></md-divider>
-          <md-list-item>
-            <h4>Destinatário</h4>
-            <span v-if="pessoas[notaDialogo.destinatario]">{{pessoas[notaDialogo.destinatario].nome}}</span>
-            <span>{{notaDialogo.destinatario}}</span>
-          </md-list-item>
-          <md-divider></md-divider>
-          <md-list-item>
-            <h4>Informações Complementares</h4>
-          </md-list-item>
-          <md-list-item class="md-triple-line">
-            <span class="md-list-item-text"><small v-if="notaDialogo.complementar">{{notaDialogo.complementar.textoComplementar}}</small></span>
-          </md-list-item>
-          <md-divider></md-divider>
-        </md-list>
-      </md-dialog-content>
+    <v-dialog v-if="notaDialogo && !interno" v-model="mostra" max-width="80vw">
+      <v-card>
+        <v-card-text>
+          <v-list three-line>
+              <v-subheader>{{notaDialogo.id}}</v-subheader>
+              <v-divider></v-divider>              
+              <v-list-tile>
+                <v-list-tile-content>
+                  <v-list-tile-title>Número</v-list-tile-title>
+                  <v-list-tile-sub-title>{{notaDialogo.geral.numero}}</v-list-tile-sub-title>
+                </v-list-tile-content>
+              </v-list-tile>
+              <v-divider></v-divider>              
+              <v-list-tile>
+                <v-list-tile-content>
+                  <v-list-tile-title>Data</v-list-tile-title>
+                  <v-list-tile-sub-title>{{new Date(notaDialogo.geral.dataHora).toLocaleDateString()}}</v-list-tile-sub-title>
+                </v-list-tile-content>
+              </v-list-tile>
+              <v-divider></v-divider>              
+              <v-list-tile>
+                <v-list-tile-content>
+                  <v-list-tile-title>Tipo</v-list-tile-title>
+                  <v-list-tile-sub-title>
+                    <span v-if="notaDialogo.geral.tipo === '1'">SAÍDA</span>
+                    <span v-else-if="notaDialogo.geral.tipo === '0'">ENTRADA</span>
+                  </v-list-tile-sub-title>
+                </v-list-tile-content>
+              </v-list-tile>
+              <v-divider></v-divider>
+              <v-list-tile>
+                <v-list-tile-content>
+                  <v-list-tile-title>Valor Total</v-list-tile-title>
+                  <v-list-tile-sub-title>{{R$(notaDialogo.valor.total)}}</v-list-tile-sub-title>
+                </v-list-tile-content>
+              </v-list-tile>
+              <v-divider></v-divider>
+              <v-list-tile>
+                <v-list-tile-content>
+                  <v-list-tile-title>Natureza Operação</v-list-tile-title>
+                  <v-list-tile-sub-title>{{notaDialogo.geral.naturezaOperacao}}</v-list-tile-sub-title>
+                </v-list-tile-content>
+              </v-list-tile>
+              <v-divider></v-divider>
+              <v-subheader>Produtos</v-subheader>
+              <v-list-tile v-for="(produto, id) in notaDialogo.produtos" v-bind:key="id">
+                <v-list-tile-content>
+                  <v-list-tile-title>{{id}} - R${{R$(produto.valor.total)}}</v-list-tile-title>
+                  <v-list-tile-sub-title>{{produto.descricao}}</v-list-tile-sub-title>
+                </v-list-tile-content>
+              </v-list-tile>
+              <v-divider></v-divider>
+              <v-list-tile>
+                <v-list-tile-content>
+                  <v-list-tile-title>Emitente</v-list-tile-title>
+                  <v-list-tile-sub-title v-if="pessoas[notaDialogo.emitente]">{{pessoas[notaDialogo.emitente].nome}} {{notaDialogo.emitente}}</v-list-tile-sub-title>
+                </v-list-tile-content>
+              </v-list-tile>
+              <v-divider></v-divider>
+              <v-list-tile>
+                <v-list-tile-content>
+                  <v-list-tile-title>Destinatário</v-list-tile-title>
+                  <v-list-tile-sub-title v-if="pessoas[notaDialogo.destinatario]">{{pessoas[notaDialogo.destinatario].nome}} {{notaDialogo.destinatario}}</v-list-tile-sub-title>
+                </v-list-tile-content>
+              </v-list-tile>
+              <v-divider></v-divider>
+              <v-list-tile>
+                <v-list-tile-content>
+                  <v-list-tile-title>Informações Complementares</v-list-tile-title>
+                  <v-list-tile-sub-title v-if="notaDialogo.complementar">{{notaDialogo.complementar.textoComplementar}}</v-list-tile-sub-title>
+                </v-list-tile-content>
+              </v-list-tile>
+          </v-list>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="primary" flat @click.stop="mostra = false">FECHAR</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
 
-      <md-dialog-actions style="width: 78vw">
-        <md-button class="md-primary" @click="mostra = false">FECHAR</md-button>
-      </md-dialog-actions>
-    </md-dialog>
-
-    <md-dialog :md-active.sync="mostraAdicionarNota">
-      <md-dialog-title>Nota não encontrada! Selecione o XML para importa-la.</md-dialog-title>
-      <md-dialog-content>
-        <md-field>
-          <label>Nota</label>
-          <md-file @change="adicionarXml" accept=".xml" />
-        </md-field>
-      </md-dialog-content>
-      <md-dialog-actions>
-        <md-button class="md-primary" @click="mostraAdicionarNota = false">FECHAR</md-button>
-      </md-dialog-actions>
-    </md-dialog>
-
-    <md-dialog-alert
-      :md-active.sync="erro.mostra"
-      :md-content="erro.mensagem"
-      md-confirm-text="Ok" />
+    <erro :mensagem="erro.mensagem" :sync="erro.mostra" @fechar-erro="erro.mostra = false" />
   </span>
 </template>
 
 <script>
-import { pegarNotaChave, pegarPessoaId, lerNotasInput } from './services'
+import { pegarNotaChave, pegarPessoaId, lerNotasInput, R$ } from './services'
+import Erro from './Erro'
 
 export default {
+  components: [Erro],
   name: 'nota-dialogo',
   props: ['chave'],
   data () {
@@ -111,6 +111,7 @@ export default {
     pessoas () { return this.$store.state.pessoas }
   },
   methods: {
+    R$: R$,
     chamarMensagem (mensagem) {
       this.$data.erro.mensagem = mensagem.message
       this.$data.erro.mostra = true
