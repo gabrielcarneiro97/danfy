@@ -5,7 +5,7 @@
 
       <div class="md-layout-item md-size-100">
         <p class="titulo">Visualizar Movimentos</p>
-        <md-divider></md-divider>        
+        <md-divider />        
       </div>
 
         <md-field class="md-layout-item md-size-20">

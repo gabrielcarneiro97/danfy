@@ -7,21 +7,21 @@
         <v-card-text>
           <v-list three-line>
               <v-subheader>{{notaDialogo.id}}</v-subheader>
-              <v-divider></v-divider>              
+              <v-divider />              
               <v-list-tile>
                 <v-list-tile-content>
                   <v-list-tile-title>Número</v-list-tile-title>
                   <v-list-tile-sub-title>{{notaDialogo.geral.numero}}</v-list-tile-sub-title>
                 </v-list-tile-content>
               </v-list-tile>
-              <v-divider></v-divider>              
+              <v-divider />              
               <v-list-tile>
                 <v-list-tile-content>
                   <v-list-tile-title>Data</v-list-tile-title>
                   <v-list-tile-sub-title>{{new Date(notaDialogo.geral.dataHora).toLocaleDateString()}}</v-list-tile-sub-title>
                 </v-list-tile-content>
               </v-list-tile>
-              <v-divider></v-divider>              
+              <v-divider />              
               <v-list-tile>
                 <v-list-tile-content>
                   <v-list-tile-title>Tipo</v-list-tile-title>
@@ -31,21 +31,21 @@
                   </v-list-tile-sub-title>
                 </v-list-tile-content>
               </v-list-tile>
-              <v-divider></v-divider>
+              <v-divider />
               <v-list-tile>
                 <v-list-tile-content>
                   <v-list-tile-title>Valor Total</v-list-tile-title>
                   <v-list-tile-sub-title>{{R$(notaDialogo.valor.total)}}</v-list-tile-sub-title>
                 </v-list-tile-content>
               </v-list-tile>
-              <v-divider></v-divider>
+              <v-divider />
               <v-list-tile>
                 <v-list-tile-content>
                   <v-list-tile-title>Natureza Operação</v-list-tile-title>
                   <v-list-tile-sub-title>{{notaDialogo.geral.naturezaOperacao}}</v-list-tile-sub-title>
                 </v-list-tile-content>
               </v-list-tile>
-              <v-divider></v-divider>
+              <v-divider />
               <v-subheader>Produtos</v-subheader>
               <v-list-tile v-for="(produto, id) in notaDialogo.produtos" v-bind:key="id">
                 <v-list-tile-content>
@@ -53,21 +53,21 @@
                   <v-list-tile-sub-title>{{produto.descricao}}</v-list-tile-sub-title>
                 </v-list-tile-content>
               </v-list-tile>
-              <v-divider></v-divider>
+              <v-divider />
               <v-list-tile>
                 <v-list-tile-content>
                   <v-list-tile-title>Emitente</v-list-tile-title>
                   <v-list-tile-sub-title v-if="pessoas[notaDialogo.emitente]">{{pessoas[notaDialogo.emitente].nome}} {{notaDialogo.emitente}}</v-list-tile-sub-title>
                 </v-list-tile-content>
               </v-list-tile>
-              <v-divider></v-divider>
+              <v-divider />
               <v-list-tile>
                 <v-list-tile-content>
                   <v-list-tile-title>Destinatário</v-list-tile-title>
                   <v-list-tile-sub-title v-if="pessoas[notaDialogo.destinatario]">{{pessoas[notaDialogo.destinatario].nome}} {{notaDialogo.destinatario}}</v-list-tile-sub-title>
                 </v-list-tile-content>
               </v-list-tile>
-              <v-divider></v-divider>
+              <v-divider />
               <v-list-tile>
                 <v-list-tile-content>
                   <v-list-tile-title>Informações Complementares</v-list-tile-title>
@@ -77,7 +77,7 @@
           </v-list>
         </v-card-text>
         <v-card-actions>
-          <v-spacer></v-spacer>
+          <v-spacer />
           <v-btn color="primary" flat @click.stop="mostra = false">FECHAR</v-btn>
         </v-card-actions>
       </v-card>
@@ -89,10 +89,12 @@
 
 <script>
 import { pegarNotaChave, pegarPessoaId, lerNotasInput, R$ } from './services'
-import Erro from './Erro'
+import Erro from './Erro.vue'
 
 export default {
-  components: [Erro],
+  components: {
+    Erro
+  },
   name: 'nota-dialogo',
   props: ['chave'],
   data () {

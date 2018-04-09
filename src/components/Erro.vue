@@ -5,7 +5,7 @@
         <span>{{mensagem}}</span>
       </v-card-title>
       <v-card-actions>
-        <v-spacer></v-spacer>
+        <v-spacer />
         <v-btn color="primary" flat @click.stop="$emit('fechar-erro')">FECHAR</v-btn>
       </v-card-actions>
     </v-card>

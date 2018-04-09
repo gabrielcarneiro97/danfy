@@ -12,16 +12,14 @@
           label="E-MAIL"
           id="login"
           v-model="login"
-          dark
-        ></v-text-field>
+          dark />
         <v-text-field
           name="password"
           label="SENHA"
           id="password"
           v-model="senha"
           type="password"
-          dark
-        ></v-text-field>
+          dark />
       </v-container>
       <v-container row wrap text-xs-center style="margin-top:-8%">
         <v-flex xs12>
