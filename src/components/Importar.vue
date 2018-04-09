@@ -7,7 +7,6 @@
         <p class="titulo">Importar</p>
         <md-divider></md-divider>
       </div>
-
         <md-field class="md-layout-item md-size-100" style="margin-top:2%">
           <label>Notas</label>
           <md-file multiple @change="ler" accept=".xml" />

@@ -35,6 +35,7 @@
     <erro :mensagem="erro.mensagem" :sync="erro.mostra" @fechar-erro="erro.mostra = false" />
   </v-layout>
 </template>
+
 <script>
 import FontAwesomeIcon from '@fortawesome/vue-fontawesome'
 import { faFileAlt } from '@fortawesome/fontawesome-free-regular'
