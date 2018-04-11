@@ -1,5 +1,6 @@
 var path = require('path')
 var webpack = require('webpack')
+const PrepackWebpackPlugin = require('prepack-webpack-plugin').default
 
 module.exports = {
   entry: './src/main.js',
@@ -103,6 +104,7 @@ if (process.env.NODE_ENV === 'production') {
     }),
     new webpack.LoaderOptionsPlugin({
       minimize: true
-    })
+    }),
+    new PrepackWebpackPlugin({})
   ])
 }
