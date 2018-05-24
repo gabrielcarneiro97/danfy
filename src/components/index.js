@@ -1,3 +1,2 @@
-/* eslint-disable */
-export * from './MainLogged';
-export * from './PrivateRoute';
+export { default as MainLogged } from './MainLogged';
+export { default as PrivateRoute } from './PrivateRoute';
