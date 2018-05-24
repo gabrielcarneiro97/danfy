@@ -8,12 +8,15 @@ import 'antd/dist/antd.css';
 
 import { PrivateRoute, MainLogged, Login } from './components';
 
+const { Header } = Layout;
+
 moment.locale('pt-br');
 
 function App() {
   return (
     <BrowserRouter>
       <Layout>
+        <Header>Header</Header>
         <Switch>
           <Route exact path="/login" component={Login} />
           <PrivateRoute path="/app" component={MainLogged} />
