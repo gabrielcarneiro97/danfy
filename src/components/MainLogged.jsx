@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Route, Switch, Redirect } from 'react-router-dom';
 import { Layout } from 'antd';
+import PropTypes from 'prop-types';
 
 const { Content, Sider } = Layout;
 
@@ -12,7 +13,7 @@ function Moc2() {
   return <h1>M2</h1>;
 }
 
-function MainLogged({ match }) { // eslint-disable-line
+function MainLogged({ match }) {
   return (
     <Layout>
       <Sider style={{ background: '#fff' }} collapsed />
@@ -36,5 +37,12 @@ function MainLogged({ match }) { // eslint-disable-line
     </Layout>
   );
 }
+
+MainLogged.propTypes = {
+  match: PropTypes.shape({
+    path: PropTypes.string,
+    url: PropTypes.string,
+  }).isRequired,
+};
 
 export default MainLogged;

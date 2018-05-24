@@ -4,9 +4,7 @@ import PropTypes from 'prop-types';
 
 import { auth } from '../services';
 
-function PrivateRoute(props) {
-  const { component: Component, ...rest } = props;
-
+function PrivateRoute({ component: Component, ...rest }) {
   const toRender = (propsRender) => {
     if (auth.currentUser !== null) {
       return <Component {...propsRender} />;
@@ -23,7 +21,8 @@ function PrivateRoute(props) {
 }
 
 PrivateRoute.propTypes = {
-  component: PropTypes.element.isRequired,
+  component: PropTypes.func.isRequired,
+  path: PropTypes.string.isRequired,
 };
 
 export default PrivateRoute;
