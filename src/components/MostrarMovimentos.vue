@@ -5,7 +5,7 @@
 
       <div class="md-layout-item md-size-100">
         <p class="titulo">Visualizar Movimentos</p>
-        <md-divider />        
+        <md-divider />
       </div>
 
         <md-field class="md-layout-item md-size-20">
@@ -24,7 +24,7 @@
           <label>Forma de Pagamento Impostos Trimestrais</label>
           <md-input v-if="empresaSelecionada.pessoa.formaPagamento === 'cotas'" v-model="cotas" disabled></md-input>
           <md-input v-if="empresaSelecionada.pessoa.formaPagamento === 'adiantamento'" v-model="adiantamento" disabled></md-input>
-          <md-input v-if="empresaSelecionada.pessoa.formaPagamento === 'acumulado'" v-model="acumulado" disabled></md-input>          
+          <md-input v-if="empresaSelecionada.pessoa.formaPagamento === 'acumulado'" v-model="acumulado" disabled></md-input>
         </md-field>
         <md-field class="md-layout-item md-size-30">
           <label for="mes">MÊS</label>
@@ -44,7 +44,7 @@
             <md-option value="movimentos">VENDAS</md-option>
             <md-option value="servicos">SERVIÇOS</md-option>
             <md-option value="acumulado">ACUMULADO</md-option>
-            
+
           </md-select>
         </md-field>
         <div class="md-layout md-layout-item md-size-100 md-alignment-top-right">
@@ -62,7 +62,7 @@
       </md-table-toolbar>
 
       <md-table-row>
-        <md-table-head rowspan="2" class="esconderNaImpressao" v-if="!numeroDesativo">Editar</md-table-head>        
+        <md-table-head rowspan="2" class="esconderNaImpressao" v-if="!numeroDesativo">Editar</md-table-head>
         <md-table-head rowspan="2">Número</md-table-head>
         <md-table-head rowspan="2">Valor Nota Inicial</md-table-head>
         <md-table-head rowspan="2">Valor Nota Final</md-table-head>
@@ -80,19 +80,20 @@
 
       <md-table-row>
         <md-table-head>ORIGINÁRIO</md-table-head>
-        <md-table-head>DESTINO (GNRE)</md-table-head>        
+        <md-table-head>DESTINO (GNRE)</md-table-head>
       </md-table-row>
 
       <md-table-row v-for="(movimento, index) in ordenarMovimentos" v-bind:key="index">
-        <md-table-cell md-numeric class="esconderNaImpressao" v-if="notas[movimento.notaFinal] && !numeroDesativo"><editar-movimento :editado="selecionarMovimento" :cnpj="empresaSelecionada.pessoa.cnpj" :id="chaveMovimento(movimento)" :movimento="movimento"></editar-movimento></md-table-cell>        
-        <md-table-cell md-numeric v-if="notas[movimento.notaFinal]"><md-button class="md-icon-button" :disabled="numeroDesativo" @click="definirDeletar(index)">{{parseInt(notas[movimento.notaFinal].geral.numero)}}</md-button></md-table-cell>                
+        <md-table-cell md-numeric class="esconderNaImpressao" v-if="notas[movimento.notaFinal] && !numeroDesativo"><editar-movimento :editado="selecionarMovimento" :cnpj="empresaSelecionada.pessoa.cnpj" :id="chaveMovimento(movimento)" :movimento="movimento" /></md-table-cell>
+        <md-table-cell v-else>{{movimento.notaFinal}}</md-table-cell>
+        <md-table-cell md-numeric v-if="notas[movimento.notaFinal]"><md-button class="md-icon-button" :disabled="numeroDesativo" @click="definirDeletar(index)">{{parseInt(notas[movimento.notaFinal].geral.numero)}}</md-button></md-table-cell>
         <md-table-cell v-else></md-table-cell>
         <md-table-cell v-if="notas[movimento.notaInicial]"><nota-dialogo :chave="movimento.notaInicial">{{R$(notas[movimento.notaInicial].valor.total)}}</nota-dialogo></md-table-cell>
-        <md-table-cell v-else><md-button disabled>SEM NOTA INICIAL</md-button></md-table-cell>       
+        <md-table-cell v-else><md-button disabled>SEM NOTA INICIAL</md-button></md-table-cell>
         <md-table-cell v-if="notas[movimento.notaFinal]"><nota-dialogo :chave="movimento.notaFinal">{{R$(notas[movimento.notaFinal].valor.total)}}</nota-dialogo></md-table-cell>
         <md-table-cell v-else>SEM NOTA FINAL</md-table-cell>
         <md-table-cell v-if="notas[movimento.notaFinal]">{{retornarTipo(notas[movimento.notaFinal].geral.cfop)}}</md-table-cell>
-        <md-table-cell v-else></md-table-cell>        
+        <md-table-cell v-else></md-table-cell>
         <md-table-cell>{{R$(movimento.valores.lucro)}}</md-table-cell>
         <md-table-cell>{{R$(movimento.valores.impostos.icms.baseDeCalculo)}} </md-table-cell>
         <md-table-cell>{{R$(movimento.valores.impostos.icms.proprio)}}</md-table-cell>
@@ -108,16 +109,16 @@
       </md-table-row>
 
       <md-table-row>
-        <md-table-head class="esconderNaImpressao" v-if="!numeroDesativo"></md-table-head>        
+        <md-table-head class="esconderNaImpressao" v-if="!numeroDesativo"></md-table-head>
         <md-table-head colspan="2" style="text-align:center">TOTAIS</md-table-head>
         <md-table-head style="text-align:center">{{R$(trimestre[competenciaSelecionada.mes].movimentos.totalSaida)}}</md-table-head>
-        <md-table-head></md-table-head>        
+        <md-table-head></md-table-head>
         <md-table-head>{{R$(trimestre[competenciaSelecionada.mes].movimentos.lucro)}}</md-table-head>
         <md-table-head colspan="1" style="text-align:center">{{R$(trimestre[competenciaSelecionada.mes].movimentos.impostos.icms.baseDeCalculo)}}</md-table-head>
         <md-table-head>{{R$(trimestre[competenciaSelecionada.mes].movimentos.impostos.icms.proprio)}}</md-table-head>
         <md-table-head>{{R$(trimestre[competenciaSelecionada.mes].movimentos.impostos.icms.difal.origem)}}</md-table-head>
         <md-table-head>{{R$(trimestre[competenciaSelecionada.mes].movimentos.impostos.icms.difal.destino)}}</md-table-head>
-        <md-table-head>{{R$(trimestre[competenciaSelecionada.mes].movimentos.impostos.pis)}}</md-table-head>        
+        <md-table-head>{{R$(trimestre[competenciaSelecionada.mes].movimentos.impostos.pis)}}</md-table-head>
         <md-table-head>{{R$(trimestre[competenciaSelecionada.mes].movimentos.impostos.cofins)}}</md-table-head>
         <md-table-head>{{R$(trimestre[competenciaSelecionada.mes].movimentos.impostos.csll)}}</md-table-head>
         <md-table-head>{{R$(trimestre[competenciaSelecionada.mes].movimentos.impostos.irpj)}}</md-table-head>
@@ -126,7 +127,7 @@
       <md-table-row>
         <md-table-head colspan="4" style="background-color: white; border:none"></md-table-head>
         <md-table-head>GUIA ICMS</md-table-head>
-        <md-table-head colspan="2" style="text-align: center">{{R$(parseFloat(trimestre[competenciaSelecionada.mes].movimentos.impostos.icms.proprio) + parseFloat(trimestre[competenciaSelecionada.mes].movimentos.impostos.icms.difal.origem))}}</md-table-head>        
+        <md-table-head colspan="2" style="text-align: center">{{R$(parseFloat(trimestre[competenciaSelecionada.mes].movimentos.impostos.icms.proprio) + parseFloat(trimestre[competenciaSelecionada.mes].movimentos.impostos.icms.difal.origem))}}</md-table-head>
       </md-table-row>
     </md-table>
 
@@ -160,9 +161,9 @@
 
       <md-table-row v-for="(servico, index) in ordenarServicos" v-bind:key="index">
         <md-table-cell md-numeric><md-button class="md-icon-button" :disabled="numeroDesativo" @click="definirDeletarServico(index)">{{servico.notaNumero}}</md-button></md-table-cell>
-        <md-table-cell>{{servico.notaStatus}}</md-table-cell>        
+        <md-table-cell>{{servico.notaStatus}}</md-table-cell>
         <md-table-cell>{{formataData(new Date(servico.data))}}</md-table-cell>
-        <md-table-cell>{{R$(servico.valores.impostos.baseDeCalculo)}}</md-table-cell>        
+        <md-table-cell>{{R$(servico.valores.impostos.baseDeCalculo)}}</md-table-cell>
         <md-table-cell>{{R$(servico.valores.impostos.retencoes.iss)}}</md-table-cell>
         <md-table-cell>{{R$(servico.valores.impostos.retencoes.pis)}}</md-table-cell>
         <md-table-cell>{{R$(servico.valores.impostos.retencoes.cofins)}}</md-table-cell>
@@ -179,7 +180,7 @@
 
       <md-table-row>
         <md-table-head colspan="3" style="text-align:center">TOTAIS</md-table-head>
-        <md-table-head>{{R$(trimestre[competenciaSelecionada.mes].servicos.total)}}</md-table-head>                      
+        <md-table-head>{{R$(trimestre[competenciaSelecionada.mes].servicos.total)}}</md-table-head>
         <md-table-head>{{R$(trimestre[competenciaSelecionada.mes].servicos.impostos.retencoes.iss)}}</md-table-head>
         <md-table-head>{{R$(trimestre[competenciaSelecionada.mes].servicos.impostos.retencoes.pis)}}</md-table-head>
         <md-table-head>{{R$(trimestre[competenciaSelecionada.mes].servicos.impostos.retencoes.cofins)}}</md-table-head>
@@ -204,10 +205,10 @@
         <md-table-head v-if="temServicos">ISS</md-table-head>
         <md-table-head v-if="temMovimentos">ICMS</md-table-head>
         <md-table-head>PIS<span v-if="trimestre[competenciaSelecionada.mes].totais.impostos.acumulado.pis > 0"> + ACUMULADO</span></md-table-head>
-        <md-table-head>COFINS<span v-if="trimestre[competenciaSelecionada.mes].totais.impostos.acumulado.cofins > 0"> + ACUMULADO</span></md-table-head>        
+        <md-table-head>COFINS<span v-if="trimestre[competenciaSelecionada.mes].totais.impostos.acumulado.cofins > 0"> + ACUMULADO</span></md-table-head>
         <md-table-head v-if="empresaSelecionada.pessoa.formaPagamento === 'adiantamento'">CSLL</md-table-head>
-        <md-table-head v-if="(parseInt(competenciaSelecionada.mes) % 3 === 0) && empresaSelecionada.pessoa.formaPagamento === 'adiantamento'">IRPJ + ADICIONAL</md-table-head>    
-        <md-table-head v-else-if="empresaSelecionada.pessoa.formaPagamento === 'adiantamento'">IRPJ</md-table-head>        
+        <md-table-head v-if="(parseInt(competenciaSelecionada.mes) % 3 === 0) && empresaSelecionada.pessoa.formaPagamento === 'adiantamento'">IRPJ + ADICIONAL</md-table-head>
+        <md-table-head v-else-if="empresaSelecionada.pessoa.formaPagamento === 'adiantamento'">IRPJ</md-table-head>
       </md-table-row>
 
       <md-table-row>
@@ -215,9 +216,9 @@
         <md-table-cell v-if="temMovimentos">{{R$(trimestre[competenciaSelecionada.mes].totais.impostos.icms.proprio + trimestre[competenciaSelecionada.mes].totais.impostos.icms.difal.origem)}}</md-table-cell>
         <md-table-cell>{{R$(trimestre[competenciaSelecionada.mes].totais.impostos.pis - trimestre[competenciaSelecionada.mes].totais.impostos.retencoes.pis + trimestre[competenciaSelecionada.mes].totais.impostos.acumulado.pis)}}</md-table-cell>
         <md-table-cell>{{R$(trimestre[competenciaSelecionada.mes].totais.impostos.cofins - trimestre[competenciaSelecionada.mes].totais.impostos.retencoes.cofins + trimestre[competenciaSelecionada.mes].totais.impostos.acumulado.cofins)}}</md-table-cell>
-        <md-table-cell v-if="empresaSelecionada.pessoa.formaPagamento === 'adiantamento'">{{R$(trimestre[competenciaSelecionada.mes].totais.impostos.csll - trimestre[competenciaSelecionada.mes].totais.impostos.retencoes.csll)}}</md-table-cell>        
+        <md-table-cell v-if="empresaSelecionada.pessoa.formaPagamento === 'adiantamento'">{{R$(trimestre[competenciaSelecionada.mes].totais.impostos.csll - trimestre[competenciaSelecionada.mes].totais.impostos.retencoes.csll)}}</md-table-cell>
         <md-table-cell v-if="(parseInt(competenciaSelecionada.mes) % 3 === 0) && empresaSelecionada.pessoa.formaPagamento === 'adiantamento'">{{R$(trimestre[competenciaSelecionada.mes].totais.impostos.irpj - trimestre[competenciaSelecionada.mes].totais.impostos.retencoes.irpj + trimestre.totais.impostos.adicionalIr)}}</md-table-cell>
-        <md-table-cell v-else-if="empresaSelecionada.pessoa.formaPagamento === 'adiantamento'">{{R$(trimestre[competenciaSelecionada.mes].totais.impostos.irpj - trimestre[competenciaSelecionada.mes].totais.impostos.retencoes.irpj)}}</md-table-cell>      
+        <md-table-cell v-else-if="empresaSelecionada.pessoa.formaPagamento === 'adiantamento'">{{R$(trimestre[competenciaSelecionada.mes].totais.impostos.irpj - trimestre[competenciaSelecionada.mes].totais.impostos.retencoes.irpj)}}</md-table-cell>
       </md-table-row>
 
 
@@ -240,20 +241,20 @@
         <md-table-cell>{{R$(mes.totais.impostos.csll - mes.totais.impostos.retencoes.csll)}}</md-table-cell>
         <md-table-cell>{{R$(mes.totais.impostos.irpj - mes.totais.impostos.retencoes.irpj)}}</md-table-cell>
         <md-table-cell>{{R$(mes.totais.lucro + mes.totais.servicos)}}</md-table-cell>
-        
+
       </md-table-row>
 
       <md-table-row v-if="(parseInt(competenciaSelecionada.mes) % 3 === 0)">
         <md-table-cell>Adicionais</md-table-cell>
         <md-table-cell>-</md-table-cell>
         <md-table-cell>{{R$(trimestre.totais.impostos.adicionalIr)}}</md-table-cell>
-        <md-table-cell>-</md-table-cell>        
+        <md-table-cell>-</md-table-cell>
       </md-table-row>
 
       <md-table-row>
         <md-table-head>Trimestre</md-table-head>
         <md-table-head>{{R$(trimestre.totais.impostos.csll - trimestre.totais.impostos.retencoes.csll)}}</md-table-head>
-        <md-table-head>{{R$(trimestre.totais.impostos.irpj - trimestre.totais.impostos.retencoes.irpj + trimestre.totais.impostos.adicionalIr)}}</md-table-head>        
+        <md-table-head>{{R$(trimestre.totais.impostos.irpj - trimestre.totais.impostos.retencoes.irpj + trimestre.totais.impostos.adicionalIr)}}</md-table-head>
         <md-table-head>{{R$(trimestre.totais.lucro + trimestre.totais.servicos)}}</md-table-head>
       </md-table-row>
     </md-table>
@@ -274,7 +275,7 @@
         <md-table-cell v-if="calcularCotas.cotaCsll.numero >= numero">{{R$(calcularCotas.cotaCsll.valor)}}</md-table-cell>
         <md-table-cell v-else>0,00</md-table-cell>
         <md-table-cell v-if="calcularCotas.cotaIr.numero >= numero">{{R$(calcularCotas.cotaIr.valor)}}</md-table-cell>
-        <md-table-cell v-else>0,00</md-table-cell>        
+        <md-table-cell v-else>0,00</md-table-cell>
       </md-table-row>
     </md-table>
   </div>
@@ -720,7 +721,7 @@ export default {
   background-color: rgb(255, 255, 255)
 }
 .titulo {
-  font-size: 160%;  
+  font-size: 160%;
   font-weight: 400;
   color: Black;
 }
