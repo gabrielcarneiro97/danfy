@@ -1,35 +1,34 @@
-/* global FileReader */
 import React from 'react';
 import { Row, Col, message, Upload, Button, Icon } from 'antd';
 
+import { api } from '../services';
+
 let ended = 0;
+let xmlArray = [];
 
 const upProps = {
   name: 'file',
-  action: '//jsonplaceholder.typicode.com/posts/',
+  action: `${api}/file`,
   accept: '.xml',
   headers: {
     authorization: 'authorization-text',
+    'Access-Control-Allow-Origin': '*',
   },
   multiple: true,
+  // beforeUpload: () => false,
   onChange(info) {
     if (info.file.status === 'done') {
+      console.log(info.file.response);
       ended += 1;
-      const read = new FileReader();
-      // message.success(`${info.file.name} file uploaded successfully`);
-      // console.log(info.file);
-      read.readAsBinaryString(info.file.originFileObj);
-
-      read.onloadend = () => {
-        // console.log(read.result);
-      };
     } else if (info.file.status === 'error') {
+      message.error(`Arquivo: ${info.file.name} invalido!`);
       ended += 1;
-      message.error(`${info.file.name} file upload failed.`);
+    } else if (info.file.status === 'removed') {
+      ended -= 1;
     }
-    console.log(ended, info.fileList.length);
+
     if (ended === info.fileList.length) {
-      console.log('cabo');
+      message.success('Todas as notas foram importadas!');
     }
   },
 };
