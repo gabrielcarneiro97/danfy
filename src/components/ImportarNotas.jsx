@@ -1,52 +1,69 @@
 import React from 'react';
-import { Row, Col, message, Upload, Button, Icon } from 'antd';
+import { Steps, Button, Icon } from 'antd';
 
-import { api } from '../services';
+import { EnviarArquivos } from '.';
+import './ImportarNotas.css';
 
-let ended = 0;
-let xmlArray = [];
-
-const upProps = {
-  name: 'file',
-  action: `${api}/file`,
-  accept: '.xml',
-  headers: {
-    authorization: 'authorization-text',
-    'Access-Control-Allow-Origin': '*',
-  },
-  multiple: true,
-  // beforeUpload: () => false,
-  onChange(info) {
-    if (info.file.status === 'done') {
-      console.log(info.file.response);
-      ended += 1;
-    } else if (info.file.status === 'error') {
-      message.error(`Arquivo: ${info.file.name} invalido!`);
-      ended += 1;
-    } else if (info.file.status === 'removed') {
-      ended -= 1;
-    }
-
-    if (ended === info.fileList.length) {
-      message.success('Todas as notas foram importadas!');
-    }
-  },
-};
+const { Step } = Steps;
 
 class ImportarNotas extends React.Component {
-  state = {}
+  constructor(props) {
+    super(props);
+    this.state = {
+      current: 0,
+      envio: false,
+      notas: null,
+    };
+  }
 
-  render() {
+  fimEnvio = (notas) => {
+    this.setState({ notas }, () => {
+      this.setState({ envio: this.state.notas.nfe.length > 0 || this.state.notas.nfse.length > 0 });
+    });
+  }
+
+  steps = [
+    {
+      title: 'Enviar Arquivos',
+      content: <EnviarArquivos onEnd={this.fimEnvio} />,
+      icon: <Icon type="file-add" />,
+    },
+    {
+      title: 'Conciliar Movimentos',
+      content: 'Second-content',
+      icon: <Icon type="check-square-o" />,
+    },
+  ];
+
+  next = () => {
+    const current = this.state.current + 1;
+    this.setState({ current });
+  }
+  prev = () => {
+    const current = this.state.current - 1;
+    this.setState({ current });
+  }
+  render = () => {
+    const { current } = this.state;
     return (
-      <Row type="flex" justify="center" align="middle">
-        <Col span={12}>
-          <Upload {...upProps}>
-            <Button>
-              <Icon type="upload" /> Click to Upload
-            </Button>
-          </Upload>
-        </Col>
-      </Row>
+      <div>
+        <Steps current={current}>
+          {this.steps.map(item => <Step key={item.title} title={item.title} icon={item.icon} />)}
+        </Steps>
+        <div className="steps-action">
+          {
+            this.state.current < this.steps.length - 1
+            &&
+            <Button type="primary" onClick={() => this.next()} disabled={!this.state.envio}>Next</Button>
+          }
+          {
+            this.state.current === this.steps.length - 1
+            &&
+            <Button type="primary">Done</Button>
+          }
+        </div>
+        <div className="steps-content">{this.steps[this.state.current].content}</div>
+      </div>
     );
   }
 }

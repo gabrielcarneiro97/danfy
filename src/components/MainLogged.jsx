@@ -23,6 +23,7 @@ function MainLogged({ match }) {
               background: '#ff100',
               padding: 24,
               margin: 0,
+              minHeight: window.innerHeight - 64,
             }}
         >
           <Switch>
