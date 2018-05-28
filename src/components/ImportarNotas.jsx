@@ -1,7 +1,7 @@
 import React from 'react';
 import { Steps, Button, Icon } from 'antd';
 
-import { EnviarArquivos } from '.';
+import { EnviarArquivos, AdicionarEmpresa } from '.';
 import './ImportarNotas.css';
 
 const { Step } = Steps;
@@ -47,6 +47,7 @@ class ImportarNotas extends React.Component {
     const { current } = this.state;
     return (
       <div>
+        <AdicionarEmpresa />
         <Steps current={current}>
           {this.steps.map(item => <Step key={item.title} title={item.title} icon={item.icon} />)}
         </Steps>
@@ -54,7 +55,7 @@ class ImportarNotas extends React.Component {
           {
             this.state.current < this.steps.length - 1
             &&
-            <Button type="primary" onClick={() => this.next()} disabled={!this.state.envio}>Next</Button>
+            <Button type="primary" onClick={() => this.next()} disabled={!this.state.envio}>Conciliar</Button>
           }
           {
             this.state.current === this.steps.length - 1

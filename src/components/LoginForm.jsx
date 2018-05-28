@@ -34,7 +34,8 @@ class LoginFormInternal extends React.Component {
     const { from } = this.props.history.location.state || { from: { pathname: '/app' } };
 
     const handleBtnGoogle = () => {
-      loginGoogle({}).then((/* user */) => {
+      loginGoogle({}).then((user) => {
+        console.log(user);
         this.props.history.push(from);
       }).catch((err) => {
         console.error(err);

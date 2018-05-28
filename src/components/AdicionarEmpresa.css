@@ -1,0 +1,7 @@
+.ant-table-header::-webkit-scrollbar {
+    display: none;
+}
+
+.ant-table-header {
+  overflow: auto;
+}
