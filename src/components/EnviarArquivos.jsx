@@ -12,22 +12,25 @@ class EnviarArquivos extends React.Component {
   state = {
     nfse: [],
     nfe: [],
+    pessoas: {},
   };
 
-  adicionarNota = (nota) => { // eslint-disable-line
+  adicionarNota = (dados) => { // eslint-disable-line
     return new Promise((resolve) => {
-      if (nota.tipo === 'nfe') {
+      if (dados.tipo === 'nfe') {
         this.setState((prevState) => { // eslint-disable-line
           return {
             ...prevState,
-            nfe: [...prevState.nfe, nota],
+            nfe: [...prevState.nfe, dados.nota],
+            pessoas: { ...prevState.pessoas, ...dados.pessoas },
           };
         }, resolve);
       } else {
         this.setState((prevState) => { // eslint-disable-line
           return {
             ...prevState,
-            nfse: [...prevState.nfse, nota],
+            nfse: [...prevState.nfse, dados.nota],
+            pessoas: { ...prevState.pessoas, ...dados.pessoas },
           };
         }, resolve);
       }

@@ -2,6 +2,8 @@ import React from 'react';
 import { Steps, Button, Icon } from 'antd';
 
 import { EnviarArquivos, AdicionarEmpresa } from '.';
+import { pegarDominio } from '../services';
+
 import './ImportarNotas.css';
 
 const { Step } = Steps;
@@ -13,6 +15,8 @@ class ImportarNotas extends React.Component {
       current: 0,
       envio: false,
       notas: null,
+      adicionar: false,
+      adicionarArray: [],
     };
   }
 
@@ -35,19 +39,44 @@ class ImportarNotas extends React.Component {
     },
   ];
 
-  next = () => {
+  okModal = () => {
     const current = this.state.current + 1;
-    this.setState({ current });
+    this.setState({ current, adicionar: false });
   }
-  prev = () => {
-    const current = this.state.current - 1;
-    this.setState({ current });
+
+  proximo = () => {
+    pegarDominio().then(({ empresas }) => {
+      const dominioArray = Object.values(empresas);
+      const pessoasArray = Object.keys(this.state.notas.pessoas);
+      const adicionarArray = [];
+
+      pessoasArray.forEach((pessoaId) => {
+        if (pessoaId.length === 14) {
+          if (!dominioArray.includes(pessoaId)) {
+            const pessoa = this.state.notas.pessoas[pessoaId];
+            pessoa.cnpj = pessoaId;
+            adicionarArray.push(pessoa);
+          }
+        }
+      });
+      if (adicionarArray.length > 0) {
+        this.setState({ adicionar: true, adicionarArray });
+      } else {
+        this.okModal();
+      }
+    }).catch(err => console.error(err));
   }
+
   render = () => {
     const { current } = this.state;
     return (
       <div>
-        <AdicionarEmpresa />
+        <AdicionarEmpresa
+          visible={this.state.adicionar}
+          dados={this.state.adicionarArray}
+          handleCancel={() => { this.setState({ adicionar: false }); }}
+          handleOk={this.okModal}
+        />
         <Steps current={current}>
           {this.steps.map(item => <Step key={item.title} title={item.title} icon={item.icon} />)}
         </Steps>
@@ -55,7 +84,7 @@ class ImportarNotas extends React.Component {
           {
             this.state.current < this.steps.length - 1
             &&
-            <Button type="primary" onClick={() => this.next()} disabled={!this.state.envio}>Conciliar</Button>
+            <Button type="primary" onClick={() => this.proximo()} disabled={!this.state.envio}>Conciliar</Button>
           }
           {
             this.state.current === this.steps.length - 1

@@ -1,71 +1,65 @@
 import React from 'react';
-import { Modal, Button, Table } from 'antd';
-
-const dataSource = [{
-  key: '1',
-  name: 'Mike',
-  age: 32,
-  address: '10 Downing Street',
-}, {
-  key: '2',
-  name: 'John',
-  age: 42,
-  address: '10 Downing Street',
-}];
+import { Modal, Table, Button } from 'antd';
+import PropTypes from 'prop-types';
 
 const columns = [{
-  title: 'Name',
-  dataIndex: 'name',
-  key: 'name',
+  title: 'Nome',
+  dataIndex: 'nome',
+  key: 'nome',
 }, {
-  title: 'Age',
-  dataIndex: 'age',
-  key: 'age',
+  title: 'CNPJ',
+  dataIndex: 'cnpj',
+  key: 'cnpj',
 }, {
-  title: 'Address',
-  dataIndex: 'address',
-  key: 'address',
+  title: 'Adicionar?',
+  dataIndex: 'adicionar',
+  key: 'adicionar',
 }];
 
-class AdicionarEmpresa extends React.Component {
-  state = { visible: false }
-  showModal = () => {
-    this.setState({
-      visible: true,
-    });
-  }
-  handleOk = (e) => {
-    console.log(e);
-    this.setState({
-      visible: false,
-    });
-  }
-  handleCancel = (e) => {
-    console.log(e);
-    this.setState({
-      visible: false,
-    });
-  }
-  render() {
-    return (
-      <div>
-        <Button type="primary" onClick={this.showModal}>Open</Button>
-        <Modal
-          title="Adicionar Empresas"
-          visible={this.state.visible}
-          onOk={this.handleOk}
-          onCancel={this.handleCancel}
-          style={{ minWidth: '50vw' }}
-        >
-          <Table
-            dataSource={dataSource}
-            columns={columns}
-            style={{ overflow: 'auto', maxHeight: '50vh' }}
-          />
-        </Modal>
-      </div>
-    );
-  }
+function AdicionarEmpresa(props) {
+  const dataTable = [];
+
+  props.dados.forEach(({ cnpj, nome }, id) => {
+    const adicionar = <Button size="small">Adicionar</Button>;
+
+    const row = {
+      key: `${id}-table`,
+      cnpj,
+      nome,
+      adicionar,
+    };
+
+    dataTable.push(row);
+  });
+
+  return (
+    <div>
+      <Modal
+        title="Adicionar Empresas"
+        visible={props.visible}
+        onOk={props.handleOk}
+        onCancel={props.handleCancel}
+        style={{ minWidth: '50vw' }}
+      >
+        <Table
+          dataSource={dataTable}
+          columns={columns}
+          style={{ overflow: 'auto', maxHeight: '50vh' }}
+        />
+      </Modal>
+    </div>
+  );
 }
+
+AdicionarEmpresa.propTypes = {
+  visible: PropTypes.bool.isRequired,
+  handleOk: PropTypes.func.isRequired,
+  handleCancel: PropTypes.func.isRequired,
+  dados: PropTypes.arrayOf(PropTypes.shape({
+    cnpj: PropTypes.string,
+    nome: PropTypes.string,
+    endereco: PropTypes.object,
+  })).isRequired,
+};
 
 export default AdicionarEmpresa;
