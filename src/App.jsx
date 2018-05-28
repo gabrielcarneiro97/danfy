@@ -6,7 +6,7 @@ import moment from 'moment';
 import 'moment/locale/pt-br';
 import 'antd/dist/antd.css';
 
-import { PrivateRoute, MainLogged, Login } from './components';
+import { PrivateRoute, MainLogged, Login, Navbar } from './components';
 
 const { Header } = Layout;
 
@@ -16,7 +16,9 @@ function App() {
   return (
     <BrowserRouter>
       <Layout>
-        <Header>Header</Header>
+        <Header>
+          <Navbar />
+        </Header>
         <Switch>
           <Route exact path="/login" component={Login} />
           <PrivateRoute path="/app" component={MainLogged} />

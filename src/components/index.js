@@ -6,3 +6,4 @@ export { default as MainMenu } from './MainMenu';
 export { default as ImportarNotas } from './ImportarNotas';
 export { default as EnviarArquivos } from './EnviarArquivos';
 export { default as AdicionarEmpresa } from './AdicionarEmpresa';
+export { default as Navbar } from './Navbar';
