@@ -1,6 +1,7 @@
 import React from 'react';
-import { Modal, Table, Button } from 'antd';
+import { Modal, Table } from 'antd';
 import PropTypes from 'prop-types';
+import { AliquotasEmpresa } from '.';
 
 const columns = [{
   title: 'Nome',
@@ -20,13 +21,17 @@ function AdicionarEmpresa(props) {
   const dataTable = [];
 
   props.dados.forEach(({ cnpj, nome }, id) => {
-    const adicionar = <Button size="small">Adicionar</Button>;
+    const dados = {
+      nome,
+      cnpj,
+    };
+
+    const adicionar = <AliquotasEmpresa dados={dados}>Adicionar</AliquotasEmpresa>;
 
     const row = {
       key: `${id}-table`,
-      cnpj,
-      nome,
       adicionar,
+      ...dados,
     };
 
     dataTable.push(row);

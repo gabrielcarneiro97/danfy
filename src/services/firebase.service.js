@@ -13,7 +13,7 @@ export function loginGoogle(/* options */) {
   return firebase.auth().signInWithPopup(provider);
 }
 
-export function pegarDominio() {
+export function pegarDominioId() {
   return new Promise((resolve, reject) => {
     if (!auth.currentUser) {
       reject(new Error('Nenum usuário logado!'));
@@ -25,12 +25,39 @@ export function pegarDominio() {
       .once('value')
       .then((snap) => {
         const { dominio } = snap.val();
-
-        db.ref(`Dominios/${dominio}`)
-          .once('value')
-          .then((snap2) => {
-            resolve(snap2.val());
-          });
+        resolve(dominio);
       });
+  });
+}
+
+export function pegarDominio() {
+  return new Promise((resolve, reject) => {
+    pegarDominioId().then((dominio) => {
+      db.ref(`Dominios/${dominio}`)
+        .once('value')
+        .then((snap) => {
+          resolve(snap.val());
+        });
+    }).catch(err => reject(err));
+  });
+}
+
+export function adicionarEmpresaDominio(cnpj, num) {
+  return new Promise((resolve, reject) => {
+    pegarDominioId().then((dominio) => {
+      db.ref(`Dominios/${dominio}/empresas/${num}`)
+        .set(cnpj)
+        .then(snap => resolve(snap))
+        .catch(err => reject(err));
+    });
+  });
+}
+
+export function adicionarEmpresaImpostos(cnpj, aliquotas) {
+  return new Promise((resolve, reject) => {
+    db.ref(`Impostos/${cnpj}`)
+      .set(aliquotas)
+      .then(snap => resolve(snap))
+      .catch(err => reject(err));
   });
 }
