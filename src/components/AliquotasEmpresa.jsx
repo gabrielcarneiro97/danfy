@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import './AliquotasEmpresa.css';
 
 const { Option } = Select;
+const { confirm } = Modal;
 
 class AliquotasEmpresa extends React.Component {
   static aliquotasPadrao = {
@@ -35,7 +36,7 @@ class AliquotasEmpresa extends React.Component {
     visible: false,
     tributacao: 'LP',
     formaPagamento: 'adiantamento',
-
+    numero: '',
     impostosEmpresa: { ...AliquotasEmpresa.aliquotasPadrao },
   }
 
@@ -65,13 +66,26 @@ class AliquotasEmpresa extends React.Component {
     });
   }
 
+  setNumero = (e) => {
+    this.setState({ numero: e.target.value });
+  }
+
   showModal = () => {
     this.setState({
       visible: true,
     });
   }
-  handleOk = (e) => {
-    console.log(e);
+  handleOk = () => {
+    confirm({
+      title: 'Confirmação',
+      content: `Deseja adicionar a empresa ${this.props.dados.nome} ao número ${this.state.numero}`,
+      onOk() {
+        console.log('OK');
+      },
+      onCancel() {
+        console.log('Cancel');
+      },
+    });
     this.setState({
       visible: false,
     });
@@ -102,7 +116,7 @@ class AliquotasEmpresa extends React.Component {
           <Divider>Informações Gerais</Divider>
           <Row className="row">
             <Col span={12}>
-              <Input addonBefore="Número" />
+              <Input addonBefore="Número" defaultValue={this.state.numero} onChange={this.setNumero} />
             </Col>
             <Col span={12}>
               <Select onChange={this.setTributacao} defaultValue={this.state.tributacao} style={{ width: '100%' }}>
