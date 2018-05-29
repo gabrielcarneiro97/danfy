@@ -1,7 +1,7 @@
 import React from 'react';
 import { Steps, Button, Icon } from 'antd';
 
-import { EnviarArquivos, AdicionarEmpresa, ConciliarMovimentos } from '.';
+import { EnviarArquivos, AdicionarEmpresa, ConciliarMovimentos, ConciliarServicos } from '.';
 import { pegarDominio } from '../services';
 
 import './ImportarNotas.css';
@@ -80,7 +80,7 @@ class ImportarNotas extends React.Component {
 
   paraServicos = () => {
     const current = this.state.current + 1;
-    this.steps[2].content = <div>Top</div>;
+    this.steps[2].content = <ConciliarServicos dominio={this.dominio} dados={this.state.notas} />;
     this.setState({ current });
   }
 

@@ -9,4 +9,5 @@ export { default as AdicionarEmpresa } from './AdicionarEmpresa';
 export { default as AliquotasEmpresa } from './AliquotasEmpresa';
 export { default as ConciliarMovimentos } from './ConciliarMovimentos';
 export { default as NotaInicial } from './NotaInicial';
+export { default as ConciliarServicos } from './ConciliarServicos';
 export { default as Navbar } from './Navbar';
