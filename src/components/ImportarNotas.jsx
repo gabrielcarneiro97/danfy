@@ -1,7 +1,7 @@
 import React from 'react';
 import { Steps, Button, Icon } from 'antd';
 
-import { EnviarArquivos, AdicionarEmpresa } from '.';
+import { EnviarArquivos, AdicionarEmpresa, ConciliarMovimentos } from '.';
 import { pegarDominio } from '../services';
 
 import './ImportarNotas.css';
@@ -17,6 +17,7 @@ class ImportarNotas extends React.Component {
       notas: null,
       adicionar: false,
       adicionarArray: [],
+      dominio: [],
     };
   }
 
@@ -26,6 +27,8 @@ class ImportarNotas extends React.Component {
     });
   }
 
+  dominio = () => this.state.dominio;
+
   steps = [
     {
       title: 'Enviar Arquivos',
@@ -34,21 +37,29 @@ class ImportarNotas extends React.Component {
     },
     {
       title: 'Conciliar Movimentos',
-      content: 'Second-content',
-      icon: <Icon type="check-square-o" />,
+      content: '',
+      icon: <Icon type="car" />,
+    },
+    {
+      title: 'Conciliar Serviços',
+      content: '',
+      icon: <Icon type="customer-service" />,
     },
   ];
 
   okModal = () => {
     const current = this.state.current + 1;
+    this.steps[1].content = <ConciliarMovimentos dominio={this.dominio} dados={this.state.notas} />;
     this.setState({ current, adicionar: false });
   }
 
-  proximo = () => {
+  paraMovimentos = () => {
     pegarDominio().then(({ empresas }) => {
       const dominioArray = Object.values(empresas);
       const pessoasArray = Object.keys(this.state.notas.pessoas);
       const adicionarArray = [];
+
+      this.setState({ dominio: empresas });
 
       pessoasArray.forEach((pessoaId) => {
         if (pessoaId.length === 14) {
@@ -60,7 +71,6 @@ class ImportarNotas extends React.Component {
         }
       });
       if (adicionarArray.length > 0) {
-        console.log(adicionarArray);
         this.setState({ adicionar: true, adicionarArray });
       } else {
         this.okModal();
@@ -68,8 +78,15 @@ class ImportarNotas extends React.Component {
     }).catch(err => console.error(err));
   }
 
+  paraServicos = () => {
+    const current = this.state.current + 1;
+    this.steps[2].content = <div>Top</div>;
+    this.setState({ current });
+  }
+
   render = () => {
     const { current } = this.state;
+
     return (
       <div>
         <AdicionarEmpresa
@@ -83,14 +100,19 @@ class ImportarNotas extends React.Component {
         </Steps>
         <div className="steps-action">
           {
-            this.state.current < this.steps.length - 1
+            this.state.current === 0
             &&
-            <Button type="primary" onClick={() => this.proximo()} disabled={!this.state.envio}>Conciliar</Button>
+            <Button type="primary" onClick={() => this.paraMovimentos()} disabled={!this.state.envio}>Próximo</Button>
+          }
+          {
+            this.state.current === 1
+            &&
+            <Button type="primary" onClick={() => this.paraServicos()} disabled={!this.state.envio}>Próximo</Button>
           }
           {
             this.state.current === this.steps.length - 1
             &&
-            <Button type="primary">Done</Button>
+            <Button type="primary">Enviar</Button>
           }
         </div>
         <div className="steps-content">{this.steps[this.state.current].content}</div>

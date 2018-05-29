@@ -43,15 +43,15 @@ class AdicionarEmpresa extends React.Component {
     hasDone.push(cnpj);
 
     this.setState({ dataTable, hasDone }, () => console.log(this.state.dataTable));
-    console.log('aqui');
   };
 
   render() {
     const { dados } = this.props;
     const { dataTable } = this.state;
 
-    dados.forEach(({ cnpj, nome }, id) => {
-      if (!this.state.hasDone.includes(cnpj)) {
+
+    dados.forEach(({ cnpj, nome }) => {
+      if (!this.state.hasDone.includes(cnpj) && dataTable.filter(el => el.key === `${cnpj}-table`).length === 0) {
         const dadosEmpresa = {
           nome,
           cnpj,
@@ -64,7 +64,7 @@ class AdicionarEmpresa extends React.Component {
         );
 
         const row = {
-          key: `${id}-table`,
+          key: `${cnpj}-table`,
           adicionar,
           ...dadosEmpresa,
         };

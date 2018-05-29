@@ -1,3 +1,4 @@
+/* eslint-disable */
 const _ = require('lodash')
 const functions = require('firebase-functions')
 const admin = require('firebase-admin')
@@ -12,6 +13,8 @@ exports.gerarMovimentos = functions.https.onRequest((req, res) => {
     let usuario = req.body.usuario
 
     let promises = []
+    let notasIniciais = [];
+
 
     notasFinais.forEach(chave => {
       let p = new Promise(resolve => {
@@ -32,7 +35,7 @@ exports.gerarMovimentos = functions.https.onRequest((req, res) => {
               movimentoRef: ''
             }
           }
-          let query = db.ref('Notas/').orderByChild('emitente').equalTo(nota.emitente)
+          let query = db.ref('Notas/').orderByChild('emitente').equalTo(nota.emitente);
           query.on('child_added', snap => {
             let nota2 = snap.val()
             if (nota2.chave !== nota.chave) {
@@ -54,6 +57,7 @@ exports.gerarMovimentos = functions.https.onRequest((req, res) => {
                               } else {
                                 movimento.valores = valores
                                 movimento.conferido = true
+                                notasIniciais.push(nota2);
                                 resolve(movimento)
                               }
                             })
@@ -90,7 +94,7 @@ exports.gerarMovimentos = functions.https.onRequest((req, res) => {
     })
 
     Promise.all(promises).then(arr => {
-      return res.send({ movimentos: arr })
+      return res.send({ movimentos: arr, notasIniciais })
     }).catch(err => {
       console.error(err)
     })
