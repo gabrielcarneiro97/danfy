@@ -60,6 +60,7 @@ class ImportarNotas extends React.Component {
         }
       });
       if (adicionarArray.length > 0) {
+        console.log(adicionarArray);
         this.setState({ adicionar: true, adicionarArray });
       } else {
         this.okModal();

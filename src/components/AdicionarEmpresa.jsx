@@ -3,68 +3,94 @@ import { Modal, Table } from 'antd';
 import PropTypes from 'prop-types';
 import { AliquotasEmpresa } from '.';
 
-const columns = [{
-  title: 'Nome',
-  dataIndex: 'nome',
-  key: 'nome',
-}, {
-  title: 'CNPJ',
-  dataIndex: 'cnpj',
-  key: 'cnpj',
-}, {
-  title: 'Adicionar?',
-  dataIndex: 'adicionar',
-  key: 'adicionar',
-}];
+class AdicionarEmpresa extends React.Component {
+  static propTypes = {
+    visible: PropTypes.bool.isRequired,
+    handleOk: PropTypes.func.isRequired,
+    handleCancel: PropTypes.func.isRequired,
+    dados: PropTypes.arrayOf(PropTypes.shape({
+      cnpj: PropTypes.string,
+      nome: PropTypes.string,
+      endereco: PropTypes.object,
+    })).isRequired,
+  }
 
-function AdicionarEmpresa(props) {
-  const dataTable = [];
+  static columns = [{
+    title: 'Nome',
+    dataIndex: 'nome',
+    key: 'nome',
+  }, {
+    title: 'CNPJ',
+    dataIndex: 'cnpj',
+    key: 'cnpj',
+  }, {
+    title: 'Adicionar?',
+    dataIndex: 'adicionar',
+    key: 'adicionar',
+  }];
 
-  props.dados.forEach(({ cnpj, nome }, id) => {
-    const dados = {
-      nome,
-      cnpj,
+  constructor(props) {
+    super(props);
+    this.state = {
+      dataTable: [],
+      hasDone: [],
     };
+  }
 
-    const adicionar = <AliquotasEmpresa dados={dados}>Adicionar</AliquotasEmpresa>;
+  handleEnd = (cnpj) => {
+    const { hasDone } = this.state;
+    const dataTable = this.state.dataTable.filter(el => el.cnpj !== cnpj);
+    hasDone.push(cnpj);
 
-    const row = {
-      key: `${id}-table`,
-      adicionar,
-      ...dados,
-    };
+    this.setState({ dataTable, hasDone }, () => console.log(this.state.dataTable));
+    console.log('aqui');
+  };
 
-    dataTable.push(row);
-  });
+  render() {
+    const { dados } = this.props;
+    const { dataTable } = this.state;
 
-  return (
-    <div>
-      <Modal
-        title="Adicionar Empresas"
-        visible={props.visible}
-        onOk={props.handleOk}
-        onCancel={props.handleCancel}
-        style={{ minWidth: '50vw' }}
-      >
-        <Table
-          dataSource={dataTable}
-          columns={columns}
-          style={{ overflow: 'auto', maxHeight: '50vh' }}
-        />
-      </Modal>
-    </div>
-  );
+    dados.forEach(({ cnpj, nome }, id) => {
+      if (!this.state.hasDone.includes(cnpj)) {
+        const dadosEmpresa = {
+          nome,
+          cnpj,
+        };
+
+        const adicionar = (
+          <AliquotasEmpresa dados={dadosEmpresa} onEnd={this.handleEnd}>
+            Adicionar
+          </AliquotasEmpresa>
+        );
+
+        const row = {
+          key: `${id}-table`,
+          adicionar,
+          ...dadosEmpresa,
+        };
+
+        dataTable.push(row);
+      }
+    });
+
+    return (
+      <div>
+        <Modal
+          title="Adicionar Empresas"
+          visible={this.props.visible}
+          onOk={this.props.handleOk}
+          onCancel={this.props.handleCancel}
+          style={{ minWidth: '50vw' }}
+        >
+          <Table
+            dataSource={this.state.dataTable}
+            columns={AdicionarEmpresa.columns}
+            style={{ overflow: 'auto', maxHeight: '50vh' }}
+          />
+        </Modal>
+      </div>
+    );
+  }
 }
-
-AdicionarEmpresa.propTypes = {
-  visible: PropTypes.bool.isRequired,
-  handleOk: PropTypes.func.isRequired,
-  handleCancel: PropTypes.func.isRequired,
-  dados: PropTypes.arrayOf(PropTypes.shape({
-    cnpj: PropTypes.string,
-    nome: PropTypes.string,
-    endereco: PropTypes.object,
-  })).isRequired,
-};
 
 export default AdicionarEmpresa;

@@ -1,6 +1,8 @@
 import React from 'react';
-import { Modal, Button, Input, Row, Col, Select, Checkbox, Divider } from 'antd';
+import { Modal, Button, Input, Row, Col, Select, Checkbox, Divider, message } from 'antd';
 import PropTypes from 'prop-types';
+
+import { adicionarEmpresaImpostos, adicionarEmpresaDominio } from '../services';
 
 import './AliquotasEmpresa.css';
 
@@ -8,6 +10,14 @@ const { Option } = Select;
 const { confirm } = Modal;
 
 class AliquotasEmpresa extends React.Component {
+  static propTypes = {
+    dados: PropTypes.shape({
+      nome: PropTypes.string,
+      cnpj: PropTypes.string,
+    }).isRequired,
+    onEnd: PropTypes.func.isRequired,
+  }
+
   static aliquotasPadrao = {
     icms: {
       aliquota: 0.18,
@@ -18,7 +28,7 @@ class AliquotasEmpresa extends React.Component {
     csll: 0.0288,
     irpj: 0.048,
     iss: 0.03,
-  };
+  }
 
   static aliquotasLiminar = {
     icms: {
@@ -30,12 +40,12 @@ class AliquotasEmpresa extends React.Component {
     csll: 0.0108,
     irpj: 0.012,
     iss: 0.03,
-  };
+  }
 
   state = {
     visible: false,
     tributacao: 'LP',
-    formaPagamento: 'adiantamento',
+    formaPagamentoTrimestrais: 'adiantamento',
     numero: '',
     impostosEmpresa: { ...AliquotasEmpresa.aliquotasPadrao },
   }
@@ -44,8 +54,8 @@ class AliquotasEmpresa extends React.Component {
     this.setState({ tributacao });
   }
 
-  setFormaPagamento = (formaPagamento) => {
-    this.setState({ formaPagamento });
+  setformaPagamentoTrimestrais = (formaPagamentoTrimestrais) => {
+    this.setState({ formaPagamentoTrimestrais });
   }
 
   setLiminar = (e) => {
@@ -76,19 +86,39 @@ class AliquotasEmpresa extends React.Component {
     });
   }
   handleOk = () => {
-    confirm({
-      title: 'Confirmação',
-      content: `Deseja adicionar a empresa ${this.props.dados.nome} ao número ${this.state.numero}`,
-      onOk() {
-        console.log('OK');
-      },
-      onCancel() {
-        console.log('Cancel');
-      },
-    });
-    this.setState({
-      visible: false,
-    });
+    if (parseInt(this.state.numero, 10) > 0 && parseFloat(this.state.impostosEmpresa.iss) >= 0) {
+      confirm({
+        title: 'Confirmação',
+        content: `Deseja adicionar a empresa ${this.props.dados.nome} ao número ${this.state.numero}`,
+        onOk: () => {
+          this.props.onEnd(this.props.dados.cnpj);
+          adicionarEmpresaDominio(this.props.dados.cnpj, this.state.numero)
+            .catch(err => console.error(err));
+
+          const { formaPagamentoTrimestrais, tributacao } = this.state;
+
+          const aliquotas = {
+            ...this.state.impostosEmpresa,
+            formaPagamentoTrimestrais,
+            tributacao,
+          };
+
+          adicionarEmpresaImpostos(this.props.dados.cnpj, aliquotas)
+            .catch(err => console.error(err));
+
+          this.setState({
+            visible: false,
+          });
+        },
+        onCancel: () => {
+          this.setState({
+            visible: false,
+          });
+        },
+      });
+    } else {
+      message.error('Número e ISS devem ser preenchidos!');
+    }
   }
   handleCancel = (e) => {
     console.log(e);
@@ -130,7 +160,7 @@ class AliquotasEmpresa extends React.Component {
               <Checkbox onChange={this.setLiminar}>Liminar de Redução</Checkbox>
             </Col>
             <Col span={12}>
-              <Select onChange={this.setFormaPagamento} defaultValue={this.state.formaPagamento} style={{ width: '100%' }}>
+              <Select onChange={this.setformaPagamentoTrimestrais} defaultValue={this.state.formaPagamentoTrimestrais} style={{ width: '100%' }}>
                 <Option value="adiantamento">Adiantamento</Option>
                 <Option value="acumulado">Acumulado por Trimestre</Option>
                 <Option value="cotas">Pagamento em Cotas</Option>
@@ -180,12 +210,5 @@ class AliquotasEmpresa extends React.Component {
     );
   }
 }
-
-AliquotasEmpresa.propTypes = {
-  dados: PropTypes.shape({
-    nome: PropTypes.string,
-    cnpj: PropTypes.string,
-  }).isRequired,
-};
 
 export default AliquotasEmpresa;
