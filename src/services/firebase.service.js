@@ -166,3 +166,28 @@ export function pegarEmpresaImpostos(cnpj) {
     });
   });
 }
+
+export function cancelarMovimento(cnpj, id) {
+  return new Promise((resolve, reject) => {
+    db.ref(`Movimentos/${cnpj}/${id}`).once('value', (snap) => {
+      const movimento = snap.val();
+      if (movimento.metaDados) {
+        movimento.metaDados.status = 'CANCELADO';
+      } else {
+        movimento.metaDados = {
+          criadoPor: 'DESCONHECIDO',
+          dataCriacao: new Date('07/19/1997').toISOString(),
+          status: 'CANCELADO',
+          tipo: 'PRIM',
+        };
+      }
+      db.ref(`Movimentos/${cnpj}/${id}`).set(movimento, (err) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve();
+        }
+      });
+    });
+  });
+}

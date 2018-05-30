@@ -16,4 +16,5 @@ export { default as VisualizarTables } from './VisualizarTables';
 export { default as MovimentosTable } from './MovimentosTable';
 export { default as ServicosTable } from './ServicosTable';
 export { default as AcumuladosTable } from './AcumuladosTable';
+export { default as MovimentoValorInput } from './MovimentoValorInput';
 export { default as Navbar } from './Navbar';

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Steps, Button, Row, Col } from 'antd';
+import { MovimentosTable } from '.';
 
 import './VisualizarTables.css';
 
@@ -26,10 +27,10 @@ class VisualizarTables extends React.Component {
     const { current } = this.state;
     let content = '';
 
-    console.log(this.props.dados);
+    const { dados } = this.props;
 
     if (current === 0) {
-      content = 'Poo';
+      content = <MovimentosTable movimentos={dados.movimentos} notas={dados.notas} />;
     } else if (current === 1) {
       content = 'Second-content';
     } else if (current === 2) {
