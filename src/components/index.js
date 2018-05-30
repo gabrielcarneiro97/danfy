@@ -12,4 +12,8 @@ export { default as NotaInicial } from './NotaInicial';
 export { default as ConciliarServicos } from './ConciliarServicos';
 export { default as VisualizarMovimento } from './VisualizarMovimento';
 export { default as VisualizarForm } from './VisualizarForm';
+export { default as VisualizarTables } from './VisualizarTables';
+export { default as MovimentosTable } from './MovimentosTable';
+export { default as ServicosTable } from './ServicosTable';
+export { default as AcumuladosTable } from './AcumuladosTable';
 export { default as Navbar } from './Navbar';
