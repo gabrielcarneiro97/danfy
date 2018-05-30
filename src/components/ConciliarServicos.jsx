@@ -1,7 +1,22 @@
 import React from 'react';
-import { Table, Row, Col, Checkbox } from 'antd';
+import PropTypes from 'prop-types';
+import axios from 'axios';
+import { Table, Row, Col, Icon, Checkbox } from 'antd';
+
+import { api, pegarDominioId, auth } from '../services';
 
 class ConciliarServicos extends React.Component {
+  static propTypes = {
+    onChange: PropTypes.func.isRequired,
+    onLoadEnd: PropTypes.func.isRequired,
+    dominio: PropTypes.func.isRequired,
+    dados: PropTypes.shape({
+      nfe: PropTypes.array,
+      nfse: PropTypes.array,
+      pessoas: PropTypes.object,
+    }).isRequired,
+  }
+
   static columns = [{
     title: 'Número',
     dataIndex: 'numero',
@@ -25,25 +40,96 @@ class ConciliarServicos extends React.Component {
     align: 'center',
   }]
 
-  state = {}
+  state = {
+    isLoading: true,
+    dados: {},
+    servicos: [],
+  }
+
+  componentDidMount() {
+    const { dados } = this.props;
+    const { nfse } = dados;
+    const { servicos } = this.state;
+    const dominioCnpjs = Object.values(this.props.dominio());
+
+    pegarDominioId().then((dominioId) => {
+      const usuario = {
+        dominioId: encodeURI(dominioId),
+        email: encodeURI(auth.currentUser.email),
+      };
+
+      if (nfse.length === 0) {
+        this.props.onChange(servicos);
+        this.props.onLoadEnd();
+        this.setState({ servicos, isLoading: false, dados });
+      }
+
+      nfse.forEach((nota, id) => {
+        if (dominioCnpjs.includes(nota.emitente)) {
+          const getServ = `${api}/servico?notaServico=${nota.chave}&dominioId=${usuario.dominioId}&email=${usuario.email}`;
+          axios.get(getServ).then((res) => {
+            const servico = res.data;
+            servicos.push({
+              ...servico,
+              id,
+            });
+
+            if (servicos.length === nfse.length) {
+              this.props.onChange(servicos);
+              this.props.onLoadEnd();
+              this.setState({ servicos, isLoading: false, dados });
+            }
+          });
+        }
+      });
+    });
+  }
+
+  getNfse = chave => (
+    this.state.dados.nfse ?
+      this.state.dados.nfse.find(el => el.chave === chave) :
+      this.props.dados.nfse.find(el => el.chave === chave)
+  )
+
+  alterarServico = (servico) => {
+    const { servicos } = this.state;
+    const servicosNovo = [];
+
+    servicos.forEach((el) => {
+      if (el.id === servico.id) {
+        servicosNovo.push(servico);
+      } else {
+        servicosNovo.push(el);
+      }
+    });
+    this.props.onChange(servicosNovo);
+    this.setState({ servicos: servicosNovo });
+  }
 
   render() {
     const dataSource = [];
-    const dominioCnpjs = Object.values(this.props.dominio());
 
-    const { nfse } = this.props.dados;
+    const { servicos } = this.state;
 
-    nfse.forEach((nota, id) => {
-      if (dominioCnpjs.includes(nota.emitente)) {
-        dataSource.push({
-          key: `servico-${id}-${nota.emitente}`,
-          numero: id + 1,
-          nota: nota.geral.numero,
-          status: nota.geral.status,
-          valor: nota.valor.servico,
-          confirmar: <Checkbox />,
-        });
-      }
+    servicos.forEach((servico, id) => {
+      const nota = this.getNfse(servico.nota);
+      dataSource.push({
+        key: `servico-${id}-${nota.emitente}`,
+        numero: id + 1,
+        nota: nota.geral.numero,
+        status: nota.geral.status,
+        valor: nota.valor.servico,
+        confirmar: <Checkbox
+          checked={servico.conferido}
+          onChange={(e) => {
+            const servicoNovo = {
+              ...servico,
+              conferido: e.target.checked,
+            };
+            this.alterarServico(servicoNovo);
+          }}
+        />,
+      });
     });
 
     return (
@@ -53,7 +139,18 @@ class ConciliarServicos extends React.Component {
         align="top"
       >
         <Col span={23} style={{ textAlign: 'center' }}>
-          <Table dataSource={dataSource} columns={ConciliarServicos.columns} />
+          {
+            this.state.isLoading
+            &&
+            <Icon type="loading" style={{ fontSize: '90px', color: '#1890ff' }} />
+          }
+          {
+            !this.state.isLoading
+            &&
+            <div>
+              <Table dataSource={dataSource} columns={ConciliarServicos.columns} />
+            </div>
+          }
         </Col>
       </Row>
     );

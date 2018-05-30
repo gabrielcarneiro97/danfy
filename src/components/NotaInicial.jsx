@@ -1,10 +1,20 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import axios from 'axios';
-import { Input, Icon, Button, Popconfirm } from 'antd';
+import { Input, Button, Popconfirm } from 'antd';
 
 import { api } from '../services';
 
 class NotaInicial extends React.Component {
+  static propTypes = {
+    onChange: PropTypes.func.isRequired,
+    notaInicial: PropTypes.shape({
+      geral: PropTypes.object,
+    }).isRequired,
+    notaFinal: PropTypes.shape({}).isRequired,
+    movimento: PropTypes.shape({}).isRequired,
+  }
+
   constructor(props) {
     super(props);
 
@@ -18,12 +28,12 @@ class NotaInicial extends React.Component {
   }
 
   render() {
-    const { movimento, notaInicial, notaFinal } = this.props;
+    const { movimento, notaFinal } = this.props;
 
     const handleClick = () => {
       if (movimento.notaInicial) {
         axios
-          .get(`${api}/calcularMovimento?notaFinal=${movimento.notaFinal}&cnpj=${notaFinal.emitente}`)
+          .get(`${api}/valoresMovimento?notaFinal=${movimento.notaFinal}&cnpj=${notaFinal.emitente}`)
           .then((res) => {
             this.setState({ valorInput: '' });
             this.props.onChange({

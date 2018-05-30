@@ -8,6 +8,9 @@ import { auth, pegarDominioId } from '../services';
 
 class ConciliarMovimentos extends React.Component {
   static propTypes = {
+    novaNota: PropTypes.func.isRequired,
+    onChange: PropTypes.func.isRequired,
+    onLoadEnd: PropTypes.func.isRequired,
     dominio: PropTypes.func.isRequired,
     dados: PropTypes.shape({
       nfe: PropTypes.array,
@@ -80,7 +83,8 @@ class ConciliarMovimentos extends React.Component {
           const movimentosId = [];
 
           movimentos.forEach((el, id) => movimentosId.push({ ...el, id }));
-
+          this.props.onChange(movimentos);
+          this.props.onLoadEnd();
           this.setState({ isLoading: false, dados, movimentos: movimentosId });
         });
     });
@@ -90,12 +94,6 @@ class ConciliarMovimentos extends React.Component {
     this.state.dados.nfe ?
       this.state.dados.nfe.find(el => el.chave === chave) :
       this.props.dados.nfe.find(el => el.chave === chave)
-  )
-
-  getNfse = chave => (
-    this.state.dados.nfse ?
-      this.state.dados.nfse.find(el => el.chave === chave) :
-      this.props.dados.nfse.find(el => el.chave === chave)
   )
 
   alterarMovimento = (movimento, nota) => {
@@ -109,10 +107,11 @@ class ConciliarMovimentos extends React.Component {
         movimentosNovo.push(el);
       }
     });
-
+    this.props.onChange(movimentosNovo);
     this.setState({ movimentos: movimentosNovo });
 
     if (nota) {
+      this.props.novaNota(nota);
       const { dados } = this.state;
       dados.nfe.push(nota);
       this.setState({ dados });
@@ -169,8 +168,8 @@ class ConciliarMovimentos extends React.Component {
           {
             this.state.isLoading
             &&
-            <Icon type="loading" style={{ fontSize: '90px' }} />
-          }
+            <Icon type="loading" style={{ fontSize: '90px', color: '#1890ff' }} />
+        }
           {
             !this.state.isLoading
             &&
