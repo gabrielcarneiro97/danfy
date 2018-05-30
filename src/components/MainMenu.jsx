@@ -14,7 +14,7 @@ function MainMenu(props) {
       style={{ height: '100%', borderRight: 0 }}
     >
       <Menu.Item key={`${match.url}/importar`}><Link to={`${match.url}/importar`}><Icon type="download" />Importar Notas</Link></Menu.Item>
-      <Menu.Item key={`${match.url}/visualizar`}><Link to={`${match.url}/visualizar`}>Visualizar Movimento</Link></Menu.Item>
+      <Menu.Item key={`${match.url}/visualizar`}><Link to={`${match.url}/visualizar`}><Icon type="folder-open" />Visualizar Movimento</Link></Menu.Item>
       <Menu.Item key="3">option3</Menu.Item>
       <Menu.Item key="4">option4</Menu.Item>
     </Menu>

@@ -3,18 +3,15 @@ import { Route, Switch, Redirect } from 'react-router-dom';
 import { Layout } from 'antd';
 import PropTypes from 'prop-types';
 
-import { MainMenu, ImportarNotas } from '.';
+import { MainMenu, ImportarNotas, VisualizarMovimento } from '.';
 
 const { Content, Sider } = Layout;
 
-function Moc2() {
-  return <h1>M2</h1>;
-}
 
 function MainLogged({ match }) {
   return (
     <Layout>
-      <Sider>
+      <Sider width={230}>
         <MainMenu />
       </Sider>
       <Layout>
@@ -28,7 +25,7 @@ function MainLogged({ match }) {
         >
           <Switch>
             <Route exact path={`${match.path}/importar`} component={ImportarNotas} />
-            <Route exact path={`${match.path}/moc2`} component={Moc2} />
+            <Route exact path={`${match.path}/visualizar`} component={VisualizarMovimento} />
 
             <Redirect from="/app" to={`${match.url}/importar`} />
           </Switch>

@@ -146,3 +146,23 @@ export function gravarServicos(servicos) {
     });
   });
 }
+
+export function pegarPessoaId(id) {
+  return new Promise((resolve, reject) => {
+    db.ref(`Pessoas/${id}`).once('value').then((snap) => {
+      resolve(snap.val());
+    }, (err) => {
+      reject(err);
+    });
+  });
+}
+
+export function pegarEmpresaImpostos(cnpj) {
+  return new Promise((resolve, reject) => {
+    db.ref(`Impostos/${cnpj}`).once('value', (snap) => {
+      resolve(snap.val());
+    }, (err) => {
+      reject(err);
+    });
+  });
+}
