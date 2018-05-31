@@ -191,3 +191,19 @@ export function cancelarMovimento(cnpj, id) {
     });
   });
 }
+
+export function editarMovimento(movimentoNovo, cnpj) {
+  return new Promise((resolve, reject) => {
+    const idMovimentoAntigo = movimentoNovo.metaDados.movimentoRef;
+
+    if (!idMovimentoAntigo) {
+      reject(new Error('O movimento não tem movimento referenciado nos meta dados'));
+    } else {
+      cancelarMovimento(cnpj, idMovimentoAntigo).then(() => {
+        db.ref(`Movimentos/${cnpj}`).push(movimentoNovo).then((snap) => {
+          resolve(snap.key);
+        }).catch(err => reject(err));
+      }).catch(err => reject(err));
+    }
+  });
+}

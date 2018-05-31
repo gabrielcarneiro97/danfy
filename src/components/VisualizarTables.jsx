@@ -23,14 +23,29 @@ class VisualizarTables extends React.Component {
     const current = this.state.current - 1;
     this.setState({ current });
   }
-  render() {
-    const { current } = this.state;
-    let content = '';
 
+  movimentosHandle = (movimentos) => {
     const { dados } = this.props;
 
+    this.props.onChange({
+      ...dados,
+      movimentos,
+    });
+  }
+
+  render() {
+    const { current } = this.state;
+    const { dados } = this.props;
+    let content = '';
+
+    console.log('VisualizarTables');
+
     if (current === 0) {
-      content = <MovimentosTable movimentos={dados.movimentos} notas={dados.notas} />;
+      content = (<MovimentosTable
+        movimentos={dados.movimentos}
+        notas={dados.notas}
+        onChange={this.movimentosHandle}
+      />);
     } else if (current === 1) {
       content = 'Second-content';
     } else if (current === 2) {

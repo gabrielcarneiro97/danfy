@@ -28,6 +28,13 @@ export function R$(valp) {
   return `${negativo}${esquerda},${direita}`;
 }
 
+export function floating(stringVal) {
+  if (stringVal === '') {
+    return 0;
+  }
+  return parseFloat(stringVal.replace(/\./g, '').replace(/,/g, '.'));
+}
+
 export const cfopCompra = ['1102', '2102'];
 export const cfopDevolucao = ['1202', '2202'];
 export const cfopDevolucaoCompra = ['5202'];
@@ -40,7 +47,7 @@ export const cfopDevolucaoDemonstracao = ['6913', '5913'];
 
 export function retornarTipo(cfop) {
   if (cfopCompra.includes(cfop)) {
-    return 'COMPRA';;
+    return 'COMPRA';
   } else if (cfopDevolucao.includes(cfop)) {
     return 'DEVOLUÇÃO DE VENDA';
   } else if (cfopVenda.includes(cfop) || cfopVendaConsignacao.includes(cfop)) {
@@ -56,4 +63,5 @@ export function retornarTipo(cfop) {
   } else if (cfopDevolucaoDemonstracao.includes(cfop)) {
     return 'DEVOLUÇÃO DEMONSTRAÇÃO';
   }
+  return '';
 }

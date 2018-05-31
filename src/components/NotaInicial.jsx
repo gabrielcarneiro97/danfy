@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import axios from 'axios';
 import { Input, Button, Popconfirm } from 'antd';
 
-import { api } from '../services';
+import { api, floating } from '../services';
 
 class NotaInicial extends React.Component {
   static propTypes = {
@@ -43,9 +43,9 @@ class NotaInicial extends React.Component {
               valores: res.data,
             });
           });
-      } else if (!Number.isNaN(this.state.valorInput)) {
+      } else if (!Number.isNaN(floating(this.state.valorInput))) {
         axios
-          .get(`${api}/calcularMovimentoSlim?valorInicial=${this.state.valorInput}&notaFinal=${movimento.notaFinal}&cnpj=${notaFinal.emitente}`)
+          .get(`${api}/movimentoSlim?valorInicial=${this.state.valorInput}&notaFinal=${movimento.notaFinal}&cnpj=${notaFinal.emitente}`)
           .then((res) => {
             this.setState({ valorInput: 'INTERNO' });
             this.props.onChange({
