@@ -97,7 +97,7 @@ class VisualizarForm extends React.Component {
       >
         <Col span={8} className="form-input">
           <Input
-            addonBefore="NÚMERO:"
+            addonBefore="Número"
             onChange={this.handleNum}
             value={this.state.num}
             disabled={this.state.disableNum}
@@ -135,13 +135,13 @@ class VisualizarForm extends React.Component {
           </Select>
         </Col>
         <Col span={15} className="form-input">
-          <Input addonBefore="NOME:" value={this.state.pessoa.nome} disabled />
+          <Input addonBefore="Nome" value={this.state.pessoa.nome} disabled />
         </Col>
         <Col span={9} className="form-input">
           <Input addonBefore="CNPJ:" value={this.state.pessoa.cnpj} disabled />
         </Col>
         <Col span={24} className="form-input">
-          <Input addonBefore="FORMA DE PAGAMENTO TRIMESTRAIS:" value={this.state.pessoa.formaPagamento} disabled />
+          <Input addonBefore="Forma de Pagamento Trimestrais" value={this.state.pessoa.formaPagamento} disabled />
         </Col>
         <Col
           span={24}
