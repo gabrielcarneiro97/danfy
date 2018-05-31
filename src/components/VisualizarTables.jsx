@@ -1,6 +1,7 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Steps, Button, Row, Col } from 'antd';
-import { MovimentosTable } from '.';
+import { MovimentosTable, ServicosTable } from '.';
 
 import './VisualizarTables.css';
 
@@ -8,6 +9,16 @@ const { Step } = Steps;
 
 
 class VisualizarTables extends React.Component {
+  static propTypes = {
+    show: PropTypes.bool.isRequired,
+    onChange: PropTypes.func.isRequired,
+    dados: PropTypes.shape({
+      movimentos: PropTypes.object,
+      servicos: PropTypes.object,
+      notas: PropTypes.object,
+    }).isRequired,
+  }
+
   constructor(props) {
     super(props);
     this.state = {
@@ -33,12 +44,19 @@ class VisualizarTables extends React.Component {
     });
   }
 
+  servicosHandle = (servicos) => {
+    const { dados } = this.props;
+
+    this.props.onChange({
+      ...dados,
+      servicos,
+    });
+  }
+
   render() {
     const { current } = this.state;
     const { dados } = this.props;
     let content = '';
-
-    console.log('VisualizarTables');
 
     if (current === 0) {
       content = (<MovimentosTable
@@ -47,7 +65,11 @@ class VisualizarTables extends React.Component {
         onChange={this.movimentosHandle}
       />);
     } else if (current === 1) {
-      content = 'Second-content';
+      content = (<ServicosTable
+        servicos={dados.servicos}
+        notas={dados.notas}
+        onChange={this.servicosHandle}
+      />);
     } else if (current === 2) {
       content = 'Last-Content';
     }

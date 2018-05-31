@@ -21,7 +21,8 @@ class VisualizarMovimento extends React.Component {
           onChange={this.handleTableChange}
         />),
       });
-    }); };
+    });
+  };
 
   handleSubmit = (dados) => {
     const link = `https://us-central1-danfy-4d504.cloudfunctions.net/pegarTudoTrimestre?cnpj=${dados.cnpj}&mes=${dados.mes}&ano=${dados.ano}`;
@@ -41,7 +42,6 @@ class VisualizarMovimento extends React.Component {
   }
 
   render() {
-    console.log('VisualizarMovimento');
     return (
       <div>
         <div>

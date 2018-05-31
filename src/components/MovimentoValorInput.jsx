@@ -3,8 +3,8 @@ import PropTypes from 'prop-types';
 import { Input } from 'antd';
 
 class MovimentoValorInput extends React.Component {
-
   static propTypes = {
+    onChange: PropTypes.func.isRequired,
     movimento: PropTypes.object.isRequired, // eslint-disable-line
     value: PropTypes.oneOfType([
       PropTypes.number,

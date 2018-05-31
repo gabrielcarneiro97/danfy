@@ -117,7 +117,6 @@ class MovimentosTable extends React.Component {
         movimentoNovo.valores.impostos.icms.difal.origem = floating(valor);
       }
     } else if (nome === 'lucro') {
-      console.log(floating(valor));
       movimentoNovo.valores.lucro = floating(valor);
     } else {
       movimentoNovo.valores.impostos[nome] = floating(valor);
@@ -145,7 +144,7 @@ class MovimentosTable extends React.Component {
           ...movimentoNovo,
         },
       },
-    }, () => console.log(this.state.movimentosAlterados));
+    });
   }
 
   cancelarMovimento = (movimentoId, cnpj) => {
@@ -181,8 +180,6 @@ class MovimentosTable extends React.Component {
 
   render() {
     const { movimentos, notas } = this.props;
-
-    console.log(movimentos);
 
     const dataSource = [];
 

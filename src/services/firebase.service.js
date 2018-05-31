@@ -207,3 +207,15 @@ export function editarMovimento(movimentoNovo, cnpj) {
     }
   });
 }
+
+export function excluirServico(cnpj, id) {
+  return new Promise((resolve, reject) => {
+    db.ref(`Servicos/${cnpj}/${id}`).set({}, (err) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve();
+      }
+    });
+  });
+}

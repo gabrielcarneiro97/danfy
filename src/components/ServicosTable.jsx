@@ -1,36 +1,148 @@
 import React from 'react';
-import { Table } from 'antd';
+import { Table, Row, Col, Popconfirm, Button } from 'antd';
+
+import { R$, excluirServico } from '../services';
 
 class ServicosTable extends React.Component {
+  static columns = [{
+    title: 'Nota',
+    dataIndex: 'nota',
+    key: 'nota',
+    fixed: true,
+  }, {
+    title: 'Status',
+    dataIndex: 'status',
+    key: 'status',
+  }, {
+    title: 'Data',
+    dataIndex: 'data',
+    key: 'data',
+  }, {
+    title: 'Valor do Serviço',
+    dataIndex: 'valorServico',
+    key: 'valorServico',
+  }, {
+    title: 'Retenções',
+    children: [{
+      title: 'ISS',
+      dataIndex: 'issRetido',
+      key: 'issRetido',
+    }, {
+      title: 'PIS',
+      dataIndex: 'pisRetido',
+      key: 'pisRetido',
+    }, {
+      title: 'COFINS',
+      dataIndex: 'cofinsRetido',
+      key: 'cofinsRetido',
+    }, {
+      title: 'CSLL',
+      dataIndex: 'csllRetido',
+      key: 'csllRetido',
+    }, {
+      title: 'IRPJ',
+      dataIndex: 'irpjRetido',
+      key: 'irpjRetido',
+    }, {
+      title: 'Total',
+      dataIndex: 'totalRetido',
+      key: 'totalRetido',
+    }],
+  }, {
+    title: 'ISS',
+    dataIndex: 'iss',
+    key: 'iss',
+  }, {
+    title: 'PIS',
+    dataIndex: 'pis',
+    key: 'pis',
+  }, {
+    title: 'COFINS',
+    dataIndex: 'cofins',
+    key: 'cofins',
+  }, {
+    title: 'CSLL',
+    dataIndex: 'csll',
+    key: 'csll',
+  }, {
+    title: 'IRPJ',
+    dataIndex: 'irpj',
+    key: 'irpj',
+  }, {
+    title: 'Total',
+    dataIndex: 'total',
+    key: 'total',
+  }];
+
   state = {}
 
-  render() {
-    const dataSource = [{
-      key: '1',
-      name: 'Mike',
-      age: 32,
-      address: '10 Downing Street',
-    }, {
-      key: '2',
-      name: 'John',
-      age: 42,
-      address: '10 Downing Street',
-    }];
+  excluirServico = (servico, key) => {
+    const { servicos } = this.props;
+    const emitente = servico.nota.substring(0, 14);
+    excluirServico(emitente, key).then(() => {
+      delete servicos[key];
+      this.props.onChange(servicos);
+    });
+  }
 
-    const columns = [{
-      title: 'Name',
-      dataIndex: 'name',
-      key: 'name',
-    }, {
-      title: 'Age',
-      dataIndex: 'age',
-      key: 'age',
-    }, {
-      title: 'Address',
-      dataIndex: 'address',
-      key: 'address',
-    }];
-    return <Table dataSource={dataSource} columns={columns} />;
+  render() {
+    const dataSource = [];
+    const { servicos } = this.props;
+
+    Object.keys(servicos).forEach((key) => {
+      const servico = servicos[key];
+
+      console.log(servico);
+
+      const numero = parseInt(servico.nota.substring(18), 10);
+
+      dataSource.push({
+        key: servico.nota,
+        nota: (
+          <Popconfirm
+            title="Deseja mesmo excluir esse serviço?"
+            okText="Sim"
+            cancelText="Não"
+            onConfirm={() => this.excluirServico(servico, key)}
+          >
+            <Button type="ghost">{numero}</Button>
+          </Popconfirm>
+        ),
+        status: servico.notaStatus,
+        data: servico.data.toLocaleString('pt-br'),
+        valorServico: R$(servico.valores.impostos.baseDeCalculo),
+        issRetido: R$(servico.valores.impostos.retencoes.iss),
+        pisRetido: R$(servico.valores.impostos.retencoes.pis),
+        cofinsRetido: R$(servico.valores.impostos.retencoes.cofins),
+        csllRetido: R$(servico.valores.impostos.retencoes.csll),
+        irpjRetido: R$(servico.valores.impostos.retencoes.irpj),
+        totalRetido: R$(servico.valores.impostos.retencoes.total),
+        iss: R$(servico.valores.impostos.iss),
+        pis: R$(servico.valores.impostos.pis),
+        cofins: R$(servico.valores.impostos.cofins),
+        csll: R$(servico.valores.impostos.csll),
+        irpj: R$(servico.valores.impostos.irpj),
+        total: R$(servico.valores.impostos.total),
+      });
+    });
+
+    return (
+      <Row
+        type="flex"
+        justify="center"
+      >
+        <Col span={23}>
+          <Table
+            bordered
+            size="small"
+            columns={ServicosTable.columns}
+            dataSource={dataSource}
+            scroll={{ x: '250%' }}
+            pagination={{ position: 'top' }}
+          />
+        </Col>
+      </Row>
+    );
   }
 }
 
