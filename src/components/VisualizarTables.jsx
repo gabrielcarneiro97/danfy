@@ -10,13 +10,17 @@ const { Step } = Steps;
 
 class VisualizarTables extends React.Component {
   static propTypes = {
-    show: PropTypes.bool.isRequired,
+    show: PropTypes.bool,
     onChange: PropTypes.func.isRequired,
     dados: PropTypes.shape({
       movimentos: PropTypes.object,
       servicos: PropTypes.object,
       notas: PropTypes.object,
     }).isRequired,
+  }
+
+  static defaultProps = {
+    show: true,
   }
 
   constructor(props) {
@@ -35,7 +39,7 @@ class VisualizarTables extends React.Component {
     this.setState({ current });
   }
 
-  movimentosHandle = (movimentos) => {
+  movimentosHandleChange = (movimentos) => {
     const { dados } = this.props;
 
     this.props.onChange({
@@ -44,7 +48,7 @@ class VisualizarTables extends React.Component {
     });
   }
 
-  servicosHandle = (servicos) => {
+  servicosHandleChange = (servicos) => {
     const { dados } = this.props;
 
     this.props.onChange({
@@ -53,26 +57,35 @@ class VisualizarTables extends React.Component {
     });
   }
 
-  render() {
-    const { current } = this.state;
-    const { dados } = this.props;
+  defineContent = (current, dados) => {
     let content = '';
-
     if (current === 0) {
-      content = (<MovimentosTable
-        movimentos={dados.movimentos}
-        notas={dados.notas}
-        onChange={this.movimentosHandle}
-      />);
+      content = (
+        <MovimentosTable
+          movimentos={dados.movimentos}
+          notas={dados.notas}
+          onChange={this.movimentosHandleChange}
+        />
+      );
     } else if (current === 1) {
-      content = (<ServicosTable
-        servicos={dados.servicos}
-        notas={dados.notas}
-        onChange={this.servicosHandle}
-      />);
+      content = (
+        <ServicosTable
+          servicos={dados.servicos}
+          notas={dados.notas}
+          onChange={this.servicosHandleChange}
+        />
+      );
     } else if (current === 2) {
       content = 'Last-Content';
     }
+    return content;
+  }
+
+  render() {
+    const { dados } = this.props;
+    const { current } = this.state;
+
+    const content = this.defineContent(current, dados);
 
     const steps = [{
       title: 'Movimentos',
