@@ -48,21 +48,24 @@ class LoginFormInternal extends React.Component {
         <FormItem>
           {getFieldDecorator('userName', {
             rules: [{ required: true, message: 'Por favor insira seu login!' }],
-          })(<Input disabled prefix={<Icon type="user" style={{ color: 'rgba(0,0,0,.25)' }} />} placeholder="Login" />)}
+          })(<Input prefix={<Icon type="user" style={{ color: 'rgba(0,0,0,.25)' }} />} placeholder="Login" />)}
         </FormItem>
         <FormItem>
           {getFieldDecorator('password', {
             rules: [{ required: true, message: 'Por favor insira sua senha!' }],
-          })(<Input disabled prefix={<Icon type="lock" style={{ color: 'rgba(0,0,0,.25)' }} />} type="password" placeholder="Senha" />)}
+          })(<Input prefix={<Icon type="lock" style={{ color: 'rgba(0,0,0,.25)' }} />} type="password" placeholder="Senha" />)}
         </FormItem>
-        <FormItem className="center-text">
-          <Button disabled type="primary" htmlType="submit" className="login-form-button">
+        <FormItem className="center-text">{
+          // eslint-disable-next-line
+        }<a className="login-form-forgot" href="">Esqueci minha senha</a>
+          <Button type="primary" htmlType="submit" className="login-form-button">
             Entrar
           </Button>
           <Button className="login-form-button" onClick={handleBtnGoogle}>
             <Icon type="google" /> Entrar com Google
-          </Button>
-          {/* <a>Registre-se!</a> */}
+          </Button>{
+            // eslint-disable-next-line
+          }<a>Registre-se!</a>
         </FormItem>
       </Form>
     );
