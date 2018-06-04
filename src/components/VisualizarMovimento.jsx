@@ -24,9 +24,7 @@ class VisualizarMovimento extends React.Component {
     });
   }
 
-  handleSubmit = (dados) => {
-    const { cnpj, mes, ano } = dados;
-
+  handleSubmit = ({ cnpj, mes, ano }) => {
     axios.get('https://us-central1-danfy-4d504.cloudfunctions.net/pegarTudoTrimestre', {
       params: {
         cnpj,
