@@ -1,9 +1,15 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Table, Row, Col, Popconfirm, Button } from 'antd';
 
 import { R$, excluirServico } from '../services';
 
 class ServicosTable extends React.Component {
+  static propTypes = {
+    onChange: PropTypes.func.isRequired,
+    servicos: PropTypes.object.isRequired, // eslint-disable-line
+  }
+
   static columns = [{
     title: 'Nota',
     dataIndex: 'nota',
@@ -85,17 +91,12 @@ class ServicosTable extends React.Component {
     });
   }
 
-  render() {
+  defineDataSource = () => {
     const dataSource = [];
     const { servicos } = this.props;
-
     Object.keys(servicos).forEach((key) => {
       const servico = servicos[key];
-
-      console.log(servico);
-
       const numero = parseInt(servico.nota.substring(18), 10);
-
       dataSource.push({
         key: servico.nota,
         nota: (
@@ -125,6 +126,11 @@ class ServicosTable extends React.Component {
         total: R$(servico.valores.impostos.total),
       });
     });
+    return dataSource;
+  }
+
+  render() {
+    const dataSource = this.defineDataSource();
 
     return (
       <Row
