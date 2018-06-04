@@ -13,8 +13,16 @@ function MainMenu(props) {
       selectedKeys={[pathname]}
       style={{ height: '100%', borderRight: 0 }}
     >
-      <Menu.Item key={`${match.url}/importar`}><Link to={`${match.url}/importar`}><Icon type="download" />Importar Notas</Link></Menu.Item>
-      <Menu.Item key={`${match.url}/visualizar`}><Link to={`${match.url}/visualizar`}><Icon type="folder-open" />Visualizar Movimento</Link></Menu.Item>
+      <Menu.Item key={`${match.url}/importar`}>
+        <Link to={`${match.url}/importar`}>
+          <Icon type="download" />Importar Notas
+        </Link>
+      </Menu.Item>
+      <Menu.Item key={`${match.url}/visualizar`}>
+        <Link to={`${match.url}/visualizar`}>
+          <Icon type="folder-open" />Visualizar Movimento
+        </Link>
+      </Menu.Item>
     </Menu>
   );
 }
