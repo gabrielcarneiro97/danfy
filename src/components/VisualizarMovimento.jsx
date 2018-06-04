@@ -22,20 +22,28 @@ class VisualizarMovimento extends React.Component {
         />),
       });
     });
-  };
+  }
 
   handleSubmit = (dados) => {
-    const link = `https://us-central1-danfy-4d504.cloudfunctions.net/pegarTudoTrimestre?cnpj=${dados.cnpj}&mes=${dados.mes}&ano=${dados.ano}`;
-    axios.get(link).then((res) => {
+    const { cnpj, mes, ano } = dados;
+
+    axios.get('https://us-central1-danfy-4d504.cloudfunctions.net/pegarTudoTrimestre', {
+      params: {
+        cnpj,
+        mes,
+        ano,
+      },
+    }).then((res) => {
       this.setState({
         dados: res.data,
       }, () => {
         this.setState({
-          tables: (<VisualizarTables
-            show
-            dados={this.state.dados}
-            onChange={this.handleTableChange}
-          />),
+          tables: (
+            <VisualizarTables
+              dados={this.state.dados}
+              onChange={this.handleTableChange}
+            />
+          ),
         });
       });
     });
