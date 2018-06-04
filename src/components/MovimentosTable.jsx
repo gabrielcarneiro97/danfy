@@ -218,15 +218,74 @@ class MovimentosTable extends React.Component {
         valorInicial: R$(notaInicial.valor.total),
         valorFinal: R$(notaFinal.valor.total),
         tipoMovimento: retornarTipo(notaFinal.geral.cfop),
-        lucro: <MovimentoValorInput movimento={{ ...movimento, key }} onChange={this.handleChange} value={R$(movimento.valores.lucro)} name="lucro" />,
-        baseIcms: <MovimentoValorInput movimento={{ ...movimento, key }} onChange={this.handleChange} value={R$(movimento.valores.impostos.icms.baseDeCalculo)} name="baseIcms" />,
-        icms: <MovimentoValorInput movimento={{ ...movimento, key }} onChange={this.handleChange} value={R$(movimento.valores.impostos.icms.proprio)} name="icms" />,
-        difalOrigem: movimento.valores.impostos.icms.difal ? <MovimentoValorInput movimento={{ ...movimento, key }} onChange={this.handleChange} value={R$(movimento.valores.impostos.icms.difal.origem)} name="difalOrigem" /> : <MovimentoValorInput movimento={{ ...movimento, key }} onChange={this.handleChange} value="0,00" name="difalOrigem" />,
-        difalDestino: movimento.valores.impostos.icms.difal ? <MovimentoValorInput movimento={{ ...movimento, key }} onChange={this.handleChange} value={R$(movimento.valores.impostos.icms.difal.destino)} name="difalDestino" /> : <MovimentoValorInput movimento={{ ...movimento, key }} onChange={this.handleChange} value="0,00" name="difalDestino" />,
-        pis: <MovimentoValorInput movimento={{ ...movimento, key }} onChange={this.handleChange} value={R$(movimento.valores.impostos.pis)} name="pis" />,
-        cofins: <MovimentoValorInput movimento={{ ...movimento, key }} onChange={this.handleChange} value={R$(movimento.valores.impostos.cofins)} name="cofins" />,
-        csll: <MovimentoValorInput movimento={{ ...movimento, key }} onChange={this.handleChange} value={R$(movimento.valores.impostos.csll)} name="csll" />,
-        irpj: <MovimentoValorInput movimento={{ ...movimento, key }} onChange={this.handleChange} value={R$(movimento.valores.impostos.irpj)} name="irpj" />,
+        lucro: <MovimentoValorInput
+          movimento={{ ...movimento, key }}
+          onChange={this.handleChange}
+          value={R$(movimento.valores.lucro)}
+          name="lucro"
+        />,
+        baseIcms: <MovimentoValorInput
+          movimento={{ ...movimento, key }}
+          onChange={this.handleChange}
+          value={R$(movimento.valores.impostos.icms.baseDeCalculo)}
+          name="baseIcms"
+        />,
+        icms: <MovimentoValorInput
+          movimento={{ ...movimento, key }}
+          onChange={this.handleChange}
+          value={R$(movimento.valores.impostos.icms.proprio)}
+          name="icms"
+        />,
+        difalOrigem: movimento.valores.impostos.icms.difal ?
+          <MovimentoValorInput
+            movimento={{ ...movimento, key }}
+            onChange={this.handleChange}
+            value={R$(movimento.valores.impostos.icms.difal.origem)}
+            name="difalOrigem"
+          /> :
+          <MovimentoValorInput
+            movimento={{ ...movimento, key }}
+            onChange={this.handleChange}
+            value="0,00"
+            name="difalOrigem"
+          />,
+        difalDestino: movimento.valores.impostos.icms.difal ?
+          <MovimentoValorInput
+            movimento={{ ...movimento, key }}
+            onChange={this.handleChange}
+            value={R$(movimento.valores.impostos.icms.difal.destino)}
+            name="difalDestino"
+          /> :
+          <MovimentoValorInput
+            movimento={{ ...movimento, key }}
+            onChange={this.handleChange}
+            value="0,00"
+            name="difalDestino"
+          />,
+        pis: <MovimentoValorInput
+          movimento={{ ...movimento, key }}
+          onChange={this.handleChange}
+          value={R$(movimento.valores.impostos.pis)}
+          name="pis"
+        />,
+        cofins: <MovimentoValorInput
+          movimento={{ ...movimento, key }}
+          onChange={this.handleChange}
+          value={R$(movimento.valores.impostos.cofins)}
+          name="cofins"
+        />,
+        csll: <MovimentoValorInput
+          movimento={{ ...movimento, key }}
+          onChange={this.handleChange}
+          value={R$(movimento.valores.impostos.csll)}
+          name="csll"
+        />,
+        irpj: <MovimentoValorInput
+          movimento={{ ...movimento, key }}
+          onChange={this.handleChange}
+          value={R$(movimento.valores.impostos.irpj)}
+          name="irpj"
+        />,
         total: R$(movimento.valores.impostos.total),
       });
     });
@@ -236,25 +295,12 @@ class MovimentosTable extends React.Component {
   render() {
     const dataSource = this.defineDataSource();
 
-    // const printRef = React.createRef();
-
     return (
       <Row
         type="flex"
         justify="center"
       >
         <Col span={23}>
-          {/* <ReactToPrint
-            trigger={() => <a href="#">Print this out!</a>}
-            content={() => printRef}
-          />
-          <div style={{ display: 'none' }}>
-            <TableToPrint
-              dataSource={printSource}
-              columns={MovimentosTable.columns}
-              ref={(el) => { printRef = el; }}
-            />
-          </div> */}
           <Table
             bordered
             size="small"

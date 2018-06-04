@@ -85,6 +85,20 @@ class Printer extends React.Component {
     const dataTableMovimentos = this.defineTableMovimentos();
     const dataTableServicos = this.defineTableServicos();
 
+    // const printRef = React.createRef();
+
+    /* <ReactToPrint
+            trigger={() => <a href="#">Print this out!</a>}
+            content={() => printRef}
+          />
+          <div style={{ display: 'none' }}>
+            <TableToPrint
+              dataSource={printSource}
+              columns={MovimentosTable.columns}
+              ref={(el) => { printRef = el; }}
+            />
+          </div> */
+
     return <div />;
   }
 }
