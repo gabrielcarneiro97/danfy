@@ -10,9 +10,18 @@ class NotaInicial extends React.Component {
     onChange: PropTypes.func.isRequired,
     notaInicial: PropTypes.shape({
       geral: PropTypes.object,
+    }),
+    notaFinal: PropTypes.shape({
+      emitente: PropTypes.string,
     }).isRequired,
-    notaFinal: PropTypes.shape({}).isRequired,
-    movimento: PropTypes.shape({}).isRequired,
+    movimento: PropTypes.shape({
+      notaFinal: PropTypes.string,
+      notaInicial: PropTypes.string,
+    }).isRequired,
+  }
+
+  static defaultProps = {
+    notaInicial: {},
   }
 
   constructor(props) {
@@ -27,71 +36,82 @@ class NotaInicial extends React.Component {
     this.setState({ valorInput: e.target.value });
   }
 
-  render() {
+  handleClick = () => {
     const { movimento, notaFinal } = this.props;
-
-    const handleClick = () => {
-      if (movimento.notaInicial) {
-        axios
-          .get(`${api}/valoresMovimento?notaFinal=${movimento.notaFinal}&cnpj=${notaFinal.emitente}`)
-          .then((res) => {
-            this.setState({ valorInput: '' });
-            this.props.onChange({
-              ...movimento,
-              conferido: false,
-              notaInicial: null,
-              valores: res.data,
-            });
-          });
-      } else if (!Number.isNaN(floating(this.state.valorInput))) {
-        axios
-          .get(`${api}/movimentoSlim?valorInicial=${this.state.valorInput}&notaFinal=${movimento.notaFinal}&cnpj=${notaFinal.emitente}`)
-          .then((res) => {
-            this.setState({ valorInput: 'INTERNO' });
-            this.props.onChange({
-              ...movimento,
-              conferido: false,
-              notaInicial: res.data.notaInicial.chave,
-              valores: res.data.valores,
-            }, res.data.notaInicial);
-          });
-      }
-    };
-
-    let textoPop;
-    let icon;
-
     if (movimento.notaInicial) {
-      textoPop = 'Deseja mesmo excluir essa nota?';
-      icon = 'close';
-    } else {
-      textoPop = 'Deseja adicionar esse valor?';
-      icon = 'plus';
+      axios
+        .get(`${api}/valoresMovimento`, {
+          params: {
+            notaFinal: movimento.notaFinal,
+            cnpj: notaFinal.emitente,
+          },
+        })
+        .then((res) => {
+          this.setState({ valorInput: '' });
+          this.props.onChange({
+            ...movimento,
+            conferido: false,
+            notaInicial: null,
+            valores: res.data,
+          });
+        });
+    } else if (!Number.isNaN(floating(this.state.valorInput))) {
+      axios
+        .get(`${api}/movimentoSlim`, {
+          params: {
+            valorInicial: floating(this.state.valorInput),
+            notaFinal: movimento.notaFinal,
+            cnpj: notaFinal.emitente,
+          },
+        })
+        .then((res) => {
+          this.setState({ valorInput: 'INTERNO' });
+          this.props.onChange({
+            ...movimento,
+            conferido: false,
+            notaInicial: res.data.notaInicial.chave,
+            valores: res.data.valores,
+          }, res.data.notaInicial);
+        });
     }
+  };
 
+  defineTextoPop = () => (this.props.movimento.notaInicial ? 'Deseja mesmo excluir essa nota?' : 'Deseja adicionar esse valor?');
+
+  defineIcon = () => (this.props.movimento.notaInicial ? 'close' : 'plus');
+
+  inputRender = () => (
+    <Input
+      size="small"
+      style={{ width: 68 }}
+      placeholder="Valor"
+      value={this.state.valorInput}
+      onChange={this.onChangeInput}
+      disabled={this.props.movimento.notaInicial !== null}
+    />
+  );
+
+  buttonRender = () => (
+    <Popconfirm
+      title={this.defineTextoPop()}
+      onConfirm={this.handleClick}
+      okText="Sim"
+      cancelText="Não"
+    >
+      <Button
+        icon={this.defineIcon()}
+        size="small"
+      />
+    </Popconfirm>
+  );
+
+  render() {
     return (
       <Input.Group
         style={{ width: 100 }}
       >
-        <Input
-          size="small"
-          style={{ width: 68 }}
-          placeholder="Valor"
-          value={this.state.valorInput}
-          onChange={this.onChangeInput}
-          disabled={movimento.notaInicial !== null}
-        />
-        <Popconfirm
-          title={textoPop}
-          onConfirm={handleClick}
-          okText="Sim"
-          cancelText="Não"
-        >
-          <Button
-            icon={icon}
-            size="small"
-          />
-        </Popconfirm>
+        {this.inputRender()}
+        {this.buttonRender()}
       </Input.Group >
     );
   }
