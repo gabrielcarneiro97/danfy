@@ -29,18 +29,17 @@ class LoginFormInternal extends React.Component {
     });
   }
 
+  handleBtnGoogle = () => {
+    const { from } = this.props.history.location.state || { from: { pathname: '/app' } };
+    loginGoogle().then(() => {
+      this.props.history.push(from);
+    }).catch((err) => {
+      console.error(err);
+    });
+  };
+
   render() {
     const { getFieldDecorator } = this.props.form;
-    const { from } = this.props.history.location.state || { from: { pathname: '/app' } };
-
-    const handleBtnGoogle = () => {
-      loginGoogle({}).then((user) => {
-        console.log(user);
-        this.props.history.push(from);
-      }).catch((err) => {
-        console.error(err);
-      });
-    };
 
     return (
       <Form onSubmit={this.handleSubmit} className="login-form">
@@ -59,7 +58,7 @@ class LoginFormInternal extends React.Component {
           <Button disabled type="primary" htmlType="submit" className="login-form-button">
             Entrar
           </Button>
-          <Button className="login-form-button" onClick={handleBtnGoogle}>
+          <Button className="login-form-button" onClick={this.handleBtnGoogle}>
             <Icon type="google" /> Entrar com Google
           </Button>
           {/* <a>Registre-se!</a> */}
