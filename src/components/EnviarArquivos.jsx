@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import axios from 'axios';
 import { Row, Col, message, Upload, Button, Icon } from 'antd';
 
 import { api } from '../services';
@@ -16,47 +15,43 @@ class EnviarArquivos extends React.Component {
     pessoas: {},
   };
 
-  adicionarNota = (dados) => { // eslint-disable-line
-    return new Promise((resolve) => {
-      if (dados.tipo === 'nfe') {
-        this.setState((prevState) => { // eslint-disable-line
-          return {
-            ...prevState,
-            nfe: [...prevState.nfe, dados.nota],
-            pessoas: { ...prevState.pessoas, ...dados.pessoas },
-          };
-        }, resolve);
-      } else {
-        this.setState((prevState) => { // eslint-disable-line
-          return {
-            ...prevState,
-            nfse: [...prevState.nfse, dados.nota],
-            pessoas: { ...prevState.pessoas, ...dados.pessoas },
-          };
-        }, resolve);
-      }
-    });
-  }
+  adicionarNota = dados => new Promise((resolve) => {
+    if (dados.tipo === 'nfe') {
+      this.setState((prevState) => { // eslint-disable-line
+        return {
+          ...prevState,
+          nfe: [...prevState.nfe, dados.nota],
+          pessoas: { ...prevState.pessoas, ...dados.pessoas },
+        };
+      }, resolve);
+    } else {
+      this.setState((prevState) => { // eslint-disable-line
+        return {
+          ...prevState,
+          nfse: [...prevState.nfse, dados.nota],
+          pessoas: { ...prevState.pessoas, ...dados.pessoas },
+        };
+      }, resolve);
+    }
+  });
 
-  removerNota = (nota) => { // eslint-disable-line
-    return new Promise((resolve) => {
-      if (nota.tipo === 'nfe') {
-        this.setState((prevState) => { // eslint-disable-line
-          return {
-            ...prevState,
-            nfe: prevState.nfe.filter(el => el.nota.chave !== nota.nota.chave),
-          };
-        }, resolve);
-      } else {
-        this.setState((prevState) => { // eslint-disable-line
-          return {
-            ...prevState,
-            nfse: prevState.nfse.filter(el => el.nota.chave !== nota.nota.chave),
-          };
-        }, resolve);
-      }
-    });
-  }
+  removerNota = nota => new Promise((resolve) => {
+    if (nota.tipo === 'nfe') {
+      this.setState((prevState) => { // eslint-disable-line
+        return {
+          ...prevState,
+          nfe: prevState.nfe.filter(el => el.nota.chave !== nota.nota.chave),
+        };
+      }, resolve);
+    } else {
+      this.setState((prevState) => { // eslint-disable-line
+        return {
+          ...prevState,
+          nfse: prevState.nfse.filter(el => el.nota.chave !== nota.nota.chave),
+        };
+      }, resolve);
+    }
+  });
 
   ended = 0;
 
