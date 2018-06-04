@@ -5,17 +5,16 @@ import PropTypes from 'prop-types';
 import { auth } from '../services';
 
 function PrivateRoute({ component: Component, ...rest }) {
-  const toRender = (propsRender) => {
-    if (auth.currentUser !== null) {
-      return <Component {...propsRender} />;
-    }
-
-    return (<Redirect to={{
-      pathname: '/',
-      state: { from: propsRender.location },
-    }}
-    />);
-  };
+  const toRender = propsRender => (
+    auth.currentUser ?
+      <Component {...propsRender} /> :
+      <Redirect
+        to={{
+          pathname: '/',
+          state: { from: propsRender.location },
+        }}
+      />
+  );
 
   return <Route {...rest} render={toRender} />;
 }
