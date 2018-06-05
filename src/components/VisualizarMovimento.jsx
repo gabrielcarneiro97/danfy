@@ -1,7 +1,7 @@
 import React from 'react';
 import axios from 'axios';
 
-import { VisualizarForm, VisualizarTables } from '.';
+import { VisualizarForm, VisualizarTables, Printer } from '.';
 import { api } from '../services';
 
 import './VisualizarMovimento.css';
@@ -9,6 +9,7 @@ import './VisualizarMovimento.css';
 class VisualizarMovimento extends React.Component {
   state = {
     tables: '',
+    printer: '',
     dados: {},
   };
 
@@ -17,6 +18,7 @@ class VisualizarMovimento extends React.Component {
       dados,
     }, () => {
       this.setState({
+        printer: <Printer dados={this.state.dados} />,
         tables: (<VisualizarTables
           show
           dados={this.state.dados}
@@ -35,10 +37,10 @@ class VisualizarMovimento extends React.Component {
       },
     }).then((res) => {
       this.setState({
-        dados: res.data,
+        dados: { ...res.data, mes },
       }, () => {
-        console.log(res);
         this.setState({
+          printer: <Printer dados={this.state.dados} />,
           tables: (
             <VisualizarTables
               dados={this.state.dados}
@@ -57,6 +59,9 @@ class VisualizarMovimento extends React.Component {
           <VisualizarForm
             onSubmit={this.handleSubmit}
           />
+        </div>
+        <div>
+          {this.state.printer}
         </div>
         <div style={{ marginTop: '30px' }}>
           {this.state.tables}

@@ -1,3 +1,3 @@
 export * from './firebase.service';
 export * from './publics';
-export * from './calculador.service';
+export * from './calculador.service.jsx';

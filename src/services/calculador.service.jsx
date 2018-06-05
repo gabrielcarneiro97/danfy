@@ -1,3 +1,5 @@
+import React from 'react';
+
 export function R$(valp) {
   let valor = parseFloat(valp).toFixed(2);
 
@@ -29,10 +31,77 @@ export function R$(valp) {
 }
 
 export function floating(stringVal) {
-  if (stringVal === '') {
+  if (typeof stringVal === 'number') {
+    return stringVal;
+  }
+  if (stringVal === '' || Number.isNaN(parseFloat(stringVal.replace(/\./g, '').replace(/,/g, '.')))) {
     return 0;
   }
   return parseFloat(stringVal.replace(/\./g, '').replace(/,/g, '.'));
+}
+
+export function somaTotalServico(servico, total) {
+  let retorno = { ...total };
+  if (!total) {
+    retorno = {
+      key: 'total-servicos',
+      nota: '',
+      status: <strong>TOTAIS: </strong>,
+      data: '',
+      valorServico: 0,
+      issRetido: 0,
+      pisRetido: 0,
+      cofinsRetido: 0,
+      csllRetido: 0,
+      irpjRetido: 0,
+      totalRetido: 0,
+      iss: 0,
+      pis: 0,
+      cofins: 0,
+      csll: 0,
+      irpj: 0,
+      total: 0,
+    };
+  }
+
+  Object.keys(retorno).forEach((key) => {
+    if (key !== 'nota' && key !== 'status' && key !== 'key' && key !== 'data') {
+      retorno[key] = R$(floating(retorno[key]) + floating(servico[key]));
+    }
+  });
+
+  return retorno;
+}
+
+export function somaTotalMovimento(movimento, total) {
+  let retorno = { ...total };
+  if (!total) {
+    retorno = {
+      key: 'total-movimento',
+      editar: '',
+      numero: <strong>TOTAIS: </strong>,
+      tipoMovimento: '',
+      valorInicial: 0,
+      valorFinal: 0,
+      lucro: 0,
+      baseIcms: 0,
+      icms: 0,
+      difalOrigem: 0,
+      difalDestino: 0,
+      pis: 0,
+      cofins: 0,
+      csll: 0,
+      irpj: 0,
+      total: 0,
+    };
+  }
+  Object.keys(retorno).forEach((key) => {
+    if (key !== 'editar' && key !== 'numero' && key !== 'key' && key !== 'tipoMovimento') {
+      retorno[key] = R$(floating(retorno[key]) + floating(movimento[key]));
+    }
+  });
+
+  return retorno;
 }
 
 export const cfopCompra = ['1102', '2102'];

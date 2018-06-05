@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Table, Row, Col, Button, Popconfirm } from 'antd';
 
 import { MovimentoValorInput } from '.';
-import { R$, retornarTipo, cancelarMovimento, floating, editarMovimento, auth } from '../services';
+import { R$, retornarTipo, somaTotalMovimento, cancelarMovimento, floating, editarMovimento, auth } from '../services';
 
 class MovimentosTable extends React.Component {
   static propTypes = {
@@ -79,11 +79,8 @@ class MovimentosTable extends React.Component {
     key: 'total',
   }];
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      movimentosAlterados: {},
-    };
+  state = {
+    movimentosAlterados: {},
   }
 
   handleChange = (valor, nome, movimento) => {
@@ -181,10 +178,35 @@ class MovimentosTable extends React.Component {
   defineDataSource = () => {
     const { movimentos, notas } = this.props;
     const dataSource = [];
+    let totais;
     Object.keys(movimentos).forEach((key) => {
       const movimento = movimentos[key];
       const notaFinal = notas[movimento.notaFinal];
       const notaInicial = notas[movimento.notaInicial];
+      const valores = {
+        key,
+        numero: notaFinal.geral.numero,
+        valorInicial: R$(notaInicial.valor.total),
+        valorFinal: R$(notaFinal.valor.total),
+        tipoMovimento: retornarTipo(notaFinal.geral.cfop),
+        lucro: R$(movimento.valores.lucro),
+        baseIcms: R$(movimento.valores.impostos.icms.baseDeCalculo),
+        icms: R$(movimento.valores.impostos.icms.proprio),
+        difalOrigem: movimento.valores.impostos.icms.difal ?
+          R$(movimento.valores.impostos.icms.difal.origem) :
+          '0,00',
+        difalDestino: movimento.valores.impostos.icms.difal ?
+          R$(movimento.valores.impostos.icms.difal.destino) :
+          '0,00',
+        pis: R$(movimento.valores.impostos.pis),
+        cofins: R$(movimento.valores.impostos.cofins),
+        csll: R$(movimento.valores.impostos.csll),
+        irpj: R$(movimento.valores.impostos.irpj),
+        total: R$(movimento.valores.impostos.total),
+      };
+
+      totais = somaTotalMovimento(valores, totais);
+
       dataSource.push({
         key,
         editar: (
@@ -289,6 +311,8 @@ class MovimentosTable extends React.Component {
         total: R$(movimento.valores.impostos.total),
       });
     });
+
+    dataSource.push(totais);
     return dataSource;
   }
 

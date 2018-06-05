@@ -1,7 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import ReactToPrint from 'react-to-print';
+import { Divider } from 'antd';
 
-import { R$, retornarTipo } from '../services';
+import { MovimentosTable, ServicosTable, TableToPrint } from '.';
+import { R$, retornarTipo, somaTotalMovimento, somaTotalServico } from '../services';
 
 class Printer extends React.Component {
   static propTypes = {
@@ -17,13 +20,13 @@ class Printer extends React.Component {
   defineTableMovimentos = () => {
     const { movimentos, notas } = this.props.dados;
     const printSource = [];
+    let totais;
 
     Object.keys(movimentos).forEach((key) => {
       const movimento = movimentos[key];
       const notaFinal = notas[movimento.notaFinal];
       const notaInicial = notas[movimento.notaInicial];
-
-      printSource.push({
+      const valores = {
         key,
         numero: notaFinal.geral.numero,
         valorInicial: R$(notaInicial.valor.total),
@@ -43,21 +46,27 @@ class Printer extends React.Component {
         csll: R$(movimento.valores.impostos.csll),
         irpj: R$(movimento.valores.impostos.irpj),
         total: R$(movimento.valores.impostos.total),
-      });
+      };
+
+      totais = somaTotalMovimento(valores, totais);
+
+      printSource.push(valores);
     });
+    printSource.push(totais);
     return printSource;
   }
 
   defineTableServicos = () => {
     const { servicos } = this.props.dados;
     const printSource = [];
+    let totais;
 
     Object.keys(servicos).forEach((key) => {
       const servico = servicos[key];
 
       const numero = parseInt(servico.nota.substring(18), 10);
 
-      printSource.push({
+      const valores = {
         key: servico.nota,
         nota: numero,
         status: servico.notaStatus,
@@ -75,9 +84,14 @@ class Printer extends React.Component {
         csll: R$(servico.valores.impostos.csll),
         irpj: R$(servico.valores.impostos.irpj),
         total: R$(servico.valores.impostos.total),
-      });
+      };
+
+      totais = somaTotalServico(valores, totais);
+
+      printSource.push(valores);
     });
 
+    printSource.push(totais);
     return printSource;
   }
 
@@ -85,21 +99,29 @@ class Printer extends React.Component {
     const dataTableMovimentos = this.defineTableMovimentos();
     const dataTableServicos = this.defineTableServicos();
 
-    // const printRef = React.createRef();
+    let printRef = React.createRef();
 
-    /* <ReactToPrint
-            trigger={() => <a href="#">Print this out!</a>}
-            content={() => printRef}
-          />
-          <div style={{ display: 'none' }}>
+    return (
+      <div>
+        <ReactToPrint
+          trigger={() => <a href="#">Print this out!</a>}
+          content={() => printRef}
+        />
+        <div style={{ display: 'none' }}>
+          <div ref={(el) => { printRef = el; }}>
             <TableToPrint
-              dataSource={printSource}
+              dataSource={dataTableMovimentos}
               columns={MovimentosTable.columns}
-              ref={(el) => { printRef = el; }}
             />
-          </div> */
-
-    return <div />;
+            <Divider />
+            <TableToPrint
+              dataSource={dataTableServicos}
+              columns={ServicosTable.columns}
+            />
+          </div>
+        </div>
+      </div>
+    );
   }
 }
 

@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Table, Row, Col, Popconfirm, Button } from 'antd';
 
-import { R$, excluirServico } from '../services';
+import { R$, excluirServico, somaTotalServico } from '../services';
 
 class ServicosTable extends React.Component {
   static propTypes = {
@@ -94,9 +94,33 @@ class ServicosTable extends React.Component {
   defineDataSource = () => {
     const dataSource = [];
     const { servicos } = this.props;
+    let totais;
+
     Object.keys(servicos).forEach((key) => {
       const servico = servicos[key];
       const numero = parseInt(servico.nota.substring(18), 10);
+      const valores = {
+        key: servico.nota,
+        nota: numero,
+        status: servico.notaStatus,
+        data: servico.data.toLocaleString('pt-br'),
+        valorServico: R$(servico.valores.impostos.baseDeCalculo),
+        issRetido: R$(servico.valores.impostos.retencoes.iss),
+        pisRetido: R$(servico.valores.impostos.retencoes.pis),
+        cofinsRetido: R$(servico.valores.impostos.retencoes.cofins),
+        csllRetido: R$(servico.valores.impostos.retencoes.csll),
+        irpjRetido: R$(servico.valores.impostos.retencoes.irpj),
+        totalRetido: R$(servico.valores.impostos.retencoes.total),
+        iss: R$(servico.valores.impostos.iss),
+        pis: R$(servico.valores.impostos.pis),
+        cofins: R$(servico.valores.impostos.cofins),
+        csll: R$(servico.valores.impostos.csll),
+        irpj: R$(servico.valores.impostos.irpj),
+        total: R$(servico.valores.impostos.total),
+      };
+
+      totais = somaTotalServico(valores, totais);
+
       dataSource.push({
         key: servico.nota,
         nota: (
@@ -126,6 +150,7 @@ class ServicosTable extends React.Component {
         total: R$(servico.valores.impostos.total),
       });
     });
+    dataSource.push(totais);
     return dataSource;
   }
 
