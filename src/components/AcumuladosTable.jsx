@@ -1,36 +1,85 @@
 import React from 'react';
-import { Table } from 'antd';
+import { Table, Row, Col } from 'antd';
+
+import { pegaMes, R$ } from '../services';
 
 class AcumuladosTable extends React.Component {
+  static columns = [{
+    title: 'Mês',
+    dataIndex: 'mes',
+    key: 'mes',
+  }, {
+    title: 'CSLL',
+    dataIndex: 'csll',
+    key: 'csll',
+  }, {
+    title: 'IRPJ',
+    dataIndex: 'irpj',
+    key: 'irpj',
+  }, {
+    title: 'Faturamento',
+    dataIndex: 'faturamento',
+    key: 'faturamento',
+  }];
+
   state = {}
 
-  render() {
-    const dataSource = [{
-      key: '1',
-      name: 'Mike',
-      age: 32,
-      address: '10 Downing Street',
-    }, {
-      key: '2',
-      name: 'John',
-      age: 42,
-      address: '10 Downing Street',
-    }];
+  defineDataSource = () => {
+    const { trimestre } = this.props.dados;
+    const dataSource = [];
 
-    const columns = [{
-      title: 'Name',
-      dataIndex: 'name',
-      key: 'name',
-    }, {
-      title: 'Age',
-      dataIndex: 'age',
-      key: 'age',
-    }, {
-      title: 'Address',
-      dataIndex: 'address',
-      key: 'address',
-    }];
-    return <Table dataSource={dataSource} columns={columns} />;
+    Object.keys(trimestre).forEach((key) => {
+
+      if (key === 'totais') {
+        const mes = <strong>Trimestre</strong>;
+        const el = trimestre[key];
+
+        dataSource.push({
+          key: `acumulado-${key}`,
+          mes,
+          csll: <strong>{R$(el.impostos.csll - el.impostos.retencoes.csll)}</strong>,
+          irpj: <strong>{R$(el.impostos.irpj - el.impostos.retencoes.irpj)}</strong>,
+          faturamento: <strong>{R$(el.lucro + el.servicos)}</strong>,
+        });
+      } else {
+        const mes = pegaMes(key);
+        const el = trimestre[key];
+
+        dataSource.push({
+          key: `acumulado-${key}`,
+          mes,
+          csll: R$(el.totais.impostos.csll - el.totais.impostos.retencoes.csll),
+          irpj: R$(el.totais.impostos.irpj - el.totais.impostos.retencoes.irpj),
+          faturamento: R$(el.totais.lucro + el.totais.servicos),
+        });
+      }
+    });
+
+    return dataSource;
+  }
+
+  render() {
+    const dataSource = this.defineDataSource();
+
+    return (
+      <Row
+        type="flex"
+        justify="center"
+      >
+        <Col span={23}>
+          <Table
+            bordered
+            size="small"
+            columns={AcumuladosTable.columns}
+            dataSource={dataSource}
+            pagination={{ position: 'none' }}
+            style={{
+              marginBottom: '20px',
+            }}
+          />
+        </Col>
+      </Row>
+    );
   }
 }
 

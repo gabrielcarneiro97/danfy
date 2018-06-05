@@ -98,7 +98,7 @@ class MovimentosTable extends React.Component {
     }
 
     if (nome === 'icms') {
-      movimentoNovo.impostos.icms.proprio = floating(valor);
+      movimentoNovo.valores.impostos.icms.proprio = floating(valor);
     } else if (nome === 'baseIcms') {
       movimentoNovo.valores.impostos.icms.baseDeCalculo = floating(valor);
     } else if (nome === 'difalDestino' || nome === 'difalOrigem') {
@@ -333,6 +333,9 @@ class MovimentosTable extends React.Component {
             columns={MovimentosTable.columns}
             dataSource={dataSource}
             scroll={{ x: '250%' }}
+            style={{
+              marginBottom: '20px',
+            }}
             pagination={{ position: 'top' }}
           />
         </Col>

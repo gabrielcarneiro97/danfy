@@ -1,29 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import ReactToPrint from 'react-to-print';
-import { Divider, Row, Col } from 'antd';
+import { Divider, Row, Col, Button } from 'antd';
 
-import { MovimentosTable, ServicosTable, TableToPrint } from '.';
-import { R$, retornarTipo, somaTotalMovimento, somaTotalServico } from '../services';
+import { MovimentosTable, ServicosTable, TableToPrint, AcumuladosTable } from '.';
+import { R$, retornarTipo, somaTotalMovimento, somaTotalServico, pegaMes } from '../services';
 
 import './Printer.css';
-
-function pegaMes(mes) {
-  return {
-    1: 'Janeiro',
-    2: 'Fevereiro',
-    3: 'Março',
-    4: 'Abril',
-    5: 'Maio',
-    6: 'Junho',
-    7: 'Julho',
-    8: 'Agosto',
-    9: 'Setembro',
-    10: 'Outubro',
-    11: 'Novembro',
-    12: 'Dezembro',
-  }[mes];
-}
 
 class Printer extends React.Component {
   static propTypes = {
@@ -230,10 +213,44 @@ class Printer extends React.Component {
     };
   }
 
+  defineTableAcumulados = () => {
+    const { trimestre } = this.props.dados;
+    const dataSource = [];
+
+    Object.keys(trimestre).forEach((key) => {
+      if (key === 'totais') {
+        const mes = <strong>Trimestre</strong>;
+        const el = trimestre[key];
+
+        dataSource.push({
+          key: `acumulado-${key}`,
+          mes,
+          csll: <strong>{R$(el.impostos.csll - el.impostos.retencoes.csll)}</strong>,
+          irpj: <strong>{R$(el.impostos.irpj - el.impostos.retencoes.irpj)}</strong>,
+          faturamento: <strong>{R$(el.lucro + el.servicos)}</strong>,
+        });
+      } else {
+        const mes = pegaMes(key);
+        const el = trimestre[key];
+
+        dataSource.push({
+          key: `acumulado-${key}`,
+          mes,
+          csll: R$(el.totais.impostos.csll - el.totais.impostos.retencoes.csll),
+          irpj: R$(el.totais.impostos.irpj - el.totais.impostos.retencoes.irpj),
+          faturamento: R$(el.totais.lucro + el.totais.servicos),
+        });
+      }
+    });
+
+    return dataSource;
+  }
+
   render() {
     const { dados } = this.props;
     const dataTableMovimentos = this.defineTableMovimentos();
     const dataTableServicos = this.defineTableServicos();
+    const dataTableAcumulados = this.defineTableAcumulados();
     const { dataSourceGuias, columnsGuias } = this.defineTableGuias();
 
     let printRef = React.createRef();
@@ -241,7 +258,7 @@ class Printer extends React.Component {
     return (
       <div>
         <ReactToPrint
-          trigger={() => <a href="#">Print this out!</a>}
+          trigger={() => <Button>Imprimir</Button>}
           content={() => printRef}
         />
         <div style={{ display: 'none' }}>
@@ -298,6 +315,16 @@ class Printer extends React.Component {
                 <TableToPrint
                   dataSource={dataSourceGuias}
                   columns={columnsGuias}
+                />
+              </Col>
+              <Divider />
+              <Col span={24}>
+                <h3 className="table-title">
+                  Acumulados
+                </h3>
+                <TableToPrint
+                  dataSource={dataTableAcumulados}
+                  columns={AcumuladosTable.columns}
                 />
               </Col>
             </Row>

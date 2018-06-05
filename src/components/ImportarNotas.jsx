@@ -1,5 +1,5 @@
 import React from 'react';
-import { Steps, Button, Icon, Popconfirm } from 'antd';
+import { Steps, Button, Icon, Popconfirm, message } from 'antd';
 
 import { EnviarArquivos, AdicionarEmpresa, ConciliarMovimentos, ConciliarServicos } from '.';
 import { pegarDominio, gravarMovimentos, gravarServicos } from '../services';
@@ -166,7 +166,8 @@ class ImportarNotas extends React.Component {
 
     const fim = () => {
       if (movimentosGravados && servicosGravados) {
-        console.log('aqui');
+        message.success('Tudo gravado com sucesso!');
+        this.props.history.push('/app/visualizar');
       }
     };
 

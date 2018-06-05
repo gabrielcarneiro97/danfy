@@ -1,5 +1,6 @@
 import React from 'react';
 import axios from 'axios';
+import { Row, Col } from 'antd';
 
 import { VisualizarForm, VisualizarTables, Printer } from '.';
 import { api } from '../services';
@@ -68,9 +69,11 @@ class VisualizarMovimento extends React.Component {
             onSubmit={this.handleSubmit}
           />
         </div>
-        <div>
-          {this.state.printer}
-        </div>
+        <Row type="flex" justify="end" style={{ marginTop: '3px' }}>
+          <Col span={23} style={{ textAlign: 'right' }}>
+            {this.state.printer}
+          </Col>
+        </Row>
         <div style={{ marginTop: '30px' }}>
           {this.state.tables}
         </div>
