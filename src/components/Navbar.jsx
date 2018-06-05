@@ -3,7 +3,7 @@ import { withRouter } from 'react-router-dom';
 import { Row, Col, Icon } from 'antd';
 import PropTypes from 'prop-types';
 
-import { auth } from '../services';
+import { auth, version } from '../services';
 
 import './Navbar.css';
 
@@ -20,7 +20,7 @@ function Navbar(props) {
 
   return (
     <Row style={{ color: '#FFF' }}>
-      <Col span={12}>DANFY</Col>
+      <Col span={12}>DANFY {version}</Col>
       <Col span={12} style={{ textAlign: 'right' }}>
         {
           // eslint-disable-next-line
