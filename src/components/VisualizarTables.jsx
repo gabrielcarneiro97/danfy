@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Steps, Button, Row, Col } from 'antd';
-import { MovimentosTable, ServicosTable, GuiasTable } from '.';
+import { MovimentosTable, ServicosTable, GuiasTable, AcumuladosTable } from '.';
 
 import './VisualizarTables.css';
 
@@ -79,6 +79,12 @@ class VisualizarTables extends React.Component {
     } else if (current === 2) {
       content = (
         <GuiasTable
+          dados={dados}
+        />
+      );
+    } else if (current === 3) {
+      content = (
+        <AcumuladosTable
           dados={dados}
         />
       );

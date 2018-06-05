@@ -9,7 +9,7 @@ class GuiasTable extends React.Component {
   temServicos = () => Object.keys(this.props.dados.servicos).length > 0;
   temMovimentos = () => Object.keys(this.props.dados.movimentos).length > 0;
 
-  render() {
+  gerarTable = () => {
     const { complementares, trimestre } = this.props.dados;
     const columns = [];
     const dataSource = [];
@@ -42,8 +42,8 @@ class GuiasTable extends React.Component {
     });
 
     data.pis = R$((trimestre[complementares.mes].totais.impostos.pis -
-    trimestre[complementares.mes].totais.impostos.retencoes.pis) +
-    trimestre[complementares.mes].totais.impostos.acumulado.pis);
+      trimestre[complementares.mes].totais.impostos.retencoes.pis) +
+      trimestre[complementares.mes].totais.impostos.acumulado.pis);
 
     columns.push({
       title: 'COFINS',
@@ -113,7 +113,15 @@ class GuiasTable extends React.Component {
 
     dataSource.push(data);
 
-    console.log(this.temServicos(), this.temMovimentos());
+    return {
+      dataSource,
+      columns,
+    };
+  }
+
+  render() {
+    const { dataSource, columns } = this.gerarTable();
+
     return (
       <Row
         type="flex"

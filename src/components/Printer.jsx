@@ -6,6 +6,8 @@ import { Divider, Row, Col } from 'antd';
 import { MovimentosTable, ServicosTable, TableToPrint } from '.';
 import { R$, retornarTipo, somaTotalMovimento, somaTotalServico } from '../services';
 
+import './Printer.css';
+
 function pegaMes(mes) {
   return {
     1: 'Janeiro',
@@ -33,6 +35,9 @@ class Printer extends React.Component {
   }
 
   state = {}
+
+  temServicos = () => Object.keys(this.props.dados.servicos).length > 0;
+  temMovimentos = () => Object.keys(this.props.dados.movimentos).length > 0;
 
   defineTableMovimentos = () => {
     const { movimentos, notas } = this.props.dados;
@@ -115,10 +120,121 @@ class Printer extends React.Component {
     return printSource;
   }
 
+  defineTableGuias = () => {
+    const { complementares, trimestre } = this.props.dados;
+    const columnsGuias = [];
+    const dataSourceGuias = [];
+    const data = {};
+
+    if (this.temMovimentos()) {
+      columnsGuias.push({
+        title: 'ICMS',
+        dataIndex: 'icms',
+        key: 'icms',
+      });
+      data.icms = R$(trimestre[complementares.mes].totais.impostos.icms.proprio +
+        trimestre[complementares.mes].totais.impostos.icms.difal.origem);
+    }
+
+    if (this.temServicos()) {
+      columnsGuias.push({
+        title: 'ISS',
+        dataIndex: 'iss',
+        key: 'iss',
+      });
+      data.iss = R$(trimestre[complementares.mes].totais.impostos.iss -
+        trimestre[complementares.mes].totais.impostos.retencoes.iss);
+    }
+
+    columnsGuias.push({
+      title: 'PIS',
+      dataIndex: 'pis',
+      key: 'pis',
+    });
+
+    data.pis = R$((trimestre[complementares.mes].totais.impostos.pis -
+      trimestre[complementares.mes].totais.impostos.retencoes.pis) +
+      trimestre[complementares.mes].totais.impostos.acumulado.pis);
+
+    columnsGuias.push({
+      title: 'COFINS',
+      dataIndex: 'cofins',
+      key: 'cofins',
+    });
+
+    data.cofins = R$((trimestre[complementares.mes].totais.impostos.cofins -
+      trimestre[complementares.mes].totais.impostos.retencoes.cofins) +
+      trimestre[complementares.mes].totais.impostos.acumulado.cofins);
+
+    if (parseInt(complementares.mes, 10) % 3 === 0 &&
+      complementares.formaPagamento !== 'PAGAMENTO ANTECIPADO') {
+      columnsGuias.push({
+        title: 'CSLL',
+        dataIndex: 'csll',
+        key: 'csll',
+      });
+      data.csll = R$(trimestre.totais.impostos.csll - trimestre.totais.impostos.retencoes.csll);
+
+      columnsGuias.push({
+        title: 'IRPJ + ADICIONAL',
+        dataIndex: 'irpj',
+        key: 'irpj',
+      });
+      data.irpj = R$((trimestre.totais.impostos.irpj -
+        trimestre.totais.impostos.retencoes.irpj) +
+        trimestre.totais.impostos.adicionalIr);
+    } else if (parseInt(complementares.mes, 10) % 3 !== 0 &&
+      complementares.formaPagamento === 'PAGAMENTO ANTECIPADO') {
+      columnsGuias.push({
+        title: 'CSLL',
+        dataIndex: 'csll',
+        key: 'csll',
+      });
+      data.csll = R$(trimestre[complementares.mes].totais.impostos.csll -
+        trimestre[complementares.mes].totais.impostos.retencoes.csll);
+
+      columnsGuias.push({
+        title: 'IRPJ',
+        dataIndex: 'irpj',
+        key: 'irpj',
+      });
+      data.irpj = R$(trimestre[complementares.mes].totais.impostos.irpj -
+        trimestre[complementares.mes].totais.impostos.retencoes.irpj);
+    } else if (parseInt(complementares.mes, 10) % 3 === 0 &&
+      complementares.formaPagamento === 'PAGAMENTO ANTECIPADO') {
+      columnsGuias.push({
+        title: 'CSLL',
+        dataIndex: 'csll',
+        key: 'csll',
+      });
+      data.csll = R$(trimestre[complementares.mes].totais.impostos.csll -
+        trimestre[complementares.mes].totais.impostos.retencoes.csll);
+
+      columnsGuias.push({
+        title: 'IRPJ + ADICIONAL',
+        dataIndex: 'irpj',
+        key: 'irpj',
+      });
+      data.irpj = R$((trimestre[complementares.mes].totais.impostos.irpj -
+        trimestre[complementares.mes].totais.impostos.retencoes.irpj) +
+        trimestre.totais.impostos.adicionalIr);
+    }
+
+    data.key = 'guias';
+
+    dataSourceGuias.push(data);
+
+    return {
+      dataSourceGuias,
+      columnsGuias,
+    };
+  }
+
   render() {
     const { dados } = this.props;
     const dataTableMovimentos = this.defineTableMovimentos();
     const dataTableServicos = this.defineTableServicos();
+    const { dataSourceGuias, columnsGuias } = this.defineTableGuias();
 
     let printRef = React.createRef();
 
@@ -147,12 +263,10 @@ class Printer extends React.Component {
                 dataTableMovimentos.length !== 0
                 &&
                 <React.Fragment>
-                  <Col span={22} offset={2}>
-                    <h3>
+                  <Col span={24}>
+                    <h3 className="table-title">
                       Relatório de Vendas
                     </h3>
-                  </Col>
-                  <Col span={24}>
                     <TableToPrint
                       dataSource={dataTableMovimentos}
                       columns={MovimentosTable.columns}
@@ -165,12 +279,10 @@ class Printer extends React.Component {
                 dataTableServicos.length !== 0
                 &&
                 <React.Fragment>
-                  <Col span={22} offset={2}>
-                    <h3>
+                  <Col span={24}>
+                    <h3 className="table-title">
                       Relatório de Serviços Prestados
                     </h3>
-                  </Col>
-                  <Col span={24}>
                     <TableToPrint
                       dataSource={dataTableServicos}
                       columns={ServicosTable.columns}
@@ -178,6 +290,16 @@ class Printer extends React.Component {
                   </Col>
                 </React.Fragment>
               }
+              <Divider />
+              <Col span={24}>
+                <h3 className="table-title">
+                  Relatório de Guias
+                </h3>
+                <TableToPrint
+                  dataSource={dataSourceGuias}
+                  columns={columnsGuias}
+                />
+              </Col>
             </Row>
           </div>
         </div>
