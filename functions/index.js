@@ -137,7 +137,6 @@ exports.pegarNotaProduto = functions.https.onRequest((request, response) => {
 
 exports.pegarTudoTrimestre = functions.https.onRequest((request, response) => {
   cors(request, response, () => {
-    console.log('v1')
     let data = {}
     let cnpj = request.query.cnpj // '10224776000149'
     let mes = request.query.mes
@@ -172,10 +171,12 @@ exports.pegarTudoTrimestre = functions.https.onRequest((request, response) => {
           pegarNotaChave(m.notaInicial, (err, n1) => {
             if (err) {
               data.err = err
+              console.error(err);
             } else {
               pegarNotaChave(m.notaFinal, (err, n2) => {
                 if (err) {
                   data.err = err
+                  console.error(err);
                 } else {
                   notas[n1.chave] = n1
                   notas[n2.chave] = n2

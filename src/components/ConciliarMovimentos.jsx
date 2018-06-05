@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { Icon, Col, Row, Table, Checkbox } from 'antd';
 
 import { NotaInicial } from '.';
-import { auth, pegarDominioId } from '../services';
+import { auth, pegarDominioId, api } from '../services';
 
 class ConciliarMovimentos extends React.Component {
   static propTypes = {
@@ -72,10 +72,7 @@ class ConciliarMovimentos extends React.Component {
         email,
       };
 
-      const gerarMovimentos = 'https://us-central1-danfy-4d504.cloudfunctions.net/gerarMovimentos';
-
-      axios
-        .post(gerarMovimentos, { notasFinais, usuario })
+      axios.post(`${api}/movimentos`, { notasFinais, usuario })
         .then((res) => {
           const { movimentos, notasIniciais } = res.data;
           dados.nfe = dados.nfe.concat(notasIniciais);

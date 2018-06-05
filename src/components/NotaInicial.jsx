@@ -39,40 +39,36 @@ class NotaInicial extends React.Component {
   handleClick = () => {
     const { movimento, notaFinal } = this.props;
     if (movimento.notaInicial) {
-      axios
-        .get(`${api}/valoresMovimento`, {
-          params: {
-            notaFinal: movimento.notaFinal,
-            cnpj: notaFinal.emitente,
-          },
-        })
-        .then((res) => {
-          this.setState({ valorInput: '' });
-          this.props.onChange({
-            ...movimento,
-            conferido: false,
-            notaInicial: null,
-            valores: res.data,
-          });
+      axios.get(`${api}/valoresMovimento`, {
+        params: {
+          notaFinal: movimento.notaFinal,
+          cnpj: notaFinal.emitente,
+        },
+      }).then((res) => {
+        this.setState({ valorInput: '' });
+        this.props.onChange({
+          ...movimento,
+          conferido: false,
+          notaInicial: null,
+          valores: res.data,
         });
+      });
     } else if (!Number.isNaN(floating(this.state.valorInput))) {
-      axios
-        .get(`${api}/movimentoSlim`, {
-          params: {
-            valorInicial: floating(this.state.valorInput),
-            notaFinal: movimento.notaFinal,
-            cnpj: notaFinal.emitente,
-          },
-        })
-        .then((res) => {
-          this.setState({ valorInput: 'INTERNO' });
-          this.props.onChange({
-            ...movimento,
-            conferido: false,
-            notaInicial: res.data.notaInicial.chave,
-            valores: res.data.valores,
-          }, res.data.notaInicial);
-        });
+      axios.get(`${api}/movimentoSlim`, {
+        params: {
+          valorInicial: floating(this.state.valorInput),
+          notaFinal: movimento.notaFinal,
+          cnpj: notaFinal.emitente,
+        },
+      }).then((res) => {
+        this.setState({ valorInput: 'INTERNO' });
+        this.props.onChange({
+          ...movimento,
+          conferido: false,
+          notaInicial: res.data.notaInicial.chave,
+          valores: res.data.valores,
+        }, res.data.notaInicial);
+      });
     }
   };
 

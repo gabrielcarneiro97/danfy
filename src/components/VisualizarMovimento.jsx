@@ -1,6 +1,8 @@
 import React from 'react';
 import axios from 'axios';
+
 import { VisualizarForm, VisualizarTables } from '.';
+import { api } from '../services';
 
 import './VisualizarMovimento.css';
 
@@ -25,7 +27,7 @@ class VisualizarMovimento extends React.Component {
   }
 
   handleSubmit = ({ cnpj, mes, ano }) => {
-    axios.get('https://us-central1-danfy-4d504.cloudfunctions.net/pegarTudoTrimestre', {
+    axios.get(`${api}/trimestre`, {
       params: {
         cnpj,
         mes,
@@ -35,6 +37,7 @@ class VisualizarMovimento extends React.Component {
       this.setState({
         dados: res.data,
       }, () => {
+        console.log(res);
         this.setState({
           tables: (
             <VisualizarTables
