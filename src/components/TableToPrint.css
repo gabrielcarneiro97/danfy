@@ -6,8 +6,10 @@
 .table-print {
   background-color: white;
   text-align: center;
-  margin: 20px;
-  font-size: 12px;
+  margin-left: 5%;
+  margin-bottom: 5%;
+  font-size: 8px;
+  width: 90%;
 }
 
 .table-print td, .table-print th {

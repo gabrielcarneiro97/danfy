@@ -10,6 +10,10 @@ class TableToPrint extends React.Component {
 
     console.log(dataSource);
 
+    if (dataSource.length === 0) {
+      return <div />;
+    }
+
     const headRows = [];
     const keyOrder = [];
     headRows[0] = [];
@@ -37,15 +41,16 @@ class TableToPrint extends React.Component {
           content: <th key={el.key} rowSpan="2">{el.title}</th>,
         });
       }
-
     });
 
     dataSource.forEach((element, num) => {
       dataRows[num] = [];
-      Object.keys(element).forEach((key) => {
-        const index = keyOrder.indexOf(key);
-        dataRows[num][index] = <td key={`${element.key}-${key}`}>{element[key]}</td>;
-      });
+      if (element) {
+        Object.keys(element).forEach((key) => {
+          const index = keyOrder.indexOf(key);
+          dataRows[num][index] = <td key={`${element.key}-${key}`}>{element[key]}</td>;
+        });
+      }
     });
 
     return (

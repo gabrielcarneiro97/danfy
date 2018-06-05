@@ -28,7 +28,12 @@ class VisualizarMovimento extends React.Component {
     });
   }
 
-  handleSubmit = ({ cnpj, mes, ano }) => {
+  handleSubmit = (dados) => {
+    const {
+      cnpj,
+      mes,
+      ano,
+    } = dados;
     axios.get(`${api}/trimestre`, {
       params: {
         cnpj,
@@ -37,7 +42,10 @@ class VisualizarMovimento extends React.Component {
       },
     }).then((res) => {
       this.setState({
-        dados: { ...res.data, mes },
+        dados: {
+          ...res.data,
+          complementares: dados,
+        },
       }, () => {
         this.setState({
           printer: <Printer dados={this.state.dados} />,

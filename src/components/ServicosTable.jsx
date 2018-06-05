@@ -150,7 +150,9 @@ class ServicosTable extends React.Component {
         total: R$(servico.valores.impostos.total),
       });
     });
-    dataSource.push(totais);
+    if (totais) {
+      dataSource.push(totais);
+    }
     return dataSource;
   }
 

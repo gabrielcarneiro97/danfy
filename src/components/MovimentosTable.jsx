@@ -312,7 +312,9 @@ class MovimentosTable extends React.Component {
       });
     });
 
-    dataSource.push(totais);
+    if (totais) {
+      dataSource.push(totais);
+    }
     return dataSource;
   }
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Steps, Button, Row, Col } from 'antd';
-import { MovimentosTable, ServicosTable } from '.';
+import { MovimentosTable, ServicosTable, GuiasTable } from '.';
 
 import './VisualizarTables.css';
 
@@ -77,7 +77,11 @@ class VisualizarTables extends React.Component {
         />
       );
     } else if (current === 2) {
-      content = 'Last-Content';
+      content = (
+        <GuiasTable
+          dados={dados}
+        />
+      );
     }
     return content;
   }
@@ -93,7 +97,9 @@ class VisualizarTables extends React.Component {
     }, {
       title: 'Serviços',
     }, {
-      title: 'Acumulado',
+      title: 'Guias',
+    }, {
+      title: 'Acumulados',
     }];
 
     return (
@@ -125,7 +131,7 @@ class VisualizarTables extends React.Component {
             </Col>
           </Row>
         </div>
-        <div className="steps-content">{content}</div>
+        <div className="steps-content-tables">{content}</div>
       </div>
     );
   }

@@ -35,6 +35,8 @@ class VisualizarForm extends React.Component {
       cnpj: this.state.pessoa.cnpj,
       mes: this.state.mes,
       ano: this.state.ano,
+      nome: this.state.pessoa.nome,
+      formaPagamento: this.state.pessoa.formaPagamento,
     });
   }
 

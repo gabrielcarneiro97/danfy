@@ -1,10 +1,27 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import ReactToPrint from 'react-to-print';
-import { Divider } from 'antd';
+import { Divider, Row, Col } from 'antd';
 
 import { MovimentosTable, ServicosTable, TableToPrint } from '.';
 import { R$, retornarTipo, somaTotalMovimento, somaTotalServico } from '../services';
+
+function pegaMes(mes) {
+  return {
+    1: 'Janeiro',
+    2: 'Fevereiro',
+    3: 'Março',
+    4: 'Abril',
+    5: 'Maio',
+    6: 'Junho',
+    7: 'Julho',
+    8: 'Agosto',
+    9: 'Setembro',
+    10: 'Outubro',
+    11: 'Novembro',
+    12: 'Dezembro',
+  }[mes];
+}
 
 class Printer extends React.Component {
   static propTypes = {
@@ -52,7 +69,9 @@ class Printer extends React.Component {
 
       printSource.push(valores);
     });
-    printSource.push(totais);
+    if (totais) {
+      printSource.push(totais);
+    }
     return printSource;
   }
 
@@ -90,12 +109,14 @@ class Printer extends React.Component {
 
       printSource.push(valores);
     });
-
-    printSource.push(totais);
+    if (totais) {
+      printSource.push(totais);
+    }
     return printSource;
   }
 
   render() {
+    const { dados } = this.props;
     const dataTableMovimentos = this.defineTableMovimentos();
     const dataTableServicos = this.defineTableServicos();
 
@@ -108,16 +129,56 @@ class Printer extends React.Component {
           content={() => printRef}
         />
         <div style={{ display: 'none' }}>
-          <div ref={(el) => { printRef = el; }}>
-            <TableToPrint
-              dataSource={dataTableMovimentos}
-              columns={MovimentosTable.columns}
-            />
+          <div ref={(el) => { printRef = el; }} style={{ padding: '10px' }}>
+            <h2
+              style={{
+                width: '100%',
+                textAlign: 'center',
+                marginTop: '2%',
+              }}
+            >
+              {dados
+                .complementares
+                .nome} - {pegaMes(dados.complementares.mes)}/{dados.complementares.ano}
+            </h2>
             <Divider />
-            <TableToPrint
-              dataSource={dataTableServicos}
-              columns={ServicosTable.columns}
-            />
+            <Row type="flex" justify="center">
+              {
+                dataTableMovimentos.length !== 0
+                &&
+                <React.Fragment>
+                  <Col span={22} offset={2}>
+                    <h3>
+                      Relatório de Vendas
+                    </h3>
+                  </Col>
+                  <Col span={24}>
+                    <TableToPrint
+                      dataSource={dataTableMovimentos}
+                      columns={MovimentosTable.columns}
+                    />
+                  </Col>
+                </React.Fragment>
+              }
+              <Divider />
+              {
+                dataTableServicos.length !== 0
+                &&
+                <React.Fragment>
+                  <Col span={22} offset={2}>
+                    <h3>
+                      Relatório de Serviços Prestados
+                    </h3>
+                  </Col>
+                  <Col span={24}>
+                    <TableToPrint
+                      dataSource={dataTableServicos}
+                      columns={ServicosTable.columns}
+                    />
+                  </Col>
+                </React.Fragment>
+              }
+            </Row>
           </div>
         </div>
       </div>
