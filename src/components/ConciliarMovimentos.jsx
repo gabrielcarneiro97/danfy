@@ -31,6 +31,18 @@ class ConciliarMovimentos extends React.Component {
     title: 'Nota Final',
     dataIndex: 'notaFinal',
     key: 'notaFinal',
+    defaultSortOrder: 'ascend',
+    sorter: (a, b) => {
+      if (!a.notaFinal) {
+        return 1;
+      } else if (!b.notaFinal) {
+        return -1;
+      }
+      if (a.notaFinal > b.notaFinal) {
+        return 1;
+      }
+      return -1;
+    },
   }, {
     title: 'Base Impostos',
     dataIndex: 'baseImpostos',
