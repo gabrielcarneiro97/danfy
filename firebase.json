@@ -1,12 +1,5 @@
 {
-  "functions": {
-    "predeploy": [
-    ]
-  },
   "hosting": {
-    "public": "dist",
-    "predeploy": [
-      "webpack --progress --hide-modules --mode=production"
-    ]
+    "public": "build"
   }
 }
