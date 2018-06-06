@@ -1,7 +1,8 @@
 import firebase from 'firebase';
 import axios from 'axios';
 
-import { firebaseConfig, api } from '.';
+import { api } from '.';
+import { firebaseConfig } from './private';
 
 
 export const firebaseApp = firebase.initializeApp(firebaseConfig);

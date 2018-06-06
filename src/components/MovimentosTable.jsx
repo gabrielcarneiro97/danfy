@@ -22,6 +22,37 @@ class MovimentosTable extends React.Component {
     dataIndex: 'numero',
     key: 'numero',
     fixed: true,
+    defaultSortOrder: 'ascend',
+    sorter: (a, b) => {
+      if (!a.numero.numero) {
+        return 1;
+      } else if (!b.numero.numero) {
+        return -1;
+      }
+      if (a.numero.numero > b.numero.numero) {
+        return 1;
+      }
+      return -1;
+    },
+    render: (data) => {
+      if (data.$$typeof) {
+        return data;
+      }
+      return (
+        <Popconfirm
+          title="Deseja mesmo excluir esse movimento?"
+          okText="Sim"
+          cancelText="Não"
+          onConfirm={() => this.cancelarMovimento(data.key, data.emitente)}
+        >
+          <Button
+            type="ghost"
+          >
+            {data.numero}
+          </Button>
+        </Popconfirm>
+      );
+    },
   }, {
     title: 'Valor Nota Inicial',
     dataIndex: 'valorInicial',
@@ -223,20 +254,11 @@ class MovimentosTable extends React.Component {
             />
           </Popconfirm>
         ),
-        numero: (
-          <Popconfirm
-            title="Deseja mesmo excluir esse movimento?"
-            okText="Sim"
-            cancelText="Não"
-            onConfirm={() => this.cancelarMovimento(key, notaFinal.emitente)}
-          >
-            <Button
-              type="ghost"
-            >
-              {notaFinal.geral.numero}
-            </Button>
-          </Popconfirm>
-        ),
+        numero: {
+          key,
+          numero: notaFinal.geral.numero,
+          emitente: notaFinal.emitente,
+        },
         valorInicial: R$(notaInicial.valor.total),
         valorFinal: R$(notaFinal.valor.total),
         tipoMovimento: retornarTipo(notaFinal.geral.cfop),
