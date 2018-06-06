@@ -1,6 +1,8 @@
 import firebase from 'firebase';
+import axios from 'axios';
 
-import { firebaseConfig } from './private';
+import { firebaseConfig, api } from '.';
+
 
 export const firebaseApp = firebase.initializeApp(firebaseConfig);
 
@@ -69,7 +71,47 @@ export function gravarMovimentos(movimentos) {
 
       if (movimentos[cnpj]) {
         movimentos[cnpj].forEach((mov) => {
-          const movimento = mov;
+          let movimento = mov;
+          const gravar = () => {
+            if (movimento.notaInicial) {
+              db.ref(`Movimentos/${cnpj}`).push(movimento, (err) => {
+                if (arr.length - 1 === index && err) {
+                  reject(err);
+                } else if (arr.length - 1 === index && erros.length > 0) {
+                  reject(erros);
+                } else if (arr.length - 1 === index) {
+                  resolve();
+                }
+              });
+            } else {
+              axios.get(`${api}/movimentoSlim`, {
+                params: {
+                  valorInicial: 0,
+                  notaFinal: movimento.notaFinal,
+                  cnpj,
+                },
+              }).then(({ data }) => {
+                const { valores, notaInicial } = data;
+                const notaInicialChave = notaInicial.chave;
+
+                movimento = {
+                  ...movimento,
+                  valores,
+                  notaInicial: notaInicialChave,
+                };
+
+                db.ref(`Movimentos/${cnpj}`).push(movimento, (err) => {
+                  if (arr.length - 1 === index && err) {
+                    reject(err);
+                  } else if (arr.length - 1 === index && erros.length > 0) {
+                    reject(erros);
+                  } else if (arr.length - 1 === index) {
+                    resolve();
+                  }
+                });
+              });
+            }
+          };
           let erro;
           db.ref(`Movimentos/${cnpj}`).orderByChild('notaFinal').equalTo(movimento.notaFinal).once('value', (snap) => {
             const movimentosRelacionados = snap.val();
@@ -91,25 +133,9 @@ export function gravarMovimentos(movimentos) {
                   erros.push(erro);
                 }
               });
-              db.ref(`Movimentos/${cnpj}`).push(movimento, (err) => {
-                if (arr.length - 1 === index && err) {
-                  reject(err);
-                } else if (arr.length - 1 === index && erros.length > 0) {
-                  reject(erros);
-                } else if (arr.length - 1 === index) {
-                  resolve();
-                }
-              });
+              gravar();
             } else {
-              db.ref(`Movimentos/${cnpj}`).push(movimento, (err) => {
-                if (arr.length - 1 === index && err) {
-                  reject(err);
-                } else if (arr.length - 1 === index && erros.length > 0) {
-                  reject(erros);
-                } else if (arr.length - 1 === index) {
-                  resolve();
-                }
-              });
+              gravar();
             }
           });
         });
