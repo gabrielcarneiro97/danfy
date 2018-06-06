@@ -53,7 +53,7 @@ class Printer extends React.Component {
         total: R$(movimento.valores.impostos.total),
       };
 
-      totais = somaTotalMovimento(valores, totais);
+      totais = somaTotalMovimento(valores, totais, retornarTipo(notaFinal.geral.cfop));
 
       printSource.push(valores);
     });

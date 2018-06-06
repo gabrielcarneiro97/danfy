@@ -96,7 +96,13 @@ export function somaTotalMovimento(movimento, total) {
     };
   }
   Object.keys(retorno).forEach((key) => {
-    if (key !== 'editar' && key !== 'numero' && key !== 'key' && key !== 'tipoMovimento') {
+    if (key !== 'editar' &&
+      key !== 'numero' &&
+      key !== 'key' &&
+      key !== 'tipoMovimento' &&
+      key !== 'valorFinal') {
+      retorno[key] = R$(floating(retorno[key]) + floating(movimento[key]));
+    } else if (key === 'valorFinal' && movimento.tipoMovimento !== 'DEVOLUÇÃO DE VENDA') {
       retorno[key] = R$(floating(retorno[key]) + floating(movimento[key]));
     }
   });

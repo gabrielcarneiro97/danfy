@@ -38,12 +38,13 @@ class MovimentosTable extends React.Component {
       if (data.$$typeof) {
         return data;
       }
+
       return (
         <Popconfirm
           title="Deseja mesmo excluir esse movimento?"
           okText="Sim"
           cancelText="Não"
-          onConfirm={() => this.cancelarMovimento(data.key, data.emitente)}
+          onConfirm={() => data.cancelarMovimento(data.key, data.emitente)}
         >
           <Button
             type="ghost"
@@ -214,6 +215,7 @@ class MovimentosTable extends React.Component {
       const movimento = movimentos[key];
       const notaFinal = notas[movimento.notaFinal];
       const notaInicial = notas[movimento.notaInicial];
+      console.log(movimento.metaDados.status);
       const valores = {
         key,
         numero: notaFinal.geral.numero,
@@ -258,6 +260,7 @@ class MovimentosTable extends React.Component {
           key,
           numero: notaFinal.geral.numero,
           emitente: notaFinal.emitente,
+          cancelarMovimento: this.cancelarMovimento,
         },
         valorInicial: R$(notaInicial.valor.total),
         valorFinal: R$(notaFinal.valor.total),

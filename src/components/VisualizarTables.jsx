@@ -65,6 +65,8 @@ class VisualizarTables extends React.Component {
         <MovimentosTable
           movimentos={dados.movimentos}
           notas={dados.notas}
+          trimestre={dados.trimestre}
+          complementares={dados.complementares}
           onChange={this.movimentosHandleChange}
         />
       );
