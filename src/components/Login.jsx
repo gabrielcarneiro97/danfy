@@ -12,8 +12,6 @@ const { Content } = Layout;
 function Login(props) {
   const { from } = props.location.state || { from: { pathname: '/app' } };
 
-  // console.log(from);
-
   if (auth.currentUser !== null) {
     return <Redirect to={from} />;
   }
