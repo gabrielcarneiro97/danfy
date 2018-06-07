@@ -27,7 +27,7 @@ class Printer extends React.Component {
 
   defineTableMovimentos = () => {
     const { movimentos, notas } = this.props.dados;
-    const printSource = [];
+    let printSource = [];
     let totais;
 
     Object.keys(movimentos).forEach((key) => {
@@ -60,6 +60,19 @@ class Printer extends React.Component {
 
       printSource.push(valores);
     });
+
+    printSource = printSource.sort((a, b) => {
+      if (!a.numero) {
+        return 1;
+      } else if (!b.numero) {
+        return -1;
+      }
+      if (a.numero > b.numero) {
+        return 1;
+      }
+      return -1;
+    });
+
     if (totais) {
       printSource.push(totais);
     }
@@ -68,7 +81,7 @@ class Printer extends React.Component {
 
   defineTableServicos = () => {
     const { servicos } = this.props.dados;
-    const printSource = [];
+    let printSource = [];
     let totais;
 
     Object.keys(servicos).forEach((key) => {
@@ -100,6 +113,19 @@ class Printer extends React.Component {
 
       printSource.push(valores);
     });
+
+    printSource = printSource.sort((a, b) => {
+      if (!a.nota) {
+        return 1;
+      } else if (!b.nota) {
+        return -1;
+      }
+      if (a.nota > b.nota) {
+        return 1;
+      }
+      return -1;
+    });
+
     if (totais) {
       printSource.push(totais);
     }

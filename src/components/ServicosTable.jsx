@@ -16,6 +16,38 @@ class ServicosTable extends React.Component {
     dataIndex: 'nota',
     key: 'nota',
     fixed: true,
+    defaultSortOrder: 'ascend',
+    sorter: (a, b) => {
+      if (!a.nota.numero) {
+        return 1;
+      } else if (!b.nota.numero) {
+        return -1;
+      }
+      if (a.nota.numero > b.nota.numero) {
+        return 1;
+      }
+      return -1;
+    },
+    render: (data) => {
+      if (data.$$typeof) {
+        return data;
+      }
+
+      if (!data.numero) {
+        return '';
+      }
+
+      return (
+        <Popconfirm
+          title="Deseja mesmo excluir esse serviço?"
+          okText="Sim"
+          cancelText="Não"
+          onConfirm={() => this.excluirServico(data.servico, data.key)}
+        >
+          <Button type="ghost">{data.numero}</Button>
+        </Popconfirm>
+      );
+    },
   }, {
     title: 'Status',
     dataIndex: 'status',
@@ -125,16 +157,12 @@ class ServicosTable extends React.Component {
 
       dataSource.push({
         key: servico.nota,
-        nota: (
-          <Popconfirm
-            title="Deseja mesmo excluir esse serviço?"
-            okText="Sim"
-            cancelText="Não"
-            onConfirm={() => this.excluirServico(servico, key)}
-          >
-            <Button type="ghost">{numero}</Button>
-          </Popconfirm>
-        ),
+        nota: {
+          numero,
+          servico,
+          key,
+          excluir: this.excluirServico,
+        },
         status: servico.notaStatus,
         data: moment(servico.data).format('DD[/]MMM'),
         valorServico: R$(servico.valores.impostos.baseDeCalculo),
