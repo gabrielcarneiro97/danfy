@@ -42,7 +42,7 @@ class AdicionarEmpresa extends React.Component {
     const dataTable = this.state.dataTable.filter(el => el.cnpj !== cnpj);
     hasDone.push(cnpj);
 
-    this.setState({ dataTable, hasDone }, () => console.log(this.state.dataTable));
+    this.setState({ dataTable, hasDone });
   };
 
   render() {
