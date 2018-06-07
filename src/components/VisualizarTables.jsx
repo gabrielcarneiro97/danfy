@@ -59,7 +59,6 @@ class VisualizarTables extends React.Component {
 
   defineContent = (current, dados) => {
     let content = '';
-    console.log(dados);
     if (current === 0) {
       content = (
         <MovimentosTable
