@@ -1,9 +1,16 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Table, Row, Col } from 'antd';
 
 import { pegaMes, R$ } from '../services';
 
 class AcumuladosTable extends React.Component {
+  static propTypes = {
+    dados: PropTypes.shape({
+      trimestre: PropTypes.object,
+    }).isRequired,
+  }
+
   static columns = [{
     title: 'Mês',
     dataIndex: 'mes',
@@ -29,7 +36,6 @@ class AcumuladosTable extends React.Component {
     const dataSource = [];
 
     Object.keys(trimestre).forEach((key) => {
-
       if (key === 'totais') {
         const mes = <strong>Trimestre</strong>;
         const el = trimestre[key];
