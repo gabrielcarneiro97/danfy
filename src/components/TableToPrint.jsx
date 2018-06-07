@@ -1,14 +1,17 @@
 import React from 'react';
-
+import PropTypes from 'prop-types';
 import './TableToPrint.css';
 
 class TableToPrint extends React.Component {
+  static propTypes = {
+    columns: PropTypes.array, // eslint-disable-line
+    dataSource: PropTypes.array, // eslint-disable-line
+  }
+
   state = {}
 
   render() {
     const { columns, dataSource } = this.props;
-
-    console.log(dataSource);
 
     if (dataSource.length === 0) {
       return <div />;
@@ -59,11 +62,11 @@ class TableToPrint extends React.Component {
           {(() => {
             const rows = [];
             headRows.forEach((row, id) => {
-              let each = [];
+              const each = [];
               row.forEach((r) => {
                 each.push(r.content);
               });
-              rows.push(<tr key={`${id}-head-row`}>{each}</tr>);
+              rows.push(<tr key={`${id}-head-row`}>{each}</tr>); // eslint-disable-line
             });
             return rows;
           })()}
@@ -72,7 +75,7 @@ class TableToPrint extends React.Component {
           {(() => {
             const rows = [];
             dataRows.forEach((row, id) => {
-              rows.push(<tr key={`${id}-data-row`}>{row}</tr>);
+              rows.push(<tr key={`${id}-data-row`}>{row}</tr>); // eslint-disable-line
             });
             return rows;
           })()}
