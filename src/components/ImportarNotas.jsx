@@ -22,6 +22,7 @@ class ImportarNotas extends React.Component {
       movimentosIsLoading: true,
       servicos: [],
       servicosIsLoading: true,
+      enviando: false,
     };
   }
 
@@ -131,63 +132,63 @@ class ImportarNotas extends React.Component {
   }
 
   enviar = () => {
-    console.log(this.state.movimentos, this.state.servicos);
-    const { movimentos, servicos } = this.state;
+    this.setState({ enviando: true }, () => {
+      const { movimentos, servicos } = this.state;
 
-    const movimentosParaGravar = {};
-    const servicosParaGravar = {};
+      const movimentosParaGravar = {};
+      const servicosParaGravar = {};
 
-    let servicosGravados = servicos.length === 0;
-    let movimentosGravados = movimentos.length === 0;
+      let servicosGravados = servicos.length === 0;
+      let movimentosGravados = movimentos.length === 0;
 
-    movimentos.forEach((movimento) => {
-      if (movimento.conferido) {
-        const nota = this.getNfe(movimento.notaFinal);
+      movimentos.forEach((movimento) => {
+        if (movimento.conferido) {
+          const nota = this.getNfe(movimento.notaFinal);
 
-        const empresa = nota.emitente;
-        if (!movimentosParaGravar[empresa]) {
-          movimentosParaGravar[empresa] = [];
+          const empresa = nota.emitente;
+          if (!movimentosParaGravar[empresa]) {
+            movimentosParaGravar[empresa] = [];
+          }
+          movimentosParaGravar[empresa].push(movimento);
         }
-        movimentosParaGravar[empresa].push(movimento);
-      }
-    });
+      });
 
-    servicos.forEach((servico) => {
-      if (servico.conferido) {
-        const nota = this.getNfse(servico.nota);
+      servicos.forEach((servico) => {
+        if (servico.conferido) {
+          const nota = this.getNfse(servico.nota);
 
-        const empresa = nota.emitente;
-        if (!servicosParaGravar[empresa]) {
-          servicosParaGravar[empresa] = [];
+          const empresa = nota.emitente;
+          if (!servicosParaGravar[empresa]) {
+            servicosParaGravar[empresa] = [];
+          }
+          servicosParaGravar[empresa].push(servico);
         }
-        servicosParaGravar[empresa].push(servico);
-      }
-    });
+      });
 
-    const fim = () => {
-      if (movimentosGravados && servicosGravados) {
-        message.success('Tudo gravado com sucesso!');
-        this.props.history.push('/app/visualizar');
-      }
-    };
+      const fim = () => {
+        if (movimentosGravados && servicosGravados) {
+          message.success('Tudo gravado com sucesso!');
+          this.props.history.push('/app/visualizar');
+        }
+      };
 
-    gravarMovimentos(movimentosParaGravar).then(() => {
-      console.log('gravou');
-      movimentosGravados = true;
-      fim();
-    }).catch((err) => {
-      console.log(err);
-      movimentosGravados = true;
-      fim();
-    });
+      gravarMovimentos(movimentosParaGravar).then(() => {
+        movimentosGravados = true;
+        fim();
+      }).catch((err) => {
+        console.log(err);
+        movimentosGravados = true;
+        fim();
+      });
 
-    gravarServicos(servicosParaGravar).then(() => {
-      servicosGravados = true;
-      fim();
-    }).catch((err) => {
-      console.log(err);
-      servicosGravados = true;
-      fim();
+      gravarServicos(servicosParaGravar).then(() => {
+        servicosGravados = true;
+        fim();
+      }).catch((err) => {
+        console.log(err);
+        servicosGravados = true;
+        fim();
+      });
     });
   }
 
@@ -209,19 +210,19 @@ class ImportarNotas extends React.Component {
           {
             this.state.current === 0
             &&
-            <Button type="primary" onClick={() => this.paraMovimentos()} disabled={!this.state.envio}>Próximo</Button>
+            <Button type="primary" onClick={this.paraMovimentos} disabled={!this.state.envio}>Próximo</Button>
           }
           {
             this.state.current === 1
             &&
-            <Popconfirm title="Tem certeza que deseja proseguir?" onConfirm={() => this.paraServicos()} okText="Sim" cancelText="Não">
+            <Popconfirm title="Tem certeza que deseja proseguir?" onConfirm={this.paraServicos} okText="Sim" cancelText="Não">
               <Button type="primary" disabled={this.state.movimentosIsLoading}>Próximo</Button>
             </Popconfirm>
           }
           {
             this.state.current === this.steps.length - 1
             &&
-            <Button type="primary" onClick={() => this.enviar()} disabled={this.state.servicosIsLoading}>Enviar</Button>
+            <Button type="primary" onClick={this.enviar} disabled={this.state.servicosIsLoading || this.state.enviando}>Enviar</Button>
           }
         </div>
         <div className="steps-content">{this.steps[this.state.current].content}</div>

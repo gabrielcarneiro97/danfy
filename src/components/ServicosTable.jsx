@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import moment from 'moment';
 import { Table, Row, Col, Popconfirm, Button } from 'antd';
 
 import { R$, excluirServico, somaTotalServico } from '../services';
@@ -98,12 +99,15 @@ class ServicosTable extends React.Component {
 
     Object.keys(servicos).forEach((key) => {
       const servico = servicos[key];
+
+      const data = new Date(servico.data).toISOString();
+
       const numero = parseInt(servico.nota.substring(18), 10);
       const valores = {
         key: servico.nota,
         nota: numero,
         status: servico.notaStatus,
-        data: servico.data.toLocaleString('pt-br'),
+        data: moment(servico.data).format('DD[/]MMM'),
         valorServico: R$(servico.valores.impostos.baseDeCalculo),
         issRetido: R$(servico.valores.impostos.retencoes.iss),
         pisRetido: R$(servico.valores.impostos.retencoes.pis),
@@ -121,6 +125,8 @@ class ServicosTable extends React.Component {
 
       totais = somaTotalServico(valores, totais);
 
+      console.log(moment(data).format('Do MMM'));
+
       dataSource.push({
         key: servico.nota,
         nota: (
@@ -134,7 +140,7 @@ class ServicosTable extends React.Component {
           </Popconfirm>
         ),
         status: servico.notaStatus,
-        data: servico.data.toLocaleString('pt-br'),
+        data: moment(servico.data).format('DD[/]MMM'),
         valorServico: R$(servico.valores.impostos.baseDeCalculo),
         issRetido: R$(servico.valores.impostos.retencoes.iss),
         pisRetido: R$(servico.valores.impostos.retencoes.pis),

@@ -1,9 +1,19 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Row, Col, Table } from 'antd';
 
 import { R$ } from '../services';
 
 class GuiasTable extends React.Component {
+  static propTypes = {
+    dados: PropTypes.shape({
+      servicos: PropTypes.object,
+      movimentos: PropTypes.object,
+      complementares: PropTypes.object,
+      trimestre: PropTypes.object,
+    }).isRequired,
+  }
+
   state = {}
 
   temServicos = () => Object.keys(this.props.dados.servicos).length > 0;

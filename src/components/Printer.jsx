@@ -1,4 +1,5 @@
 import React from 'react';
+import moment from 'moment';
 import PropTypes from 'prop-types';
 import ReactToPrint from 'react-to-print';
 import { Divider, Row, Col, Button } from 'antd';
@@ -77,7 +78,7 @@ class Printer extends React.Component {
         key: servico.nota,
         nota: numero,
         status: servico.notaStatus,
-        data: servico.data.toLocaleString('pt-br'),
+        data: moment(servico.data).format('DD[/]MMM'),
         valorServico: R$(servico.valores.impostos.baseDeCalculo),
         issRetido: R$(servico.valores.impostos.retencoes.iss),
         pisRetido: R$(servico.valores.impostos.retencoes.pis),
