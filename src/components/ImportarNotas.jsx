@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Steps, Button, Icon, Popconfirm, message } from 'antd';
 
 import { EnviarArquivos, AdicionarEmpresa, ConciliarMovimentos, ConciliarServicos } from '.';
@@ -9,22 +10,25 @@ import './ImportarNotas.css';
 const { Step } = Steps;
 
 class ImportarNotas extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      current: 0,
-      envio: false,
-      dados: null,
-      adicionar: false,
-      adicionarArray: [],
-      dominio: [],
-      movimentos: [],
-      movimentosIsLoading: true,
-      servicos: [],
-      servicosIsLoading: true,
-      enviando: false,
-    };
+  static propTypes = {
+    history: PropTypes.shape({
+      push: PropTypes.func,
+    }).isRequired,
   }
+
+  state = {
+    current: 0,
+    envio: false,
+    dados: null,
+    adicionar: false,
+    adicionarArray: [],
+    dominio: [],
+    movimentos: [],
+    movimentosIsLoading: true,
+    servicos: [],
+    servicosIsLoading: true,
+    enviando: false,
+  };
 
   getNfe = chave => (
     this.state.dados.nfe ?
