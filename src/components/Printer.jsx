@@ -15,6 +15,8 @@ class Printer extends React.Component {
       movimentos: PropTypes.object,
       servicos: PropTypes.object,
       notas: PropTypes.object,
+      complementares: PropTypes.object,
+      trimestre: PropTypes.object,
     }).isRequired,
   }
 
