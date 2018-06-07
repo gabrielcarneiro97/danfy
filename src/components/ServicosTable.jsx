@@ -100,8 +100,6 @@ class ServicosTable extends React.Component {
     Object.keys(servicos).forEach((key) => {
       const servico = servicos[key];
 
-      const data = new Date(servico.data).toISOString();
-
       const numero = parseInt(servico.nota.substring(18), 10);
       const valores = {
         key: servico.nota,
@@ -124,8 +122,6 @@ class ServicosTable extends React.Component {
       };
 
       totais = somaTotalServico(valores, totais);
-
-      console.log(moment(data).format('Do MMM'));
 
       dataSource.push({
         key: servico.nota,
