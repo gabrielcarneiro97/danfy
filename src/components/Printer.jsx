@@ -4,10 +4,15 @@ import PropTypes from 'prop-types';
 import ReactToPrint from 'react-to-print';
 import { Divider, Row, Col, Button } from 'antd';
 
-import { MovimentosTable, ServicosTable, TableToPrint, AcumuladosTable } from '.';
+import { MovimentosTable, ServicosTable, TableToPrint, AcumuladosTable, CotasTable } from '.';
 import { R$, retornarTipo, somaTotalMovimento, somaTotalServico, pegaMes } from '../services';
 
 import './Printer.css';
+
+function temTabelaCotas({ formaPagamento, mes }) {
+  return formaPagamento === 'PAGAMENTO EM COTAS' &&
+    parseInt(mes, 10) % 3 === 0;
+}
 
 class Printer extends React.Component {
   static propTypes = {
@@ -275,12 +280,67 @@ class Printer extends React.Component {
     return dataSource;
   }
 
+  calcularCotas = () => {
+    const { totais } = this.props.dados.trimestre;
+    const valorIr = totais.impostos.irpj +
+      (totais.impostos.adicionalIr - totais.impostos.retencoes.irpj);
+    const valorCsll = totais.impostos.csll - totais.impostos.retencoes.csll;
+
+    let cotaIr = { valor: 0, numero: 0 };
+    let cotaCsll = { valor: 0, numero: 0 };
+
+    if (valorIr / 3 > 1000) {
+      cotaIr = { valor: valorIr / 3, numero: 3 };
+    } else if (valorIr / 2 > 1000) {
+      cotaIr = { valor: valorIr / 2, numero: 2 };
+    } else {
+      cotaIr = { valor: valorIr, numero: 1 };
+    }
+    if (valorCsll / 3 > 1000) {
+      cotaCsll = { valor: valorCsll / 3, numero: 3 };
+    } else if (valorCsll / 2 > 1000) {
+      cotaCsll = { valor: valorCsll / 2, numero: 2 };
+    } else {
+      cotaCsll = { valor: valorCsll, numero: 1 };
+    }
+
+    return { cotaCsll, cotaIr };
+  }
+
+  defineTableCotas = () => {
+    const { cotaCsll, cotaIr } = this.calcularCotas();
+
+    const dataSource = [];
+    if (temTabelaCotas(this.props.dados.complementares)) {
+      for (let num = 1; num <= 3; num += 1) {
+        const row = {
+          key: `${num}-cotas-table`,
+          numero: num,
+          csll: '0,00',
+          irpj: '0,00',
+        };
+
+        if (cotaCsll.numero >= num) {
+          row.csll = R$(cotaCsll.valor);
+        }
+
+        if (cotaIr.numero >= num) {
+          row.irpj = R$(cotaIr.valor);
+        }
+
+        dataSource.push(row);
+      }
+    }
+    return dataSource;
+  }
+
   render() {
     const { dados } = this.props;
     const dataTableMovimentos = this.defineTableMovimentos();
     const dataTableServicos = this.defineTableServicos();
     const dataTableAcumulados = this.defineTableAcumulados();
     const { dataSourceGuias, columnsGuias } = this.defineTableGuias();
+    const dataTableCotas = this.defineTableCotas();
 
     let printRef = React.createRef();
 
@@ -356,6 +416,21 @@ class Printer extends React.Component {
                   columns={AcumuladosTable.columns}
                 />
               </Col>
+              {
+                dataTableCotas.length !== 0
+                &&
+                <React.Fragment>
+                  <Col span={24}>
+                    <h3 className="table-title">
+                      Cotas
+                    </h3>
+                    <TableToPrint
+                      dataSource={dataTableCotas}
+                      columns={CotasTable.columns}
+                    />
+                  </Col>
+                </React.Fragment>
+              }
             </Row>
           </div>
         </div>

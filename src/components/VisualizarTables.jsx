@@ -1,12 +1,16 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Steps, Button, Row, Col } from 'antd';
-import { MovimentosTable, ServicosTable, GuiasTable, AcumuladosTable } from '.';
+import { MovimentosTable, ServicosTable, GuiasTable, AcumuladosTable, CotasTable } from '.';
 
 import './VisualizarTables.css';
 
 const { Step } = Steps;
 
+function temTabelaCotas({ formaPagamento, mes }) {
+  return formaPagamento === 'PAGAMENTO EM COTAS' &&
+    parseInt(mes, 10) % 3 === 0;
+}
 
 class VisualizarTables extends React.Component {
   static propTypes = {
@@ -30,13 +34,11 @@ class VisualizarTables extends React.Component {
     };
   }
 
-  next() {
-    const current = this.state.current + 1;
-    this.setState({ current });
+  next(current) {
+    this.setState({ current: current + 1 });
   }
-  prev() {
-    const current = this.state.current - 1;
-    this.setState({ current });
+  prev(current) {
+    this.setState({ current: current - 1 });
   }
 
   movimentosHandleChange = (movimentos) => {
@@ -89,15 +91,20 @@ class VisualizarTables extends React.Component {
           dados={dados}
         />
       );
+    } else if (current === 4) {
+      content = (
+        <CotasTable
+          dados={dados}
+        />
+      );
     }
     return content;
   }
 
   render() {
     const { dados } = this.props;
-    const { current } = this.state;
-
-    const content = this.defineContent(current, dados);
+    const { complementares } = dados;
+    let { current } = this.state;
 
     const steps = [{
       title: 'Movimentos',
@@ -108,6 +115,18 @@ class VisualizarTables extends React.Component {
     }, {
       title: 'Acumulados',
     }];
+
+    if (temTabelaCotas(complementares)) {
+      steps.push({
+        title: 'Cotas',
+      });
+    }
+
+    if (current > steps.length - 1) {
+      current = steps.length - 1;
+    }
+
+    const content = this.defineContent(current, dados);
 
     return (
       this.props.show
@@ -121,7 +140,7 @@ class VisualizarTables extends React.Component {
             <Col span={12} style={{ textAlign: 'left' }}>
               <Button
                 style={{ marginLeft: 8 }}
-                onClick={() => this.prev()}
+                onClick={() => this.prev(current)}
                 disabled={current === 0}
               >
                 Voltar
@@ -130,8 +149,8 @@ class VisualizarTables extends React.Component {
             <Col span={12} style={{ textAlign: 'right' }}>
               <Button
                 type="primary"
-                onClick={() => this.next()}
-                disabled={current === steps.length - 1}
+                onClick={() => this.next(current)}
+                disabled={current >= steps.length - 1}
               >
                 Próximo
               </Button>

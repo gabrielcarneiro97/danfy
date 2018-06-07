@@ -8,8 +8,13 @@ import { R$, retornarTipo, somaTotalMovimento, cancelarMovimento, floating, edit
 class MovimentosTable extends React.Component {
   static propTypes = {
     onChange: PropTypes.func.isRequired,
-    notas: PropTypes.object.isRequired, // eslint-disable-line
-    movimentos: PropTypes.object.isRequired, // eslint-disable-line
+    notas: PropTypes.object, // eslint-disable-line
+    movimentos: PropTypes.object, // eslint-disable-line
+  }
+
+  static defaultProps = {
+    notas: {},
+    movimentos: {},
   }
 
   static columns = [{

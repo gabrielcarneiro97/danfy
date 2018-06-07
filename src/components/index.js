@@ -17,6 +17,7 @@ export { default as MovimentosTable } from './MovimentosTable';
 export { default as ServicosTable } from './ServicosTable';
 export { default as GuiasTable } from './GuiasTable';
 export { default as AcumuladosTable } from './AcumuladosTable';
+export { default as CotasTable } from './CotasTable';
 export { default as MovimentoValorInput } from './MovimentoValorInput';
 export { default as TableToPrint } from './TableToPrint';
 export { default as Printer } from './Printer';

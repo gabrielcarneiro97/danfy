@@ -8,7 +8,11 @@ import { R$, excluirServico, somaTotalServico } from '../services';
 class ServicosTable extends React.Component {
   static propTypes = {
     onChange: PropTypes.func.isRequired,
-    servicos: PropTypes.object.isRequired, // eslint-disable-line
+    servicos: PropTypes.object, // eslint-disable-line
+  }
+
+  static defaultProps = {
+    servicos: {},
   }
 
   static columns = [{
