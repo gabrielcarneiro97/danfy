@@ -215,7 +215,7 @@ class MovimentosTable extends React.Component {
       const movimento = movimentos[key];
       const notaFinal = notas[movimento.notaFinal];
       const notaInicial = notas[movimento.notaInicial];
-      console.log(movimento.metaDados.status);
+
       const valores = {
         key,
         numero: notaFinal.geral.numero,
