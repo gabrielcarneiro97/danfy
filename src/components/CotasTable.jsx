@@ -82,10 +82,10 @@ function CotasTable(props) {
 }
 
 CotasTable.propTypes = {
-  dados: PropTypes.shape({
+  dados: PropTypes.shape({ // eslint-disable-line
     trimestre: PropTypes.object,
   }).isRequired,
-}
+};
 
 CotasTable.columns = [{
   title: 'Nº',
