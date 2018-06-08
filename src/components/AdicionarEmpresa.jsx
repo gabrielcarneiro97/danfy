@@ -29,13 +29,11 @@ class AdicionarEmpresa extends React.Component {
     key: 'adicionar',
   }];
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      dataTable: [],
-      hasDone: [],
-    };
-  }
+  state = {
+    dataTable: [],
+    hasDone: [],
+  };
+
 
   handleEnd = (cnpj) => {
     const { hasDone } = this.state;
