@@ -27,11 +27,8 @@ class VisualizarTables extends React.Component {
     show: true,
   }
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      current: 0,
-    };
+  state = {
+    current: 0,
   }
 
   next(current) {
