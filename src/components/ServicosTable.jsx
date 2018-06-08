@@ -46,7 +46,7 @@ class ServicosTable extends React.Component {
           title="Deseja mesmo excluir esse serviço?"
           okText="Sim"
           cancelText="Não"
-          onConfirm={() => this.excluirServico(data.servico, data.key)}
+          onConfirm={() => data.excluirServico(data.servico, data.key)}
         >
           <Button type="ghost">{data.numero}</Button>
         </Popconfirm>
