@@ -20,7 +20,16 @@ function Navbar(props) {
 
   return (
     <Row style={{ color: '#FFF' }}>
-      <Col span={12}>DANFY {version}</Col>
+      <Col span={12}>
+        {
+          // eslint-disable-next-line
+        }<a style={{ color: '#FFF' }}>
+          <span style={{ fontWeight: 'bolder' }}>DANFY </span>
+          <span style={{ fontWeight: 'lighter' }}>{version}</span>
+          {
+            // eslint-disable-next-line
+        }</a>
+      </Col>
       <Col span={12} style={{ textAlign: 'right' }}>
         {
           // eslint-disable-next-line
