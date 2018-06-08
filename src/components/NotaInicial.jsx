@@ -24,12 +24,8 @@ class NotaInicial extends React.Component {
     notaInicial: {},
   }
 
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      valorInput: props.notaInicial ? parseInt(props.notaInicial.geral.numero, 10) : '',
-    };
+  state = {
+    valorInput: this.props.notaInicial ? parseInt(this.props.notaInicial.geral.numero, 10) : '',
   }
 
   onChangeInput = (e) => {
