@@ -8,7 +8,7 @@ import './LoginForm.css';
 
 const FormItem = Form.Item;
 
-class LoginFormInternal extends React.Component {
+class LoginForm extends React.Component {
   static propTypes = {
     history: propTypes.shape({
       push: propTypes.func,
@@ -68,4 +68,4 @@ class LoginFormInternal extends React.Component {
   }
 }
 
-export default Form.create()(LoginFormInternal);
+export default Form.create()(LoginForm);
