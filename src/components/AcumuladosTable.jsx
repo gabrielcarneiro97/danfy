@@ -4,35 +4,8 @@ import { Table, Row, Col } from 'antd';
 
 import { pegaMes, R$ } from '../services';
 
-class AcumuladosTable extends React.Component {
-  static propTypes = {
-    dados: PropTypes.shape({
-      trimestre: PropTypes.object,
-    }).isRequired,
-  }
-
-  static columns = [{
-    title: 'Mês',
-    dataIndex: 'mes',
-    key: 'mes',
-  }, {
-    title: 'CSLL',
-    dataIndex: 'csll',
-    key: 'csll',
-  }, {
-    title: 'IRPJ',
-    dataIndex: 'irpj',
-    key: 'irpj',
-  }, {
-    title: 'Faturamento',
-    dataIndex: 'faturamento',
-    key: 'faturamento',
-  }];
-
-  state = {}
-
-  defineDataSource = () => {
-    const { trimestre } = this.props.dados;
+function defineDataSource(props) {
+    const { trimestre } = props.dados;
     const dataSource = [];
 
     Object.keys(trimestre).forEach((key) => {
@@ -64,29 +37,54 @@ class AcumuladosTable extends React.Component {
     return dataSource;
   }
 
-  render() {
-    const dataSource = this.defineDataSource();
+function AcumuladosTable(props) {
 
-    return (
-      <Row
-        type="flex"
-        justify="center"
-      >
-        <Col span={23}>
-          <Table
-            bordered
-            size="small"
-            columns={AcumuladosTable.columns}
-            dataSource={dataSource}
-            pagination={{ position: 'none' }}
-            style={{
-              marginBottom: '20px',
-            }}
-          />
-        </Col>
-      </Row>
-    );
-  }
+  const dataSource = defineDataSource(props);
+
+  return (
+    <Row
+      type="flex"
+      justify="center"
+    >
+      <Col span={23}>
+        <Table
+          bordered
+          size="small"
+          columns={AcumuladosTable.columns}
+          dataSource={dataSource}
+          pagination={{ position: 'none' }}
+          style={{
+            marginBottom: '20px',
+          }}
+        />
+      </Col>
+    </Row>
+  );
+
 }
+
+AcumuladosTable.propTypes = {
+  dados: PropTypes.shape({
+    trimestre: PropTypes.object,
+  }).isRequired,
+}
+
+AcumuladosTable.columns = [{
+  title: 'Mês',
+  dataIndex: 'mes',
+  key: 'mes',
+}, {
+  title: 'CSLL',
+  dataIndex: 'csll',
+  key: 'csll',
+}, {
+  title: 'IRPJ',
+  dataIndex: 'irpj',
+  key: 'irpj',
+}, {
+  title: 'Faturamento',
+  dataIndex: 'faturamento',
+  key: 'faturamento',
+}];
 
 export default AcumuladosTable;
