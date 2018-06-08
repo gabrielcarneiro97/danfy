@@ -19,14 +19,11 @@ class MovimentoValorInput extends React.Component {
     disabled: false,
   }
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      value: props.value,
-      name: props.name,
-      disabled: props.disabled,
-    };
-  }
+  state = {
+    value: this.props.value,
+    name: this.props.name,
+    disabled: this.props.disabled,
+  };
 
   handleChange = (e) => {
     const { value } = e.target;
