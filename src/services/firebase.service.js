@@ -85,7 +85,7 @@ export function gravarMovimentos(movimentos) {
                 }
               });
             } else {
-              axios.get(`${api}/movimentoSlim`, {
+              axios.get(`${api}/movimentos/slim`, {
                 params: {
                   valorInicial: 0,
                   notaFinal: movimento.notaFinal,

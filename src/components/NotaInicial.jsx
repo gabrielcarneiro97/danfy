@@ -35,7 +35,7 @@ class NotaInicial extends React.Component {
   handleClick = () => {
     const { movimento, notaFinal } = this.props;
     if (movimento.notaInicial) {
-      axios.get(`${api}/valoresMovimento`, {
+      axios.get(`${api}/movimentos/valor`, {
         params: {
           notaFinal: movimento.notaFinal,
           cnpj: notaFinal.emitente,
@@ -50,7 +50,7 @@ class NotaInicial extends React.Component {
         });
       });
     } else if (!Number.isNaN(floating(this.state.valorInput))) {
-      axios.get(`${api}/movimentoSlim`, {
+      axios.get(`${api}/movimentos/slim`, {
         params: {
           valorInicial: floating(this.state.valorInput),
           notaFinal: movimento.notaFinal,
