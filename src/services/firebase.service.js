@@ -73,7 +73,13 @@ export function gravarMovimentos(movimentos) {
       if (movimentos[cnpj]) {
         movimentos[cnpj].forEach((mov) => {
           let movimento = mov;
+          const atualizar = new Set();
           const gravar = () => {
+            const date = new Date(movimento.data);
+            const mes = (date.getUTCMonth() + 1).toString();
+            const ano = date.getUTCFullYear().toString();
+            atualizar.add(`${mes}/${ano}`);
+
             if (movimento.notaInicial) {
               db.ref(`Movimentos/${cnpj}`).push(movimento, (err) => {
                 if (arr.length - 1 === index && err) {
@@ -212,7 +218,19 @@ export function cancelarMovimento(cnpj, id) {
         if (err) {
           reject(err);
         } else {
-          resolve();
+          const data = new Date(movimento.data);
+          const mes = data.getMonth() + 1;
+          const ano = data.getFullYear();
+          axios.get(`${api}/trimestre`, {
+            params: {
+              cnpj,
+              mes,
+              ano,
+              recalcular: true,
+            },
+          }).then((response) => {
+            resolve(response.data);
+          });
         }
       });
     });
@@ -227,22 +245,56 @@ export function editarMovimento(movimentoNovo, cnpj) {
       reject(new Error('O movimento não tem movimento referenciado nos meta dados'));
     } else {
       cancelarMovimento(cnpj, idMovimentoAntigo).then(() => {
-        db.ref(`Movimentos/${cnpj}`).push(movimentoNovo).then((snap) => {
-          resolve(snap.key);
+        db.ref(`Movimentos/${cnpj}`).push(movimentoNovo).then(() => {
+          const data = new Date(movimentoNovo.data);
+          const mes = data.getMonth() + 1;
+          const ano = data.getFullYear();
+          axios.get(`${api}/trimestre`, {
+            params: {
+              cnpj,
+              mes,
+              ano,
+              recalcular: true,
+            },
+          }).then((response) => {
+            resolve(response.data);
+          });
         }).catch(err => reject(err));
       }).catch(err => reject(err));
     }
   });
 }
 
+export function pegarServico(cnpj, id) {
+  return new Promise((resolve, reject) => {
+    db.ref(`Servicos/${cnpj}/${id}`).once('value', (snap) => {
+      resolve(snap.val());
+    }, err => reject(err));
+  });
+}
+
 export function excluirServico(cnpj, id) {
   return new Promise((resolve, reject) => {
-    db.ref(`Servicos/${cnpj}/${id}`).set({}, (err) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve();
-      }
+    pegarServico(cnpj, id).then((servico) => {
+      db.ref(`Servicos/${cnpj}/${id}`).set({}, (err) => {
+        if (err) {
+          reject(err);
+        } else {
+          const data = new Date(servico.data);
+          const mes = data.getMonth() + 1;
+          const ano = data.getFullYear();
+          axios.get(`${api}/trimestre`, {
+            params: {
+              cnpj,
+              mes,
+              ano,
+              recalcular: true,
+            },
+          }).then((response) => {
+            resolve(response.data);
+          });
+        }
+      });
     });
   });
 }

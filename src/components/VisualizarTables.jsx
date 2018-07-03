@@ -38,21 +38,21 @@ class VisualizarTables extends React.Component {
     this.setState({ current: current - 1 });
   }
 
-  movimentosHandleChange = (movimentos) => {
+  movimentosHandleChange = (infosMudadas) => {
     const { dados } = this.props;
 
     this.props.onChange({
       ...dados,
-      movimentos,
+      ...infosMudadas,
     });
   }
 
-  servicosHandleChange = (servicos) => {
+  servicosHandleChange = (infosMudadas) => {
     const { dados } = this.props;
 
     this.props.onChange({
       ...dados,
-      servicos,
+      ...infosMudadas,
     });
   }
 

@@ -95,7 +95,8 @@ class ConciliarMovimentos extends React.Component {
           this.props.onChange(movimentos);
           this.props.onLoadEnd();
           this.setState({ isLoading: false, dados, movimentos: movimentosId });
-        });
+        })
+        .catch(err => console.error(err));
     });
   }
 

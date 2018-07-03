@@ -182,11 +182,8 @@ class MovimentosTable extends React.Component {
   }
 
   cancelarMovimento = (movimentoId, cnpj) => {
-    cancelarMovimento(cnpj, movimentoId).then(() => {
-      const { movimentos } = this.props;
-      delete movimentos[movimentoId];
-
-      this.props.onChange(movimentos);
+    cancelarMovimento(cnpj, movimentoId).then((dados) => {
+      this.props.onChange(dados);
     });
   }
 
@@ -204,11 +201,8 @@ class MovimentosTable extends React.Component {
     };
 
     editarMovimento(movimentoEditado, this.props.notas[movimentoEditado.notaFinal].emitente)
-      .then((keyNovo) => {
-        const { movimentos } = this.props;
-        delete movimentos[key];
-        movimentos[keyNovo] = movimentoEditado;
-        this.props.onChange(movimentos);
+      .then((dados) => {
+        this.props.onChange(dados);
       });
   }
 

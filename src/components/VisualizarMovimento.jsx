@@ -35,6 +35,7 @@ class VisualizarMovimento extends React.Component {
       mes,
       ano,
     } = dados;
+    console.log('get/Trimestre');
     axios.get(`${api}/trimestre`, {
       params: {
         cnpj,
