@@ -66,47 +66,23 @@ export function adicionarEmpresaImpostos(cnpj, aliquotas) {
 }
 
 export function gravarMovimentos(movimentos) {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolveEnd, reject) => {
     Object.keys(movimentos).forEach((cnpj, index, arr) => {
       const erros = [];
-
       if (movimentos[cnpj]) {
+        const atualizar = new Set();
+        const promises = [];
+
         movimentos[cnpj].forEach((mov) => {
-          let movimento = mov;
-          const atualizar = new Set();
-          const gravar = () => {
-            const date = new Date(movimento.data);
-            const mes = (date.getUTCMonth() + 1).toString();
-            const ano = date.getUTCFullYear().toString();
-            atualizar.add(`${mes}/${ano}`);
+          promises.push(new Promise((resolve) => {
+            let movimento = mov;
+            const gravar = () => {
+              const date = new Date(movimento.data);
+              const mes = (date.getUTCMonth() + 1).toString();
+              const ano = date.getUTCFullYear().toString();
+              atualizar.add(`${mes}/${ano}`);
 
-            if (movimento.notaInicial) {
-              db.ref(`Movimentos/${cnpj}`).push(movimento, (err) => {
-                if (arr.length - 1 === index && err) {
-                  reject(err);
-                } else if (arr.length - 1 === index && erros.length > 0) {
-                  reject(erros);
-                } else if (arr.length - 1 === index) {
-                  resolve();
-                }
-              });
-            } else {
-              axios.get(`${api}/movimentos/slim`, {
-                params: {
-                  valorInicial: 0,
-                  notaFinal: movimento.notaFinal,
-                  cnpj,
-                },
-              }).then(({ data }) => {
-                const { valores, notaInicial } = data;
-                const notaInicialChave = notaInicial.chave;
-
-                movimento = {
-                  ...movimento,
-                  valores,
-                  notaInicial: notaInicialChave,
-                };
-
+              if (movimento.notaInicial) {
                 db.ref(`Movimentos/${cnpj}`).push(movimento, (err) => {
                   if (arr.length - 1 === index && err) {
                     reject(err);
@@ -116,34 +92,79 @@ export function gravarMovimentos(movimentos) {
                     resolve();
                   }
                 });
-              });
-            }
-          };
-          let erro;
-          db.ref(`Movimentos/${cnpj}`).orderByChild('notaFinal').equalTo(movimento.notaFinal).once('value', (snap) => {
-            const movimentosRelacionados = snap.val();
-            if (movimentosRelacionados) {
-              Object.keys(movimentosRelacionados).forEach((key) => {
-                const movimentoRel = movimentosRelacionados[key];
-                if (movimentoRel.metaDados) {
-                  if (movimentoRel.metaDados.status !== 'CANCELADO') {
+              } else {
+                axios.get(`${api}/movimentos/slim`, {
+                  params: {
+                    valorInicial: 0,
+                    notaFinal: movimento.notaFinal,
+                    cnpj,
+                  },
+                }).then(({ data }) => {
+                  const { valores, notaInicial } = data;
+                  const notaInicialChave = notaInicial.chave;
+
+                  movimento = {
+                    ...movimento,
+                    valores,
+                    notaInicial: notaInicialChave,
+                  };
+
+                  db.ref(`Movimentos/${cnpj}`).push(movimento, (err) => {
+                    if (arr.length - 1 === index && err) {
+                      reject(err);
+                    } else if (arr.length - 1 === index && erros.length > 0) {
+                      reject(erros);
+                    } else if (arr.length - 1 === index) {
+                      resolve();
+                    }
+                  });
+                });
+              }
+            };
+
+            let erro;
+            db.ref(`Movimentos/${cnpj}`).orderByChild('notaFinal').equalTo(movimento.notaFinal).once('value', (snap) => {
+              const movimentosRelacionados = snap.val();
+              if (movimentosRelacionados) {
+                Object.keys(movimentosRelacionados).forEach((key) => {
+                  const movimentoRel = movimentosRelacionados[key];
+                  if (movimentoRel.metaDados) {
+                    if (movimentoRel.metaDados.status !== 'CANCELADO') {
+                      erro = new Error(`Nota já registrada em outro movimento! ID: ${Object.keys(snap.val())[0]}`);
+                      erro.idMovimento = key;
+                      erros.push(erro);
+                    } else {
+                      movimento.metaDados.movimentoRef = key;
+                      movimento.metaDados.tipo = 'SUB';
+                    }
+                  } else {
                     erro = new Error(`Nota já registrada em outro movimento! ID: ${Object.keys(snap.val())[0]}`);
                     erro.idMovimento = key;
                     erros.push(erro);
-                  } else {
-                    movimento.metaDados.movimentoRef = key;
-                    movimento.metaDados.tipo = 'SUB';
                   }
-                } else {
-                  erro = new Error(`Nota já registrada em outro movimento! ID: ${Object.keys(snap.val())[0]}`);
-                  erro.idMovimento = key;
-                  erros.push(erro);
-                }
-              });
-              gravar();
-            } else {
-              gravar();
-            }
+                });
+                gravar();
+              } else {
+                gravar();
+              }
+            });
+          }));
+        });
+
+        Promise.all(promises).then(() => {
+          atualizar.forEach((mesAno) => {
+            const mes = mesAno.split('/')[0];
+            const ano = mesAno.split('/')[1];
+            axios.get(`${api}/trimestre`, {
+              params: {
+                cnpj,
+                mes,
+                ano,
+                recalcular: true,
+              },
+            });
+
+            resolveEnd();
           });
         });
       }
