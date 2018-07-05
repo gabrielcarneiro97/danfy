@@ -163,9 +163,8 @@ export function gravarMovimentos(movimentos) {
                 recalcular: true,
               },
             });
-
-            resolveEnd();
           });
+          resolveEnd();
         });
       }
     });
@@ -173,28 +172,55 @@ export function gravarMovimentos(movimentos) {
 }
 
 export function gravarServicos(servicos) {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolveEnd, reject) => {
     const erros = [];
     Object.keys(servicos).forEach((cnpj, index, arr) => {
       if (servicos[cnpj]) {
+        const atualizar = new Set();
+        const promises = [];
+
         servicos[cnpj].forEach((servico) => {
-          db.ref(`Servicos/${cnpj}`).orderByChild('nota').equalTo(servico.nota).once('value', (snap) => {
-            if (snap.val()) {
-              const erro = new Error(`Nota já registrada em outro serviço! ID: ${Object.keys(snap.val())[0]}`);
-              [erro.idMovimento] = Object.keys(snap.val());
-              erros.push(erro);
-            } else {
-              db.ref(`Servicos/${cnpj}`).push(servico, (err) => {
-                if (arr.length - 1 === index && err) {
-                  reject(err);
-                } else if (arr.length - 1 === index && erros.length > 0) {
-                  reject(erros);
-                } else if (arr.length - 1 === index) {
-                  resolve();
-                }
-              });
-            }
+          promises.push(new Promise((resolve) => {
+            const date = new Date(servico.data);
+            const mes = (date.getUTCMonth() + 1).toString();
+            const ano = date.getUTCFullYear().toString();
+            atualizar.add(`${mes}/${ano}`);
+
+            db.ref(`Servicos/${cnpj}`).orderByChild('nota').equalTo(servico.nota).once('value', (snap) => {
+              if (snap.val()) {
+                const erro = new Error(`Nota já registrada em outro serviço! ID: ${Object.keys(snap.val())[0]}`);
+                [erro.idMovimento] = Object.keys(snap.val());
+                erros.push(erro);
+                resolve();
+              } else {
+                db.ref(`Servicos/${cnpj}`).push(servico, (err) => {
+                  if (arr.length - 1 === index && err) {
+                    reject(err);
+                  } else if (arr.length - 1 === index && erros.length > 0) {
+                    reject(erros);
+                  } else if (arr.length - 1 === index) {
+                    resolve();
+                  }
+                });
+              }
+            });
+          }));
+        });
+
+        Promise.all(promises).then(() => {
+          atualizar.forEach((mesAno) => {
+            const mes = mesAno.split('/')[0];
+            const ano = mesAno.split('/')[1];
+            axios.get(`${api}/trimestre`, {
+              params: {
+                cnpj,
+                mes,
+                ano,
+                recalcular: true,
+              },
+            });
           });
+          resolveEnd();
         });
       }
     });
