@@ -1,6 +1,6 @@
 {
   "name": "danfy",
-  "version": "0.10.12",
+  "version": "0.10.13",
   "private": true,
   "dependencies": {
     "antd": "^3.5.3",
@@ -14,10 +14,11 @@
     "prop-types": "^15.6.1",
     "react": "^16.4.0",
     "react-dom": "^16.4.0",
+    "react-easy-print": "^0.6.0-beta.3",
     "react-router": "^4.2.0",
     "react-router-dom": "^4.2.2",
     "react-scripts": "1.1.4",
-    "react-to-print": "^1.0.17"
+    "react-to-print": "2.0.0-alpha-2"
   },
   "scripts": {
     "start": "react-scripts start",

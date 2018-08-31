@@ -3,12 +3,12 @@ import moment from 'moment';
 import PropTypes from 'prop-types';
 import ReactToPrint from 'react-to-print';
 import { Divider, Row, Col, Button } from 'antd';
+import { Print } from 'react-easy-print';
 
 import { MovimentosTable, ServicosTable, TableToPrint, AcumuladosTable, CotasTable } from '.';
 import { R$, retornarTipo, somaTotalMovimento, somaTotalServico, pegaMes } from '../services';
 
 import './Printer.css';
-
 
 const temServicos = props => Object.keys(props.dados.servicos).length > 0;
 const temMovimentos = props => Object.keys(props.dados.movimentos).length > 0;

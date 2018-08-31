@@ -4578,6 +4578,10 @@ load-json-file@^2.0.0:
     pify "^2.0.0"
     strip-bom "^3.0.0"
 
+load-styles@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/load-styles/-/load-styles-2.0.0.tgz#a0901c8f80ef0c869454eb580b4efc2f0be48471"
+
 loader-fs-cache@^1.0.0:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/loader-fs-cache/-/loader-fs-cache-1.0.1.tgz#56e0bf08bd9708b26a765b68509840c8dec9fdbc"
@@ -6376,6 +6380,12 @@ react-dom@^16.4.0:
     object-assign "^4.1.1"
     prop-types "^15.6.0"
 
+react-easy-print@^0.6.0-beta.3:
+  version "0.6.0-beta.3"
+  resolved "https://registry.yarnpkg.com/react-easy-print/-/react-easy-print-0.6.0-beta.3.tgz#e7f0439cabbfd91f651c99104bdd221843685edf"
+  dependencies:
+    load-styles "^2.0.0"
+
 react-error-overlay@^4.0.0:
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/react-error-overlay/-/react-error-overlay-4.0.0.tgz#d198408a85b4070937a98667f500c832f86bd5d4"
@@ -6471,9 +6481,9 @@ react-slick@~0.23.1:
     lodash.debounce "^4.0.8"
     resize-observer-polyfill "^1.5.0"
 
-react-to-print@^1.0.17:
-  version "1.0.17"
-  resolved "https://registry.yarnpkg.com/react-to-print/-/react-to-print-1.0.17.tgz#f06ed4f6bdf97eeb221eb45b0aae5a39aecef4dd"
+react-to-print@2.0.0-alpha-2:
+  version "2.0.0-alpha-2"
+  resolved "https://registry.yarnpkg.com/react-to-print/-/react-to-print-2.0.0-alpha-2.tgz#cec84bc0284d52cf62f8ef535c0a8ee714769afe"
   dependencies:
     prop-types "^15.6.0"
     react "^16.2.0"
