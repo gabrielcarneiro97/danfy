@@ -112,7 +112,7 @@ export function somaTotalMovimento(movimento, total) {
 
 export const cfopCompra = ['1102', '2102'];
 export const cfopDevolucao = ['1202', '2202'];
-export const cfopDevolucaoCompra = ['5202'];
+export const cfopDevolucaoCompra = ['5202', '5413'];
 export const cfopVenda = ['5102', '6102', '6108'];
 export const cfopConsignacao = ['1917', '2917'];
 export const cfopCompraConsignacao = ['1113'];
