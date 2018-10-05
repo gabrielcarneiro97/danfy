@@ -3,10 +3,9 @@ import moment from 'moment';
 import PropTypes from 'prop-types';
 import ReactToPrint from 'react-to-print';
 import { Divider, Row, Col, Button } from 'antd';
-import { Print } from 'react-easy-print';
 
 import { MovimentosTable, ServicosTable, TableToPrint, AcumuladosTable, CotasTable } from '.';
-import { R$, retornarTipo, somaTotalMovimento, somaTotalServico, pegaMes } from '../services';
+import { R$, retornarTipo, somaTotalMovimento, somaTotalServico, pegaMes, cnpjMask } from '../services';
 
 import './Printer.css';
 
@@ -333,6 +332,8 @@ function Printer(props) {
 
   let printRef = React.createRef();
 
+  console.log(dados.complementares);
+
   return (
     <div>
       <ReactToPrint
@@ -350,8 +351,16 @@ function Printer(props) {
           >
             {dados
               .complementares
-              .nome} - {pegaMes(dados.complementares.mes)}/{dados.complementares.ano}
+              .nome} - {cnpjMask(dados.complementares.cnpj)}
           </h2>
+          <h3
+            style={{
+              width: '100%',
+              textAlign: 'center',
+            }}
+          >
+            Competência: {pegaMes(dados.complementares.mes)}/{dados.complementares.ano}
+          </h3>
           <Divider />
           <Row type="flex" justify="center">
             {

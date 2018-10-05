@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Input, Button, Row, Col, Select } from 'antd';
 
-import { pegarDominio, pegarPessoaId, pegarEmpresaImpostos } from '../services';
+import { pegarDominio, pegarPessoaId, pegarEmpresaImpostos, cnpjMask } from '../services';
 
 import './VisualizarForm.css';
 
@@ -140,7 +140,7 @@ class VisualizarForm extends React.Component {
           <Input addonBefore="Nome" value={this.state.pessoa.nome} disabled />
         </Col>
         <Col span={9} className="form-input">
-          <Input addonBefore="CNPJ" value={this.state.pessoa.cnpj} disabled />
+          <Input addonBefore="CNPJ" value={cnpjMask(this.state.pessoa.cnpj)} disabled />
         </Col>
         <Col span={24} className="form-input">
           <Input addonBefore="Forma de Pagamento Trimestrais" value={this.state.pessoa.formaPagamento} disabled />

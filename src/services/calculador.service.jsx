@@ -160,3 +160,17 @@ export function pegaMes(mes) {
     12: 'Dezembro',
   }[mes];
 }
+
+export function cnpjMask(cnpj, tirar) {
+  const strCnpj = String(cnpj);
+
+  if (strCnpj.length !== 14) {
+    return '';
+  }
+
+  if (tirar) {
+    return strCnpj.replace(/\./g, '').replace(/-/g, '').replace(/\\/g, '');
+  }
+
+  return `${strCnpj.slice(0, 2)}.${strCnpj.slice(2, 5)}.${strCnpj.slice(5, 8)}/${strCnpj.slice(8, 12)}-${strCnpj.slice(12, 14)}`;
+}
