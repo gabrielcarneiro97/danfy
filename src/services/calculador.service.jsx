@@ -112,7 +112,7 @@ export function somaTotalMovimento(movimento, total) {
 
 export const cfopCompra = ['1102', '2102'];
 export const cfopDevolucao = ['1202', '2202'];
-export const cfopDevolucaoCompra = ['5202', '5413'];
+export const cfopDevolucaoCompra = ['5202', '5413', '6202'];
 export const cfopVenda = ['5102', '6102', '6108'];
 export const cfopConsignacao = ['1917', '2917'];
 export const cfopCompraConsignacao = ['1113'];
@@ -164,12 +164,12 @@ export function pegaMes(mes) {
 export function cnpjMask(cnpj, tirar) {
   const strCnpj = String(cnpj);
 
-  if (strCnpj.length !== 14) {
-    return '';
+  if (tirar && strCnpj.length === 18) {
+    return strCnpj.replace(/\./g, '').replace(/-/g, '').replace(/\//g, '');
   }
 
-  if (tirar) {
-    return strCnpj.replace(/\./g, '').replace(/-/g, '').replace(/\\/g, '');
+  if (strCnpj.length !== 14) {
+    return '';
   }
 
   return `${strCnpj.slice(0, 2)}.${strCnpj.slice(2, 5)}.${strCnpj.slice(5, 8)}/${strCnpj.slice(8, 12)}-${strCnpj.slice(12, 14)}`;

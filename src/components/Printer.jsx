@@ -332,7 +332,7 @@ function Printer(props) {
 
   let printRef = React.createRef();
 
-  console.log(dados.complementares);
+  console.log(dados);
 
   return (
     <div>

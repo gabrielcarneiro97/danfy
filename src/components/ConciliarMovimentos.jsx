@@ -89,6 +89,8 @@ class ConciliarMovimentos extends React.Component {
           const { movimentos, notasIniciais } = res.data;
           dados.nfe = dados.nfe.concat(notasIniciais);
 
+          console.log(movimentos, notasIniciais);
+
           const movimentosId = [];
 
           movimentos.forEach((el, id) => movimentosId.push({ ...el, id }));

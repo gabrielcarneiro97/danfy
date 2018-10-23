@@ -80,10 +80,15 @@ class EnviarArquivos extends React.Component {
       }
 
       if (this.ended === info.fileList.length) {
-        message.success('Todas as notas foram importadas!');
-        promise.then(() => {
-          this.props.onEnd(this.state);
-        });
+        console.log(info.file);
+        if (info.file.status === 'error') {
+          message.error('Erro!');
+        } else {
+          message.success('Todas as notas foram importadas!');
+          promise.then(() => {
+            this.props.onEnd(this.state);
+          });
+        }
       }
     },
   };
