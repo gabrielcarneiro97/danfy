@@ -24,149 +24,160 @@ export function pegarDominioId() {
 
     const { uid } = auth.currentUser;
 
-    db.ref(`Usuarios/${uid}`)
-      .once('value')
-      .then((snap) => {
-        const { dominio } = snap.val();
-        resolve(dominio);
-      });
+    axios.get(`${api}/dominio/id`, {
+      params: {
+        uid,
+      },
+    }).then((res) => {
+      resolve(res.data);
+    }).catch(err => reject(err));
   });
 }
 
 export function pegarDominio() {
   return new Promise((resolve, reject) => {
-    pegarDominioId().then((dominio) => {
-      db.ref(`Dominios/${dominio}`)
-        .once('value')
-        .then((snap) => {
-          resolve(snap.val());
-        });
+    pegarDominioId().then((id) => {
+      axios.get(`${api}/dominio`, {
+        params: {
+          id,
+        },
+      }).then((res) => {
+        resolve(res.data);
+      }).catch(err => reject(err));
     }).catch(err => reject(err));
   });
 }
 
-export function adicionarEmpresaDominio(cnpj, num) {
+export function adicionarEmpresaDominio(cnpj, numero) {
   return new Promise((resolve, reject) => {
-    pegarDominioId().then((dominio) => {
-      db.ref(`Dominios/${dominio}/empresas/${num}`)
-        .set(cnpj)
-        .then(snap => resolve(snap))
-        .catch(err => reject(err));
+    pegarDominioId().then((dominioId) => {
+      console.log({
+        cnpj,
+        numero,
+        dominioId,
+      });
+      axios.post(`${api}/dominio/empresa`, {
+        cnpj,
+        numero,
+        dominioId,
+      }).then(() => {
+        resolve();
+      }).catch(err => reject(err));
     });
   });
 }
 
 export function adicionarEmpresaImpostos(cnpj, aliquotas) {
   return new Promise((resolve, reject) => {
-    db.ref(`Impostos/${cnpj}`)
-      .set(aliquotas)
-      .then(snap => resolve(snap))
-      .catch(err => reject(err));
+    axios.post(`${api}/aliquotas`, {
+      cnpj,
+      aliquotas,
+    }).then(() => {
+      resolve();
+    }).catch(err => reject(err));
   });
 }
 
+export function teste(cnpj) {
+  return pegarPessoaId(cnpj);
+}
+
 export function gravarMovimentos(movimentos) {
-  return new Promise((resolveEnd, reject) => {
-    Object.keys(movimentos).forEach((cnpj, index, arr) => {
+  return new Promise((resolveEnd) => {
+    const promisesEmpresas = [];
+    Object.keys(movimentos).forEach((cnpj) => {
       const erros = [];
       if (movimentos[cnpj]) {
-        const atualizar = new Set();
-        const promises = [];
+        promisesEmpresas.push(new Promise((resolveEmpresa) => {
+          const atualizar = new Set();
+          const promises = [];
 
-        movimentos[cnpj].forEach((mov) => {
-          promises.push(new Promise((resolve) => {
-            let movimento = mov;
-            const gravar = () => {
-              const date = new Date(movimento.data);
-              const mes = (date.getUTCMonth() + 1).toString();
-              const ano = date.getUTCFullYear().toString();
-              atualizar.add(`${mes}/${ano}`);
+          movimentos[cnpj].forEach((movimentoParam) => {
+            promises.push(new Promise((resolve) => {
+              let movimento = { ...movimentoParam };
+              movimento.data = new Date(movimento.data);
 
-              if (movimento.notaInicial) {
-                db.ref(`Movimentos/${cnpj}`).push(movimento, (err) => {
-                  if (arr.length - 1 === index && err) {
-                    reject(err);
-                  } else if (arr.length - 1 === index && erros.length > 0) {
-                    reject(erros);
-                  } else if (arr.length - 1 === index) {
-                    resolve();
-                  }
-                });
-              } else {
-                axios.get(`${api}/movimentos/slim`, {
-                  params: {
-                    valorInicial: 0,
-                    notaFinal: movimento.notaFinal,
-                    cnpj,
-                  },
-                }).then(({ data }) => {
-                  const { valores, notaInicial } = data;
-                  const notaInicialChave = notaInicial.chave;
-
-                  movimento = {
-                    ...movimento,
-                    valores,
-                    notaInicial: notaInicialChave,
+              axios.get(`${api}/movimentos/notaFinal`, {
+                params: {
+                  notaFinalChave: movimento.notaFinal,
+                  cnpj,
+                },
+              }).then(({ data: movimentoRegistrado }) => {
+                if (movimentoRegistrado) {
+                  const erro = {
+                    ...new Error(`Nota já registrada em outro movimento! ID: ${movimentoExists._id}`), // eslint-disable-line
+                    idMovimento: movimentoExists._id, // eslint-disable-line
                   };
+                  erros.push(erro);
+                } else {
+                  const mes = (movimento.data.getUTCMonth() + 1).toString();
+                  const ano = movimento.data.getUTCFullYear().toString();
+                  atualizar.add(`${mes}/${ano}`);
 
-                  db.ref(`Movimentos/${cnpj}`).push(movimento, (err) => {
-                    if (arr.length - 1 === index && err) {
-                      reject(err);
-                    } else if (arr.length - 1 === index && erros.length > 0) {
-                      reject(erros);
-                    } else if (arr.length - 1 === index) {
+                  if (movimento.notaInicial) {
+                    axios.post(`${api}/movimentos/push`, {
+                      cnpj, movimento,
+                    }).then(() => {
                       resolve();
-                    }
-                  });
-                });
-              }
-            };
-
-            let erro;
-            db.ref(`Movimentos/${cnpj}`).orderByChild('notaFinal').equalTo(movimento.notaFinal).once('value', (snap) => {
-              const movimentosRelacionados = snap.val();
-              if (movimentosRelacionados) {
-                Object.keys(movimentosRelacionados).forEach((key) => {
-                  const movimentoRel = movimentosRelacionados[key];
-                  if (movimentoRel.metaDados) {
-                    if (movimentoRel.metaDados.status !== 'CANCELADO') {
-                      erro = new Error(`Nota já registrada em outro movimento! ID: ${Object.keys(snap.val())[0]}`);
-                      erro.idMovimento = key;
-                      erros.push(erro);
-                    } else {
-                      movimento.metaDados.movimentoRef = key;
-                      movimento.metaDados.tipo = 'SUB';
-                    }
+                    });
                   } else {
-                    erro = new Error(`Nota já registrada em outro movimento! ID: ${Object.keys(snap.val())[0]}`);
-                    erro.idMovimento = key;
-                    erros.push(erro);
-                  }
-                });
-                gravar();
-              } else {
-                gravar();
-              }
-            });
-          }));
-        });
+                    axios.get(`${api}/movimentos/slim`, {
+                      params: {
+                        valorInicial: 0,
+                        notaFinal: movimento.notaFinal,
+                        cnpj,
+                      },
+                    }).then(({ data }) => {
+                      const { valores, notaInicial } = data;
+                      const notaInicialChave = notaInicial.chave;
 
-        Promise.all(promises).then(() => {
-          atualizar.forEach((mesAno) => {
-            const mes = mesAno.split('/')[0];
-            const ano = mesAno.split('/')[1];
-            axios.get(`${api}/trimestre`, {
-              params: {
-                cnpj,
-                mes,
-                ano,
-                recalcular: true,
-              },
+                      movimento = {
+                        ...movimento,
+                        valores,
+                        notaInicial: notaInicialChave,
+                      };
+
+                      axios.post(`${api}/movimentos/push`, {
+                        cnpj, movimento,
+                      }).then(() => {
+                        resolve();
+                      });
+                    });
+                  }
+                }
+              });
+            }));
+          });
+
+          Promise.all(promises).then(() => {
+            resolveEmpresa({
+              cnpj,
+              atualizar,
             });
           });
-          resolveEnd();
-        });
+        }));
       }
+    });
+
+    Promise.all(promisesEmpresas).then((finalArray) => {
+      finalArray.forEach(({
+        cnpj,
+        atualizar,
+      }) => {
+        atualizar.forEach((mesAno) => {
+          const mes = mesAno.split('/')[0];
+          const ano = mesAno.split('/')[1];
+          axios.get(`${api}/trimestre`, {
+            params: {
+              cnpj,
+              mes,
+              ano,
+              recalcular: true,
+            },
+          });
+        });
+      });
+      resolveEnd();
     });
   });
 }
@@ -227,23 +238,28 @@ export function gravarServicos(servicos) {
   });
 }
 
-export function pegarPessoaId(id) {
+export function pegarPessoaId(pessoaId) {
   return new Promise((resolve, reject) => {
-    db.ref(`Pessoas/${id}`).once('value').then((snap) => {
-      resolve(snap.val());
-    }, (err) => {
-      reject(err);
-    });
+    axios.get(`${api}/pessoas/flat`, {
+      params: {
+        pessoaId,
+      },
+    }).then((res) => {
+      const { pessoa } = res.data;
+      resolve(pessoa);
+    }).catch(err => reject(err));
   });
 }
 
 export function pegarEmpresaImpostos(cnpj) {
   return new Promise((resolve, reject) => {
-    db.ref(`Impostos/${cnpj}`).once('value', (snap) => {
-      resolve(snap.val());
-    }, (err) => {
-      reject(err);
-    });
+    axios.get(`${api}/aliquotas`, {
+      params: {
+        cnpj,
+      },
+    }).then((res) => {
+      resolve(res.data);
+    }).catch(err => reject(err));
   });
 }
 

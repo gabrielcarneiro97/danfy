@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Input, Button, Row, Col, Select } from 'antd';
 
-import { pegarDominio, pegarPessoaId, pegarEmpresaImpostos, cnpjMask } from '../services';
+import { pegarDominio, pegarPessoaId, pegarEmpresaImpostos, cnpjMask, teste } from '../services';
 
 import './VisualizarForm.css';
 
@@ -28,6 +28,7 @@ class VisualizarForm extends React.Component {
   }
   componentDidMount() {
     pegarDominio().then(dominio => this.setState({ dominio, disableNum: false }));
+    teste('02071955000165').then(a => console.log(a));
   }
 
   handleSubmit = () => {

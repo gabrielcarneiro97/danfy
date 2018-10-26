@@ -84,7 +84,7 @@ class ConciliarMovimentos extends React.Component {
         email,
       };
 
-      axios.post(`${api}/movimentos`, { notasFinais, usuario })
+      axios.post(`${api}/movimentos/calcular`, { notasFinais, usuario })
         .then((res) => {
           const { movimentos, notasIniciais } = res.data;
           dados.nfe = dados.nfe.concat(notasIniciais);

@@ -66,7 +66,7 @@ class ConciliarServicos extends React.Component {
 
       nfse.forEach((nota, id) => {
         if (dominioCnpjs.includes(nota.emitente)) {
-          axios.get(`${api}/servico`, {
+          axios.get(`${api}/servicos`, {
             params: {
               notaServico: nota.chave,
               dominioId: usuario.dominioId,
