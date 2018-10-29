@@ -79,7 +79,7 @@ export function adicionarEmpresaImpostos(cnpj, aliquotas) {
 }
 
 export function teste(cnpj) {
-  return pegarPessoaId(cnpj);
+
 }
 
 export function gravarMovimentos(movimentos) {
@@ -264,39 +264,11 @@ export function pegarEmpresaImpostos(cnpj) {
 }
 
 export function cancelarMovimento(cnpj, id) {
-  return new Promise((resolve, reject) => {
-    db.ref(`Movimentos/${cnpj}/${id}`).once('value', (snap) => {
-      const movimento = snap.val();
-      if (movimento.metaDados) {
-        movimento.metaDados.status = 'CANCELADO';
-      } else {
-        movimento.metaDados = {
-          criadoPor: 'DESCONHECIDO',
-          dataCriacao: new Date('07/19/1997').toISOString(),
-          status: 'CANCELADO',
-          tipo: 'PRIM',
-        };
-      }
-      db.ref(`Movimentos/${cnpj}/${id}`).set(movimento, (err) => {
-        if (err) {
-          reject(err);
-        } else {
-          const data = new Date(movimento.data);
-          const mes = data.getMonth() + 1;
-          const ano = data.getFullYear();
-          axios.get(`${api}/trimestre`, {
-            params: {
-              cnpj,
-              mes,
-              ano,
-              recalcular: true,
-            },
-          }).then((response) => {
-            resolve(response.data);
-          });
-        }
-      });
-    });
+  return axios.put(`${api}/movimentos/cancelar`, {}, {
+    params: {
+      cnpj,
+      movimentoId: id,
+    },
   });
 }
 
@@ -308,7 +280,9 @@ export function editarMovimento(movimentoNovo, cnpj) {
       reject(new Error('O movimento não tem movimento referenciado nos meta dados'));
     } else {
       cancelarMovimento(cnpj, idMovimentoAntigo).then(() => {
-        db.ref(`Movimentos/${cnpj}`).push(movimentoNovo).then(() => {
+        axios.post(`${api}/movimentos/push`, {
+          cnpj, movimentoNovo,
+        }).then(() => {
           const data = new Date(movimentoNovo.data);
           const mes = data.getMonth() + 1;
           const ano = data.getFullYear();
@@ -319,8 +293,8 @@ export function editarMovimento(movimentoNovo, cnpj) {
               ano,
               recalcular: true,
             },
-          }).then((response) => {
-            resolve(response.data);
+          }).then((res) => {
+            resolve(res.data);
           });
         }).catch(err => reject(err));
       }).catch(err => reject(err));
