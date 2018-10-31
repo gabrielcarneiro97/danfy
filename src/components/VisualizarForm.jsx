@@ -28,7 +28,6 @@ class VisualizarForm extends React.Component {
   }
   componentDidMount() {
     pegarDominio().then(dominio => this.setState({ dominio, disableNum: false }));
-    teste('02071955000165').then(a => console.log(a));
   }
 
   handleSubmit = () => {

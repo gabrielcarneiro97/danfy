@@ -9,12 +9,12 @@ class MovimentosTable extends React.Component {
   static propTypes = {
     onChange: PropTypes.func.isRequired,
     notas: PropTypes.object, // eslint-disable-line
-    movimentos: PropTypes.object, // eslint-disable-line
+    movimentos: PropTypes.array, // eslint-disable-line
   }
 
   static defaultProps = {
     notas: {},
-    movimentos: {},
+    movimentos: [],
   }
 
   static columns = [{
@@ -210,10 +210,11 @@ class MovimentosTable extends React.Component {
     const { movimentos, notas } = this.props;
     const dataSource = [];
     let totais;
-    Object.keys(movimentos).forEach((key) => {
-      const movimento = movimentos[key];
+    movimentos.forEach((movimento) => {
       const notaFinal = notas[movimento.notaFinal];
       const notaInicial = notas[movimento.notaInicial];
+
+      const key = movimento._id;
 
       const valores = {
         key,

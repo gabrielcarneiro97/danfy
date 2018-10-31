@@ -17,8 +17,8 @@ class VisualizarTables extends React.Component {
     show: PropTypes.bool,
     onChange: PropTypes.func.isRequired,
     dados: PropTypes.shape({
-      movimentos: PropTypes.object,
-      servicos: PropTypes.object,
+      movimentos: PropTypes.array,
+      servicos: PropTypes.array,
       notas: PropTypes.object,
     }).isRequired,
   }
@@ -72,7 +72,6 @@ class VisualizarTables extends React.Component {
       content = (
         <ServicosTable
           servicos={dados.servicos}
-          notas={dados.notas}
           onChange={this.servicosHandleChange}
         />
       );

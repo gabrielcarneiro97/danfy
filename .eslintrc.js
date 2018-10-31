@@ -9,6 +9,7 @@ module.exports = {
     "jsx-a11y/anchor-is-valid": ["error", {
       "specialLink": ["hrefLeft", "hrefRight"],
       "aspects": ["noHref", "invalidHref", "preferButton"]
-    }]
+    }],
+    "no-underscore-dangle": "off",
   },
 };

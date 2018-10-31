@@ -51,11 +51,6 @@ export function pegarDominio() {
 export function adicionarEmpresaDominio(cnpj, numero) {
   return new Promise((resolve, reject) => {
     pegarDominioId().then((dominioId) => {
-      console.log({
-        cnpj,
-        numero,
-        dominioId,
-      });
       axios.post(`${api}/dominio/empresa`, {
         cnpj,
         numero,
@@ -78,8 +73,14 @@ export function adicionarEmpresaImpostos(cnpj, aliquotas) {
   });
 }
 
-export function teste(cnpj) {
-
+export function teste() {
+  console.log('ta');
+  axios.get(`${api}/servicos/nota`, {
+    params: {
+      notaChave: '0077479500000000001',
+      cnpj: '00774795000195',
+    },
+  }).then(r => console.log(r.data)).catch(err => console.error(err));
 }
 
 export function gravarMovimentos(movimentos) {
@@ -183,42 +184,38 @@ export function gravarMovimentos(movimentos) {
 }
 
 export function gravarServicos(servicos) {
-  return new Promise((resolveEnd, reject) => {
-    const erros = [];
-    Object.keys(servicos).forEach((cnpj, index, arr) => {
+  console.log(servicos);
+  return new Promise((resolveEnd) => {
+    Object.keys(servicos).forEach((cnpj) => {
       if (servicos[cnpj]) {
         const atualizar = new Set();
-        const promises = [];
+        const empresaPromises = [];
 
-        servicos[cnpj].forEach((servico) => {
-          promises.push(new Promise((resolve) => {
-            const date = new Date(servico.data);
-            const mes = (date.getUTCMonth() + 1).toString();
-            const ano = date.getUTCFullYear().toString();
-            atualizar.add(`${mes}/${ano}`);
+        empresaPromises.push(new Promise((resolveEmpresa) => {
+          servicos[cnpj].forEach((servico) => {
+            const promises = [];
+            promises.push(new Promise((resolve) => {
+              const date = new Date(servico.data);
+              const mes = (date.getUTCMonth() + 1).toString();
+              const ano = date.getUTCFullYear().toString();
+              atualizar.add(`${mes}/${ano}`);
 
-            db.ref(`Servicos/${cnpj}`).orderByChild('nota').equalTo(servico.nota).once('value', (snap) => {
-              if (snap.val()) {
-                const erro = new Error(`Nota já registrada em outro serviço! ID: ${Object.keys(snap.val())[0]}`);
-                [erro.idMovimento] = Object.keys(snap.val());
-                erros.push(erro);
+              axios.post(`${api}/servicos/push`, {
+                servico,
+                cnpj,
+              }).then(() => {
                 resolve();
-              } else {
-                db.ref(`Servicos/${cnpj}`).push(servico, (err) => {
-                  if (arr.length - 1 === index && err) {
-                    reject(err);
-                  } else if (arr.length - 1 === index && erros.length > 0) {
-                    reject(erros);
-                  } else if (arr.length - 1 === index) {
-                    resolve();
-                  }
-                });
-              }
-            });
-          }));
-        });
+              }).catch((err) => {
+                resolve();
+                console.error(err);
+              });
+            }));
 
-        Promise.all(promises).then(() => {
+            Promise.all(promises).then(() => resolveEmpresa());
+          });
+        }));
+
+        Promise.all(empresaPromises).then(() => {
           atualizar.forEach((mesAno) => {
             const mes = mesAno.split('/')[0];
             const ano = mesAno.split('/')[1];
@@ -302,36 +299,29 @@ export function editarMovimento(movimentoNovo, cnpj) {
   });
 }
 
-export function pegarServico(cnpj, id) {
+export function pegarServico(cnpj, servicoId) {
   return new Promise((resolve, reject) => {
-    db.ref(`Servicos/${cnpj}/${id}`).once('value', (snap) => {
-      resolve(snap.val());
-    }, err => reject(err));
+    axios.get(`${api}/servicos/id`, {
+      params: {
+        cnpj,
+        servicoId,
+      },
+    }).then(({ data: servico }) => {
+      resolve(servico);
+    }).catch(err => reject(err));
   });
 }
 
-export function excluirServico(cnpj, id) {
+export function excluirServico(cnpj, servicoId) {
+  console.log('excluirServico');
   return new Promise((resolve, reject) => {
-    pegarServico(cnpj, id).then((servico) => {
-      db.ref(`Servicos/${cnpj}/${id}`).set({}, (err) => {
-        if (err) {
-          reject(err);
-        } else {
-          const data = new Date(servico.data);
-          const mes = data.getMonth() + 1;
-          const ano = data.getFullYear();
-          axios.get(`${api}/trimestre`, {
-            params: {
-              cnpj,
-              mes,
-              ano,
-              recalcular: true,
-            },
-          }).then((response) => {
-            resolve(response.data);
-          });
-        }
-      });
-    });
+    axios.delete(`${api}/servicos/id`, {
+      params: {
+        cnpj,
+        servicoId,
+      },
+    }).then(({ data }) => {
+      resolve(data);
+    }).catch(err => reject(err));
   });
 }
