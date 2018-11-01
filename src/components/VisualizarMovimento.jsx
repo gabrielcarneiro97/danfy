@@ -57,7 +57,7 @@ class VisualizarMovimento extends React.Component {
               onChange={this.handleTableChange}
             />
           ),
-        }, () => console.log(this.state));
+        });
       });
     });
   }

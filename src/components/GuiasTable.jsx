@@ -143,8 +143,8 @@ function GuiasTable(props) {
 
 GuiasTable.propTypes = {
   dados: PropTypes.shape({ // eslint-disable-line
-    servicos: PropTypes.object,
-    movimentos: PropTypes.object,
+    servicos: PropTypes.array,
+    movimentos: PropTypes.array,
     complementares: PropTypes.object,
     trimestre: PropTypes.object,
   }).isRequired,

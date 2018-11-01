@@ -188,7 +188,8 @@ class MovimentosTable extends React.Component {
   }
 
   editarMovimento = (key) => {
-    const movimentoEditado = this.state.movimentosAlterados[key];
+    const movimentoEditado = { ...this.state.movimentosAlterados[key] };
+    delete movimentoEditado._id;
     delete movimentoEditado.mudou;
     delete movimentoEditado.key;
 

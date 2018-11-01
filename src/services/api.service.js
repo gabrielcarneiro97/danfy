@@ -73,21 +73,10 @@ export function adicionarEmpresaImpostos(cnpj, aliquotas) {
   });
 }
 
-export function teste() {
-  console.log('ta');
-  axios.get(`${api}/servicos/nota`, {
-    params: {
-      notaChave: '0077479500000000001',
-      cnpj: '00774795000195',
-    },
-  }).then(r => console.log(r.data)).catch(err => console.error(err));
-}
-
 export function gravarMovimentos(movimentos) {
   return new Promise((resolveEnd) => {
     const promisesEmpresas = [];
     Object.keys(movimentos).forEach((cnpj) => {
-      const erros = [];
       if (movimentos[cnpj]) {
         promisesEmpresas.push(new Promise((resolveEmpresa) => {
           const atualizar = new Set();
@@ -95,57 +84,20 @@ export function gravarMovimentos(movimentos) {
 
           movimentos[cnpj].forEach((movimentoParam) => {
             promises.push(new Promise((resolve) => {
-              let movimento = { ...movimentoParam };
+              const movimento = { ...movimentoParam };
               movimento.data = new Date(movimento.data);
 
-              axios.get(`${api}/movimentos/notaFinal`, {
-                params: {
-                  notaFinalChave: movimento.notaFinal,
-                  cnpj,
-                },
-              }).then(({ data: movimentoRegistrado }) => {
-                if (movimentoRegistrado) {
-                  const erro = {
-                    ...new Error(`Nota já registrada em outro movimento! ID: ${movimentoExists._id}`), // eslint-disable-line
-                    idMovimento: movimentoExists._id, // eslint-disable-line
-                  };
-                  erros.push(erro);
-                } else {
-                  const mes = (movimento.data.getUTCMonth() + 1).toString();
-                  const ano = movimento.data.getUTCFullYear().toString();
-                  atualizar.add(`${mes}/${ano}`);
-
-                  if (movimento.notaInicial) {
-                    axios.post(`${api}/movimentos/push`, {
-                      cnpj, movimento,
-                    }).then(() => {
-                      resolve();
-                    });
-                  } else {
-                    axios.get(`${api}/movimentos/slim`, {
-                      params: {
-                        valorInicial: 0,
-                        notaFinal: movimento.notaFinal,
-                        cnpj,
-                      },
-                    }).then(({ data }) => {
-                      const { valores, notaInicial } = data;
-                      const notaInicialChave = notaInicial.chave;
-
-                      movimento = {
-                        ...movimento,
-                        valores,
-                        notaInicial: notaInicialChave,
-                      };
-
-                      axios.post(`${api}/movimentos/push`, {
-                        cnpj, movimento,
-                      }).then(() => {
-                        resolve();
-                      });
-                    });
-                  }
-                }
+              axios.post(`${api}/movimentos/push`, {
+                cnpj, movimento, valorInicial: 0,
+              }).then(() => {
+                const mes = (movimento.data.getUTCMonth() + 1).toString();
+                const ano = movimento.data.getUTCFullYear().toString();
+                atualizar.add(`${mes}/${ano}`);
+                resolve();
+              }).catch((err) => {
+                console.log('aqui');
+                console.log(err);
+                resolve();
               });
             }));
           });
@@ -168,6 +120,7 @@ export function gravarMovimentos(movimentos) {
         atualizar.forEach((mesAno) => {
           const mes = mesAno.split('/')[0];
           const ano = mesAno.split('/')[1];
+          console.log('atualizar', mes, ano);
           axios.get(`${api}/trimestre`, {
             params: {
               cnpj,
@@ -184,7 +137,6 @@ export function gravarMovimentos(movimentos) {
 }
 
 export function gravarServicos(servicos) {
-  console.log(servicos);
   return new Promise((resolveEnd) => {
     Object.keys(servicos).forEach((cnpj) => {
       if (servicos[cnpj]) {
@@ -261,41 +213,30 @@ export function pegarEmpresaImpostos(cnpj) {
 }
 
 export function cancelarMovimento(cnpj, id) {
-  return axios.put(`${api}/movimentos/cancelar`, {}, {
-    params: {
-      cnpj,
-      movimentoId: id,
-    },
+  return new Promise((resolve, reject) => {
+    axios.put(`${api}/movimentos/cancelar`, {}, {
+      params: {
+        cnpj,
+        movimentoId: id,
+      },
+    }).then(({ data }) => {
+      resolve(data);
+    }).catch(err => reject(err));
   });
 }
 
 export function editarMovimento(movimentoNovo, cnpj) {
   return new Promise((resolve, reject) => {
-    const idMovimentoAntigo = movimentoNovo.metaDados.movimentoRef;
+    const movimentoAntigoId = movimentoNovo.metaDados.movimentoRef;
+    console.log(movimentoAntigoId);
 
-    if (!idMovimentoAntigo) {
-      reject(new Error('O movimento não tem movimento referenciado nos meta dados'));
-    } else {
-      cancelarMovimento(cnpj, idMovimentoAntigo).then(() => {
-        axios.post(`${api}/movimentos/push`, {
-          cnpj, movimentoNovo,
-        }).then(() => {
-          const data = new Date(movimentoNovo.data);
-          const mes = data.getMonth() + 1;
-          const ano = data.getFullYear();
-          axios.get(`${api}/trimestre`, {
-            params: {
-              cnpj,
-              mes,
-              ano,
-              recalcular: true,
-            },
-          }).then((res) => {
-            resolve(res.data);
-          });
-        }).catch(err => reject(err));
-      }).catch(err => reject(err));
-    }
+    axios.put(`${api}/movimentos/editar`, { movimentoNovo }, {
+      params: {
+        cnpj, movimentoAntigoId,
+      },
+    }).then(({ data }) => {
+      resolve(data);
+    }).catch(err => reject(err));
   });
 }
 
@@ -313,7 +254,6 @@ export function pegarServico(cnpj, servicoId) {
 }
 
 export function excluirServico(cnpj, servicoId) {
-  console.log('excluirServico');
   return new Promise((resolve, reject) => {
     axios.delete(`${api}/servicos/id`, {
       params: {

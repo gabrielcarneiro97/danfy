@@ -332,8 +332,6 @@ function Printer(props) {
 
   let printRef = React.createRef();
 
-  console.log(dados);
-
   return (
     <div>
       <ReactToPrint
@@ -439,8 +437,8 @@ function Printer(props) {
 
 Printer.propTypes = {
   dados: PropTypes.shape({ // eslint-disable-line
-    movimentos: PropTypes.object,
-    servicos: PropTypes.object,
+    movimentos: PropTypes.array,
+    servicos: PropTypes.array,
     notas: PropTypes.object,
     complementares: PropTypes.object,
     trimestre: PropTypes.object,

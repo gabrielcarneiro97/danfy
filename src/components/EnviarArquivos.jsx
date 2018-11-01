@@ -80,7 +80,6 @@ class EnviarArquivos extends React.Component {
       }
 
       if (this.ended === info.fileList.length) {
-        console.log(info.file);
         if (info.file.status === 'error') {
           message.error('Erro!');
         } else {
