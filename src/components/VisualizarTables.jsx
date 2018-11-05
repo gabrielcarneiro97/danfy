@@ -1,11 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Steps, Button, Row, Col } from 'antd';
+import { Divider } from 'antd';
 import { MovimentosTable, ServicosTable, GuiasTable, AcumuladosTable, CotasTable } from '.';
 
 import './VisualizarTables.css';
-
-const { Step } = Steps;
 
 function temTabelaCotas({ formaPagamento, mes }) {
   return formaPagamento === 'PAGAMENTO EM COTAS' &&
@@ -27,16 +25,7 @@ class VisualizarTables extends React.Component {
     show: true,
   }
 
-  state = {
-    current: 0,
-  }
-
-  next(current) {
-    this.setState({ current: current + 1 });
-  }
-  prev(current) {
-    this.setState({ current: current - 1 });
-  }
+  state = {}
 
   movimentosHandleChange = (infosMudadas) => {
     const { dados } = this.props;
@@ -54,47 +43,6 @@ class VisualizarTables extends React.Component {
       ...dados,
       ...infosMudadas,
     });
-  }
-
-  defineContent = (current, dados) => {
-    let content = '';
-    if (current === 0) {
-      content = (
-        <MovimentosTable
-          movimentos={dados.movimentos}
-          notas={dados.notas}
-          trimestre={dados.trimestre}
-          complementares={dados.complementares}
-          onChange={this.movimentosHandleChange}
-        />
-      );
-    } else if (current === 1) {
-      content = (
-        <ServicosTable
-          servicos={dados.servicos}
-          onChange={this.servicosHandleChange}
-        />
-      );
-    } else if (current === 2) {
-      content = (
-        <GuiasTable
-          dados={dados}
-        />
-      );
-    } else if (current === 3) {
-      content = (
-        <AcumuladosTable
-          dados={dados}
-        />
-      );
-    } else if (current === 4) {
-      content = (
-        <CotasTable
-          dados={dados}
-        />
-      );
-    }
-    return content;
   }
 
   render() {
@@ -122,38 +70,59 @@ class VisualizarTables extends React.Component {
       current = steps.length - 1;
     }
 
-    const content = this.defineContent(current, dados);
-
     return (
       this.props.show
       &&
       <div>
-        <Steps progressDot current={current}>
-          {steps.map(item => <Step key={item.title} title={item.title} />)}
-        </Steps>
-        <div className="steps-action">
-          <Row>
-            <Col span={12} style={{ textAlign: 'left' }}>
-              <Button
-                style={{ marginLeft: 8 }}
-                onClick={() => this.prev(current)}
-                disabled={current === 0}
-              >
-                Voltar
-              </Button>
-            </Col>
-            <Col span={12} style={{ textAlign: 'right' }}>
-              <Button
-                type="primary"
-                onClick={() => this.next(current)}
-                disabled={current >= steps.length - 1}
-              >
-                Próximo
-              </Button>
-            </Col>
-          </Row>
+        <div className="steps-content-tables">
+          {
+            dados.movimentos.length !== 0
+            &&
+            <div>
+              <Divider orientation="left">Movimentos</Divider>
+              <MovimentosTable
+                movimentos={dados.movimentos}
+                notas={dados.notas}
+                trimestre={dados.trimestre}
+                complementares={dados.complementares}
+                onChange={this.movimentosHandleChange}
+              />
+            </div>
+          }
+          {
+            dados.servicos.length !== 0
+            &&
+            <div>
+              <Divider orientation="left">Serviços</Divider>
+              <ServicosTable
+                servicos={dados.servicos}
+                onChange={this.servicosHandleChange}
+              />
+            </div>
+          }
+          <div>
+            <Divider orientation="left">Guias</Divider>
+            <GuiasTable
+              dados={dados}
+            />
+          </div>
+          <div>
+            <Divider orientation="left">Acumulados</Divider>
+            <AcumuladosTable
+              dados={dados}
+            />
+          </div>
+          {
+            temTabelaCotas(complementares)
+            &&
+            <div>
+              <Divider orientation="left">Cotas</Divider>
+              <CotasTable
+                dados={dados}
+              />
+            </div>
+          }
         </div>
-        <div className="steps-content-tables">{content}</div>
       </div>
     );
   }

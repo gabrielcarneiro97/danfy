@@ -228,7 +228,6 @@ export function cancelarMovimento(cnpj, id) {
 export function editarMovimento(movimentoNovo, cnpj) {
   return new Promise((resolve, reject) => {
     const movimentoAntigoId = movimentoNovo.metaDados.movimentoRef;
-    console.log(movimentoAntigoId);
 
     axios.put(`${api}/movimentos/editar`, { movimentoNovo }, {
       params: {

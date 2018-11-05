@@ -201,8 +201,8 @@ class ServicosTable extends React.Component {
             size="small"
             columns={ServicosTable.columns}
             dataSource={dataSource}
-            scroll={{ x: '250%' }}
-            pagination={{ position: 'top' }}
+            scroll={{ x: '110%' }}
+            pagination={{ position: 'top', simple: true }}
             style={{
               marginBottom: '20px',
             }}

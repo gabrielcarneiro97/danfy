@@ -339,7 +339,7 @@ function Printer(props) {
         content={() => printRef}
       />
       <div style={{ display: 'none' }}>
-        <div ref={(el) => { printRef = el; }} style={{ padding: '10px' }}>
+        <div ref={(el) => { printRef = el; }}>
           <h2
             style={{
               width: '100%',
@@ -359,16 +359,13 @@ function Printer(props) {
           >
             Competência: {pegaMes(dados.complementares.mes)}/{dados.complementares.ano}
           </h3>
-          <Divider />
           <Row type="flex" justify="center">
             {
               dataTableMovimentos.length !== 0
               &&
               <React.Fragment>
+                <Divider orientation="left">Relatório de Vendas</Divider>
                 <Col span={24}>
-                  <h3 className="table-title">
-                    Relatório de Vendas
-                  </h3>
                   <TableToPrint
                     dataSource={dataTableMovimentos}
                     columns={MovimentosTable.columns}
@@ -376,15 +373,12 @@ function Printer(props) {
                 </Col>
               </React.Fragment>
             }
-            <Divider />
             {
               dataTableServicos.length !== 0
               &&
               <React.Fragment>
+                <Divider orientation="left">Relatório de Serviços Prestados</Divider>
                 <Col span={24}>
-                  <h3 className="table-title">
-                    Relatório de Serviços Prestados
-                  </h3>
                   <TableToPrint
                     dataSource={dataTableServicos}
                     columns={ServicosTable.columns}
@@ -392,21 +386,15 @@ function Printer(props) {
                 </Col>
               </React.Fragment>
             }
-            <Divider />
+            <Divider orientation="left">Relatório de Guias</Divider>
             <Col span={24}>
-              <h3 className="table-title">
-                Relatório de Guias
-              </h3>
               <TableToPrint
                 dataSource={dataSourceGuias}
                 columns={columnsGuias}
               />
             </Col>
-            <Divider />
+            <Divider orientation="left">Acumulados</Divider>
             <Col span={24}>
-              <h3 className="table-title">
-                Acumulados
-              </h3>
               <TableToPrint
                 dataSource={dataTableAcumulados}
                 columns={AcumuladosTable.columns}
@@ -416,10 +404,8 @@ function Printer(props) {
               dataTableCotas.length !== 0
               &&
               <React.Fragment>
+                <Divider orientation="left">Cotas</Divider>
                 <Col span={24}>
-                  <h3 className="table-title">
-                    Cotas
-                  </h3>
                   <TableToPrint
                     dataSource={dataTableCotas}
                     columns={CotasTable.columns}

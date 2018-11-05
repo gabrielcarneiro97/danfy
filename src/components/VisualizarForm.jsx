@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Input, Button, Row, Col, Select } from 'antd';
+import { Input, Button, Row, Col, Select, Icon } from 'antd';
 
-import { pegarDominio, pegarPessoaId, pegarEmpresaImpostos, cnpjMask, teste } from '../services';
+import { pegarDominio, pegarPessoaId, pegarEmpresaImpostos, cnpjMask } from '../services';
 
 import './VisualizarForm.css';
 
@@ -11,12 +11,14 @@ const { Option } = Select;
 class VisualizarForm extends React.Component {
   static propTypes = {
     onSubmit: PropTypes.func.isRequired,
+    printer: PropTypes.oneOfType([PropTypes.object, PropTypes.string]).isRequired,
   }
   state = {
     num: '',
     mes: '',
     ano: '',
     submit: false,
+    submitText: 'Selecionar',
     disableNum: true,
     pessoa: {
       nome: '',
@@ -31,12 +33,17 @@ class VisualizarForm extends React.Component {
   }
 
   handleSubmit = () => {
-    this.props.onSubmit({
-      cnpj: this.state.pessoa.cnpj,
-      mes: this.state.mes,
-      ano: this.state.ano,
-      nome: this.state.pessoa.nome,
-      formaPagamento: this.state.pessoa.formaPagamento,
+    this.setState({
+      submit: false,
+      submitText: <Icon type="loading" theme="outlined" />,
+    }, () => {
+      this.props.onSubmit({
+        cnpj: this.state.pessoa.cnpj,
+        mes: this.state.mes,
+        ano: this.state.ano,
+        nome: this.state.pessoa.nome,
+        formaPagamento: this.state.pessoa.formaPagamento,
+      }).then(() => this.setState({ submit: true, submitText: 'Selecionar' }));
     });
   }
 
@@ -92,67 +99,78 @@ class VisualizarForm extends React.Component {
   }
   render() {
     return (
-      <Row
-        gutter={10}
-        justify="center"
-        type="flex"
-      >
-        <Col span={8} className="form-input">
-          <Input
-            addonBefore="Número"
-            onChange={this.handleNum}
-            value={this.state.num}
-            disabled={this.state.disableNum}
-          />
-        </Col>
-        <Col span={8} className="form-input">
-          <Select
-            placeholder="Mês"
-            style={{ width: '100%' }}
-            onChange={this.handleMes}
-          >
-            <Option value="1">Janeiro</Option>
-            <Option value="2">Fevereiro</Option>
-            <Option value="3">Março</Option>
-            <Option value="4">Abril</Option>
-            <Option value="5">Maio</Option>
-            <Option value="6">Junho</Option>
-            <Option value="7">Julho</Option>
-            <Option value="8">Agosto</Option>
-            <Option value="9">Setembro</Option>
-            <Option value="10">Outubro</Option>
-            <Option value="11">Novembro</Option>
-            <Option value="12">Dezembro</Option>
-          </Select>
-        </Col>
-        <Col span={8} className="form-input">
-          <Select
-            placeholder="Ano"
-            style={{ width: '100%' }}
-            onChange={this.handleAno}
-          >
-            <Option value="2017">2017</Option>
-            <Option value="2018">2018</Option>
-            <Option value="2019">2019</Option>
-          </Select>
-        </Col>
-        <Col span={15} className="form-input">
-          <Input addonBefore="Nome" value={this.state.pessoa.nome} disabled />
-        </Col>
-        <Col span={9} className="form-input">
-          <Input addonBefore="CNPJ" value={cnpjMask(this.state.pessoa.cnpj)} disabled />
-        </Col>
-        <Col span={24} className="form-input">
-          <Input addonBefore="Forma de Pagamento Trimestrais" value={this.state.pessoa.formaPagamento} disabled />
-        </Col>
-        <Col
-          span={24}
-          className="form-input"
-          style={{ textAlign: 'right' }}
+      <div>
+        <Row
+          gutter={10}
+          justify="center"
+          type="flex"
         >
-          <Button type="primary" onClick={this.handleSubmit} disabled={!this.state.submit}>Selecionar</Button>
-        </Col>
-      </Row>
+          <Col span={8} className="form-input">
+            <Input
+              addonBefore="Número"
+              onChange={this.handleNum}
+              value={this.state.num}
+              disabled={this.state.disableNum}
+            />
+          </Col>
+          <Col span={8} className="form-input">
+            <Select
+              placeholder="Mês"
+              style={{ width: '100%' }}
+              onChange={this.handleMes}
+            >
+              <Option value="1">Janeiro</Option>
+              <Option value="2">Fevereiro</Option>
+              <Option value="3">Março</Option>
+              <Option value="4">Abril</Option>
+              <Option value="5">Maio</Option>
+              <Option value="6">Junho</Option>
+              <Option value="7">Julho</Option>
+              <Option value="8">Agosto</Option>
+              <Option value="9">Setembro</Option>
+              <Option value="10">Outubro</Option>
+              <Option value="11">Novembro</Option>
+              <Option value="12">Dezembro</Option>
+            </Select>
+          </Col>
+          <Col span={8} className="form-input">
+            <Select
+              placeholder="Ano"
+              style={{ width: '100%' }}
+              onChange={this.handleAno}
+            >
+              <Option value="2017">2017</Option>
+              <Option value="2018">2018</Option>
+              <Option value="2019">2019</Option>
+            </Select>
+          </Col>
+          <Col span={15} className="form-input">
+            <Input addonBefore="Nome" value={this.state.pessoa.nome} disabled />
+          </Col>
+          <Col span={9} className="form-input">
+            <Input addonBefore="CNPJ" value={cnpjMask(this.state.pessoa.cnpj)} disabled />
+          </Col>
+          <Col span={24} className="form-input">
+            <Input addonBefore="Forma de Pagamento Trimestrais" value={this.state.pessoa.formaPagamento} disabled />
+          </Col>
+        </Row>
+        <Row
+          type="flex"
+          justify="end"
+          gutter={16}
+        >
+          <Col
+            className="form-input"
+          >
+            {this.props.printer}
+          </Col>
+          <Col
+            className="form-input"
+          >
+            <Button type="primary" onClick={this.handleSubmit} disabled={!this.state.submit}>{this.state.submitText}</Button>
+          </Col>
+        </Row>
+      </div>
     );
   }
 }
