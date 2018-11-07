@@ -180,7 +180,7 @@ class ImportarNotas extends React.Component {
         movimentosGravados = true;
         fim();
       }).catch((err) => {
-        console.log(err);
+        console.error(err);
         movimentosGravados = true;
         fim();
       });
@@ -189,7 +189,7 @@ class ImportarNotas extends React.Component {
         servicosGravados = true;
         fim();
       }).catch((err) => {
-        console.log(err);
+        console.error(err);
         servicosGravados = true;
         fim();
       });

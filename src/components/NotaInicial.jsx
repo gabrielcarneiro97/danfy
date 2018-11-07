@@ -53,7 +53,7 @@ class NotaInicial extends React.Component {
       axios.get(`${api}/movimentos/slim`, {
         params: {
           valorInicial: floating(this.state.valorInput),
-          notaFinal: movimento.notaFinal,
+          notaFinalChave: movimento.notaFinal,
           cnpj: notaFinal.emitente,
         },
       }).then((res) => {

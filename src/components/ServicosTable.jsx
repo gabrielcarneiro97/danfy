@@ -8,11 +8,11 @@ import { R$, excluirServico, somaTotalServico } from '../services';
 class ServicosTable extends React.Component {
   static propTypes = {
     onChange: PropTypes.func.isRequired,
-    servicos: PropTypes.object, // eslint-disable-line
+    servicos: PropTypes.array, // eslint-disable-line
   }
 
   static defaultProps = {
-    servicos: {},
+    servicos: [],
   }
 
   static columns = [{
@@ -131,9 +131,8 @@ class ServicosTable extends React.Component {
     const { servicos } = this.props;
     let totais;
 
-    Object.keys(servicos).forEach((key) => {
-      const servico = servicos[key];
-
+    servicos.forEach((servico) => {
+      const key = servico._id;
       const numero = parseInt(servico.nota.substring(18), 10);
       const valores = {
         key: servico.nota,
@@ -202,8 +201,8 @@ class ServicosTable extends React.Component {
             size="small"
             columns={ServicosTable.columns}
             dataSource={dataSource}
-            scroll={{ x: '250%' }}
-            pagination={{ position: 'top' }}
+            scroll={{ x: '110%' }}
+            pagination={{ position: 'top', simple: true }}
             style={{
               marginBottom: '20px',
             }}

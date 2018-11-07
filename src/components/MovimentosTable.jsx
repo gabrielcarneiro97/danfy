@@ -9,12 +9,12 @@ class MovimentosTable extends React.Component {
   static propTypes = {
     onChange: PropTypes.func.isRequired,
     notas: PropTypes.object, // eslint-disable-line
-    movimentos: PropTypes.object, // eslint-disable-line
+    movimentos: PropTypes.array, // eslint-disable-line
   }
 
   static defaultProps = {
     notas: {},
-    movimentos: {},
+    movimentos: [],
   }
 
   static columns = [{
@@ -26,7 +26,6 @@ class MovimentosTable extends React.Component {
     title: 'Número',
     dataIndex: 'numero',
     key: 'numero',
-    fixed: true,
     defaultSortOrder: 'ascend',
     sorter: (a, b) => {
       if (!a.numero.numero) {
@@ -63,57 +62,70 @@ class MovimentosTable extends React.Component {
     title: 'Valor Nota Inicial',
     dataIndex: 'valorInicial',
     key: 'valorInicial',
+    width: '6.67%',
   }, {
     title: 'Valor Nota Final',
     dataIndex: 'valorFinal',
     key: 'valorFinal',
+    width: '6.67%',
   }, {
     title: 'Tipo de Movimento',
     dataIndex: 'tipoMovimento',
     key: 'tipoMovimento',
+    width: '10%',
   }, {
     title: 'Lucro',
     dataIndex: 'lucro',
     key: 'lucro',
+    width: '6.67%',
   }, {
     title: 'Base ICMS',
     dataIndex: 'baseIcms',
     key: 'baseIcms',
+    width: '6.67%',
   }, {
     title: 'ICMS',
     dataIndex: 'icms',
     key: 'icms',
+    width: '6.67%',
   }, {
     title: 'DIFAL',
     children: [{
       title: 'Originário',
       dataIndex: 'difalOrigem',
       key: 'difalOrigem',
+      width: '6.67%',
     }, {
       title: 'Destinatário (GNRE)',
       dataIndex: 'difalDestino',
       key: 'difalDestino',
+      width: '6.67%',
     }],
   }, {
     title: 'PIS',
     dataIndex: 'pis',
     key: 'pis',
+    width: '6.67%',
   }, {
     title: 'COFINS',
     dataIndex: 'cofins',
     key: 'cofins',
+    width: '6.67%',
   }, {
     title: 'CSLL',
     dataIndex: 'csll',
     key: 'csll',
+    width: '6.67%',
   }, {
     title: 'IRPJ',
     dataIndex: 'irpj',
     key: 'irpj',
+    width: '6.67%',
   }, {
     title: 'TOTAL',
     dataIndex: 'total',
     key: 'total',
+    width: '6.67%',
   }];
 
   state = {
@@ -188,7 +200,8 @@ class MovimentosTable extends React.Component {
   }
 
   editarMovimento = (key) => {
-    const movimentoEditado = this.state.movimentosAlterados[key];
+    const movimentoEditado = { ...this.state.movimentosAlterados[key] };
+    delete movimentoEditado._id;
     delete movimentoEditado.mudou;
     delete movimentoEditado.key;
 
@@ -210,10 +223,11 @@ class MovimentosTable extends React.Component {
     const { movimentos, notas } = this.props;
     const dataSource = [];
     let totais;
-    Object.keys(movimentos).forEach((key) => {
-      const movimento = movimentos[key];
+    movimentos.forEach((movimento) => {
       const notaFinal = notas[movimento.notaFinal];
       const notaInicial = notas[movimento.notaInicial];
+
+      const key = movimento._id;
 
       const valores = {
         key,
@@ -356,11 +370,11 @@ class MovimentosTable extends React.Component {
             size="small"
             columns={MovimentosTable.columns}
             dataSource={dataSource}
-            scroll={{ x: '250%' }}
+            scroll={{ x: '150%' }}
             style={{
               marginBottom: '20px',
             }}
-            pagination={{ position: 'top' }}
+            pagination={{ position: 'top', simple: true }}
           />
         </Col>
       </Row>
