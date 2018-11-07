@@ -31,6 +31,9 @@ export function R$(valp) {
 }
 
 export function floating(stringVal) {
+  if (stringVal === undefined || stringVal === null) {
+    return 0;
+  }
   if (typeof stringVal === 'number') {
     return stringVal;
   }

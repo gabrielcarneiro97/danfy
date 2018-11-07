@@ -45,6 +45,14 @@ class VisualizarTables extends React.Component {
     });
   }
 
+  guiasHandleChange = (infosMudadas) => {
+    const { dados } = this.props;
+    this.props.onChange({
+      ...dados,
+      ...infosMudadas,
+    });
+  }
+
   render() {
     const { dados } = this.props;
     const { complementares } = dados;
@@ -104,6 +112,7 @@ class VisualizarTables extends React.Component {
             <Divider orientation="left">Guias</Divider>
             <GuiasTable
               dados={dados}
+              onChange={this.guiasHandleChange}
             />
           </div>
           <div>

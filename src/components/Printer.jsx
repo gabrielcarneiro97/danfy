@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import moment from 'moment';
 import PropTypes from 'prop-types';
 import ReactToPrint from 'react-to-print';
 import { Divider, Row, Col, Button } from 'antd';
 
 import { MovimentosTable, ServicosTable, TableToPrint, AcumuladosTable, CotasTable } from '.';
-import { R$, retornarTipo, somaTotalMovimento, somaTotalServico, pegaMes, cnpjMask } from '../services';
+import { R$, retornarTipo, somaTotalMovimento, somaTotalServico, pegaMes, cnpjMask, floating } from '../services';
 
 import './Printer.css';
 
@@ -124,11 +124,39 @@ function defineTableServicos(props) {
   return printSource;
 }
 
+function valorRender(valor, imposto, complementares, totaisMes) {
+  const { adicionais, deducoes } = totaisMes;
+
+  let adicional;
+  if (adicionais) adicional = floating(adicionais[imposto]);
+
+  let deducao;
+  if (deducoes) deducao = floating(deducoes[imposto]);
+
+  let valorLiquido = floating(valor);
+  if (deducao) valorLiquido -= deducao;
+
+  if (adicional) valorLiquido += adicional;
+
+  const check = adicional || deducao;
+
+  return (
+    <Fragment>
+      {R$(valor)}
+      {check ? <span>&nbsp;</span> : ''}
+      {adicional ? <span>+ {R$(adicional)} </span> : ''}
+      {deducao ? <span>- {R$(deducao)} </span> : ''}
+      {check ? <span>= {R$(valorLiquido)} </span> : ''}
+    </Fragment>
+  );
+}
+
 function defineTableGuias(props) {
   const { complementares, trimestre } = props.dados;
   const columnsGuias = [];
   const dataSourceGuias = [];
   const data = {};
+  const totaisMes = trimestre[complementares.mes];
 
   if (temMovimentos(props)) {
     columnsGuias.push({
@@ -136,8 +164,9 @@ function defineTableGuias(props) {
       dataIndex: 'icms',
       key: 'icms',
     });
-    data.icms = R$(trimestre[complementares.mes].totais.impostos.icms.proprio +
-      trimestre[complementares.mes].totais.impostos.icms.difal.origem);
+    const icms = totaisMes.totais.impostos.icms.proprio +
+      totaisMes.totais.impostos.icms.difal.origem;
+    data.icms = valorRender(icms, 'icms', complementares, totaisMes);
   }
 
   if (temServicos(props)) {
@@ -146,8 +175,8 @@ function defineTableGuias(props) {
       dataIndex: 'iss',
       key: 'iss',
     });
-    data.iss = R$(trimestre[complementares.mes].totais.impostos.iss -
-      trimestre[complementares.mes].totais.impostos.retencoes.iss);
+    const iss = totaisMes.totais.impostos.iss - totaisMes.totais.impostos.retencoes.iss;
+    data.iss = valorRender(iss, 'iss', complementares, totaisMes);
   }
 
   columnsGuias.push({
@@ -156,9 +185,10 @@ function defineTableGuias(props) {
     key: 'pis',
   });
 
-  data.pis = R$((trimestre[complementares.mes].totais.impostos.pis -
-    trimestre[complementares.mes].totais.impostos.retencoes.pis) +
-    trimestre[complementares.mes].totais.impostos.acumulado.pis);
+  const pis = (totaisMes.totais.impostos.pis -
+    totaisMes.totais.impostos.retencoes.pis) +
+    totaisMes.totais.impostos.acumulado.pis;
+  data.pis = valorRender(pis, 'pis', complementares, totaisMes);
 
   columnsGuias.push({
     title: 'COFINS',
@@ -166,9 +196,10 @@ function defineTableGuias(props) {
     key: 'cofins',
   });
 
-  data.cofins = R$((trimestre[complementares.mes].totais.impostos.cofins -
-    trimestre[complementares.mes].totais.impostos.retencoes.cofins) +
-    trimestre[complementares.mes].totais.impostos.acumulado.cofins);
+  const cofins = (totaisMes.totais.impostos.cofins -
+    totaisMes.totais.impostos.retencoes.cofins) +
+    totaisMes.totais.impostos.acumulado.cofins;
+  data.cofins = valorRender(cofins, 'cofins', complementares, totaisMes);
 
   if (parseInt(complementares.mes, 10) % 3 === 0 &&
     complementares.formaPagamento !== 'PAGAMENTO ANTECIPADO') {
@@ -177,16 +208,19 @@ function defineTableGuias(props) {
       dataIndex: 'csll',
       key: 'csll',
     });
-    data.csll = R$(trimestre.totais.impostos.csll - trimestre.totais.impostos.retencoes.csll);
+    const csll = trimestre.totais.impostos.csll - trimestre.totais.impostos.retencoes.csll;
+    data.csll = valorRender(csll, 'csll', complementares, totaisMes);
 
     columnsGuias.push({
       title: 'IRPJ + ADICIONAL',
       dataIndex: 'irpj',
       key: 'irpj',
     });
-    data.irpj = R$((trimestre.totais.impostos.irpj -
+    const irpj = (trimestre.totais.impostos.irpj -
       trimestre.totais.impostos.retencoes.irpj) +
-      trimestre.totais.impostos.adicionalIr);
+      trimestre.totais.impostos.adicionalIr;
+
+    data.irpj = valorRender(irpj, 'irpj', complementares, totaisMes);
   } else if (parseInt(complementares.mes, 10) % 3 !== 0 &&
     complementares.formaPagamento === 'PAGAMENTO ANTECIPADO') {
     columnsGuias.push({
@@ -194,16 +228,18 @@ function defineTableGuias(props) {
       dataIndex: 'csll',
       key: 'csll',
     });
-    data.csll = R$(trimestre[complementares.mes].totais.impostos.csll -
-      trimestre[complementares.mes].totais.impostos.retencoes.csll);
+    const csll = totaisMes.totais.impostos.csll -
+      totaisMes.totais.impostos.retencoes.csll;
+    data.csll = valorRender(csll, 'csll', complementares, totaisMes);
 
     columnsGuias.push({
       title: 'IRPJ',
       dataIndex: 'irpj',
       key: 'irpj',
     });
-    data.irpj = R$(trimestre[complementares.mes].totais.impostos.irpj -
-      trimestre[complementares.mes].totais.impostos.retencoes.irpj);
+    const irpj = totaisMes.totais.impostos.irpj -
+      totaisMes.totais.impostos.retencoes.irpj;
+    data.irpj = valorRender(irpj, 'irpj', complementares, totaisMes);
   } else if (parseInt(complementares.mes, 10) % 3 === 0 &&
     complementares.formaPagamento === 'PAGAMENTO ANTECIPADO') {
     columnsGuias.push({
@@ -211,17 +247,19 @@ function defineTableGuias(props) {
       dataIndex: 'csll',
       key: 'csll',
     });
-    data.csll = R$(trimestre[complementares.mes].totais.impostos.csll -
-      trimestre[complementares.mes].totais.impostos.retencoes.csll);
+    const csll = totaisMes.totais.impostos.csll -
+      totaisMes.totais.impostos.retencoes.csll;
+    data.csll = valorRender(csll, 'csll', complementares, totaisMes);
 
     columnsGuias.push({
       title: 'IRPJ + ADICIONAL',
       dataIndex: 'irpj',
       key: 'irpj',
     });
-    data.irpj = R$((trimestre[complementares.mes].totais.impostos.irpj -
-      trimestre[complementares.mes].totais.impostos.retencoes.irpj) +
-      trimestre.totais.impostos.adicionalIr);
+    const irpj = (totaisMes.totais.impostos.irpj -
+      totaisMes.totais.impostos.retencoes.irpj) +
+      trimestre.totais.impostos.adicionalIr;
+    data.irpj = valorRender(irpj, 'irpj', complementares, totaisMes);
   }
 
   data.key = 'guias';
