@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Component, Fragment } from 'react';
 import { Modal, Button, Input, Row, Col, Select, Checkbox, Divider, message } from 'antd';
 import PropTypes from 'prop-types';
 
@@ -9,7 +9,7 @@ import './AliquotasEmpresa.css';
 const { Option } = Select;
 const { confirm } = Modal;
 
-class AliquotasEmpresa extends React.Component {
+class AliquotasEmpresa extends Component {
   static propTypes = {
     dados: PropTypes.shape({
       nome: PropTypes.string,
@@ -50,9 +50,7 @@ class AliquotasEmpresa extends React.Component {
     impostosEmpresa: { ...AliquotasEmpresa.aliquotasPadrao },
   }
 
-  setTributacao = (tributacao) => {
-    this.setState({ tributacao });
-  }
+  setTributacao = tributacao => this.setState({ tributacao })
 
   setformaPagamentoTrimestrais = (formaPagamentoTrimestrais) => {
     this.setState({ formaPagamentoTrimestrais });
@@ -69,11 +67,9 @@ class AliquotasEmpresa extends React.Component {
   }
 
   setIss = (e) => {
-    this.setState((prevState) => { // eslint-disable-line
-      return {
-        impostosEmpresa: { ...this.state.impostosEmpresa, iss: e.target.value },
-      };
-    });
+    this.setState(prevState => ({
+      impostosEmpresa: { ...prevState.impostosEmpresa, iss: e.target.value },
+    }));
   }
 
   setNumero = (e) => {
@@ -128,7 +124,7 @@ class AliquotasEmpresa extends React.Component {
   }
 
   informacoesGeraisForm = () => (
-    <React.Fragment>
+    <Fragment>
       <Divider>Informações Gerais</Divider>
       <Row className="row">
         <Col span={12}>
@@ -153,7 +149,7 @@ class AliquotasEmpresa extends React.Component {
           </Select>
         </Col>
       </Row>
-    </React.Fragment>
+    </Fragment>
   )
 
   impostosForm = impostosEmpresa => (
