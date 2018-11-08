@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Component } from 'react';
 import axios from 'axios';
 import PropTypes from 'prop-types';
 import { Icon, Col, Row, Table, Checkbox } from 'antd';
@@ -6,7 +6,7 @@ import { Icon, Col, Row, Table, Checkbox } from 'antd';
 import { NotaInicial } from '.';
 import { auth, pegarDominioId, api } from '../services';
 
-class ConciliarMovimentos extends React.Component {
+class ConciliarMovimentos extends Component {
   static propTypes = {
     novaNota: PropTypes.func.isRequired,
     onChange: PropTypes.func.isRequired,

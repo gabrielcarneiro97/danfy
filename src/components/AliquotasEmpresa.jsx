@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Component, Fragment } from 'react';
 import { Modal, Button, Input, Row, Col, Select, Checkbox, Divider, message } from 'antd';
 import PropTypes from 'prop-types';
 
@@ -9,7 +9,7 @@ import './AliquotasEmpresa.css';
 const { Option } = Select;
 const { confirm } = Modal;
 
-class AliquotasEmpresa extends React.Component {
+class AliquotasEmpresa extends Component {
   static propTypes = {
     dados: PropTypes.shape({
       nome: PropTypes.string,
@@ -50,13 +50,11 @@ class AliquotasEmpresa extends React.Component {
     impostosEmpresa: { ...AliquotasEmpresa.aliquotasPadrao },
   }
 
-  setTributacao = (tributacao) => {
-    this.setState({ tributacao });
-  }
+  setTributacao = tributacao => this.setState({ tributacao })
 
-  setformaPagamentoTrimestrais = (formaPagamentoTrimestrais) => {
-    this.setState({ formaPagamentoTrimestrais });
-  }
+  setformaPagamentoTrimestrais = formaPagamentoTrimestrais => this.setState({
+    formaPagamentoTrimestrais,
+  });
 
   setLiminar = (e) => {
     const liminar = e.target.checked;
@@ -68,23 +66,13 @@ class AliquotasEmpresa extends React.Component {
     }
   }
 
-  setIss = (e) => {
-    this.setState((prevState) => { // eslint-disable-line
-      return {
-        impostosEmpresa: { ...this.state.impostosEmpresa, iss: e.target.value },
-      };
-    });
-  }
+  setIss = e => this.setState(prevState => ({
+    impostosEmpresa: { ...prevState.impostosEmpresa, iss: e.target.value },
+  }));
 
-  setNumero = (e) => {
-    this.setState({ numero: e.target.value });
-  }
+  setNumero = e => this.setState({ numero: e.target.value });
 
-  showModal = () => {
-    this.setState({
-      visible: true,
-    });
-  }
+  showModal = () => this.setState({ visible: true });
 
   handleOk = () => {
     if (parseInt(this.state.numero, 10) > 0 && parseFloat(this.state.impostosEmpresa.iss) >= 0) {
@@ -121,14 +109,11 @@ class AliquotasEmpresa extends React.Component {
       message.error('Número e ISS devem ser preenchidos!');
     }
   }
-  handleCancel = () => {
-    this.setState({
-      visible: false,
-    });
-  }
+
+  handleCancel = () => this.setState({ visible: false });
 
   informacoesGeraisForm = () => (
-    <React.Fragment>
+    <Fragment>
       <Divider>Informações Gerais</Divider>
       <Row className="row">
         <Col span={12}>
@@ -153,11 +138,11 @@ class AliquotasEmpresa extends React.Component {
           </Select>
         </Col>
       </Row>
-    </React.Fragment>
+    </Fragment>
   )
 
   impostosForm = impostosEmpresa => (
-    <div>
+    <Fragment>
       <Divider dashed>Impostos Federais</Divider>
       <Row className="row">
         <Col span={12}>
@@ -190,7 +175,7 @@ class AliquotasEmpresa extends React.Component {
           <Input addonBefore="ISS" defaultValue={impostosEmpresa.iss} onChange={this.setIss} />
         </Col>
       </Row>
-    </div>
+    </Fragment>
   )
 
   modalRender = (dados, impostosEmpresa) => (

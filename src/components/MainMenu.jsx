@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import propTypes from 'prop-types';
 import { withRouter, Link } from 'react-router-dom';
 import { Menu, Icon } from 'antd';

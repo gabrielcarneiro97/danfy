@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { Component, Fragment } from 'react';
 import { Modal, Table } from 'antd';
 import PropTypes from 'prop-types';
 import { AliquotasEmpresa } from '.';
 
-class AdicionarEmpresa extends React.Component {
+class AdicionarEmpresa extends Component {
   static propTypes = {
     visible: PropTypes.bool.isRequired,
     handleOk: PropTypes.func.isRequired,
@@ -47,7 +47,6 @@ class AdicionarEmpresa extends React.Component {
     const { dados } = this.props;
     const { dataTable } = this.state;
 
-
     dados.forEach(({ cnpj, nome }) => {
       if (!this.state.hasDone.includes(cnpj) && dataTable.filter(el => el.key === `${cnpj}-table`).length === 0) {
         const dadosEmpresa = {
@@ -72,7 +71,7 @@ class AdicionarEmpresa extends React.Component {
     });
 
     return (
-      <div>
+      <Fragment>
         <Modal
           title="Adicionar Empresas"
           visible={this.props.visible}
@@ -86,7 +85,7 @@ class AdicionarEmpresa extends React.Component {
             style={{ overflow: 'auto', maxHeight: '50vh' }}
           />
         </Modal>
-      </div>
+      </Fragment>
     );
   }
 }

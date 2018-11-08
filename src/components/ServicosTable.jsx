@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import { Table, Row, Col, Popconfirm, Button } from 'antd';
 
 import { R$, excluirServico, somaTotalServico } from '../services';
 
-class ServicosTable extends React.Component {
+class ServicosTable extends Component {
   static propTypes = {
     onChange: PropTypes.func.isRequired,
     servicos: PropTypes.array, // eslint-disable-line

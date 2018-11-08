@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Component, Fragment } from 'react';
 import axios from 'axios';
 
 import { VisualizarForm, VisualizarTables, Printer, Loader } from '.';
@@ -6,7 +6,7 @@ import { api } from '../services';
 
 import './VisualizarMovimento.css';
 
-class VisualizarMovimento extends React.Component {
+class VisualizarMovimento extends Component {
   state = {
     tables: '',
     printer: '',
@@ -68,7 +68,7 @@ class VisualizarMovimento extends React.Component {
 
   render() {
     return (
-      <div>
+      <Fragment>
         <div>
           <VisualizarForm
             onSubmit={this.handleSubmit}
@@ -78,7 +78,7 @@ class VisualizarMovimento extends React.Component {
         <div style={{ marginTop: '30px' }}>
           {this.state.tables}
         </div>
-      </div>
+      </Fragment>
     );
   }
 }

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { Input, Button, Row, Col, Select, Icon } from 'antd';
 
@@ -8,7 +8,7 @@ import './VisualizarForm.css';
 
 const { Option } = Select;
 
-class VisualizarForm extends React.Component {
+class VisualizarForm extends Component {
   static propTypes = {
     onSubmit: PropTypes.func.isRequired,
     printer: PropTypes.oneOfType([PropTypes.object, PropTypes.string]).isRequired,
@@ -99,7 +99,7 @@ class VisualizarForm extends React.Component {
   }
   render() {
     return (
-      <div>
+      <Fragment>
         <Row
           gutter={10}
           justify="center"
@@ -170,7 +170,7 @@ class VisualizarForm extends React.Component {
             <Button type="primary" onClick={this.handleSubmit} disabled={!this.state.submit}>{this.state.submitText}</Button>
           </Col>
         </Row>
-      </div>
+      </Fragment>
     );
   }
 }

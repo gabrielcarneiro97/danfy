@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { Steps, Button, Icon, Popconfirm, message } from 'antd';
 
@@ -9,7 +9,7 @@ import './ImportarNotas.css';
 
 const { Step } = Steps;
 
-class ImportarNotas extends React.Component {
+class ImportarNotas extends Component {
   static propTypes = {
     history: PropTypes.shape({
       push: PropTypes.func,
@@ -200,7 +200,7 @@ class ImportarNotas extends React.Component {
     const { current } = this.state;
 
     return (
-      <div>
+      <Fragment>
         <AdicionarEmpresa
           visible={this.state.adicionar}
           dados={this.state.adicionarArray}
@@ -230,7 +230,7 @@ class ImportarNotas extends React.Component {
           }
         </div>
         <div className="steps-content">{this.steps[this.state.current].content}</div>
-      </div>
+      </Fragment>
     );
   }
 }
