@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Table, Row, Col, Button, Popconfirm } from 'antd';
 
 import { MovimentoValorInput } from '.';
 import { R$, retornarTipo, somaTotalMovimento, cancelarMovimento, floating, editarMovimento, auth } from '../services';
 
-class MovimentosTable extends React.Component {
+class MovimentosTable extends Component {
   static propTypes = {
     onChange: PropTypes.func.isRequired,
     notas: PropTypes.object, // eslint-disable-line
@@ -193,11 +193,9 @@ class MovimentosTable extends React.Component {
     });
   }
 
-  cancelarMovimento = (movimentoId, cnpj) => {
-    cancelarMovimento(cnpj, movimentoId).then((dados) => {
-      this.props.onChange(dados);
-    });
-  }
+  cancelarMovimento = (movimentoId, cnpj) => cancelarMovimento(cnpj, movimentoId).then((dados) => {
+    this.props.onChange(dados);
+  })
 
   editarMovimento = (key) => {
     const movimentoEditado = { ...this.state.movimentosAlterados[key] };
