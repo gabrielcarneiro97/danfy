@@ -142,7 +142,7 @@ class AliquotasEmpresa extends Component {
   )
 
   impostosForm = impostosEmpresa => (
-    <div>
+    <Fragment>
       <Divider dashed>Impostos Federais</Divider>
       <Row className="row">
         <Col span={12}>
@@ -175,7 +175,7 @@ class AliquotasEmpresa extends Component {
           <Input addonBefore="ISS" defaultValue={impostosEmpresa.iss} onChange={this.setIss} />
         </Col>
       </Row>
-    </div>
+    </Fragment>
   )
 
   modalRender = (dados, impostosEmpresa) => (
