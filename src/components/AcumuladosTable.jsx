@@ -51,9 +51,7 @@ function AcumuladosTable(props) {
           columns={AcumuladosTable.columns}
           dataSource={dataSource}
           pagination={{ position: 'none' }}
-          style={{
-            marginBottom: '20px',
-          }}
+          style={{ marginBottom: '20px' }}
         />
       </Col>
     </Row>
