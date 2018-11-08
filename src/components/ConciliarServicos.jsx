@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import axios from 'axios';
 import { Table, Row, Col, Icon, Checkbox } from 'antd';
 
 import { api, pegarDominioId, auth } from '../services';
 
-class ConciliarServicos extends React.Component {
+class ConciliarServicos extends Component {
   static propTypes = {
     onChange: PropTypes.func.isRequired,
     onLoadEnd: PropTypes.func.isRequired,
@@ -53,11 +53,6 @@ class ConciliarServicos extends React.Component {
     const dominioCnpjs = Object.values(this.props.dominio());
 
     pegarDominioId().then((dominioId) => {
-      const usuario = {
-        dominioId: encodeURI(dominioId),
-        email: encodeURI(auth.currentUser.email),
-      };
-
       if (nfse.length === 0) {
         this.props.onChange(servicos);
         this.props.onLoadEnd();
@@ -69,8 +64,8 @@ class ConciliarServicos extends React.Component {
           axios.get(`${api}/servicos/calcular`, {
             params: {
               notaServico: nota.chave,
-              dominioId: usuario.dominioId,
-              email: usuario.email,
+              dominioId,
+              email: auth.currentUser.email,
             },
           }).then((res) => {
             const servico = res.data;
@@ -152,9 +147,7 @@ class ConciliarServicos extends React.Component {
           {
             !this.state.isLoading
             &&
-            <div>
-              <Table dataSource={dataSource} columns={ConciliarServicos.columns} />
-            </div>
+            <Table dataSource={dataSource} columns={ConciliarServicos.columns} />
           }
         </Col>
       </Row>
