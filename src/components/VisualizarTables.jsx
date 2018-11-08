@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { Divider } from 'antd';
 import { MovimentosTable, ServicosTable, GuiasTable, AcumuladosTable, CotasTable } from '.';
@@ -10,7 +10,7 @@ function temTabelaCotas({ formaPagamento, mes }) {
     parseInt(mes, 10) % 3 === 0;
 }
 
-class VisualizarTables extends React.Component {
+class VisualizarTables extends Component {
   static propTypes = {
     show: PropTypes.bool,
     onChange: PropTypes.func.isRequired,
@@ -24,8 +24,6 @@ class VisualizarTables extends React.Component {
   static defaultProps = {
     show: true,
   }
-
-  state = {}
 
   movimentosHandleChange = (infosMudadas) => {
     const { dados } = this.props;
@@ -47,6 +45,7 @@ class VisualizarTables extends React.Component {
 
   guiasHandleChange = (infosMudadas) => {
     const { dados } = this.props;
+
     this.props.onChange({
       ...dados,
       ...infosMudadas,
@@ -56,37 +55,16 @@ class VisualizarTables extends React.Component {
   render() {
     const { dados } = this.props;
     const { complementares } = dados;
-    let { current } = this.state;
-
-    const steps = [{
-      title: 'Movimentos',
-    }, {
-      title: 'Serviços',
-    }, {
-      title: 'Guias',
-    }, {
-      title: 'Acumulados',
-    }];
-
-    if (temTabelaCotas(complementares)) {
-      steps.push({
-        title: 'Cotas',
-      });
-    }
-
-    if (current > steps.length - 1) {
-      current = steps.length - 1;
-    }
 
     return (
       this.props.show
       &&
-      <div>
+      <Fragment>
         <div className="steps-content-tables">
           {
             dados.movimentos.length !== 0
             &&
-            <div>
+            <Fragment>
               <Divider orientation="left">Movimentos</Divider>
               <MovimentosTable
                 movimentos={dados.movimentos}
@@ -95,44 +73,44 @@ class VisualizarTables extends React.Component {
                 complementares={dados.complementares}
                 onChange={this.movimentosHandleChange}
               />
-            </div>
+            </Fragment>
           }
           {
             dados.servicos.length !== 0
             &&
-            <div>
+            <Fragment>
               <Divider orientation="left">Serviços</Divider>
               <ServicosTable
                 servicos={dados.servicos}
                 onChange={this.servicosHandleChange}
               />
-            </div>
+            </Fragment>
           }
-          <div>
+          <Fragment>
             <Divider orientation="left">Guias</Divider>
             <GuiasTable
               dados={dados}
               onChange={this.guiasHandleChange}
             />
-          </div>
-          <div>
+          </Fragment>
+          <Fragment>
             <Divider orientation="left">Acumulados</Divider>
             <AcumuladosTable
               dados={dados}
             />
-          </div>
+          </Fragment>
           {
             temTabelaCotas(complementares)
             &&
-            <div>
+            <Fragment>
               <Divider orientation="left">Cotas</Divider>
               <CotasTable
                 dados={dados}
               />
-            </div>
+            </Fragment>
           }
         </div>
-      </div>
+      </Fragment>
     );
   }
 }
