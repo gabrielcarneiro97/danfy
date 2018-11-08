@@ -10,6 +10,6 @@ module.exports = {
       "specialLink": ["hrefLeft", "hrefRight"],
       "aspects": ["noHref", "invalidHref", "preferButton"]
     }],
-    "no-underscore-dangle": "off",
+    "no-underscore-dangle": "off"
   },
 };
