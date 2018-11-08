@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Input } from 'antd';
 
-class MovimentoValorInput extends React.Component {
+class MovimentoValorInput extends Component {
   static propTypes = {
     onChange: PropTypes.func.isRequired,
     movimento: PropTypes.object.isRequired, // eslint-disable-line
