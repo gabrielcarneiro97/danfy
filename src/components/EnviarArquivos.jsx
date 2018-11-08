@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Row, Col, message, Upload, Button, Icon } from 'antd';
 
 import { api } from '../services';
 
-class EnviarArquivos extends React.Component {
+class EnviarArquivos extends Component {
   static propTypes = {
     onEnd: PropTypes.func.isRequired,
   };
