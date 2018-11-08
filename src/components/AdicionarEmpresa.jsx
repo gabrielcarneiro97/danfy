@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { Modal, Table } from 'antd';
 import PropTypes from 'prop-types';
 import { AliquotasEmpresa } from '.';
@@ -71,7 +71,7 @@ class AdicionarEmpresa extends Component {
     });
 
     return (
-      <div>
+      <Fragment>
         <Modal
           title="Adicionar Empresas"
           visible={this.props.visible}
@@ -85,7 +85,7 @@ class AdicionarEmpresa extends Component {
             style={{ overflow: 'auto', maxHeight: '50vh' }}
           />
         </Modal>
-      </div>
+      </Fragment>
     );
   }
 }
