@@ -17,39 +17,31 @@ class EnviarArquivos extends React.Component {
 
   adicionarNota = dados => new Promise((resolve) => {
     if (dados.tipo === 'nfe') {
-      this.setState((prevState) => { // eslint-disable-line
-        return {
-          ...prevState,
-          nfe: [...prevState.nfe, dados.nota],
-          pessoas: { ...prevState.pessoas, ...dados.pessoas },
-        };
-      }, resolve);
+      this.setState(prevState => ({
+        ...prevState,
+        nfe: [...prevState.nfe, dados.nota],
+        pessoas: { ...prevState.pessoas, ...dados.pessoas },
+      }), resolve);
     } else {
-      this.setState((prevState) => { // eslint-disable-line
-        return {
-          ...prevState,
-          nfse: [...prevState.nfse, dados.nota],
-          pessoas: { ...prevState.pessoas, ...dados.pessoas },
-        };
-      }, resolve);
+      this.setState(prevState => ({
+        ...prevState,
+        nfse: [...prevState.nfse, dados.nota],
+        pessoas: { ...prevState.pessoas, ...dados.pessoas },
+      }), resolve);
     }
   });
 
   removerNota = nota => new Promise((resolve) => {
     if (nota.tipo === 'nfe') {
-      this.setState((prevState) => { // eslint-disable-line
-        return {
-          ...prevState,
-          nfe: prevState.nfe.filter(el => el.nota.chave !== nota.nota.chave),
-        };
-      }, resolve);
+      this.setState(prevState => ({
+        ...prevState,
+        nfe: prevState.nfe.filter(el => el.nota.chave !== nota.nota.chave),
+      }), resolve);
     } else {
-      this.setState((prevState) => { // eslint-disable-line
-        return {
-          ...prevState,
-          nfse: prevState.nfse.filter(el => el.nota.chave !== nota.nota.chave),
-        };
-      }, resolve);
+      this.setState(prevState => ({
+        ...prevState,
+        nfse: prevState.nfse.filter(el => el.nota.chave !== nota.nota.chave),
+      }), resolve);
     }
   });
 
