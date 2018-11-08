@@ -1,11 +1,13 @@
-import React from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import axios from 'axios';
 import { Input, Button, Popconfirm } from 'antd';
 
 import { api, floating } from '../services';
 
-class NotaInicial extends React.Component {
+const InputGroup = Input.Group;
+
+class NotaInicial extends Component {
   static propTypes = {
     onChange: PropTypes.func.isRequired,
     notaInicial: PropTypes.shape({
@@ -99,12 +101,12 @@ class NotaInicial extends React.Component {
 
   render() {
     return (
-      <Input.Group
+      <InputGroup
         style={{ width: 100 }}
       >
         {this.inputRender()}
         {this.buttonRender()}
-      </Input.Group >
+      </InputGroup>
     );
   }
 }
