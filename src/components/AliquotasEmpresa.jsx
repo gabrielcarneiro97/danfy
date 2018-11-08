@@ -52,9 +52,9 @@ class AliquotasEmpresa extends Component {
 
   setTributacao = tributacao => this.setState({ tributacao })
 
-  setformaPagamentoTrimestrais = (formaPagamentoTrimestrais) => {
-    this.setState({ formaPagamentoTrimestrais });
-  }
+  setformaPagamentoTrimestrais = formaPagamentoTrimestrais => this.setState({
+    formaPagamentoTrimestrais,
+  });
 
   setLiminar = (e) => {
     const liminar = e.target.checked;
@@ -66,21 +66,13 @@ class AliquotasEmpresa extends Component {
     }
   }
 
-  setIss = (e) => {
-    this.setState(prevState => ({
-      impostosEmpresa: { ...prevState.impostosEmpresa, iss: e.target.value },
-    }));
-  }
+  setIss = e => this.setState(prevState => ({
+    impostosEmpresa: { ...prevState.impostosEmpresa, iss: e.target.value },
+  }));
 
-  setNumero = (e) => {
-    this.setState({ numero: e.target.value });
-  }
+  setNumero = e => this.setState({ numero: e.target.value });
 
-  showModal = () => {
-    this.setState({
-      visible: true,
-    });
-  }
+  showModal = () => this.setState({ visible: true });
 
   handleOk = () => {
     if (parseInt(this.state.numero, 10) > 0 && parseFloat(this.state.impostosEmpresa.iss) >= 0) {
@@ -117,11 +109,8 @@ class AliquotasEmpresa extends Component {
       message.error('Número e ISS devem ser preenchidos!');
     }
   }
-  handleCancel = () => {
-    this.setState({
-      visible: false,
-    });
-  }
+
+  handleCancel = () => this.setState({ visible: false });
 
   informacoesGeraisForm = () => (
     <Fragment>
