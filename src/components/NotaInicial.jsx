@@ -26,6 +26,11 @@ class NotaInicial extends Component {
     notaInicial: {},
   }
 
+  constructor(props) {
+    super(props);
+    console.log(props.notaInicial);
+  }
+
   state = {
     valorInput: this.props.notaInicial ? parseInt(this.props.notaInicial.geral.numero, 10) : '',
   }
@@ -36,10 +41,12 @@ class NotaInicial extends Component {
 
   handleClick = () => {
     const { movimento, notaFinal } = this.props;
+    console.log(movimento);
     if (movimento.notaInicial) {
-      axios.get(`${api}/movimentos/valor`, {
+      axios.get(`${api}/movimentos/slim`, {
         params: {
-          notaFinal: movimento.notaFinal,
+          valorInicial: 0,
+          notaFinalChave: movimento.notaFinal,
           cnpj: notaFinal.emitente,
         },
       }).then((res) => {

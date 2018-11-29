@@ -11,7 +11,7 @@ function MainMenu(props) {
     <Menu
       mode="inline"
       selectedKeys={[pathname]}
-      style={{ height: '100%', borderRight: 0 }}
+      style={{ height: '100%', borderRight: 0, backgroundColor: 'white' }}
     >
       <Menu.Item key={`${match.url}/importar`}>
         <Link to={`${match.url}/importar`}>

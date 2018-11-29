@@ -56,6 +56,8 @@ class VisualizarTables extends Component {
     const { dados } = this.props;
     const { complementares } = dados;
 
+    console.log(dados);
+
     return (
       this.props.show
       &&
