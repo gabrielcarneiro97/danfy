@@ -32,7 +32,7 @@ class GuiasTable extends Component {
 
     if (!totaisMes[tipoPlural]) totaisMes[tipoPlural] = {};
 
-    totaisMes[tipoPlural][imposto] = valor.toString();
+    totaisMes[tipoPlural][imposto] = R$(valor);
 
     this.props.onChange(dados);
     resolve();
