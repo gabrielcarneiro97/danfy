@@ -21,6 +21,7 @@ class VisualizarForm extends Component {
     submitText: 'Selecionar',
     disableNum: true,
     pessoa: {
+      numeroSistema: '',
       nome: '',
       formaPagamento: '',
       cnpj: '',
@@ -43,6 +44,7 @@ class VisualizarForm extends Component {
         ano: this.state.ano,
         nome: this.state.pessoa.nome,
         formaPagamento: this.state.pessoa.formaPagamento,
+        numeroSistema: this.state.num,
       }).then(() => this.setState({ submit: true, submitText: 'Selecionar' }));
     });
   }
@@ -71,6 +73,7 @@ class VisualizarForm extends Component {
             nome: empresa.nome,
             simples: impostos.tributacao === 'SN',
             cnpj,
+            numeroSistema: num,
           };
 
           if (impostos.formaPagamentoTrimestrais === 'adiantamento') {
@@ -87,6 +90,7 @@ class VisualizarForm extends Component {
     } else {
       this.setState({
         pessoa: {
+          numeroSistema: '',
           nome: '',
           formaPagamento: '',
           cnpj: '',

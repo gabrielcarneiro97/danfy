@@ -368,6 +368,8 @@ function Printer(props) {
   const { dataSourceGuias, columnsGuias } = defineTableGuias(props);
   const dataTableCotas = defineTableCotas(props);
 
+  console.log(dados.complementares);
+
   let printRef = React.createRef();
 
   return (
@@ -385,6 +387,8 @@ function Printer(props) {
               marginTop: '2%',
             }}
           >
+            ({dados.complementares.numeroSistema})
+            &nbsp;
             {dados
               .complementares
               .nome} - {cnpjMask(dados.complementares.cnpj)}

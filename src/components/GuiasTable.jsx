@@ -41,11 +41,8 @@ class GuiasTable extends Component {
   valorRender(valor, imposto, complementares, totaisMes) {
     const { adicionais, deducoes } = totaisMes;
 
-    let adicional;
-    if (adicionais) adicional = floating(adicionais[imposto]);
-
-    let deducao;
-    if (deducoes) deducao = floating(deducoes[imposto]);
+    const adicional = adicionais ? floating(adicionais[imposto]) : null;
+    const deducao = deducoes ? floating(deducoes[imposto]) : null;
 
     let valorLiquido = floating(valor);
     if (deducao) valorLiquido -= deducao;
