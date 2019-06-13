@@ -19,10 +19,8 @@ class AliquotasEmpresa extends Component {
   }
 
   static aliquotasPadrao = {
-    icms: {
-      aliquota: 0.18,
-      reducao: 0.2778,
-    },
+    icmsAliquota: 0.18,
+    icmsReducao: 0.2778,
     pis: 0.0065,
     cofins: 0.03,
     csll: 0.0288,
@@ -31,10 +29,8 @@ class AliquotasEmpresa extends Component {
   }
 
   static aliquotasLiminar = {
-    icms: {
-      aliquota: 0.18,
-      reducao: 0.2778,
-    },
+    icmsAliquota: 0.18,
+    icmsReducao: 0.2778,
     pis: 0.0065,
     cofins: 0.03,
     csll: 0.0108,
@@ -45,15 +41,15 @@ class AliquotasEmpresa extends Component {
   state = {
     visible: false,
     tributacao: 'LP',
-    formaPagamentoTrimestrais: 'adiantamento',
+    formaPagamento: 'adiantamento',
     numero: '',
     impostosEmpresa: { ...AliquotasEmpresa.aliquotasPadrao },
   }
 
   setTributacao = tributacao => this.setState({ tributacao })
 
-  setformaPagamentoTrimestrais = formaPagamentoTrimestrais => this.setState({
-    formaPagamentoTrimestrais,
+  setFormaPagamento = formaPagamento => this.setState({
+    formaPagamento,
   });
 
   setLiminar = (e) => {
@@ -84,11 +80,11 @@ class AliquotasEmpresa extends Component {
           adicionarEmpresaDominio(this.props.dados.cnpj, this.state.numero)
             .catch(err => console.error(err));
 
-          const { formaPagamentoTrimestrais, tributacao } = this.state;
+          const { formaPagamento, tributacao } = this.state;
 
           const aliquotas = {
             ...this.state.impostosEmpresa,
-            formaPagamentoTrimestrais,
+            formaPagamento,
             tributacao,
           };
 
@@ -131,7 +127,7 @@ class AliquotasEmpresa extends Component {
           <Checkbox onChange={this.setLiminar}>Liminar de Redução</Checkbox>
         </Col>
         <Col span={12}>
-          <Select onChange={this.setformaPagamentoTrimestrais} defaultValue={this.state.formaPagamentoTrimestrais} style={{ width: '100%' }}>
+          <Select onChange={this.setFormaPagamento} defaultValue={this.state.formaPagamento} style={{ width: '100%' }}>
             <Option value="adiantamento">Adiantamento</Option>
             <Option value="acumulado">Acumulado por Trimestre</Option>
             <Option value="cotas">Pagamento em Cotas</Option>
