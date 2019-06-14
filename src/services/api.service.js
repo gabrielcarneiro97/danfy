@@ -36,10 +36,10 @@ export function pegarDominioId() {
 
 export function pegarDominio() {
   return new Promise((resolve, reject) => {
-    pegarDominioId().then((id) => {
+    pegarDominioId().then((codigo) => {
       axios.get(`${api}/dominio`, {
         params: {
-          id,
+          codigo,
         },
       }).then((res) => {
         resolve(res.data);

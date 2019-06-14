@@ -16,19 +16,16 @@ class NotaInicial extends Component {
     notaFinal: PropTypes.shape({
       emitente: PropTypes.string,
     }).isRequired,
-    movimento: PropTypes.shape({
-      notaFinal: PropTypes.string,
-      notaInicial: PropTypes.string,
+    movimentoPoolWithIndex: PropTypes.shape({
+      movimento: PropTypes.shape({
+        notaFinalChave: PropTypes.string,
+        notaInicialChave: PropTypes.string,
+      }),
     }).isRequired,
   }
 
   static defaultProps = {
     notaInicial: {},
-  }
-
-  constructor(props) {
-    super(props);
-    console.log(props.notaInicial);
   }
 
   state = {
@@ -39,47 +36,56 @@ class NotaInicial extends Component {
     this.setState({ valorInput: e.target.value });
   }
 
-  handleClick = () => {
-    const { movimento, notaFinal } = this.props;
+  handleClick = async () => {
+    const { movimentoPoolWithIndex, notaFinal } = this.props;
+    const { movimento } = movimentoPoolWithIndex;
     console.log(movimento);
-    if (movimento.notaInicial) {
-      axios.get(`${api}/movimentos/slim`, {
+
+    if (movimento.notaInicialChave) {
+      const { data } = await axios.get(`${api}/movimentos/slim`, {
         params: {
           valorInicial: 0,
-          notaFinalChave: movimento.notaFinal,
-          cnpj: notaFinal.emitente,
+          notaFinalChave: movimento.notaFinalChave,
+          cnpj: notaFinal.emitenteCpfcnpj,
         },
-      }).then((res) => {
-        this.setState({ valorInput: '' });
-        this.props.onChange({
-          ...movimento,
-          conferido: false,
-          notaInicial: null,
-          valores: res.data,
-        });
+      });
+      const { movimentoPool } = data;
+      this.setState({ valorInput: '' });
+      movimentoPool.movimento.conferido = false;
+      movimentoPool.movimento.notaInicialChave = null;
+
+      console.log({
+        ...movimentoPool,
+        index: movimentoPoolWithIndex.index,
+      });
+
+      this.props.onChange({
+        ...movimentoPool,
+        index: movimentoPoolWithIndex.index,
       });
     } else if (!Number.isNaN(floating(this.state.valorInput))) {
-      axios.get(`${api}/movimentos/slim`, {
+      const { data } = await axios.get(`${api}/movimentos/slim`, {
         params: {
           valorInicial: floating(this.state.valorInput),
-          notaFinalChave: movimento.notaFinal,
-          cnpj: notaFinal.emitente,
+          notaFinalChave: movimento.notaFinalChave,
+          cnpj: notaFinal.emitenteCpfcnpj,
         },
-      }).then((res) => {
-        this.setState({ valorInput: 'INTERNO' });
-        this.props.onChange({
-          ...movimento,
-          conferido: false,
-          notaInicial: res.data.notaInicial.chave,
-          valores: res.data.valores,
-        }, res.data.notaInicial);
       });
+
+      const { movimentoPool, notaInicialPool } = data;
+      this.setState({ valorInput: 'INTERNO' });
+      movimentoPool.movimento.conferido = false;
+
+      this.props.onChange({
+        ...movimentoPool,
+        index: movimentoPoolWithIndex.index,
+      }, notaInicialPool);
     }
   };
 
-  defineTextoPop = () => (this.props.movimento.notaInicial ? 'Deseja mesmo excluir essa nota?' : 'Deseja adicionar esse valor?');
+  defineTextoPop = () => (this.props.movimentoPoolWithIndex.movimento.notaInicialChave ? 'Deseja mesmo excluir essa nota?' : 'Deseja adicionar esse valor?');
 
-  defineIcon = () => (this.props.movimento.notaInicial ? 'close' : 'plus');
+  defineIcon = () => (this.props.movimentoPoolWithIndex.movimento.notaInicialChave ? 'close' : 'plus');
 
   inputRender = () => (
     <Input
@@ -88,7 +94,7 @@ class NotaInicial extends Component {
       placeholder="Valor"
       value={this.state.valorInput}
       onChange={this.onChangeInput}
-      disabled={this.props.movimento.notaInicial !== null}
+      disabled={this.props.movimentoPoolWithIndex.movimento.notaInicialChave !== null}
     />
   );
 

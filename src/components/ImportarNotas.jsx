@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Steps, Button, Icon, Popconfirm, message } from 'antd';
 
 import { EnviarArquivos, AdicionarEmpresa, ConciliarMovimentos, ConciliarServicos } from '.';
-import { pegarDominio, gravarMovimentos, gravarServicos } from '../services';
+import { pegarDominio, gravarMovimentos, gravarServicos, pegarDominioId } from '../services';
 
 import './ImportarNotas.css';
 
@@ -100,19 +100,19 @@ class ImportarNotas extends Component {
     this.setState({ current, adicionar: false });
   }
 
-  paraMovimentos = () => {
-    pegarDominio().then(({ empresas }) => {
-      const dominioArray = Object.values(empresas);
-      const pessoasArray = Object.keys(this.state.dados.pessoas);
+  paraMovimentos = async () => {
+    try {
+      const dominio = await pegarDominio();
+      const dominioArray = dominio.map(o => o.cnpj);
+      const pessoasArray = this.state.dados.pessoas.map(o => o.cpfcnpj);
       const adicionarArray = [];
 
-      this.setState({ dominio: empresas });
+      this.setState({ dominio });
 
       pessoasArray.forEach((pessoaId) => {
         if (pessoaId.length === 14) {
           if (!dominioArray.includes(pessoaId)) {
-            const pessoa = this.state.dados.pessoas[pessoaId];
-            pessoa.cnpj = pessoaId;
+            const pessoa = this.state.dados.pessoas.find(o => o.cpfcnpj === pessoaId);
             adicionarArray.push(pessoa);
           }
         }
@@ -122,7 +122,9 @@ class ImportarNotas extends Component {
       } else {
         this.okModal();
       }
-    }).catch(err => console.error(err));
+    } catch (err) {
+      console.error(err);
+    }
   }
 
   paraServicos = () => {
@@ -141,9 +143,6 @@ class ImportarNotas extends Component {
 
       const movimentosParaGravar = {};
       const servicosParaGravar = {};
-
-      let servicosGravados = servicos.length === 0;
-      let movimentosGravados = movimentos.length === 0;
 
       movimentos.forEach((movimento) => {
         if (movimento.conferido) {
@@ -169,29 +168,12 @@ class ImportarNotas extends Component {
         }
       });
 
-      const fim = () => {
-        if (movimentosGravados && servicosGravados) {
-          message.success('Tudo gravado com sucesso!');
-          this.props.history.push('/app/visualizar');
-        }
-      };
-
-      gravarMovimentos(movimentosParaGravar).then(() => {
-        movimentosGravados = true;
-        fim();
-      }).catch((err) => {
-        console.error(err);
-        movimentosGravados = true;
-        fim();
-      });
-
-      gravarServicos(servicosParaGravar).then(() => {
-        servicosGravados = true;
-        fim();
-      }).catch((err) => {
-        console.error(err);
-        servicosGravados = true;
-        fim();
+      Promise.all([
+        gravarMovimentos(movimentosParaGravar),
+        gravarServicos(servicosParaGravar),
+      ]).then(() => {
+        message.success('Tudo gravado com sucesso!');
+        this.props.history.push('/app/visualizar');
       });
     });
   }

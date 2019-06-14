@@ -7,9 +7,9 @@ import { api } from '../services';
 function adicionarPessoas(pessoasOld, pessoasToAdd) {
   const pessoasNew = [...pessoasOld];
   pessoasToAdd.forEach((pessoa) => {
-    const pessoaId = pessoasOld.findIndex(p => p.pessoa.cpfcnpj === pessoa.pessoa.cpfcnpj);
-    if (pessoaId !== -1) pessoasNew[pessoaId] = pessoa;
-    else pessoasNew.push(pessoa);
+    const pessoaId = pessoasOld.findIndex(p => p.cpfcnpj === pessoa.pessoa.cpfcnpj);
+    if (pessoaId !== -1) pessoasNew[pessoaId] = pessoa.pessoa;
+    else pessoasNew.push(pessoa.pessoa);
   });
 
   return pessoasNew;

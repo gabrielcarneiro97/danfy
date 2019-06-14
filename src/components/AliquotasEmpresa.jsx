@@ -159,10 +159,10 @@ class AliquotasEmpresa extends Component {
       <Divider dashed>Impostos Estaduais (ICMS)</Divider>
       <Row className="row">
         <Col span={12}>
-          <Input addonBefore="Aliquota" value={impostosEmpresa.icms.aliquota} disabled />
+          <Input addonBefore="Aliquota" value={impostosEmpresa.icmsAliquota} disabled />
         </Col>
         <Col span={12}>
-          <Input addonBefore="Redução" value={impostosEmpresa.icms.reducao} disabled />
+          <Input addonBefore="Redução" value={impostosEmpresa.icmsReducao} disabled />
         </Col>
       </Row>
       <Divider dashed>Impostos Municipais</Divider>

@@ -6,6 +6,20 @@ import { Icon, Col, Row, Table, Checkbox } from 'antd';
 import { NotaInicial } from '.';
 import { auth, pegarDominioId, api } from '../services';
 
+function eSaida(nota) {
+  return nota.tipo === '1' || nota.cfop === '1113' || nota.cfop === '1202' || nota.cfop === '2202';
+}
+
+function cancelada(nota) {
+  return nota.status === 'CANCELADA';
+}
+
+function interestadual(notaPool) {
+  return notaPool.nota.estadoDestinoId === notaPool.nota.estadoGeradorId ?
+    'INTERNO' :
+    `INTERESTADUAL ${notaPool.nota.estadoGeradorId} -> ${notaPool.nota.estadoDestinoId}`;
+}
+
 class ConciliarMovimentos extends Component {
   static propTypes = {
     novaNota: PropTypes.func.isRequired,
@@ -15,7 +29,7 @@ class ConciliarMovimentos extends Component {
     dados: PropTypes.shape({
       nfe: PropTypes.array,
       nfse: PropTypes.array,
-      pessoas: PropTypes.object,
+      pessoas: PropTypes.array,
     }).isRequired,
   }
 
@@ -61,108 +75,107 @@ class ConciliarMovimentos extends Component {
   state = {
     isLoading: true,
     dados: {},
-    movimentos: [],
+    movimentosWithIndex: [],
   }
 
-  componentDidMount() {
+  async componentWillMount() {
     const { dados } = this.props;
-    const dominioCnpjs = Object.values(this.props.dominio());
+    const dominioCnpjs = this.props.dominio().map(o => o.cnpj);
 
-    const notasFinais = [];
+    const notasFinaisChave = [];
 
-    dados.nfe.forEach((nota) => {
-      if ((nota.geral.tipo === '1' || nota.geral.cfop === '1113' || nota.geral.cfop === '1202' || nota.geral.cfop === '2202') && dominioCnpjs.includes(nota.emitente) && nota.geral.status !== 'CANCELADA') {
-        notasFinais.push(nota.chave);
+    dados.nfe.forEach(({ nota }) => {
+      if (eSaida(nota) && !cancelada(nota) && dominioCnpjs.includes(nota.emitenteCpfcnpj)) {
+        notasFinaisChave.push(nota.chave);
       }
     });
 
-    pegarDominioId().then((dominioId) => {
+    try {
+      const dominioCodigo = await pegarDominioId();
       const { email } = auth.currentUser;
 
       const usuario = {
-        dominioId,
+        dominioCodigo,
         email,
       };
 
-      axios.post(`${api}/movimentos/calcular`, { notasFinais, usuario })
-        .then((res) => {
-          const { movimentos, notasIniciais } = res.data;
-          dados.nfe = dados.nfe.concat(notasIniciais);
+      const { data } = await axios.post(`${api}/movimentos/calcular`, { notasFinaisChave, usuario });
+      const { movimentos, notasIniciais } = data;
+      dados.nfe = dados.nfe.concat(notasIniciais);
 
-          const movimentosId = [];
+      const movimentosWithIndex = movimentos.map((el, index) => ({ ...el, index }));
 
-          movimentos.forEach((el, id) => movimentosId.push({ ...el, id }));
-          this.props.onChange(movimentos);
-          this.props.onLoadEnd();
-          this.setState({ isLoading: false, dados, movimentos: movimentosId });
-        })
-        .catch(err => console.error(err));
-    });
+      this.props.onChange(movimentos);
+      this.props.onLoadEnd();
+      this.setState({ isLoading: false, dados, movimentosWithIndex });
+    } catch (err) {
+      console.error(err);
+    }
   }
 
   getNfe = chave => (
     this.state.dados.nfe ?
-      this.state.dados.nfe.find(el => el.chave === chave) :
-      this.props.dados.nfe.find(el => el.chave === chave)
+      this.state.dados.nfe.find(el => el.nota.chave === chave) :
+      this.props.dados.nfe.find(el => el.nota.chave === chave)
   )
 
-  alterarMovimento = (movimento, nota) => {
-    const { movimentos } = this.state;
-    const movimentosNovo = [];
+  alterarMovimento = (movimentoPoolWithIndex, notaPool) => {
+    const { movimentosWithIndex } = this.state;
+    const movimentosWithIndexNovo = [];
 
-    movimentos.forEach((el) => {
-      if (el.id === movimento.id) {
-        movimentosNovo.push(movimento);
+    movimentosWithIndex.forEach((el) => {
+      if (el.index === movimentoPoolWithIndex.index) {
+        movimentosWithIndexNovo.push(movimentoPoolWithIndex);
       } else {
-        movimentosNovo.push(el);
+        movimentosWithIndexNovo.push(el);
       }
     });
-    this.props.onChange(movimentosNovo);
-    this.setState({ movimentos: movimentosNovo });
-
-    if (nota) {
-      this.props.novaNota(nota);
+    if (notaPool) {
+      this.props.novaNota(notaPool);
       const { dados } = this.state;
-      dados.nfe.push(nota);
-      this.setState({ dados });
+      dados.nfe.push(notaPool);
+      this.setState({ dados, movimentosWithIndex: movimentosWithIndexNovo });
+    } else {
+      this.setState({ movimentosWithIndex: movimentosWithIndexNovo });
     }
+    this.props.onChange(movimentosWithIndexNovo);
   }
 
   render() {
     const dataSource = [];
 
-    const { movimentos } = this.state;
+    const { movimentosWithIndex } = this.state;
 
-    movimentos.forEach((movimento) => {
-      const notaFinal = this.getNfe(movimento.notaFinal);
-      const tipoOperacao =
-        notaFinal.informacoesEstaduais.estadoDestino
-        === notaFinal.informacoesEstaduais.estadoGerador ?
-          'INTERNO' :
-          `INTERESTADUAL ${notaFinal.informacoesEstaduais.estadoGerador} -> ${notaFinal.informacoesEstaduais.estadoDestino}`;
+    movimentosWithIndex.forEach((movimentoPoolWithIndex) => {
+      const { movimento } = movimentoPoolWithIndex;
+      const notaFinalPool = this.getNfe(movimento.notaFinalChave);
+      const tipoOperacao = interestadual(notaFinalPool);
+      const notaFinal = notaFinalPool.nota;
 
-      const notaInicial = movimento.notaInicial ? this.getNfe(movimento.notaInicial) : null;
+      const notaInicial = movimento.notaInicialChave ?
+        this.getNfe(movimento.notaInicialChave).nota :
+        null;
 
       dataSource.push({
-        key: `${movimento.id}-${notaFinal.geral.numero}`,
-        numero: movimento.id + 1,
+        key: `${movimentoPoolWithIndex.index}-${notaFinal.numero}`,
+        numero: movimentoPoolWithIndex.index + 1,
         notaInicial: <NotaInicial
-          movimento={movimento}
+          movimentoPoolWithIndex={movimentoPoolWithIndex}
           notaFinal={notaFinal}
           notaInicial={notaInicial}
           onChange={this.alterarMovimento}
         />,
-        notaFinal: notaFinal.geral.numero,
-        baseImpostos: movimento.valores.lucro,
+        notaFinal: notaFinal.numero,
+        baseImpostos: movimento.lucro,
         tipoOperacao,
         confirmar: <Checkbox
           checked={movimento.conferido}
           onChange={(e) => {
-            const movimentoNovo = {
-              ...movimento,
-              conferido: e.target.checked,
+            const movimentoPWINovo = {
+              ...movimentoPoolWithIndex,
             };
-            this.alterarMovimento(movimentoNovo);
+            movimentoPWINovo.movimento.conferido = e.target.checked;
+            this.alterarMovimento(movimentoPWINovo);
           }}
         />,
       });
