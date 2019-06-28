@@ -27,10 +27,11 @@ class VisualizarForm extends Component {
       cnpj: '',
       simples: false,
     },
-    dominio: {},
+    dominio: [],
   }
-  componentDidMount() {
-    pegarDominio().then(dominio => this.setState({ dominio, disableNum: false }));
+  async componentWillMount() {
+    const dominio = await pegarDominio();
+    this.setState({ dominio, disableNum: false });
   }
 
   handleSubmit = () => {
@@ -61,32 +62,45 @@ class VisualizarForm extends Component {
     }
   }
 
-  handleNum = (e) => {
-    const { empresas } = this.state.dominio;
+  handleNum = async (e) => {
+    const { dominio } = this.state;
     const num = e.target.value;
-    const cnpj = empresas[num];
+    const empresa = dominio.find(o => o.numero === num);
+    if (empresa) {
+      const { cnpj } = empresa;
+      try {
+        const [pessoaPg, aliquota] = await Promise.all([
+          pegarPessoaId(cnpj), pegarEmpresaImpostos(cnpj),
+        ]);
 
-    if (cnpj) {
-      pegarPessoaId(cnpj).then((empresa) => {
-        pegarEmpresaImpostos(cnpj).then((impostos) => {
-          const pessoa = {
-            nome: empresa.nome,
-            simples: impostos.tributacao === 'SN',
-            cnpj,
-            numeroSistema: num,
-          };
+        const pessoa = {
+          nome: pessoaPg.nome,
+          simples: aliquota.tributacao === 'SN',
+          cnpj,
+          numeroSistema: num,
+        };
 
-          if (impostos.formaPagamentoTrimestrais === 'adiantamento') {
-            pessoa.formaPagamento = 'PAGAMENTO ANTECIPADO';
-          } else if (impostos.formaPagamentoTrimestrais === 'cotas') {
-            pessoa.formaPagamento = 'PAGAMENTO EM COTAS';
-          } else if (impostos.formaPagamentoTrimestrais === 'acumulado') {
-            pessoa.formaPagamento = 'PAGAMENTO ACUMULADO NO FINAL DO TRIMESTRE';
-          }
+        if (aliquota.formaPagamento === 'adiantamento') {
+          pessoa.formaPagamento = 'PAGAMENTO ANTECIPADO';
+        } else if (aliquota.formaPagamento === 'cotas') {
+          pessoa.formaPagamento = 'PAGAMENTO EM COTAS';
+        } else if (aliquota.formaPagamento === 'acumulado') {
+          pessoa.formaPagamento = 'PAGAMENTO ACUMULADO NO FINAL DO TRIMESTRE';
+        }
 
-          this.setState({ pessoa }, () => this.checkSubmit());
-        }).catch(err => console.error(err));
-      }).catch(err => console.error(err));
+        this.setState({ pessoa, num }, () => this.checkSubmit());
+      } catch (err) {
+        this.setState({
+          pessoa: {
+            numeroSistema: '',
+            nome: '',
+            formaPagamento: '',
+            cnpj: '',
+            simples: false,
+          },
+        }, () => this.checkSubmit());
+        console.error(err);
+      }
     } else {
       this.setState({
         pessoa: {
@@ -97,9 +111,9 @@ class VisualizarForm extends Component {
           simples: false,
         },
       }, () => this.checkSubmit());
-    }
 
-    this.setState({ num: e.target.value });
+      this.setState({ num });
+    }
   }
   render() {
     return (

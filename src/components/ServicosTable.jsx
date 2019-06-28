@@ -5,14 +5,20 @@ import { Table, Row, Col, Popconfirm, Button } from 'antd';
 
 import { R$, excluirServico, somaTotalServico } from '../services';
 
+function eCancelada(nota) {
+  return nota.status === 'CANCELADA';
+}
+
 class ServicosTable extends Component {
   static propTypes = {
     onChange: PropTypes.func.isRequired,
-    servicos: PropTypes.array, // eslint-disable-line
+    servicosPoolMes: PropTypes.array, // eslint-disable-line
+    notasServicoPool: PropTypes.array, // eslint-disable-line
   }
 
   static defaultProps = {
-    servicos: [],
+    servicosPoolMes: [],
+    notasServicoPool: [],
   }
 
   static columns = [{
@@ -32,12 +38,12 @@ class ServicosTable extends Component {
       }
       return -1;
     },
-    render: (data) => {
+    render: (numero, data) => {
       if (data.$$typeof) {
         return data;
       }
 
-      if (!data.numero) {
+      if (!numero) {
         return '';
       }
 
@@ -46,9 +52,9 @@ class ServicosTable extends Component {
           title="Deseja mesmo excluir esse serviço?"
           okText="Sim"
           cancelText="Não"
-          onConfirm={() => data.excluir(data.servico, data.key)}
+          onConfirm={data.excluir}
         >
-          <Button type="ghost">{data.numero}</Button>
+          <Button type="ghost">{numero}</Button>
         </Popconfirm>
       );
     },
@@ -119,68 +125,47 @@ class ServicosTable extends Component {
 
   state = {}
 
-  excluirServico = (servico, key) => {
-    const emitente = servico.nota.substring(0, 14);
-    excluirServico(emitente, key).then((data) => {
-      this.props.onChange(data);
-    });
-  }
+  excluirServico = servicoPool => () => excluirServico(servicoPool).then((data) => {
+    this.props.onChange(data);
+  });
 
   defineDataSource = () => {
-    const dataSource = [];
-    const { servicos } = this.props;
+    const { servicosPoolMes, notasServicoPool } = this.props;
     let totais;
 
-    servicos.forEach((servico) => {
-      const key = servico._id;
-      const numero = parseInt(servico.nota.substring(18), 10);
+    const dataSource = servicosPoolMes.map((servicoPool) => {
+      const { servico, imposto, retencao } = servicoPool;
+
+      const numero = parseInt(servico.notaChave.substring(18), 10);
+      const nota = notasServicoPool.find(n => n.chave === servico.notaChave);
+
       const valores = {
-        key: servico.nota,
+        key: servico.notaChave,
+        numero,
         nota: numero,
-        status: servico.notaStatus,
+        status: nota.status,
         data: moment(servico.data).format('DD[/]MMM'),
-        valorServico: R$(servico.valores.impostos.baseDeCalculo),
-        issRetido: R$(servico.valores.impostos.retencoes.iss),
-        pisRetido: R$(servico.valores.impostos.retencoes.pis),
-        cofinsRetido: R$(servico.valores.impostos.retencoes.cofins),
-        csllRetido: R$(servico.valores.impostos.retencoes.csll),
-        irpjRetido: R$(servico.valores.impostos.retencoes.irpj),
-        totalRetido: R$(servico.valores.impostos.retencoes.total),
-        iss: R$(servico.valores.impostos.iss),
-        pis: R$(servico.valores.impostos.pis),
-        cofins: R$(servico.valores.impostos.cofins),
-        csll: R$(servico.valores.impostos.csll),
-        irpj: R$(servico.valores.impostos.irpj),
-        total: R$(servico.valores.impostos.total),
+        valorServico: R$(servico.valor),
+        issRetido: eCancelada(nota) ? R$(0) : R$(retencao.iss),
+        pisRetido: eCancelada(nota) ? R$(0) : R$(retencao.pis),
+        cofinsRetido: eCancelada(nota) ? R$(0) : R$(retencao.cofins),
+        csllRetido: eCancelada(nota) ? R$(0) : R$(retencao.csll),
+        irpjRetido: eCancelada(nota) ? R$(0) : R$(retencao.irpj),
+        totalRetido: eCancelada(nota) ? R$(0) : R$(retencao.total),
+        iss: R$(imposto.iss),
+        pis: R$(imposto.pis),
+        cofins: R$(imposto.cofins),
+        csll: R$(imposto.csll),
+        irpj: R$(imposto.irpj),
+        total: R$(imposto.total),
+        excluir: this.excluirServico(servicoPool),
       };
 
       totais = somaTotalServico(valores, totais);
 
-      dataSource.push({
-        key: servico.nota,
-        nota: {
-          numero,
-          servico,
-          key,
-          excluir: this.excluirServico,
-        },
-        status: servico.notaStatus,
-        data: moment(servico.data).format('DD[/]MMM'),
-        valorServico: R$(servico.valores.impostos.baseDeCalculo),
-        issRetido: R$(servico.valores.impostos.retencoes.iss),
-        pisRetido: R$(servico.valores.impostos.retencoes.pis),
-        cofinsRetido: R$(servico.valores.impostos.retencoes.cofins),
-        csllRetido: R$(servico.valores.impostos.retencoes.csll),
-        irpjRetido: R$(servico.valores.impostos.retencoes.irpj),
-        totalRetido: R$(servico.valores.impostos.retencoes.total),
-        iss: R$(servico.valores.impostos.iss),
-        pis: R$(servico.valores.impostos.pis),
-        cofins: R$(servico.valores.impostos.cofins),
-        csll: R$(servico.valores.impostos.csll),
-        irpj: R$(servico.valores.impostos.irpj),
-        total: R$(servico.valores.impostos.total),
-      });
+      return valores;
     });
+
     if (totais) {
       dataSource.push(totais);
     }

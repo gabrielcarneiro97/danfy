@@ -1,6 +1,7 @@
 import React from 'react';
 
 export function R$(valp) {
+  if (valp === null) return '0,00';
   let valor = parseFloat(valp).toFixed(2);
 
   let negativo = '';
@@ -176,4 +177,64 @@ export function cnpjMask(cnpj, tirar) {
   }
 
   return `${strCnpj.slice(0, 2)}.${strCnpj.slice(2, 5)}.${strCnpj.slice(5, 8)}/${strCnpj.slice(8, 12)}-${strCnpj.slice(12, 14)}`;
+}
+
+export function mesInicioFim(mes, ano) {
+  const inicio = new Date(ano, parseInt(mes, 10) - 1);
+  const fim = new Date(new Date(ano, parseInt(mes, 10)) - 1);
+
+  return {
+    inicio, fim,
+  };
+}
+
+export function eDoMes(movOuServPool, mesTimes) {
+  if (movOuServPool.movimento) {
+    const { movimento } = movOuServPool;
+
+    const dataHora = new Date(movimento.dataHora);
+
+    return dataHora >= mesTimes.inicio && dataHora <= mesTimes.fim;
+  } else if (movOuServPool.servico) {
+    const { servico } = movOuServPool;
+
+    const dataHora = new Date(servico.dataHora);
+    return dataHora >= mesTimes.inicio && dataHora <= mesTimes.fim;
+  }
+
+  return false;
+}
+
+export function calcularCotas(props) {
+  const { trimestreData } = props.dados;
+  const trimestre = trimestreData.trim.totalSomaPool;
+
+  const valorIr = (trimestre.impostoPool.imposto.irpj - trimestre.retencao.irpj) +
+    trimestre.impostoPool.imposto.adicionalIr;
+  const valorCsll = trimestre.impostoPool.imposto.csll - trimestre.retencao.csll;
+
+  let cotaIr = { valor: 0, numero: 0 };
+  let cotaCsll = { valor: 0, numero: 0 };
+
+  if (valorIr / 3 > 1000) {
+    cotaIr = { valor: valorIr / 3, numero: 3 };
+  } else if (valorIr / 2 > 1000) {
+    cotaIr = { valor: valorIr / 2, numero: 2 };
+  } else {
+    cotaIr = { valor: valorIr, numero: 1 };
+  }
+  if (valorCsll / 3 > 1000) {
+    cotaCsll = { valor: valorCsll / 3, numero: 3 };
+  } else if (valorCsll / 2 > 1000) {
+    cotaCsll = { valor: valorCsll / 2, numero: 2 };
+  } else {
+    cotaCsll = { valor: valorCsll, numero: 1 };
+  }
+
+  return { cotaCsll, cotaIr };
+}
+
+export function temTabelaCotas({ formaPagamento, mes }) {
+  return formaPagamento === 'PAGAMENTO EM COTAS' &&
+    parseInt(mes, 10) % 3 === 0;
 }

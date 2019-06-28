@@ -43,7 +43,16 @@ function TableToPrint(props) {
     if (element) {
       Object.keys(element).forEach((key) => {
         const index = keyOrder.indexOf(key);
-        dataRows[num][index] = <td key={`${element.key}-${key}`}>{element[key]}</td>;
+        dataRows[num][index] = (
+          <td
+            key={`${element.key}-${key}`}
+            style={{
+              backgroundColor: element.cor,
+            }}
+          >
+            {element[key]}
+          </td>
+        );
       });
     }
   });
@@ -67,6 +76,7 @@ function TableToPrint(props) {
         {(() => {
           const rows = [];
           dataRows.forEach((row, id) => {
+            console.log(row);
             rows.push(<tr key={`${id}-data-row`}>{row}</tr>); // eslint-disable-line
           });
           return rows;

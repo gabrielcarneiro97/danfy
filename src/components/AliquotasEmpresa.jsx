@@ -86,9 +86,11 @@ class AliquotasEmpresa extends Component {
             ...this.state.impostosEmpresa,
             formaPagamento,
             tributacao,
+            donoCpfcnpj: this.props.dados.cnpj,
+            ativo: true,
           };
 
-          adicionarEmpresaImpostos(this.props.dados.cnpj, aliquotas)
+          adicionarEmpresaImpostos(aliquotas)
             .catch(err => console.error(err));
 
           this.setState({

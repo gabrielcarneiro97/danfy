@@ -2,13 +2,9 @@ import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { Divider } from 'antd';
 import { MovimentosTable, ServicosTable, GuiasTable, AcumuladosTable, CotasTable } from '.';
+import { mesInicioFim, eDoMes, temTabelaCotas } from '../services';
 
 import './VisualizarTables.css';
-
-function temTabelaCotas({ formaPagamento, mes }) {
-  return formaPagamento === 'PAGAMENTO EM COTAS' &&
-    parseInt(mes, 10) % 3 === 0;
-}
 
 class VisualizarTables extends Component {
   static propTypes = {
@@ -43,20 +39,21 @@ class VisualizarTables extends Component {
     });
   }
 
-  guiasHandleChange = (infosMudadas) => {
-    const { dados } = this.props;
-
-    this.props.onChange({
-      ...dados,
-      ...infosMudadas,
-    });
-  }
-
   render() {
     const { dados } = this.props;
-    const { complementares } = dados;
+    const {
+      complementares,
+      trimestreData,
+      notasPool,
+      notasServicoPool,
+    } = dados;
+    const { mes, ano } = complementares;
+    const { movimentosPool, servicosPool, trim } = trimestreData;
 
-    console.log(dados);
+    const mesTimes = mesInicioFim(mes, ano);
+
+    const movimentosPoolMes = movimentosPool.filter(mP => eDoMes(mP, mesTimes));
+    const servicosPoolMes = servicosPool.filter(sP => eDoMes(sP, mesTimes));
 
     return (
       this.props.show
@@ -64,37 +61,39 @@ class VisualizarTables extends Component {
       <Fragment>
         <div className="steps-content-tables">
           {
-            dados.movimentos.length !== 0
+            movimentosPoolMes.length !== 0
             &&
             <Fragment>
               <Divider orientation="left">Movimentos</Divider>
               <MovimentosTable
-                movimentos={dados.movimentos}
-                notas={dados.notas}
-                trimestre={dados.trimestre}
-                complementares={dados.complementares}
+                movimentosPool={movimentosPoolMes}
+                notasPool={notasPool}
+                trim={trim}
+                complementares={complementares}
                 onChange={this.movimentosHandleChange}
               />
             </Fragment>
           }
           {
-            dados.servicos.length !== 0
+            servicosPoolMes.length !== 0
             &&
             <Fragment>
               <Divider orientation="left">Serviços</Divider>
               <ServicosTable
-                servicos={dados.servicos}
+                servicosPoolMes={servicosPoolMes}
+                notasServicoPool={notasServicoPool}
                 onChange={this.servicosHandleChange}
               />
             </Fragment>
           }
+
           <Fragment>
             <Divider orientation="left">Guias</Divider>
             <GuiasTable
               dados={dados}
-              onChange={this.guiasHandleChange}
             />
           </Fragment>
+
           <Fragment>
             <Divider orientation="left">Acumulados</Divider>
             <AcumuladosTable

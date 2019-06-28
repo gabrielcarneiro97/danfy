@@ -5,34 +5,30 @@ import { Table, Row, Col } from 'antd';
 import { pegaMes, R$ } from '../services';
 
 function defineDataSource(props) {
-  const { trimestre } = props.dados;
+  const stg = str => <strong>{str}</strong>;
+
+  const { trimestreData } = props.dados;
   const dataSource = [];
 
-  Object.keys(trimestre).forEach((key) => {
-    if (key === 'totais') {
-      const mes = <strong>Trimestre</strong>;
-      const el = trimestre[key];
+  Object.keys(trimestreData).forEach((key) => {
+    if (key !== 'movimentosPool' && key !== 'servicosPool') {
+      const mes = key === 'trim' ? <strong>Trimestre</strong> : pegaMes(key);
+
+
+      const { totalSomaPool } = trimestreData[key];
+      const { retencao, totalSoma } = totalSomaPool;
+      const { imposto } = totalSomaPool.impostoPool;
 
       dataSource.push({
         key: `acumulado-${key}`,
         mes,
-        csll: <strong>{R$(el.impostos.csll - el.impostos.retencoes.csll)}</strong>,
-        irpj: <strong>{R$(el.impostos.irpj - el.impostos.retencoes.irpj)}</strong>,
-        faturamento: <strong>{R$(el.lucro + el.servicos)}</strong>,
-      });
-    } else {
-      const mes = pegaMes(key);
-      const el = trimestre[key];
-
-      dataSource.push({
-        key: `acumulado-${key}`,
-        mes,
-        csll: R$(el.totais.impostos.csll - el.totais.impostos.retencoes.csll),
-        irpj: R$(el.totais.impostos.irpj - el.totais.impostos.retencoes.irpj),
-        faturamento: R$(el.totais.lucro + el.totais.servicos),
+        csll: key === 'trim' ? stg(R$(imposto.csll - retencao.csll)) : R$(imposto.csll - retencao.csll),
+        irpj: key === 'trim' ? stg(R$(imposto.irpj - retencao.irpj)) : R$(imposto.irpj - retencao.irpj),
+        faturamento: key === 'trim' ? stg(R$(totalSoma.valorMovimento + totalSoma.valorServico)) : R$(totalSoma.valorMovimento + totalSoma.valorServico),
       });
     }
   });
+
   return dataSource;
 }
 

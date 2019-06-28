@@ -87,7 +87,6 @@ class EnviarArquivos extends Component {
         } else {
           message.success('Todas as notas foram importadas!');
           this.props.onEnd(this.state);
-          console.log(this.state);
         }
       }
     },

@@ -39,7 +39,6 @@ class NotaInicial extends Component {
   handleClick = async () => {
     const { movimentoPoolWithIndex, notaFinal } = this.props;
     const { movimento } = movimentoPoolWithIndex;
-    console.log(movimento);
 
     if (movimento.notaInicialChave) {
       const { data } = await axios.get(`${api}/movimentos/slim`, {

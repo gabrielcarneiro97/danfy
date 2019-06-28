@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Steps, Button, Icon, Popconfirm, message } from 'antd';
 
 import { EnviarArquivos, AdicionarEmpresa, ConciliarMovimentos, ConciliarServicos } from '.';
-import { pegarDominio, gravarMovimentos, gravarServicos, pegarDominioId } from '../services';
+import { pegarDominio, gravarMovimentos, gravarServicos } from '../services';
 
 import './ImportarNotas.css';
 
@@ -138,43 +138,23 @@ class ImportarNotas extends Component {
   }
 
   enviar = () => {
-    this.setState({ enviando: true }, () => {
+    this.setState({ enviando: true }, async () => {
       const { movimentos, servicos } = this.state;
 
-      const movimentosParaGravar = {};
-      const servicosParaGravar = {};
+      const movimentosConferidos = movimentos.filter(movPool => movPool.movimento.conferido);
+      const servicosConferidos = servicos.filter(servPool => servPool.servico.conferido);
 
-      movimentos.forEach((movimento) => {
-        if (movimento.conferido) {
-          const nota = this.getNfe(movimento.notaFinal);
+      try {
+        await Promise.all([
+          gravarMovimentos(movimentosConferidos),
+          gravarServicos(servicosConferidos),
+        ]);
+      } catch (err) {
+        console.error(err);
+      }
 
-          const empresa = nota.emitente;
-          if (!movimentosParaGravar[empresa]) {
-            movimentosParaGravar[empresa] = [];
-          }
-          movimentosParaGravar[empresa].push(movimento);
-        }
-      });
-
-      servicos.forEach((servico) => {
-        if (servico.conferido) {
-          const nota = this.getNfse(servico.nota);
-
-          const empresa = nota.emitente;
-          if (!servicosParaGravar[empresa]) {
-            servicosParaGravar[empresa] = [];
-          }
-          servicosParaGravar[empresa].push(servico);
-        }
-      });
-
-      Promise.all([
-        gravarMovimentos(movimentosParaGravar),
-        gravarServicos(servicosParaGravar),
-      ]).then(() => {
-        message.success('Tudo gravado com sucesso!');
-        this.props.history.push('/app/visualizar');
-      });
+      message.success('Tudo gravado com sucesso!');
+      this.props.history.push('/app/visualizar');
     });
   }
 

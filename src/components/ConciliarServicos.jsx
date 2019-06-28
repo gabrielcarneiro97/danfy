@@ -3,17 +3,16 @@ import PropTypes from 'prop-types';
 import axios from 'axios';
 import { Table, Row, Col, Icon, Checkbox } from 'antd';
 
-import { api, pegarDominioId, auth } from '../services';
+import { api, R$ } from '../services';
 
 class ConciliarServicos extends Component {
   static propTypes = {
     onChange: PropTypes.func.isRequired,
     onLoadEnd: PropTypes.func.isRequired,
-    dominio: PropTypes.func.isRequired,
     dados: PropTypes.shape({
       nfe: PropTypes.array,
       nfse: PropTypes.array,
-      pessoas: PropTypes.object,
+      pessoas: PropTypes.array,
     }).isRequired,
   }
 
@@ -43,90 +42,81 @@ class ConciliarServicos extends Component {
   state = {
     isLoading: true,
     dados: {},
-    servicos: [],
+    servicosWithIndex: [],
   }
 
-  componentDidMount() {
+  async componentWillMount() {
     const { dados } = this.props;
     const { nfse } = dados;
-    const { servicos } = this.state;
-    const dominioCnpjs = Object.values(this.props.dominio());
+    let { servicosWithIndex } = this.state;
 
-    pegarDominioId().then((dominioId) => {
-      if (nfse.length === 0) {
-        this.props.onChange(servicos);
-        this.props.onLoadEnd();
-        this.setState({ servicos, isLoading: false, dados });
+    if (nfse.length === 0) {
+      this.props.onChange(servicosWithIndex);
+      this.props.onLoadEnd();
+      this.setState({ servicosWithIndex, isLoading: false, dados });
+    }
+
+    servicosWithIndex = await Promise.all(nfse.map(async ({ notaServico }, index) => {
+      try {
+        const { data: servico } = await axios.get(`${api}/servicos/calcular`, {
+          params: {
+            notaServicoChave: notaServico.chave,
+          },
+        });
+        return {
+          ...servico,
+          index,
+        };
+      } catch (err) {
+        throw err;
       }
+    }));
 
-      nfse.forEach((nota, id) => {
-        if (dominioCnpjs.includes(nota.emitente)) {
-          axios.get(`${api}/servicos/calcular`, {
-            params: {
-              notaServico: nota.chave,
-              dominioId,
-              email: auth.currentUser.email,
-            },
-          }).then((res) => {
-            const servico = res.data;
-            servicos.push({
-              ...servico,
-              id,
-            });
-
-            if (servicos.length === nfse.length) {
-              this.props.onChange(servicos);
-              this.props.onLoadEnd();
-              this.setState({ servicos, isLoading: false, dados });
-            }
-          });
-        }
-      });
-    });
+    this.props.onChange(servicosWithIndex);
+    this.props.onLoadEnd();
+    this.setState({ servicosWithIndex, isLoading: false, dados });
   }
 
   getNfse = chave => (
     this.state.dados.nfse ?
-      this.state.dados.nfse.find(el => el.chave === chave) :
-      this.props.dados.nfse.find(el => el.chave === chave)
+      this.state.dados.nfse.find(el => el.notaServico.chave === chave) :
+      this.props.dados.nfse.find(el => el.notaServico.chave === chave)
   )
 
   alterarServico = (servico) => {
-    const { servicos } = this.state;
-    const servicosNovo = [];
-
-    servicos.forEach((el) => {
-      if (el.id === servico.id) {
-        servicosNovo.push(servico);
-      } else {
-        servicosNovo.push(el);
+    const { servicosWithIndex } = this.state;
+    const servicosNovo = servicosWithIndex.map((el) => {
+      if (el.index === servico.index) {
+        return servico;
       }
+      return el;
     });
     this.props.onChange(servicosNovo);
-    this.setState({ servicos: servicosNovo });
+    this.setState({ servicosWithIndex: servicosNovo });
   }
 
   render() {
     const dataSource = [];
 
-    const { servicos } = this.state;
+    const { servicosWithIndex } = this.state;
 
-    servicos.forEach((servico, id) => {
-      const nota = this.getNfse(servico.nota);
+    servicosWithIndex.forEach((servicoPoolWithIndex, id) => {
+      const { servico } = servicoPoolWithIndex;
+      const { notaServico } = this.getNfse(servico.notaChave);
       dataSource.push({
-        key: `servico-${id}-${nota.emitente}`,
+        key: `servico-${id}-${notaServico.emitenteCpfcnpj}`,
         numero: id + 1,
-        nota: nota.geral.numero,
-        status: nota.geral.status,
-        valor: nota.valor.servico,
+        nota: notaServico.numero,
+        status: notaServico.status,
+        valor: R$(notaServico.valor),
         confirmar: <Checkbox
           checked={servico.conferido}
           onChange={(e) => {
-            const servicoNovo = {
-              ...servico,
-              conferido: e.target.checked,
+            const servicoPWINovo = {
+              ...servicoPoolWithIndex,
             };
-            this.alterarServico(servicoNovo);
+            servicoPWINovo.servico.conferido = e.target.checked;
+            this.alterarServico(servicoPWINovo);
           }}
         />,
       });

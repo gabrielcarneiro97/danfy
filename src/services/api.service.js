@@ -62,142 +62,105 @@ export function adicionarEmpresaDominio(cnpj, numero) {
   });
 }
 
-export function adicionarEmpresaImpostos(cnpj, aliquotas) {
+export function adicionarEmpresaImpostos(aliquota) {
   return new Promise((resolve, reject) => {
     axios.post(`${api}/aliquotas`, {
-      cnpj,
-      aliquotas,
+      aliquota,
     }).then(() => {
       resolve();
     }).catch(err => reject(err));
   });
 }
 
-export function gravarMovimentos(movimentos) {
-  return new Promise((resolveEnd) => {
-    const promisesEmpresas = [];
-    Object.keys(movimentos).forEach((cnpj) => {
-      if (movimentos[cnpj]) {
-        promisesEmpresas.push(new Promise((resolveEmpresa) => {
-          const atualizar = new Set();
-          const promises = [];
+export async function gravarMovimentos(movimentos) {
+  const atualizar = {};
+  try {
+    await Promise.all(movimentos.map(async (movimentoPool) => {
+      const { dataHora, donoCpfcnpj } = movimentoPool.movimento;
+      const data = new Date(dataHora);
+      const mes = (data.getUTCMonth() + 1).toString();
+      const ano = data.getUTCFullYear().toString();
 
-          movimentos[cnpj].forEach((movimentoParam) => {
-            promises.push(new Promise((resolve) => {
-              const movimento = { ...movimentoParam };
-              movimento.data = new Date(movimento.data);
-
-              axios.post(`${api}/movimentos/push`, {
-                cnpj, movimento, valorInicial: 0,
-              }).then(() => {
-                const mes = (movimento.data.getUTCMonth() + 1).toString();
-                const ano = movimento.data.getUTCFullYear().toString();
-                atualizar.add(`${mes}/${ano}`);
-                resolve();
-              }).catch((err) => {
-                console.log('aqui');
-                console.log(err);
-                resolve();
-              });
-            }));
-          });
-
-          Promise.all(promises).then(() => {
-            resolveEmpresa({
-              cnpj,
-              atualizar,
-            });
-          });
-        }));
-      }
-    });
-
-    Promise.all(promisesEmpresas).then((finalArray) => {
-      finalArray.forEach(({
-        cnpj,
-        atualizar,
-      }) => {
-        atualizar.forEach((mesAno) => {
-          const mes = mesAno.split('/')[0];
-          const ano = mesAno.split('/')[1];
-          console.log('atualizar', mes, ano);
-          axios.get(`${api}/trimestre`, {
-            params: {
-              cnpj,
-              mes,
-              ano,
-              recalcular: true,
-            },
-          });
-        });
+      atualizar[donoCpfcnpj] = atualizar[donoCpfcnpj] || new Set();
+      atualizar[donoCpfcnpj].add(`${mes}/${ano}`);
+      return axios.post(`${api}/movimentos/push`, {
+        donoCpfcnpj, movimentoPool, valorInicial: 0,
       });
-      resolveEnd();
-    });
-  });
-}
+    }));
 
-export function gravarServicos(servicos) {
-  return new Promise((resolveEnd) => {
-    Object.keys(servicos).forEach((cnpj) => {
-      if (servicos[cnpj]) {
-        const atualizar = new Set();
-        const empresaPromises = [];
+    await Promise.all(Object.keys(atualizar).map(async (cnpj) => {
+      const empresa = atualizar[cnpj];
+      const promises = [];
 
-        empresaPromises.push(new Promise((resolveEmpresa) => {
-          servicos[cnpj].forEach((servico) => {
-            const promises = [];
-            promises.push(new Promise((resolve) => {
-              const date = new Date(servico.data);
-              const mes = (date.getUTCMonth() + 1).toString();
-              const ano = date.getUTCFullYear().toString();
-              atualizar.add(`${mes}/${ano}`);
-
-              axios.post(`${api}/servicos/push`, {
-                servico,
-                cnpj,
-              }).then(() => {
-                resolve();
-              }).catch((err) => {
-                resolve();
-                console.error(err);
-              });
-            }));
-
-            Promise.all(promises).then(() => resolveEmpresa());
-          });
+      empresa.forEach((mesAno) => {
+        const mes = mesAno.split('/')[0];
+        const ano = mesAno.split('/')[1];
+        promises.push(axios.put(`${api}/trimestre`, {}, {
+          params: {
+            cnpj, mes, ano,
+          },
         }));
+      });
 
-        Promise.all(empresaPromises).then(() => {
-          atualizar.forEach((mesAno) => {
-            const mes = mesAno.split('/')[0];
-            const ano = mesAno.split('/')[1];
-            axios.get(`${api}/trimestre`, {
-              params: {
-                cnpj,
-                mes,
-                ano,
-                recalcular: true,
-              },
-            });
-          });
-          resolveEnd();
-        });
-      }
-    });
-  });
+      return Promise.all(promises);
+    }));
+
+    return true;
+  } catch (err) {
+    throw err;
+  }
 }
 
-export function pegarPessoaId(pessoaId) {
-  return new Promise((resolve, reject) => {
-    axios.get(`${api}/pessoas/flat`, {
+export async function gravarServicos(servicos) {
+  const atualizar = {};
+  try {
+    await Promise.all(servicos.map(async (servicoPool) => {
+      const { dataHora, donoCpfcnpj } = servicoPool.servico;
+      const data = new Date(dataHora);
+      const mes = (data.getUTCMonth() + 1).toString();
+      const ano = data.getUTCFullYear().toString();
+
+      atualizar[donoCpfcnpj] = atualizar[donoCpfcnpj] || new Set();
+      atualizar[donoCpfcnpj].add(`${mes}/${ano}`);
+      return axios.post(`${api}/servicos/push`, {
+        donoCpfcnpj, servicoPool,
+      });
+    }));
+
+    await Promise.all(Object.keys(atualizar).map(async (cnpj) => {
+      const empresa = atualizar[cnpj];
+      const promises = [];
+
+      empresa.forEach((mesAno) => {
+        const mes = mesAno.split('/')[0];
+        const ano = mesAno.split('/')[1];
+        promises.push(axios.put(`${api}/trimestre`, {}, {
+          params: {
+            cnpj, mes, ano,
+          },
+        }));
+      });
+
+      return Promise.all(promises);
+    }));
+
+    return true;
+  } catch (err) {
+    throw err;
+  }
+}
+
+export async function pegarPessoaId(pessoaId) {
+  try {
+    const { data } = await axios.get(`${api}/pessoas/flat`, {
       params: {
         pessoaId,
       },
-    }).then((res) => {
-      const { pessoa } = res.data;
-      resolve(pessoa);
-    }).catch(err => reject(err));
-  });
+    });
+    return data;
+  } catch (err) {
+    throw err;
+  }
 }
 
 export function pegarEmpresaImpostos(cnpj) {
@@ -212,12 +175,12 @@ export function pegarEmpresaImpostos(cnpj) {
   });
 }
 
-export function cancelarMovimento(cnpj, id) {
+export function cancelarMovimento(cnpj, movimentoId) {
   return new Promise((resolve, reject) => {
     axios.put(`${api}/movimentos/cancelar`, {}, {
       params: {
         cnpj,
-        movimentoId: id,
+        movimentoId,
       },
     }).then(({ data }) => {
       resolve(data);
@@ -225,13 +188,14 @@ export function cancelarMovimento(cnpj, id) {
   });
 }
 
-export function editarMovimento(movimentoNovo, cnpj) {
+export function editarMovimento(movimentoPoolNovo) {
+  const { metaDados } = movimentoPoolNovo;
   return new Promise((resolve, reject) => {
-    const movimentoAntigoId = movimentoNovo.metaDados.movimentoRef;
+    const movimentoAntigoId = metaDados.refMovimentoId;
 
-    axios.put(`${api}/movimentos/editar`, { movimentoNovo }, {
+    axios.put(`${api}/movimentos/editar`, { movimentoNovoObj: movimentoPoolNovo }, {
       params: {
-        cnpj, movimentoAntigoId,
+        movimentoAntigoId,
       },
     }).then(({ data }) => {
       resolve(data);
@@ -252,7 +216,10 @@ export function pegarServico(cnpj, servicoId) {
   });
 }
 
-export function excluirServico(cnpj, servicoId) {
+export function excluirServico(servicoPool) {
+  const { servico } = servicoPool;
+  const cnpj = servico.donoCpfcnpj;
+  const servicoId = servico.id;
   return new Promise((resolve, reject) => {
     axios.delete(`${api}/servicos/id`, {
       params: {

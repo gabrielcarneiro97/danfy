@@ -5,7 +5,7 @@ import { Input } from 'antd';
 class MovimentoValorInput extends Component {
   static propTypes = {
     onChange: PropTypes.func.isRequired,
-    movimento: PropTypes.object.isRequired, // eslint-disable-line
+    movimentoPoolWithKey: PropTypes.object.isRequired, // eslint-disable-line
     value: PropTypes.oneOfType([
       PropTypes.number,
       PropTypes.string,
@@ -28,7 +28,7 @@ class MovimentoValorInput extends Component {
   handleChange = (e) => {
     const { value } = e.target;
 
-    this.props.onChange(value, this.state.name, this.props.movimento);
+    this.props.onChange(value, this.state.name, this.props.movimentoPoolWithKey);
     this.setState({ value });
   }
 

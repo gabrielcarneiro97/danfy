@@ -1,56 +1,59 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import moment from 'moment';
 import PropTypes from 'prop-types';
 import ReactToPrint from 'react-to-print';
 import { Divider, Row, Col, Button } from 'antd';
 
 import { MovimentosTable, ServicosTable, TableToPrint, AcumuladosTable, CotasTable } from '.';
-import { R$, retornarTipo, somaTotalMovimento, somaTotalServico, pegaMes, cnpjMask, floating } from '../services';
+import { R$, retornarTipo, somaTotalMovimento, somaTotalServico, pegaMes, cnpjMask, mesInicioFim, eDoMes, calcularCotas, temTabelaCotas, floating } from '../services';
 
 import './Printer.css';
 
-const temServicos = props => Object.keys(props.dados.servicos).length > 0;
-const temMovimentos = props => Object.keys(props.dados.movimentos).length > 0;
+const temServicos = props => props.dados.trimestreData.servicosPool.length > 0;
+const temMovimentos = props => props.dados.trimestreData.movimentosPool.length > 0;
 
-function temTabelaCotas({ formaPagamento, mes }) {
-  return formaPagamento === 'PAGAMENTO EM COTAS' &&
-    parseInt(mes, 10) % 3 === 0;
-}
 
 function defineTableMovimentos(props) {
-  const { movimentos, notas } = props.dados;
-  let printSource = [];
+  const { dados } = props;
+  const { notasPool } = dados;
+  const { mes, ano } = dados.complementares;
+  const { movimentosPool } = dados.trimestreData;
+
   let totais;
 
-  Object.keys(movimentos).forEach((key) => {
-    const movimento = movimentos[key];
-    const notaFinal = notas[movimento.notaFinal];
-    const notaInicial = notas[movimento.notaInicial];
+  const mesTimes = mesInicioFim(mes, ano);
+
+  const movimentosPoolMes = movimentosPool.filter(mP => eDoMes(mP, mesTimes));
+
+  let printSource = movimentosPoolMes.map((movimentoPool) => {
+    const { movimento, impostoPool } = movimentoPool;
+    const { imposto, icms } = impostoPool;
+    const key = movimento.id;
+    const notaFinal = notasPool.find(n => n.chave === movimento.notaFinalChave);
+    const notaInicial = notasPool.find(n => n.chave === movimento.notaInicialChave);
     const valores = {
       key,
-      numero: notaFinal.geral.numero,
-      valorInicial: R$(notaInicial.valor.total),
-      valorFinal: R$(notaFinal.valor.total),
-      tipoMovimento: retornarTipo(notaFinal.geral.cfop),
-      lucro: R$(movimento.valores.lucro),
-      baseIcms: R$(movimento.valores.impostos.icms.baseDeCalculo),
-      icms: R$(movimento.valores.impostos.icms.proprio),
-      difalOrigem: movimento.valores.impostos.icms.difal ?
-        R$(movimento.valores.impostos.icms.difal.origem) :
-        '0,00',
-      difalDestino: movimento.valores.impostos.icms.difal ?
-        R$(movimento.valores.impostos.icms.difal.destino) :
-        '0,00',
-      pis: R$(movimento.valores.impostos.pis),
-      cofins: R$(movimento.valores.impostos.cofins),
-      csll: R$(movimento.valores.impostos.csll),
-      irpj: R$(movimento.valores.impostos.irpj),
-      total: R$(movimento.valores.impostos.total),
+      numero: notaFinal.numero,
+      valorInicial: R$(notaInicial.valor),
+      valorFinal: R$(notaFinal.valor),
+      tipoMovimento: retornarTipo(notaFinal.cfop),
+      lucro: R$(movimento.lucro),
+      baseIcms: R$(icms.baseCalculo),
+      icms: R$(icms.proprio),
+      difalOrigem: icms.difalOrigem ? R$(icms.difalOrigem) : '0,00',
+      difalDestino: icms.difalDestino ? R$(icms.difalDestino) : '0,00',
+      pis: R$(imposto.pis),
+      cofins: R$(imposto.cofins),
+      csll: R$(imposto.csll),
+      irpj: R$(imposto.irpj),
+      total: R$(imposto.total),
     };
 
-    totais = somaTotalMovimento(valores, totais, retornarTipo(notaFinal.geral.cfop));
+    valores.cor = floating(valores.valorFinal) < floating(valores.valorInicial) ? '#FFF701' : null;
 
-    printSource.push(valores);
+    totais = somaTotalMovimento(valores, totais);
+
+    return valores;
   });
 
   printSource = printSource.sort((a, b) => {
@@ -71,39 +74,50 @@ function defineTableMovimentos(props) {
   return printSource;
 }
 
+function eCancelada(nota) {
+  return nota.status === 'CANCELADA';
+}
+
 function defineTableServicos(props) {
-  const { servicos } = props.dados;
-  let printSource = [];
+  const { dados } = props;
+  const { notasServicoPool } = dados;
+  const { mes, ano } = dados.complementares;
+  const { servicosPool } = dados.trimestreData;
+
+  const mesTimes = mesInicioFim(mes, ano);
+
+  const servicosPoolMes = servicosPool.filter(sP => eDoMes(sP, mesTimes));
   let totais;
 
-  Object.keys(servicos).forEach((key) => {
-    const servico = servicos[key];
+  let printSource = servicosPoolMes.map((servicoPool) => {
+    const { servico, imposto, retencao } = servicoPool;
 
-    const numero = parseInt(servico.nota.substring(18), 10);
+    const numero = parseInt(servico.notaChave.substring(18), 10);
+    const nota = notasServicoPool.find(n => n.chave === servico.notaChave);
 
     const valores = {
-      key: servico.nota,
+      key: servico.notaChave,
       nota: numero,
-      status: servico.notaStatus,
+      status: nota.status,
       data: moment(servico.data).format('DD[/]MMM'),
-      valorServico: R$(servico.valores.impostos.baseDeCalculo),
-      issRetido: R$(servico.valores.impostos.retencoes.iss),
-      pisRetido: R$(servico.valores.impostos.retencoes.pis),
-      cofinsRetido: R$(servico.valores.impostos.retencoes.cofins),
-      csllRetido: R$(servico.valores.impostos.retencoes.csll),
-      irpjRetido: R$(servico.valores.impostos.retencoes.irpj),
-      totalRetido: R$(servico.valores.impostos.retencoes.total),
-      iss: R$(servico.valores.impostos.iss),
-      pis: R$(servico.valores.impostos.pis),
-      cofins: R$(servico.valores.impostos.cofins),
-      csll: R$(servico.valores.impostos.csll),
-      irpj: R$(servico.valores.impostos.irpj),
-      total: R$(servico.valores.impostos.total),
+      valorServico: R$(servico.valor),
+      issRetido: eCancelada(nota) ? R$(0) : R$(retencao.iss),
+      pisRetido: eCancelada(nota) ? R$(0) : R$(retencao.pis),
+      cofinsRetido: eCancelada(nota) ? R$(0) : R$(retencao.cofins),
+      csllRetido: eCancelada(nota) ? R$(0) : R$(retencao.csll),
+      irpjRetido: eCancelada(nota) ? R$(0) : R$(retencao.irpj),
+      totalRetido: eCancelada(nota) ? R$(0) : R$(retencao.total),
+      iss: R$(imposto.iss),
+      pis: R$(imposto.pis),
+      cofins: R$(imposto.cofins),
+      csll: R$(imposto.csll),
+      irpj: R$(imposto.irpj),
+      total: R$(imposto.total),
     };
 
     totais = somaTotalServico(valores, totais);
 
-    printSource.push(valores);
+    return valores;
   });
 
   printSource = printSource.sort((a, b) => {
@@ -124,39 +138,14 @@ function defineTableServicos(props) {
   return printSource;
 }
 
-function valorRender(valor, imposto, complementares, totaisMes) {
-  const { adicionais, deducoes } = totaisMes;
-
-  let adicional;
-  if (adicionais) adicional = floating(adicionais[imposto]);
-
-  let deducao;
-  if (deducoes) deducao = floating(deducoes[imposto]);
-
-  let valorLiquido = floating(valor);
-  if (deducao) valorLiquido -= deducao;
-
-  if (adicional) valorLiquido += adicional;
-
-  const check = adicional || deducao;
-
-  return (
-    <Fragment>
-      {R$(valor)}
-      {check ? <span>&nbsp;</span> : ''}
-      {adicional ? <span>+ {R$(adicional)} </span> : ''}
-      {deducao ? <span>- {R$(deducao)} </span> : ''}
-      {check ? <span>= {R$(valorLiquido)} </span> : ''}
-    </Fragment>
-  );
-}
-
 function defineTableGuias(props) {
-  const { complementares, trimestre } = props.dados;
+  const { complementares, trimestreData } = props.dados;
   const columnsGuias = [];
   const dataSourceGuias = [];
   const data = {};
-  const totaisMes = trimestre[complementares.mes];
+  const { acumulado, retencao, impostoPool } = trimestreData[complementares.mes].totalSomaPool;
+  const { imposto, icms } = impostoPool;
+  const trimestre = trimestreData.trim.totalSomaPool;
 
   if (temMovimentos(props)) {
     columnsGuias.push({
@@ -164,9 +153,7 @@ function defineTableGuias(props) {
       dataIndex: 'icms',
       key: 'icms',
     });
-    const icms = totaisMes.totais.impostos.icms.proprio +
-      totaisMes.totais.impostos.icms.difal.origem;
-    data.icms = valorRender(icms, 'icms', complementares, totaisMes);
+    data.icms = R$(icms.proprio + icms.difalOrigem);
   }
 
   if (temServicos(props)) {
@@ -175,8 +162,7 @@ function defineTableGuias(props) {
       dataIndex: 'iss',
       key: 'iss',
     });
-    const iss = totaisMes.totais.impostos.iss - totaisMes.totais.impostos.retencoes.iss;
-    data.iss = valorRender(iss, 'iss', complementares, totaisMes);
+    data.iss = R$(imposto.iss - retencao.iss);
   }
 
   columnsGuias.push({
@@ -185,10 +171,7 @@ function defineTableGuias(props) {
     key: 'pis',
   });
 
-  const pis = (totaisMes.totais.impostos.pis -
-    totaisMes.totais.impostos.retencoes.pis) +
-    totaisMes.totais.impostos.acumulado.pis;
-  data.pis = valorRender(pis, 'pis', complementares, totaisMes);
+  data.pis = R$((imposto.pis - retencao.pis) + acumulado.pis);
 
   columnsGuias.push({
     title: 'COFINS',
@@ -196,10 +179,7 @@ function defineTableGuias(props) {
     key: 'cofins',
   });
 
-  const cofins = (totaisMes.totais.impostos.cofins -
-    totaisMes.totais.impostos.retencoes.cofins) +
-    totaisMes.totais.impostos.acumulado.cofins;
-  data.cofins = valorRender(cofins, 'cofins', complementares, totaisMes);
+  data.cofins = R$((imposto.cofins - retencao.cofins) + acumulado.cofins);
 
   if (parseInt(complementares.mes, 10) % 3 === 0 &&
     complementares.formaPagamento !== 'PAGAMENTO ANTECIPADO') {
@@ -208,19 +188,15 @@ function defineTableGuias(props) {
       dataIndex: 'csll',
       key: 'csll',
     });
-    const csll = trimestre.totais.impostos.csll - trimestre.totais.impostos.retencoes.csll;
-    data.csll = valorRender(csll, 'csll', complementares, totaisMes);
+    data.csll = R$(trimestre.impostoPool.imposto.csll - trimestre.retencao.csll);
 
     columnsGuias.push({
       title: 'IRPJ + ADICIONAL',
       dataIndex: 'irpj',
       key: 'irpj',
     });
-    const irpj = (trimestre.totais.impostos.irpj -
-      trimestre.totais.impostos.retencoes.irpj) +
-      trimestre.totais.impostos.adicionalIr;
-
-    data.irpj = valorRender(irpj, 'irpj', complementares, totaisMes);
+    data.irpj = R$((trimestre.impostoPool.imposto.irpj - trimestre.retencao.irpj) +
+      trimestre.impostoPool.imposto.adicionalIr);
   } else if (parseInt(complementares.mes, 10) % 3 !== 0 &&
     complementares.formaPagamento === 'PAGAMENTO ANTECIPADO') {
     columnsGuias.push({
@@ -228,18 +204,15 @@ function defineTableGuias(props) {
       dataIndex: 'csll',
       key: 'csll',
     });
-    const csll = totaisMes.totais.impostos.csll -
-      totaisMes.totais.impostos.retencoes.csll;
-    data.csll = valorRender(csll, 'csll', complementares, totaisMes);
+
+    data.csll = R$(imposto.csll - retencao.csll);
 
     columnsGuias.push({
       title: 'IRPJ',
       dataIndex: 'irpj',
       key: 'irpj',
     });
-    const irpj = totaisMes.totais.impostos.irpj -
-      totaisMes.totais.impostos.retencoes.irpj;
-    data.irpj = valorRender(irpj, 'irpj', complementares, totaisMes);
+    data.irpj = imposto.irpj - retencao.irpj;
   } else if (parseInt(complementares.mes, 10) % 3 === 0 &&
     complementares.formaPagamento === 'PAGAMENTO ANTECIPADO') {
     columnsGuias.push({
@@ -247,19 +220,15 @@ function defineTableGuias(props) {
       dataIndex: 'csll',
       key: 'csll',
     });
-    const csll = totaisMes.totais.impostos.csll -
-      totaisMes.totais.impostos.retencoes.csll;
-    data.csll = valorRender(csll, 'csll', complementares, totaisMes);
+    data.csll = R$(imposto.csll - retencao.csll);
 
     columnsGuias.push({
       title: 'IRPJ + ADICIONAL',
       dataIndex: 'irpj',
       key: 'irpj',
     });
-    const irpj = (totaisMes.totais.impostos.irpj -
-      totaisMes.totais.impostos.retencoes.irpj) +
-      trimestre.totais.impostos.adicionalIr;
-    data.irpj = valorRender(irpj, 'irpj', complementares, totaisMes);
+    data.irpj = R$((imposto.irpj - retencao.irpj) +
+    trimestre.impostoPool.imposto.adicionalIr);
   }
 
   data.key = 'guias';
@@ -273,64 +242,31 @@ function defineTableGuias(props) {
 }
 
 function defineTableAcumulados(props) {
-  const { trimestre } = props.dados;
+  const stg = str => <strong>{str}</strong>;
+
+  const { trimestreData } = props.dados;
   const dataSource = [];
 
-  Object.keys(trimestre).forEach((key) => {
-    if (key === 'totais') {
-      const mes = <strong>Trimestre</strong>;
-      const el = trimestre[key];
+  Object.keys(trimestreData).forEach((key) => {
+    if (key !== 'movimentosPool' && key !== 'servicosPool') {
+      const mes = key === 'trim' ? <strong>Trimestre</strong> : pegaMes(key);
+
+
+      const { totalSomaPool } = trimestreData[key];
+      const { retencao, totalSoma } = totalSomaPool;
+      const { imposto } = totalSomaPool.impostoPool;
 
       dataSource.push({
         key: `acumulado-${key}`,
         mes,
-        csll: <strong>{R$(el.impostos.csll - el.impostos.retencoes.csll)}</strong>,
-        irpj: <strong>{R$(el.impostos.irpj - el.impostos.retencoes.irpj)}</strong>,
-        faturamento: <strong>{R$(el.lucro + el.servicos)}</strong>,
-      });
-    } else {
-      const mes = pegaMes(key);
-      const el = trimestre[key];
-
-      dataSource.push({
-        key: `acumulado-${key}`,
-        mes,
-        csll: R$(el.totais.impostos.csll - el.totais.impostos.retencoes.csll),
-        irpj: R$(el.totais.impostos.irpj - el.totais.impostos.retencoes.irpj),
-        faturamento: R$(el.totais.lucro + el.totais.servicos),
+        csll: key === 'trim' ? stg(R$(imposto.csll - retencao.csll)) : R$(imposto.csll - retencao.csll),
+        irpj: key === 'trim' ? stg(R$(imposto.irpj - retencao.irpj)) : R$(imposto.irpj - retencao.irpj),
+        faturamento: key === 'trim' ? stg(R$(totalSoma.valorMovimento + totalSoma.valorServico)) : R$(totalSoma.valorMovimento + totalSoma.valorServico),
       });
     }
   });
 
   return dataSource;
-}
-
-function calcularCotas(props) {
-  const { totais } = props.dados.trimestre;
-
-  const valorIr = totais.impostos.irpj +
-    (totais.impostos.adicionalIr - totais.impostos.retencoes.irpj);
-  const valorCsll = totais.impostos.csll - totais.impostos.retencoes.csll;
-
-  let cotaIr = { valor: 0, numero: 0 };
-  let cotaCsll = { valor: 0, numero: 0 };
-
-  if (valorIr / 3 > 1000) {
-    cotaIr = { valor: valorIr / 3, numero: 3 };
-  } else if (valorIr / 2 > 1000) {
-    cotaIr = { valor: valorIr / 2, numero: 2 };
-  } else {
-    cotaIr = { valor: valorIr, numero: 1 };
-  }
-  if (valorCsll / 3 > 1000) {
-    cotaCsll = { valor: valorCsll / 3, numero: 3 };
-  } else if (valorCsll / 2 > 1000) {
-    cotaCsll = { valor: valorCsll / 2, numero: 2 };
-  } else {
-    cotaCsll = { valor: valorCsll, numero: 1 };
-  }
-
-  return { cotaCsll, cotaIr };
 }
 
 function defineTableCotas(props) {
@@ -367,8 +303,6 @@ function Printer(props) {
   const dataTableAcumulados = defineTableAcumulados(props);
   const { dataSourceGuias, columnsGuias } = defineTableGuias(props);
   const dataTableCotas = defineTableCotas(props);
-
-  console.log(dados.complementares);
 
   let printRef = React.createRef();
 
