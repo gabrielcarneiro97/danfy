@@ -24,7 +24,7 @@ class MainMenu extends Component {
     },
   }
 
-  async componentWillMount() {
+  async componentDidMount() {
     const { data: version } = await axios.get(`${api}/version`);
     this.setState({ version });
   }
@@ -49,6 +49,11 @@ class MainMenu extends Component {
           <Menu.Item key={`${match.url}/visualizar`}>
             <Link to={`${match.url}/visualizar`}>
               <Icon type="folder-open" />Visualizar Movimento
+            </Link>
+          </Menu.Item>
+          <Menu.Item key={`${match.url}/estoque`}>
+            <Link to={`${match.url}/estoque`}>
+              <Icon type="inbox" />Estoque
             </Link>
           </Menu.Item>
         </Menu>

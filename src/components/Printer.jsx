@@ -212,7 +212,7 @@ function defineTableGuias(props) {
       dataIndex: 'irpj',
       key: 'irpj',
     });
-    data.irpj = imposto.irpj - retencao.irpj;
+    data.irpj = R$(imposto.irpj - retencao.irpj);
   } else if (parseInt(complementares.mes, 10) % 3 === 0 &&
     complementares.formaPagamento === 'PAGAMENTO ANTECIPADO') {
     columnsGuias.push({

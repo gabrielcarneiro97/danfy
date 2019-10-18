@@ -45,7 +45,7 @@ class ConciliarServicos extends Component {
     servicosWithIndex: [],
   }
 
-  async componentWillMount() {
+  async componentDidMount() {
     const { dados } = this.props;
     const { nfse } = dados;
     let { servicosWithIndex } = this.state;

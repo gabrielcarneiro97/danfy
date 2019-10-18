@@ -10,6 +10,7 @@ module.exports = {
       "specialLink": ["hrefLeft", "hrefRight"],
       "aspects": ["noHref", "invalidHref", "preferButton"]
     }],
-    "no-underscore-dangle": "off"
+    "no-underscore-dangle": "off",
+    "react/no-did-mount-set-state" : "off",
   },
 };

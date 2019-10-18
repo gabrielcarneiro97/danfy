@@ -7,6 +7,7 @@ import moment from 'moment';
 import 'moment/locale/pt-br';
 import 'antd/dist/antd.css';
 
+import Store from './store/Store';
 import { PrivateRoute, MainLogged, Login, Navbar } from './components';
 
 const { Header } = Layout;
@@ -19,22 +20,24 @@ function Main() {
 
 function App() {
   return (
-    <PrintProvider>
-      <NoPrint>
-        <BrowserRouter>
-          <Layout>
-            <Header>
-              <Navbar />
-            </Header>
-            <Switch>
-              <Route exact path="/" component={Main} />
-              <Route exact path="/login" component={Login} />
-              <PrivateRoute path="/app" component={MainLogged} />
-            </Switch>
-          </Layout>
-        </BrowserRouter>
-      </NoPrint>
-    </PrintProvider>
+    <Store>
+      <PrintProvider>
+        <NoPrint>
+          <BrowserRouter>
+            <Layout>
+              <Header>
+                <Navbar />
+              </Header>
+              <Switch>
+                <Route exact path="/" component={Main} />
+                <Route exact path="/login" component={Login} />
+                <PrivateRoute path="/app" component={MainLogged} />
+              </Switch>
+            </Layout>
+          </BrowserRouter>
+        </NoPrint>
+      </PrintProvider>
+    </Store>
   );
 }
 

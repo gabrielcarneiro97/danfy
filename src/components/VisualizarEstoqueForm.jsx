@@ -1,31 +1,29 @@
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
-import { Input, Button, Row, Col, Icon, DatePicker } from 'antd';
+import { Input, Button, Row, Col, DatePicker } from 'antd';
 
-import { pegarDominio, pegarPessoaId, pegarEmpresaImpostos, cnpjMask } from '../services';
+import { pegarDominio, pegarPessoaId, cnpjMask } from '../services';
 
 import './VisualizarForm.css';
-
-const { MonthPicker } = DatePicker;
 
 class VisualizarForm extends Component {
   static propTypes = {
     onSubmit: PropTypes.func.isRequired,
+    onUpdate: PropTypes.func.isRequired,
     printer: PropTypes.oneOfType([PropTypes.object, PropTypes.string]).isRequired,
   }
   state = {
     num: '',
-    mes: '',
-    ano: '',
+    diaMesAno: '',
     submit: false,
-    submitText: 'Selecionar',
+    submitLoading: false,
+    update: false,
+    updateLoading: false,
     disableNum: true,
     pessoa: {
       numeroSistema: '',
       nome: '',
-      formaPagamento: '',
       cnpj: '',
-      simples: false,
     },
     dominio: [],
   }
@@ -37,40 +35,40 @@ class VisualizarForm extends Component {
   handleSubmit = () => {
     this.setState({
       submit: false,
-      submitText: <Icon type="loading" theme="outlined" />,
+      update: false,
+      submitLoading: true,
     }, () => {
       this.props.onSubmit({
         cnpj: this.state.pessoa.cnpj,
-        mes: this.state.mes,
-        ano: this.state.ano,
+        diaMesAno: this.state.diaMesAno,
         nome: this.state.pessoa.nome,
-        formaPagamento: this.state.pessoa.formaPagamento,
         numeroSistema: this.state.num,
-      }).then(() => this.setState({ submit: true, submitText: 'Selecionar' }));
+      }).then(() => this.setState({ submit: true, update: true, submitLoading: false }));
     });
   }
 
-  handleData = (e, mesAno) => {
-    console.log(mesAno);
-    if (!mesAno) this.setState({ ano: '', mes: '' }, this.checkSubmit);
-    else {
-      const [mes, ano] = mesAno.split('-');
-      this.setState({ ano, mes: mes.replace('0', '') }, () => {
-        console.log(this.state.mes, this.state.ano);
-        this.checkSubmit();
-      });
-    }
-  };
+  handleUpdate = () => {
+    this.setState({
+      update: false,
+      submit: false,
+      updateLoading: true,
+    }, () => {
+      this.props.onUpdate({
+        cnpj: this.state.pessoa.cnpj,
+        diaMesAno: this.state.diaMesAno,
+        nome: this.state.pessoa.nome,
+        numeroSistema: this.state.num,
+      }).then(() => this.setState({ update: true, submit: true, updateLoading: false }));
+    });
+  }
 
-  handleMes = mes => this.setState({ mes }, () => this.checkSubmit());
-
-  handleAno = ano => this.setState({ ano }, () => this.checkSubmit());
+  handleData = (e, diaMesAno) => this.setState({ diaMesAno }, this.checkSubmit);
 
   checkSubmit = () => {
-    if (this.state.mes && this.state.ano && this.state.pessoa.cnpj) {
-      this.setState({ submit: true });
+    if (this.state.diaMesAno && this.state.pessoa.cnpj) {
+      this.setState({ submit: true, update: true });
     } else {
-      this.setState({ submit: false });
+      this.setState({ submit: false, update: false });
     }
   }
 
@@ -81,36 +79,24 @@ class VisualizarForm extends Component {
     if (empresa) {
       const { cnpj } = empresa;
       try {
-        const [pessoaPg, aliquota] = await Promise.all([
-          pegarPessoaId(cnpj), pegarEmpresaImpostos(cnpj),
-        ]);
+        const pessoaPg = await pegarPessoaId(cnpj);
 
         const pessoa = {
           nome: pessoaPg.nome,
-          simples: aliquota.tributacao === 'SN',
           cnpj,
           numeroSistema: num,
         };
 
-        if (aliquota.formaPagamento === 'adiantamento') {
-          pessoa.formaPagamento = 'PAGAMENTO ANTECIPADO';
-        } else if (aliquota.formaPagamento === 'cotas') {
-          pessoa.formaPagamento = 'PAGAMENTO EM COTAS';
-        } else if (aliquota.formaPagamento === 'acumulado') {
-          pessoa.formaPagamento = 'PAGAMENTO ACUMULADO NO FINAL DO TRIMESTRE';
-        }
-
-        this.setState({ pessoa, num }, () => this.checkSubmit());
+        this.setState({ pessoa, num }, () => this.checkSubmit);
       } catch (err) {
         this.setState({
           pessoa: {
             numeroSistema: '',
             nome: '',
-            formaPagamento: '',
             cnpj: '',
             simples: false,
           },
-        }, () => this.checkSubmit());
+        }, this.checkSubmit);
         console.error(err);
       }
     } else {
@@ -118,7 +104,6 @@ class VisualizarForm extends Component {
         pessoa: {
           numeroSistema: '',
           nome: '',
-          formaPagamento: '',
           cnpj: '',
           simples: false,
         },
@@ -127,6 +112,7 @@ class VisualizarForm extends Component {
       this.setState({ num });
     }
   }
+
   render() {
     return (
       <Fragment>
@@ -144,16 +130,13 @@ class VisualizarForm extends Component {
             />
           </Col>
           <Col span={4} className="form-input">
-            <MonthPicker onChange={this.handleData} placeholder="Selecione o Mês" format="MM-YYYY" />
+            <DatePicker onChange={this.handleData} placeholder="Data" format="DD-MM-YYYY" />
           </Col>
-          <Col span={16} className="form-input">
+          <Col span={10} className="form-input">
             <Input addonBefore="Nome" value={this.state.pessoa.nome} disabled />
           </Col>
-          <Col span={8} className="form-input">
+          <Col span={6} className="form-input">
             <Input addonBefore="CNPJ" value={cnpjMask(this.state.pessoa.cnpj)} disabled />
-          </Col>
-          <Col span={16} className="form-input">
-            <Input addonBefore="Forma de Pagamento Trimestrais" value={this.state.pessoa.formaPagamento} disabled />
           </Col>
         </Row>
         <Row
@@ -162,14 +145,38 @@ class VisualizarForm extends Component {
           gutter={16}
         >
           <Col
-            className="form-input"
+            style={{
+              marginTop: '5px',
+            }}
           >
             {this.props.printer}
           </Col>
           <Col
-            className="form-input"
+            style={{
+              marginTop: '5px',
+            }}
           >
-            <Button type="primary" onClick={this.handleSubmit} disabled={!this.state.submit}>{this.state.submitText}</Button>
+            <Button
+              onClick={this.handleUpdate}
+              disabled={!this.state.update}
+              loading={this.state.updateLoading}
+            >
+                Atualizar
+            </Button>
+          </Col>
+          <Col
+            style={{
+              marginTop: '5px',
+            }}
+          >
+            <Button
+              type="primary"
+              onClick={this.handleSubmit}
+              disabled={!this.state.submit}
+              loading={this.state.submitLoading}
+            >
+              Selecionar
+            </Button>
           </Col>
         </Row>
       </Fragment>

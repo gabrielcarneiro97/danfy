@@ -78,7 +78,7 @@ class ConciliarMovimentos extends Component {
     movimentosWithIndex: [],
   }
 
-  async componentWillMount() {
+  async componentDidMount() {
     const { dados } = this.props;
     const dominioCnpjs = this.props.dominio().map(o => o.cnpj);
 
