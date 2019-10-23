@@ -21,7 +21,8 @@ function EstoqueTabelaCheckbox({
     const { checked } = e.target;
     const produtoEstoque = estoque[id];
     disabled = true;
-    dispatch(atualizarProduto({ id, ativo: checked }));
+    produtoEstoque.ativo = checked;
+    dispatch(atualizarProduto(produtoEstoque));
     await axios.put(
       `${api}/estoque/${produtoEstoque.donoCpfcnpj}/${id}`,
       produtoEstoque,
@@ -30,7 +31,7 @@ function EstoqueTabelaCheckbox({
     disabled = false;
   };
 
-  return <Checkbox onChange={onChange} defaultChecked={ativo} disabled={disabled}>{id}</Checkbox>;
+  return <Checkbox onChange={onChange} checked={ativo} disabled={disabled}>{id}</Checkbox>;
 }
 
 EstoqueTabelaCheckbox.propTypes = {

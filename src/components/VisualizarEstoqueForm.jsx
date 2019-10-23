@@ -1,187 +1,196 @@
-import React, { Component, Fragment } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Input, Button, Row, Col, DatePicker } from 'antd';
+import {
+  Input,
+  Button,
+  Row,
+  Col,
+  DatePicker,
+} from 'antd';
+import axios from 'axios';
 
-import { pegarDominio, pegarPessoaId, cnpjMask } from '../services';
+import {
+  pegarDominio,
+  pegarPessoaId,
+  cnpjMask,
+  api,
+} from '../services';
+
+import Connect from '../store/Connect';
+import { carregarEstoque, carregarInfosGerais } from '../store/estoque';
 
 import './VisualizarForm.css';
 
-class VisualizarForm extends Component {
-  static propTypes = {
-    onSubmit: PropTypes.func.isRequired,
-    onUpdate: PropTypes.func.isRequired,
-    printer: PropTypes.oneOfType([PropTypes.object, PropTypes.string]).isRequired,
-  }
-  state = {
-    num: '',
-    diaMesAno: '',
-    submit: false,
-    submitLoading: false,
-    update: false,
-    updateLoading: false,
-    disableNum: true,
-    pessoa: {
-      numeroSistema: '',
-      nome: '',
-      cnpj: '',
-    },
-    dominio: [],
-  }
-  async componentDidMount() {
-    const dominio = await pegarDominio();
-    this.setState({ dominio, disableNum: false });
-  }
+function VisualizarEstoqueForm(props) {
+  const { dispatch, store, printer } = props;
+  const { estoqueInfosGerais } = store;
+  const { diaMesAno, cnpj, nome } = estoqueInfosGerais;
 
-  handleSubmit = () => {
-    this.setState({
-      submit: false,
-      update: false,
-      submitLoading: true,
-    }, () => {
-      this.props.onSubmit({
-        cnpj: this.state.pessoa.cnpj,
-        diaMesAno: this.state.diaMesAno,
-        nome: this.state.pessoa.nome,
-        numeroSistema: this.state.num,
-      }).then(() => this.setState({ submit: true, update: true, submitLoading: false }));
+  const [num, setNum] = useState(estoqueInfosGerais.numeroSistema);
+  const [submitLoading, setSubmitLoading] = useState(false);
+  const [updateLoading, setUpdateLoading] = useState(false);
+  const [disableNum, setDisableNum] = useState(true);
+  const [dominio, setDominio] = useState([]);
+
+  useEffect(() => {
+    pegarDominio().then((dom) => {
+      setDominio(dom);
+      setDisableNum(false);
     });
-  }
+  });
 
-  handleUpdate = () => {
-    this.setState({
-      update: false,
-      submit: false,
-      updateLoading: true,
-    }, () => {
-      this.props.onUpdate({
-        cnpj: this.state.pessoa.cnpj,
-        diaMesAno: this.state.diaMesAno,
-        nome: this.state.pessoa.nome,
-        numeroSistema: this.state.num,
-      }).then(() => this.setState({ update: true, submit: true, updateLoading: false }));
+
+  const pegarEstoque = async () => {
+    setSubmitLoading(true);
+    const { data } = await axios.get(`${api}/estoque/${estoqueInfosGerais.cnpj}`, {
+      params: {
+        data: estoqueInfosGerais.diaMesAno.format('DD-MM-YYYY'),
+      },
     });
-  }
 
-  handleData = (e, diaMesAno) => this.setState({ diaMesAno }, this.checkSubmit);
+    dispatch(carregarEstoque(data));
 
-  checkSubmit = () => {
-    if (this.state.diaMesAno && this.state.pessoa.cnpj) {
-      this.setState({ submit: true, update: true });
-    } else {
-      this.setState({ submit: false, update: false });
-    }
-  }
+    setSubmitLoading(false);
+    return true;
+  };
 
-  handleNum = async (e) => {
-    const { dominio } = this.state;
-    const num = e.target.value;
-    const empresa = dominio.find(o => o.numero === num);
+  const atualizarEstoque = async () => {
+    setUpdateLoading(true);
+    const { data } = await axios.put(
+      `${api}/estoque/${estoqueInfosGerais.cnpj}`,
+      {}, {
+        params: {
+          data: estoqueInfosGerais.diaMesAno.format('DD-MM-YYYY'),
+        },
+      },
+    );
+
+    dispatch(carregarEstoque(data.estoqueAtualizado));
+
+    setUpdateLoading(false);
+    return true;
+  };
+
+  const handleData = (data) => {
+    dispatch(carregarInfosGerais({ diaMesAno: data }));
+  };
+
+  const handleNum = async (e) => {
+    const inputNum = e.target.value;
+    const empresa = dominio.find((o) => o.numero === inputNum);
     if (empresa) {
-      const { cnpj } = empresa;
+      const { cnpj: empCnpj } = empresa;
       try {
-        const pessoaPg = await pegarPessoaId(cnpj);
+        const pessoaPg = await pegarPessoaId(empCnpj);
 
         const pessoa = {
           nome: pessoaPg.nome,
-          cnpj,
+          cnpj: empCnpj,
           numeroSistema: num,
         };
 
-        this.setState({ pessoa, num }, () => this.checkSubmit);
+        dispatch(carregarInfosGerais(pessoa));
+        setNum(inputNum);
       } catch (err) {
-        this.setState({
-          pessoa: {
-            numeroSistema: '',
-            nome: '',
-            cnpj: '',
-            simples: false,
-          },
-        }, this.checkSubmit);
-        console.error(err);
-      }
-    } else {
-      this.setState({
-        pessoa: {
+        dispatch(carregarInfosGerais({
           numeroSistema: '',
           nome: '',
           cnpj: '',
-          simples: false,
-        },
-      }, () => this.checkSubmit());
-
-      this.setState({ num });
+        }));
+        setNum(inputNum);
+        console.error(err);
+      }
+    } else {
+      dispatch(carregarInfosGerais({
+        numeroSistema: '',
+        nome: '',
+        cnpj: '',
+      }));
+      setNum(inputNum);
     }
-  }
+  };
 
-  render() {
-    return (
-      <Fragment>
-        <Row
-          gutter={10}
-          justify="center"
-          type="flex"
+  const disabled = !(diaMesAno && cnpj) || submitLoading || updateLoading;
+
+  return (
+    <>
+      <Row
+        gutter={10}
+        justify="center"
+        type="flex"
+      >
+        <Col span={4} className="form-input">
+          <Input
+            addonBefore="Número"
+            onChange={handleNum}
+            value={num}
+            disabled={disableNum}
+          />
+        </Col>
+        <Col span={4} className="form-input">
+          <DatePicker onChange={handleData} value={diaMesAno} placeholder="Data" format="DD-MM-YYYY" />
+        </Col>
+        <Col span={10} className="form-input">
+          <Input addonBefore="Nome" value={nome} disabled />
+        </Col>
+        <Col span={6} className="form-input">
+          <Input addonBefore="CNPJ" value={cnpjMask(cnpj)} disabled />
+        </Col>
+      </Row>
+      <Row
+        type="flex"
+        justify="end"
+        gutter={16}
+      >
+        <Col
+          style={{
+            marginTop: '5px',
+          }}
         >
-          <Col span={4} className="form-input">
-            <Input
-              addonBefore="Número"
-              onChange={this.handleNum}
-              value={this.state.num}
-              disabled={this.state.disableNum}
-            />
-          </Col>
-          <Col span={4} className="form-input">
-            <DatePicker onChange={this.handleData} placeholder="Data" format="DD-MM-YYYY" />
-          </Col>
-          <Col span={10} className="form-input">
-            <Input addonBefore="Nome" value={this.state.pessoa.nome} disabled />
-          </Col>
-          <Col span={6} className="form-input">
-            <Input addonBefore="CNPJ" value={cnpjMask(this.state.pessoa.cnpj)} disabled />
-          </Col>
-        </Row>
-        <Row
-          type="flex"
-          justify="end"
-          gutter={16}
+          {printer}
+        </Col>
+        <Col
+          style={{
+            marginTop: '5px',
+          }}
         >
-          <Col
-            style={{
-              marginTop: '5px',
-            }}
+          <Button
+            onClick={atualizarEstoque}
+            disabled={disabled}
+            loading={updateLoading}
           >
-            {this.props.printer}
-          </Col>
-          <Col
-            style={{
-              marginTop: '5px',
-            }}
+              Atualizar
+          </Button>
+        </Col>
+        <Col
+          style={{
+            marginTop: '5px',
+          }}
+        >
+          <Button
+            type="primary"
+            onClick={pegarEstoque}
+            disabled={disabled}
+            loading={submitLoading}
           >
-            <Button
-              onClick={this.handleUpdate}
-              disabled={!this.state.update}
-              loading={this.state.updateLoading}
-            >
-                Atualizar
-            </Button>
-          </Col>
-          <Col
-            style={{
-              marginTop: '5px',
-            }}
-          >
-            <Button
-              type="primary"
-              onClick={this.handleSubmit}
-              disabled={!this.state.submit}
-              loading={this.state.submitLoading}
-            >
-              Selecionar
-            </Button>
-          </Col>
-        </Row>
-      </Fragment>
-    );
-  }
+            Selecionar
+          </Button>
+        </Col>
+      </Row>
+    </>
+  );
 }
 
-export default VisualizarForm;
+VisualizarEstoqueForm.propTypes = {
+  store: PropTypes.shape({
+    estoqueInfosGerais: PropTypes.object,
+  }).isRequired,
+  dispatch: PropTypes.func.isRequired,
+  printer: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
+};
+
+VisualizarEstoqueForm.defaultProps = {
+  printer: '',
+};
+
+export default Connect(VisualizarEstoqueForm);

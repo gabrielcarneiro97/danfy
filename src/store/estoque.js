@@ -1,9 +1,16 @@
 export const estoqueStore = {
+  estoqueInfosGerais: {
+    numeroSistema: '',
+    nome: '',
+    cnpj: '',
+    diaMesAno: null,
+  },
   estoque: {},
   estoqueArray: [],
   modificadosId: [],
 };
 
+export const ADICIONA_INFOS_GERAIS = Symbol('ADICIONA_INFOS_GERAIS');
 export const ADICIONA_UM = Symbol('ADICIONA_UM');
 export const MUDA_UM = Symbol('MUDA_UM');
 export const TIRA_ID_MODIFICADOS = Symbol('TIRA_ID_MODIFICADOS');
@@ -11,7 +18,7 @@ export const REMOVE_UM = Symbol('REMOVE_UM');
 export const NOVO_ESTOQUE = Symbol('NOVO_ESTOQUE');
 
 function estoqueToArray(state) {
-  return Object.values(state.estoque);
+  return Object.values(state.estoque).sort((a, b) => a.id - b.id);
 }
 
 function arrayToEstoque(state) {
@@ -23,6 +30,17 @@ function arrayToEstoque(state) {
   });
 
   return estoque;
+}
+
+function adicionaInfosGerais(state, action) {
+  const { estoqueInfosGerais } = action;
+  const newState = { ...state };
+  newState.estoqueInfosGerais = {
+    ...newState.estoqueInfosGerais,
+    ...estoqueInfosGerais,
+  };
+
+  return newState;
 }
 
 function adicionaUm(state, action) {
@@ -88,15 +106,19 @@ function novoEstoque(state, action) {
     newState.estoque = estoque;
     newState.estoqueArray = estoqueToArray(newState);
   } else if (estoqueArray) {
-    newState.estoqueArray = estoqueArray;
+    newState.estoqueArray = estoqueArray.sort((a, b) => a.id - b.id);
     newState.estoque = arrayToEstoque(newState);
   }
+
+  newState.modificadosId = [];
 
   return newState;
 }
 
 export default function estoqueReducer(state = estoqueStore, action) {
   switch (action.type) {
+    case ADICIONA_INFOS_GERAIS:
+      return adicionaInfosGerais(state, action);
     case ADICIONA_UM:
       return adicionaUm(state, action);
     case MUDA_UM:
@@ -112,6 +134,13 @@ export default function estoqueReducer(state = estoqueStore, action) {
   }
 
   return state;
+}
+
+export function carregarInfosGerais(estoqueInfosGerais) {
+  return {
+    type: ADICIONA_INFOS_GERAIS,
+    estoqueInfosGerais,
+  };
 }
 
 export function novoProduto(produtoEstoque) {

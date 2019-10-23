@@ -1,30 +1,21 @@
 import React, { Component, Fragment } from 'react';
-import { Table } from 'antd';
-import moment from 'moment';
+import {
+  Table,
+  Row,
+  Col,
+} from 'antd';
 
 import {
   EstoqueTabelaInput,
   EstoqueTabelaDatePicker,
   EstoqueTabelaButtonUpload,
   EstoqueTabelaCheckbox,
+  EstoqueAddButton,
 } from '.';
 
 import Connect from '../store/Connect';
 
-function formataDados(dados) {
-  const formatter = new Intl.NumberFormat('pt-BR', {
-    style: 'currency',
-    currency: 'BRL',
-  });
 
-
-  return dados.map(each => ({
-    ...each,
-    dataEntrada: each.dataEntrada ? moment(new Date(each.dataEntrada)) : null,
-    dataSaida: each.dataSaida ? moment(new Date(each.dataSaida)) : null,
-    valorEntrada: formatter.format(each.valorEntrada),
-  }));
-}
 
 class EstoqueTable extends Component {
   constructor(props) {
@@ -59,7 +50,7 @@ class EstoqueTable extends Component {
         title: 'Data Entrada',
         dataIndex: 'dataEntrada',
         key: 'dataEntrada',
-        sorter: (a, b) => a.dataEntrada.unix() - b.dataEntrada.unix(),
+        sorter: (a, b) => new Date(a.dataEntrada) - new Date(b.dataEntrada),
         defaultSortOrder: 'ascend',
         render: (v, e) => (
           <EstoqueTabelaDatePicker
@@ -77,7 +68,7 @@ class EstoqueTable extends Component {
         filteredValue: filtros.dataSaida || null,
         onFilter: (value, record) => {
           if (value === 'null') {
-            return !moment.isMoment(record.dataSaida);
+            return record.dataSaida === null;
           }
           return true;
         },
@@ -167,13 +158,20 @@ class EstoqueTable extends Component {
 
     return (
       <Fragment>
-        <Table
-          rowKey="id"
-          bordered
-          columns={columns}
-          dataSource={formataDados(dados)}
-          onChange={this.handleChange}
-        />
+        <Row type="flex" justify="end" align="top">
+          <EstoqueAddButton />
+        </Row>
+        <Row>
+          <Col>
+            <Table
+              rowKey="id"
+              bordered
+              columns={columns}
+              dataSource={dados}
+              onChange={this.handleChange}
+            />
+          </Col>
+        </Row>
       </Fragment>
     );
   }
