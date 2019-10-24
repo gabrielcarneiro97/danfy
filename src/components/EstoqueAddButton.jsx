@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import {
   Button,
   Modal,
@@ -6,13 +7,18 @@ import {
   DatePicker,
   Row,
   Col,
+  message,
 } from 'antd';
 
+import { api, getEstoque } from '../services';
+import { carregarEstoque } from '../store/estoque';
 import Connect from '../store/Connect';
+import { floating } from '../services/calculador.service';
 
 function EstoqueAddButton(props) {
-  const { store } = props;
+  const { store, dispatch } = props;
   const { estoqueInfosGerais } = store;
+  const { cnpj, diaMesAno } = estoqueInfosGerais;
 
   const [showModal, setShowModal] = useState(false);
   const [modalLoading, setModalLoading] = useState(false);
@@ -23,8 +29,7 @@ function EstoqueAddButton(props) {
   const [codigoProduto, setCodigoProduto] = useState('');
   const [descricao, setDescricao] = useState('');
 
-  const disabled = estoqueInfosGerais.cnpj === ''
-  || estoqueInfosGerais.diaMesAno === null;
+  const disabled = cnpj === '' || diaMesAno === null;
 
   const limparDados = () => {
     setDataEntrada(null);
@@ -32,26 +37,43 @@ function EstoqueAddButton(props) {
     setValorEntrada('');
     setCodigoProduto('');
     setDescricao('');
+    setModalLoading(false);
   };
 
-  const pegarProduto = () => ({
+  const produto = () => ({
     dataEntrada,
     dataSaida,
-    valorEntrada,
+    valorEntrada: floating(valorEntrada),
     codigoProduto,
     descricao,
+    donoCpfcnpj: cnpj,
+    ativo: true,
   });
-
-  const addProduto = () => {
-    setModalLoading(true);
-    console.log(pegarProduto());
-  };
 
   const abrirModal = () => setShowModal(true);
 
   const closeModal = () => {
     setShowModal(false);
     limparDados();
+  };
+
+  const addProduto = async () => {
+    setModalLoading(true);
+    const prod = produto();
+
+    try {
+      const res = await axios.post(`${api}/estoque/${cnpj}`, prod);
+      console.log(res);
+      const estoque = await getEstoque(estoqueInfosGerais);
+
+      dispatch(carregarEstoque(estoque));
+      message.success(`Produto ${codigoProduto} adicionado com sucesso!`);
+      closeModal();
+    } catch (err) {
+      console.error(err);
+      message.error(`Falha ao adicionar o produto: ${codigoProduto}`);
+    }
+    message.success('TOP');
   };
 
   const onChangeDatePicker = (setState) => (data) => setState(data);

@@ -12,6 +12,7 @@ import axios from 'axios';
 import {
   pegarDominio,
   pegarPessoaId,
+  getEstoque,
   cnpjMask,
   api,
 } from '../services';
@@ -42,13 +43,9 @@ function VisualizarEstoqueForm(props) {
 
   const pegarEstoque = async () => {
     setSubmitLoading(true);
-    const { data } = await axios.get(`${api}/estoque/${estoqueInfosGerais.cnpj}`, {
-      params: {
-        data: estoqueInfosGerais.diaMesAno.format('DD-MM-YYYY'),
-      },
-    });
+    const estoque = await getEstoque(estoqueInfosGerais);
 
-    dispatch(carregarEstoque(data));
+    dispatch(carregarEstoque(estoque));
 
     setSubmitLoading(false);
     return true;

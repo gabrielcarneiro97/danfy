@@ -16,6 +16,16 @@ export function loginGoogle(/* options */) {
   return firebase.auth().signInWithPopup(provider);
 }
 
+export async function getEstoque(estoqueInfosGerais) {
+  const { data } = await axios.get(`${api}/estoque/${estoqueInfosGerais.cnpj}`, {
+    params: {
+      data: estoqueInfosGerais.diaMesAno.format('DD-MM-YYYY'),
+    },
+  });
+
+  return data;
+}
+
 export function pegarDominioId() {
   return new Promise((resolve, reject) => {
     if (!auth.currentUser) {
