@@ -1,7 +1,7 @@
 import firebase from 'firebase';
 import axios from 'axios';
 
-import { api } from '.';
+import { api } from './publics';
 import { firebaseConfig } from './private';
 
 
@@ -40,7 +40,7 @@ export function pegarDominioId() {
       },
     }).then((res) => {
       resolve(res.data);
-    }).catch(err => reject(err));
+    }).catch(reject);
   });
 }
 
@@ -53,8 +53,8 @@ export function pegarDominio() {
         },
       }).then((res) => {
         resolve(res.data);
-      }).catch(err => reject(err));
-    }).catch(err => reject(err));
+      }).catch(reject);
+    }).catch(reject);
   });
 }
 
@@ -67,7 +67,7 @@ export function adicionarEmpresaDominio(cnpj, numero) {
         dominioId,
       }).then(() => {
         resolve();
-      }).catch(err => reject(err));
+      }).catch(reject);
     });
   });
 }
@@ -78,7 +78,7 @@ export function adicionarEmpresaImpostos(aliquota) {
       aliquota,
     }).then(() => {
       resolve();
-    }).catch(err => reject(err));
+    }).catch(reject);
   });
 }
 
@@ -117,6 +117,7 @@ export async function gravarMovimentos(movimentos) {
 
     return true;
   } catch (err) {
+    console.log(err);
     throw err;
   }
 }
@@ -156,6 +157,7 @@ export async function gravarServicos(servicos) {
 
     return true;
   } catch (err) {
+    console.log(err);
     throw err;
   }
 }
@@ -169,6 +171,7 @@ export async function pegarPessoaId(pessoaId) {
     });
     return data;
   } catch (err) {
+    console.log(err);
     throw err;
   }
 }
@@ -181,7 +184,7 @@ export function pegarEmpresaImpostos(cnpj) {
       },
     }).then((res) => {
       resolve(res.data);
-    }).catch(err => reject(err));
+    }).catch(reject);
   });
 }
 
@@ -194,7 +197,7 @@ export function cancelarMovimento(cnpj, movimentoId) {
       },
     }).then(({ data }) => {
       resolve(data);
-    }).catch(err => reject(err));
+    }).catch(reject);
   });
 }
 
@@ -209,7 +212,7 @@ export function editarMovimento(movimentoPoolNovo) {
       },
     }).then(({ data }) => {
       resolve(data);
-    }).catch(err => reject(err));
+    }).catch(reject);
   });
 }
 
@@ -222,7 +225,7 @@ export function pegarServico(cnpj, servicoId) {
       },
     }).then(({ data: servico }) => {
       resolve(servico);
-    }).catch(err => reject(err));
+    }).catch(reject);
   });
 }
 
@@ -238,6 +241,6 @@ export function excluirServico(servicoPool) {
       },
     }).then(({ data }) => {
       resolve(data);
-    }).catch(err => reject(err));
+    }).catch(reject);
   });
 }
