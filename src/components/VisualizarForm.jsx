@@ -55,7 +55,7 @@ class VisualizarForm extends Component {
     if (!mesAno) this.setState({ ano: '', mes: '' }, this.checkSubmit);
     else {
       const [mes, ano] = mesAno.split('-');
-      this.setState({ ano, mes: mes.replace('0', '') }, () => {
+      this.setState({ ano, mes: parseInt(mes, 10).toString() }, () => {
         console.log(this.state.mes, this.state.ano);
         this.checkSubmit();
       });

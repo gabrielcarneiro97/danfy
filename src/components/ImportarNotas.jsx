@@ -74,9 +74,9 @@ class ImportarNotas extends Component {
     this.setState({ dados });
   }
 
-  handleChangeMovimentos = movimentos => this.setState({ movimentos });
+  handleChangeMovimentos = (movimentos) => this.setState({ movimentos });
 
-  handleChangeServicos = servicos => this.setState({ servicos });
+  handleChangeServicos = (servicos) => this.setState({ servicos });
 
   movimentosLoadEnd = () => this.setState({ movimentosIsLoading: false });
 
@@ -141,8 +141,8 @@ class ImportarNotas extends Component {
     this.setState({ enviando: true }, async () => {
       const { movimentos, servicos } = this.state;
 
-      const movimentosConferidos = movimentos.filter(movPool => movPool.movimento.conferido);
-      const servicosConferidos = servicos.filter(servPool => servPool.servico.conferido);
+      const movimentosConferidos = movimentos.filter((movPool) => movPool.movimento.conferido);
+      const servicosConferidos = servicos.filter((servPool) => servPool.servico.conferido);
 
       try {
         await Promise.all([
@@ -162,7 +162,7 @@ class ImportarNotas extends Component {
     const { current } = this.state;
 
     return (
-      <Fragment>
+      <>
         <AdicionarEmpresa
           visible={this.state.adicionar}
           dados={this.state.adicionarArray}
@@ -192,7 +192,7 @@ class ImportarNotas extends Component {
           }
         </div>
         <div className="steps-content">{this.steps[this.state.current].content}</div>
-      </Fragment>
+      </>
     );
   }
 }

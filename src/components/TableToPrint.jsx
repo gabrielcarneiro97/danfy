@@ -43,7 +43,6 @@ function TableToPrint(props) {
     dataRows[num] = [];
     if (element) {
       Object.keys(element).forEach((key) => {
-        console.log(element[key]);
         const index = keyOrder.indexOf(key);
         dataRows[num][index] = (
           <td

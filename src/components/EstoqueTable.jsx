@@ -18,7 +18,7 @@ import Connect from '../store/Connect';
 
 function EstoqueTable(props) {
   const { store } = props;
-  const { estoqueArray } = store;
+  const { estoqueArray, modificadosId } = store;
 
   const [filtros, setFiltros] = useState({ ativo: [true], dataSaida: ['null'] });
 
@@ -53,7 +53,7 @@ function EstoqueTable(props) {
       filteredValue: filtros.dataSaida || null,
       onFilter: (value, record) => {
         if (value === 'null') {
-          return record.dataSaida === null;
+          return record.dataSaida === null || modificadosId.includes(record.id);
         }
         return true;
       },
@@ -164,6 +164,7 @@ function EstoqueTable(props) {
 EstoqueTable.propTypes = {
   store: PropTypes.shape({
     estoqueArray: PropTypes.array,
+    modificadosId: PropTypes.array,
   }).isRequired,
 };
 

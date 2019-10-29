@@ -209,6 +209,7 @@ export function editarMovimento(movimentoPoolNovo) {
     axios.put(`${api}/movimentos/editar`, { movimentoNovoObj: movimentoPoolNovo }, {
       params: {
         movimentoAntigoId,
+        cnpj: movimentoPoolNovo.movimento.donoCpfcnpj,
       },
     }).then(({ data }) => {
       resolve(data);

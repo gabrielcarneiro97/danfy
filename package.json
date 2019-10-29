@@ -1,6 +1,6 @@
 {
   "name": "danfy",
-  "version": "b.0.0",
+  "version": "b.0.4",
   "private": true,
   "dependencies": {
     "antd": "^3.24.2",

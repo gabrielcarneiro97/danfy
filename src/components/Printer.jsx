@@ -99,7 +99,7 @@ function defineTableServicos(props) {
       key: servico.notaChave,
       nota: numero,
       status: nota.status,
-      data: moment(servico.data).format('DD[/]MMM'),
+      data: moment(servico.dataHora).format('DD[/]MMM'),
       valorServico: R$(servico.valor),
       issRetido: eCancelada(nota) ? R$(0) : R$(retencao.iss),
       pisRetido: eCancelada(nota) ? R$(0) : R$(retencao.pis),

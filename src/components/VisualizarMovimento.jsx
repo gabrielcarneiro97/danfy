@@ -52,6 +52,7 @@ class VisualizarMovimento extends Component {
             complementares: dados,
           },
         }, () => {
+          console.log(this.state.dados);
           this.setState({
             printer: <Printer dados={this.state.dados} />,
             tables: (

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { VisualizarEstoqueForm, EstoqueTable } from '.';
+import { VisualizarEstoqueForm, EstoqueTable, PrintEstoque } from '.';
 
 import './VisualizarMovimento.css';
 
@@ -11,6 +11,7 @@ function VisualizarEstoque() {
         <VisualizarEstoqueForm />
       </div>
       <div style={{ marginTop: '30px' }}>
+        {/* <PrintEstoque /> */}
         <EstoqueTable />
       </div>
     </>

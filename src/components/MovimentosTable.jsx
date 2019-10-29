@@ -224,6 +224,8 @@ class MovimentosTable extends Component {
     const { movimentosPool, notasPool } = this.props;
     let totais;
 
+    console.log(movimentosPool);
+
     const dataSource = movimentosPool.map((movimentoPool) => {
       const { movimento, impostoPool } = movimentoPool;
       const { imposto, icms } = impostoPool;

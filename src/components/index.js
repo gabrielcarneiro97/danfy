@@ -32,3 +32,4 @@ export { default as EstoqueTabelaDatePicker } from './EstoqueTabelaDatePicker';
 export { default as EstoqueTabelaButtonUpload } from './EstoqueTabelaButtonUpload';
 export { default as EstoqueTabelaCheckbox } from './EstoqueTabelaCheckbox';
 export { default as EstoqueAddButton } from './EstoqueAddButton';
+export { default as PrintEstoque } from './PrintEstoque';
