@@ -46,7 +46,7 @@ function VisualizarTables(props) {
         }
         <>
           <Divider orientation="left">Guias</Divider>
-          {/* <GuiasTable /> */}
+          <GuiasTable />
         </>
 
         <>

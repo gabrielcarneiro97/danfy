@@ -1,42 +1,36 @@
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { Row, Col, Table } from 'antd';
 
 import { R$ } from '../services';
 
 import Connect from '../store/Connect';
-import { carregarMovimento } from '../store/movimento';
 
 function GuiasTable(props) {
+  const { store } = props;
+  const { trimestreData, competencia, empresa } = store;
+  const { movimentosPool, servicosPool } = trimestreData;
+  const { mes } = competencia;
 
-}
+  const temMovimentos = movimentosPool.length > 0;
+  const temServicos = servicosPool.length > 0;
 
-class GuiasTableClass extends Component {
-  static propTypes = {
-    dados: PropTypes.shape({ // eslint-disable-line
-      servicos: PropTypes.array,
-      movimentos: PropTypes.array,
-      complementares: PropTypes.object,
-      trimestre: PropTypes.object,
-      trimestreData: PropTypes.object,
-    }).isRequired,
-  };
-
-  temServicos = () => this.props.dados.trimestreData.servicosPool.length > 0;
-  temMovimentos = () => this.props.dados.trimestreData.movimentosPool.length > 0;
-
-  gerarTable() {
+  const gerarTable = () => {
     const columns = [];
-    const dataSource = [];
     const data = {};
 
-    const { complementares, trimestreData } = this.props.dados;
+    if (!trimestreData[mes]) {
+      return {
+        dataSource: [],
+        columns: [],
+      };
+    }
 
-    const { acumulado, retencao, impostoPool } = trimestreData[complementares.mes].totalSomaPool;
+    const { acumulado, retencao, impostoPool } = trimestreData[mes].totalSomaPool;
     const { imposto, icms } = impostoPool;
     const trimestre = trimestreData.trim.totalSomaPool;
 
-    if (this.temMovimentos()) {
+    if (temMovimentos) {
       columns.push({
         title: 'ICMS',
         dataIndex: 'icms',
@@ -45,7 +39,7 @@ class GuiasTableClass extends Component {
       data.icms = R$(icms.proprio + icms.difalOrigem);
     }
 
-    if (this.temServicos()) {
+    if (temServicos) {
       columns.push({
         title: 'ISS',
         dataIndex: 'iss',
@@ -70,8 +64,8 @@ class GuiasTableClass extends Component {
 
     data.cofins = R$((imposto.cofins - retencao.cofins) + acumulado.cofins);
 
-    if (parseInt(complementares.mes, 10) % 3 === 0 &&
-      complementares.formaPagamento !== 'PAGAMENTO ANTECIPADO') {
+    if (parseInt(mes, 10) % 3 === 0
+    && empresa.formaPagamento !== 'PAGAMENTO ANTECIPADO') {
       columns.push({
         title: 'CSLL',
         dataIndex: 'csll',
@@ -86,8 +80,8 @@ class GuiasTableClass extends Component {
       });
       data.irpj = R$((trimestre.impostoPool.imposto.irpj - trimestre.retencao.irpj) +
         trimestre.impostoPool.imposto.adicionalIr);
-    } else if (parseInt(complementares.mes, 10) % 3 !== 0 &&
-      complementares.formaPagamento === 'PAGAMENTO ANTECIPADO') {
+    } else if (parseInt(mes, 10) % 3 !== 0
+      && empresa.formaPagamento === 'PAGAMENTO ANTECIPADO') {
       columns.push({
         title: 'CSLL',
         dataIndex: 'csll',
@@ -102,8 +96,8 @@ class GuiasTableClass extends Component {
         key: 'irpj',
       });
       data.irpj = R$(imposto.irpj - retencao.irpj);
-    } else if (parseInt(complementares.mes, 10) % 3 === 0 &&
-      complementares.formaPagamento === 'PAGAMENTO ANTECIPADO') {
+    } else if (parseInt(mes, 10) % 3 === 0
+      && empresa.formaPagamento === 'PAGAMENTO ANTECIPADO') {
       columns.push({
         title: 'CSLL',
         dataIndex: 'csll',
@@ -122,37 +116,54 @@ class GuiasTableClass extends Component {
 
     data.key = 'guias';
 
-    dataSource.push(data);
-
     return {
-      dataSource,
+      dataSource: [data],
       columns,
     };
-  }
+  };
 
-  render() {
-    const { dataSource, columns } = this.gerarTable();
 
-    return (
-      <Row
-        type="flex"
-        justify="center"
-      >
-        <Col span={23}>
-          <Table
-            bordered
-            size="small"
-            columns={columns}
-            dataSource={dataSource}
-            pagination={{ position: 'none' }}
-            style={{
-              marginBottom: '20px',
-            }}
-          />
-        </Col>
-      </Row>
-    );
-  }
+  const { dataSource, columns } = gerarTable();
+
+  return (
+    <Row
+      type="flex"
+      justify="center"
+    >
+      <Col span={23}>
+        <Table
+          bordered
+          size="small"
+          columns={columns}
+          dataSource={dataSource}
+          pagination={{ position: 'none' }}
+          style={{
+            marginBottom: '20px',
+          }}
+        />
+      </Col>
+    </Row>
+  );
 }
 
-export default GuiasTable;
+GuiasTable.propTypes = {
+  store: PropTypes.shape({
+    dominio: PropTypes.array,
+    trimestreData: PropTypes.object,
+    notasPool: PropTypes.array,
+    notasServicoPool: PropTypes.array,
+    empresa: PropTypes.shape({
+      numeroSistema: PropTypes.string,
+      nome: PropTypes.string,
+      formaPagamento: PropTypes.string,
+      cnpj: PropTypes.string,
+      simples: PropTypes.bool,
+    }),
+    competencia: PropTypes.shape({
+      mes: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+      ano: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    }),
+  }).isRequired,
+};
+
+export default Connect(GuiasTable);
