@@ -23,7 +23,7 @@ function defineTableMovimentos(props) {
 
   const mesTimes = mesInicioFim(mes, ano);
 
-  const movimentosPoolMes = movimentosPool.filter(mP => eDoMes(mP, mesTimes));
+  const movimentosPoolMes = movimentosPool.filter(mP => eDoMes(mP, { mes, ano }));
 
   let printSource = movimentosPoolMes.map((movimentoPool) => {
     const { movimento, impostoPool } = movimentoPool;
@@ -84,9 +84,7 @@ function defineTableServicos(props) {
   const { mes, ano } = dados.complementares;
   const { servicosPool } = dados.trimestreData;
 
-  const mesTimes = mesInicioFim(mes, ano);
-
-  const servicosPoolMes = servicosPool.filter(sP => eDoMes(sP, mesTimes));
+  const servicosPoolMes = servicosPool.filter(sP => eDoMes(sP, { mes, ano }));
   let totais;
 
   let printSource = servicosPoolMes.map((servicoPool) => {

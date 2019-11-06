@@ -4,7 +4,14 @@ import { Row, Col, Table } from 'antd';
 
 import { R$ } from '../services';
 
-class GuiasTable extends Component {
+import Connect from '../store/Connect';
+import { carregarMovimento } from '../store/movimento';
+
+function GuiasTable(props) {
+
+}
+
+class GuiasTableClass extends Component {
   static propTypes = {
     dados: PropTypes.shape({ // eslint-disable-line
       servicos: PropTypes.array,

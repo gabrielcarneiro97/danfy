@@ -9,20 +9,34 @@ import {
   Button,
 } from 'antd';
 
-import { R$, excluirServico, somaTotalServico } from '../services';
+import {
+  R$,
+  excluirServico,
+  somaTotalServico,
+  eDoMes,
+} from '../services';
+
+import Connect from '../store/Connect';
+import { carregarMovimento } from '../store/movimento';
 
 function eCancelada(nota) {
   return nota.status === 'CANCELADA';
 }
 
 function ServicosTable(props) {
-  const apagaServico = (servicoPool) => () => excluirServico(servicoPool).then((data) => {
-    props.onChange(data);
-  });
+  const { dispatch, store } = props;
+  const { trimestreData, notasServicoPool, competencia } = store;
+
+  const { servicosPool } = trimestreData;
+
+  const update = (dados) => dispatch(carregarMovimento(dados));
+
+  const apagaServico = (servicoPool) => () => excluirServico(servicoPool).then(update);
 
   const defineDataSource = () => {
-    const { servicosPoolMes, notasServicoPool } = props;
     let totais;
+
+    const servicosPoolMes = servicosPool.filter((sP) => eDoMes(sP, competencia));
 
     const dataSource = servicosPoolMes.map((servicoPool) => {
       const { servico, imposto, retencao } = servicoPool;
@@ -87,112 +101,124 @@ function ServicosTable(props) {
   );
 }
 
-ServicosTable.columns = [{
-  title: 'Nota',
-  dataIndex: 'nota',
-  key: 'nota',
-  fixed: true,
-  defaultSortOrder: 'ascend',
-  sorter: (a, b) => {
-    if (!a.nota.numero || (a.nota.numero > b.nota.numero)) {
-      return 1;
-    }
-    return -1;
-  },
-  render: (numero, data) => {
-    if (data.$$typeof) {
-      return data;
-    }
+ServicosTable.columns = [
+  {
+    title: 'Nota',
+    dataIndex: 'nota',
+    key: 'nota',
+    fixed: true,
+    defaultSortOrder: 'ascend',
+    sorter: (a, b) => {
+      if (!a.nota.numero || (a.nota.numero > b.nota.numero)) {
+        return 1;
+      }
+      return -1;
+    },
+    render: (numero, data) => {
+      if (data.$$typeof) {
+        return data;
+      }
 
-    if (!numero) {
-      return '';
-    }
+      if (!numero) {
+        return '';
+      }
 
-    return (
-      <Popconfirm
-        title="Deseja mesmo excluir esse serviço?"
-        okText="Sim"
-        cancelText="Não"
-        onConfirm={data.excluir}
-      >
-        <Button type="ghost">{numero}</Button>
-      </Popconfirm>
-    );
-  },
-}, {
-  title: 'Status',
-  dataIndex: 'status',
-  key: 'status',
-}, {
-  title: 'Data',
-  dataIndex: 'data',
-  key: 'data',
-}, {
-  title: 'Valor do Serviço',
-  dataIndex: 'valorServico',
-  key: 'valorServico',
-}, {
-  title: 'Retenções',
-  children: [{
+      return (
+        <Popconfirm
+          title="Deseja mesmo excluir esse serviço?"
+          okText="Sim"
+          cancelText="Não"
+          onConfirm={data.excluir}
+        >
+          <Button type="ghost">{numero}</Button>
+        </Popconfirm>
+      );
+    },
+  }, {
+    title: 'Status',
+    dataIndex: 'status',
+    key: 'status',
+  }, {
+    title: 'Data',
+    dataIndex: 'data',
+    key: 'data',
+  }, {
+    title: 'Valor do Serviço',
+    dataIndex: 'valorServico',
+    key: 'valorServico',
+  }, {
+    title: 'Retenções',
+    children: [{
+      title: 'ISS',
+      dataIndex: 'issRetido',
+      key: 'issRetido',
+    }, {
+      title: 'PIS',
+      dataIndex: 'pisRetido',
+      key: 'pisRetido',
+    }, {
+      title: 'COFINS',
+      dataIndex: 'cofinsRetido',
+      key: 'cofinsRetido',
+    }, {
+      title: 'CSLL',
+      dataIndex: 'csllRetido',
+      key: 'csllRetido',
+    }, {
+      title: 'IRPJ',
+      dataIndex: 'irpjRetido',
+      key: 'irpjRetido',
+    }, {
+      title: 'Total',
+      dataIndex: 'totalRetido',
+      key: 'totalRetido',
+    }],
+  }, {
     title: 'ISS',
-    dataIndex: 'issRetido',
-    key: 'issRetido',
+    dataIndex: 'iss',
+    key: 'iss',
   }, {
     title: 'PIS',
-    dataIndex: 'pisRetido',
-    key: 'pisRetido',
+    dataIndex: 'pis',
+    key: 'pis',
   }, {
     title: 'COFINS',
-    dataIndex: 'cofinsRetido',
-    key: 'cofinsRetido',
+    dataIndex: 'cofins',
+    key: 'cofins',
   }, {
     title: 'CSLL',
-    dataIndex: 'csllRetido',
-    key: 'csllRetido',
+    dataIndex: 'csll',
+    key: 'csll',
   }, {
     title: 'IRPJ',
-    dataIndex: 'irpjRetido',
-    key: 'irpjRetido',
+    dataIndex: 'irpj',
+    key: 'irpj',
   }, {
     title: 'Total',
-    dataIndex: 'totalRetido',
-    key: 'totalRetido',
-  }],
-}, {
-  title: 'ISS',
-  dataIndex: 'iss',
-  key: 'iss',
-}, {
-  title: 'PIS',
-  dataIndex: 'pis',
-  key: 'pis',
-}, {
-  title: 'COFINS',
-  dataIndex: 'cofins',
-  key: 'cofins',
-}, {
-  title: 'CSLL',
-  dataIndex: 'csll',
-  key: 'csll',
-}, {
-  title: 'IRPJ',
-  dataIndex: 'irpj',
-  key: 'irpj',
-}, {
-  title: 'Total',
-  dataIndex: 'total',
-  key: 'total',
-}];
+    dataIndex: 'total',
+    key: 'total',
+  },
+];
 
 ServicosTable.propTypes = {
-  onChange: PropTypes.func.isRequired,
-  servicosPoolMes: PropTypes.array, // eslint-disable-line
-  notasServicoPool: PropTypes.array, // eslint-disable-line
+  store: PropTypes.shape({
+    dominio: PropTypes.array,
+    trimestreData: PropTypes.object,
+    notasPool: PropTypes.array,
+    notasServicoPool: PropTypes.array,
+    empresa: PropTypes.shape({
+      numeroSistema: PropTypes.string,
+      nome: PropTypes.string,
+      formaPagamento: PropTypes.string,
+      cnpj: PropTypes.string,
+      simples: PropTypes.bool,
+    }),
+    competencia: PropTypes.shape({
+      mes: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+      ano: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    }),
+  }).isRequired,
+  dispatch: PropTypes.func.isRequired,
 };
 
-ServicosTable.defaultProps = {
-  servicosPoolMes: [],
-  notasServicoPool: [],
-};
-
-export default ServicosTable;
+export default Connect(ServicosTable);

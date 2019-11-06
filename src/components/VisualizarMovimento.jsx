@@ -1,10 +1,17 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import axios from 'axios';
 
-import { VisualizarForm, VisualizarTables, Printer, Loader } from '.';
+import {
+  VisualizarForm,
+  VisualizarTables,
+  Printer,
+  Loader,
+} from '.';
 import { api } from '../services';
 
 import './VisualizarMovimento.css';
+
+import { MovimentoStore } from '../store/Store';
 
 class VisualizarMovimento extends Component {
   state = {
@@ -21,8 +28,6 @@ class VisualizarMovimento extends Component {
         printer: <Printer dados={this.state.dados} />,
         tables: (<VisualizarTables
           show
-          dados={this.state.dados}
-          onChange={this.handleTableChange}
         />),
       });
     });
@@ -52,7 +57,6 @@ class VisualizarMovimento extends Component {
             complementares: dados,
           },
         }, () => {
-          console.log(this.state.dados);
           this.setState({
             printer: <Printer dados={this.state.dados} />,
             tables: (
@@ -69,7 +73,7 @@ class VisualizarMovimento extends Component {
 
   render() {
     return (
-      <Fragment>
+      <MovimentoStore>
         <div>
           <VisualizarForm
             onSubmit={this.handleSubmit}
@@ -77,9 +81,9 @@ class VisualizarMovimento extends Component {
           />
         </div>
         <div style={{ marginTop: '30px' }}>
-          {this.state.tables}
+          <VisualizarTables />
         </div>
-      </Fragment>
+      </MovimentoStore>
     );
   }
 }

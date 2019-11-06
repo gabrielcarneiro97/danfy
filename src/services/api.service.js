@@ -73,12 +73,8 @@ export function adicionarEmpresaDominio(cnpj, numero) {
 }
 
 export function adicionarEmpresaImpostos(aliquota) {
-  return new Promise((resolve, reject) => {
-    axios.post(`${api}/aliquotas`, {
-      aliquota,
-    }).then(() => {
-      resolve();
-    }).catch(reject);
+  return axios.post(`${api}/aliquotas`, {
+    aliquota,
   });
 }
 
@@ -244,4 +240,16 @@ export function excluirServico(servicoPool) {
       resolve(data);
     }).catch(reject);
   });
+}
+
+export async function pegarTrimestre(cnpj, { mes, ano }) {
+  const { data } = await axios.get(`${api}/trimestre`, {
+    params: {
+      cnpj,
+      mes,
+      ano,
+    },
+  });
+
+  return data;
 }

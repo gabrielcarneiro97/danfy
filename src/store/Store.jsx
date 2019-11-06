@@ -3,34 +3,46 @@ import PropTypes from 'prop-types';
 
 import Context from './config';
 import estoqueReducer, { estoqueStore } from './estoque';
+import movimentoReducer, { movimentoStore } from './movimento';
 
-export default function Store(props) {
-  const [estoqueState, estoqueDispacher] = useReducer(
-    estoqueReducer,
-    estoqueStore,
-  );
+function composer(reducer, store) {
+  const Store = (props) => {
+    const { children } = props;
 
-  const combinedReducers = {
-    store: {
-      ...estoqueState,
-    },
-    dispatch: action => estoqueDispacher(action),
+    const [state, dispatcher] = useReducer(
+      reducer,
+      store,
+    );
+
+    const combinedReducers = {
+      store: {
+        ...state,
+      },
+      dispatch: (action) => dispatcher(action),
+    };
+
+    return (
+      <Context.Provider value={combinedReducers}>
+        {children}
+      </Context.Provider>
+    );
   };
 
-  return (
-    <Context.Provider value={combinedReducers}>
-      {props.children}
-    </Context.Provider>
-  );
+  Store.propTypes = {
+    children: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.object,
+      PropTypes.array,
+    ]),
+  };
+
+  Store.defaultProps = {
+    children: '',
+  };
+
+  return Store;
 }
 
-Store.propTypes = {
-  children: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.object,
-  ]),
-};
+export const EstoqueStore = composer(estoqueReducer, estoqueStore);
 
-Store.defaultProps = {
-  children: '',
-};
+export const MovimentoStore = composer(movimentoReducer, movimentoStore);

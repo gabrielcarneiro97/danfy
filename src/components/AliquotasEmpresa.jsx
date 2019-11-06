@@ -77,6 +77,7 @@ class AliquotasEmpresa extends Component {
         content: `Deseja adicionar a empresa ${this.props.dados.nome} ao número ${this.state.numero}`,
         onOk: () => {
           this.props.onEnd(this.props.dados.cnpj);
+
           adicionarEmpresaDominio(this.props.dados.cnpj, this.state.numero)
             .catch(err => console.error(err));
 
@@ -111,7 +112,7 @@ class AliquotasEmpresa extends Component {
   handleCancel = () => this.setState({ visible: false });
 
   informacoesGeraisForm = () => (
-    <Fragment>
+    <>
       <Divider>Informações Gerais</Divider>
       <Row className="row">
         <Col span={12}>
@@ -136,11 +137,11 @@ class AliquotasEmpresa extends Component {
           </Select>
         </Col>
       </Row>
-    </Fragment>
+    </>
   )
 
-  impostosForm = impostosEmpresa => (
-    <Fragment>
+  impostosForm = (impostosEmpresa) => (
+    <>
       <Divider dashed>Impostos Federais</Divider>
       <Row className="row">
         <Col span={12}>
@@ -173,7 +174,7 @@ class AliquotasEmpresa extends Component {
           <Input addonBefore="ISS" defaultValue={impostosEmpresa.iss} onChange={this.setIss} />
         </Col>
       </Row>
-    </Fragment>
+    </>
   )
 
   modalRender = (dados, impostosEmpresa) => (

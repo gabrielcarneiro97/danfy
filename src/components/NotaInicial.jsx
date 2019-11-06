@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import axios from 'axios';
 import { Input, Button, Popconfirm } from 'antd';
@@ -7,38 +7,16 @@ import { api, floating } from '../services';
 
 const InputGroup = Input.Group;
 
-class NotaInicial extends Component {
-  static propTypes = {
-    onChange: PropTypes.func.isRequired,
-    notaInicial: PropTypes.shape({
-      geral: PropTypes.object,
-    }),
-    notaFinal: PropTypes.shape({
-      emitente: PropTypes.string,
-    }).isRequired,
-    movimentoPoolWithIndex: PropTypes.shape({
-      movimento: PropTypes.shape({
-        notaFinalChave: PropTypes.string,
-        notaInicialChave: PropTypes.string,
-      }),
-    }).isRequired,
-  }
+function NotaInicial(props) {
+  const { notaInicial, onChange, movimentoPoolWithIndex } = props;
+  const { movimento } = movimentoPoolWithIndex;
 
-  static defaultProps = {
-    notaInicial: {},
-  }
+  const [valorInput, setValorInput] = useState(notaInicial ? notaInicial.numero : '');
 
-  state = {
-    valorInput: this.props.notaInicial ? parseInt(this.props.notaInicial.geral.numero, 10) : '',
-  }
+  const onInputChange = (e) => setValorInput(e.target.value);
 
-  onChangeInput = (e) => {
-    this.setState({ valorInput: e.target.value });
-  }
-
-  handleClick = async () => {
-    const { movimentoPoolWithIndex, notaFinal } = this.props;
-    const { movimento } = movimentoPoolWithIndex;
+  const handleClick = async () => {
+    const { notaFinal } = props;
 
     if (movimento.notaInicialChave) {
       const { data } = await axios.get(`${api}/movimentos/slim`, {
@@ -49,78 +27,91 @@ class NotaInicial extends Component {
         },
       });
       const { movimentoPool } = data;
-      this.setState({ valorInput: '' });
+      setValorInput('');
       movimentoPool.movimento.conferido = false;
       movimentoPool.movimento.notaInicialChave = null;
 
-      console.log({
+      onChange({
         ...movimentoPool,
         index: movimentoPoolWithIndex.index,
       });
-
-      this.props.onChange({
-        ...movimentoPool,
-        index: movimentoPoolWithIndex.index,
-      });
-    } else if (!Number.isNaN(floating(this.state.valorInput))) {
+    } else if (!Number.isNaN(floating(valorInput))) {
       const { data } = await axios.get(`${api}/movimentos/slim`, {
         params: {
-          valorInicial: floating(this.state.valorInput),
+          valorInicial: floating(valorInput),
           notaFinalChave: movimento.notaFinalChave,
           cnpj: notaFinal.emitenteCpfcnpj,
         },
       });
 
       const { movimentoPool, notaInicialPool } = data;
-      this.setState({ valorInput: 'INTERNO' });
+      setValorInput('INTERNO');
       movimentoPool.movimento.conferido = false;
 
-      this.props.onChange({
+      onChange({
         ...movimentoPool,
         index: movimentoPoolWithIndex.index,
       }, notaInicialPool);
     }
   };
 
-  defineTextoPop = () => (this.props.movimentoPoolWithIndex.movimento.notaInicialChave ? 'Deseja mesmo excluir essa nota?' : 'Deseja adicionar esse valor?');
+  const defineTextoPop = () => (movimento.notaInicialChave ? 'Deseja mesmo excluir essa nota?' : 'Deseja adicionar esse valor?');
 
-  defineIcon = () => (this.props.movimentoPoolWithIndex.movimento.notaInicialChave ? 'close' : 'plus');
+  const defineIcon = () => (movimento.notaInicialChave ? 'close' : 'plus');
 
-  inputRender = () => (
+  const inputRender = () => (
     <Input
       size="small"
       style={{ width: 68 }}
       placeholder="Valor"
-      value={this.state.valorInput}
-      onChange={this.onChangeInput}
-      disabled={this.props.movimentoPoolWithIndex.movimento.notaInicialChave !== null}
+      value={valorInput}
+      onChange={onInputChange}
+      disabled={movimento.notaInicialChave !== null}
     />
   );
 
-  buttonRender = () => (
+  const buttonRender = () => (
     <Popconfirm
-      title={this.defineTextoPop()}
-      onConfirm={this.handleClick}
+      title={defineTextoPop()}
+      onConfirm={handleClick}
       okText="Sim"
       cancelText="Não"
     >
       <Button
-        icon={this.defineIcon()}
+        icon={defineIcon()}
         size="small"
       />
     </Popconfirm>
   );
 
-  render() {
-    return (
-      <InputGroup
-        style={{ width: 100 }}
-      >
-        {this.inputRender()}
-        {this.buttonRender()}
-      </InputGroup>
-    );
-  }
+  return (
+    <InputGroup
+      style={{ width: 100 }}
+    >
+      {inputRender()}
+      {buttonRender()}
+    </InputGroup>
+  );
 }
+
+NotaInicial.propTypes = {
+  onChange: PropTypes.func.isRequired,
+  notaInicial: PropTypes.shape({
+    geral: PropTypes.object,
+  }),
+  notaFinal: PropTypes.shape({
+    emitente: PropTypes.string,
+  }).isRequired,
+  movimentoPoolWithIndex: PropTypes.shape({
+    movimento: PropTypes.shape({
+      notaFinalChave: PropTypes.string,
+      notaInicialChave: PropTypes.string,
+    }),
+  }).isRequired,
+};
+
+NotaInicial.defaultProps = {
+  notaInicial: null,
+};
 
 export default NotaInicial;

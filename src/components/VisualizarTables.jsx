@@ -1,119 +1,90 @@
-import React, { Component, Fragment } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { Divider } from 'antd';
-import { MovimentosTable, ServicosTable, GuiasTable, AcumuladosTable, CotasTable } from '.';
-import { mesInicioFim, eDoMes, temTabelaCotas } from '../services';
+import {
+  MovimentosTable,
+  ServicosTable,
+  GuiasTable,
+  AcumuladosTable,
+  CotasTable,
+} from '.';
+import { eDoMes, temTabelaCotas } from '../services';
+
+import Connect from '../store/Connect';
 
 import './VisualizarTables.css';
 
-class VisualizarTables extends Component {
-  static propTypes = {
-    show: PropTypes.bool,
-    onChange: PropTypes.func.isRequired,
-    dados: PropTypes.shape({
-      movimentos: PropTypes.array,
-      servicos: PropTypes.array,
-      notas: PropTypes.object,
-    }).isRequired,
-  }
+function VisualizarTables(props) {
+  const { store } = props;
+  const { trimestreData, competencia, empresa } = store;
 
-  static defaultProps = {
-    show: true,
-  }
+  const { movimentosPool, servicosPool } = trimestreData;
 
-  movimentosHandleChange = (infosMudadas) => {
-    const { dados } = this.props;
+  const movimentosPoolMes = movimentosPool.filter((mP) => eDoMes(mP, competencia));
+  const servicosPoolMes = servicosPool.filter((sP) => eDoMes(sP, competencia));
 
-    this.props.onChange({
-      ...dados,
-      ...infosMudadas,
-    });
-  }
-
-  servicosHandleChange = (infosMudadas) => {
-    const { dados } = this.props;
-
-    this.props.onChange({
-      ...dados,
-      ...infosMudadas,
-    });
-  }
-
-  render() {
-    const { dados } = this.props;
-    const {
-      complementares,
-      trimestreData,
-      notasPool,
-      notasServicoPool,
-    } = dados;
-    const { mes, ano } = complementares;
-    const { movimentosPool, servicosPool, trim } = trimestreData;
-
-    const mesTimes = mesInicioFim(mes, ano);
-
-    const movimentosPoolMes = movimentosPool.filter(mP => eDoMes(mP, mesTimes));
-    const servicosPoolMes = servicosPool.filter(sP => eDoMes(sP, mesTimes));
-
-    return (
-      this.props.show
-      &&
-      <Fragment>
-        <div className="steps-content-tables">
-          {
-            movimentosPoolMes.length !== 0
-            &&
-            <Fragment>
+  return (
+    <>
+      <div className="steps-content-tables">
+        {
+          movimentosPoolMes.length !== 0
+          && (
+            <>
               <Divider orientation="left">Movimentos</Divider>
-              <MovimentosTable
-                movimentosPool={movimentosPoolMes}
-                notasPool={notasPool}
-                trim={trim}
-                complementares={complementares}
-                onChange={this.movimentosHandleChange}
-              />
-            </Fragment>
-          }
-          {
-            servicosPoolMes.length !== 0
-            &&
-            <Fragment>
+              <MovimentosTable />
+            </>
+          )
+        }
+        {
+          servicosPoolMes.length !== 0
+          && (
+            <>
               <Divider orientation="left">Serviços</Divider>
-              <ServicosTable
-                servicosPoolMes={servicosPoolMes}
-                notasServicoPool={notasServicoPool}
-                onChange={this.servicosHandleChange}
-              />
-            </Fragment>
-          }
+              <ServicosTable />
+            </>
+          )
+        }
+        <>
+          <Divider orientation="left">Guias</Divider>
+          {/* <GuiasTable /> */}
+        </>
 
-          <Fragment>
-            <Divider orientation="left">Guias</Divider>
-            <GuiasTable
-              dados={dados}
-            />
-          </Fragment>
-
-          <Fragment>
-            <Divider orientation="left">Acumulados</Divider>
-            <AcumuladosTable
-              dados={dados}
-            />
-          </Fragment>
-          {
-            temTabelaCotas(complementares)
-            &&
-            <Fragment>
+        <>
+          <Divider orientation="left">Acumulados</Divider>
+          {/* <AcumuladosTable /> */}
+        </>
+        {
+          temTabelaCotas(empresa, competencia)
+          && (
+            <>
               <Divider orientation="left">Cotas</Divider>
-              <CotasTable
-                dados={dados}
-              />
-            </Fragment>
-          }
-        </div>
-      </Fragment>
-    );
-  }
+              {/* <CotasTable /> */}
+            </>
+          )
+        }
+      </div>
+    </>
+  );
 }
 
-export default VisualizarTables;
+VisualizarTables.propTypes = {
+  store: PropTypes.shape({
+    dominio: PropTypes.array,
+    trimestreData: PropTypes.object,
+    notasPool: PropTypes.array,
+    notasServicoPool: PropTypes.array,
+    empresa: PropTypes.shape({
+      numeroSistema: PropTypes.string,
+      nome: PropTypes.string,
+      formaPagamento: PropTypes.string,
+      cnpj: PropTypes.string,
+      simples: PropTypes.bool,
+    }),
+    competencia: PropTypes.shape({
+      mes: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+      ano: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    }),
+  }).isRequired,
+};
+
+export default Connect(VisualizarTables);

@@ -78,7 +78,7 @@ function tiraIdModificados(state, action) {
 
   const newState = { ...state };
 
-  const i = newState.modificadosId.findIndex(v => v === id);
+  const i = newState.modificadosId.findIndex((v) => v === id);
 
   delete newState.modificadosId[i];
 
@@ -178,4 +178,3 @@ export function carregarEstoque(estoqueArray, estoque) {
     estoque,
   };
 }
-

@@ -4,9 +4,11 @@ import { VisualizarEstoqueForm, EstoqueTable, PrintEstoque } from '.';
 
 import './VisualizarMovimento.css';
 
+import { EstoqueStore } from '../store/Store';
+
 function VisualizarEstoque() {
   return (
-    <>
+    <EstoqueStore>
       <div>
         <VisualizarEstoqueForm />
       </div>
@@ -14,7 +16,7 @@ function VisualizarEstoque() {
         {/* <PrintEstoque /> */}
         <EstoqueTable />
       </div>
-    </>
+    </EstoqueStore>
   );
 }
 

@@ -1,6 +1,12 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Steps, Button, Icon, Popconfirm, message } from 'antd';
+import {
+  Steps,
+  Button,
+  Icon,
+  Popconfirm,
+  message,
+} from 'antd';
 
 import { EnviarArquivos, AdicionarEmpresa, ConciliarMovimentos, ConciliarServicos } from '.';
 import { pegarDominio, gravarMovimentos, gravarServicos } from '../services';

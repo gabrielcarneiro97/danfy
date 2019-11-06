@@ -1,4 +1,7 @@
 import React from 'react';
+import moment from 'moment';
+import 'moment-timezone';
+
 
 export function R$(valp) {
   if (valp === null) return '0,00';
@@ -188,21 +191,16 @@ export function mesInicioFim(mes, ano) {
   };
 }
 
-export function eDoMes(movOuServPool, mesTimes) {
-  if (movOuServPool.movimento) {
-    const { movimento } = movOuServPool;
+export function eDoMes(movOuServPool, { mes, ano }) {
+  if (!movOuServPool.movimento && !movOuServPool.servico) return false;
 
-    const dataHora = new Date(movimento.dataHora);
+  const { dataHora } = movOuServPool.movimento ? movOuServPool.movimento : movOuServPool.servico;
 
-    return dataHora >= mesTimes.inicio && dataHora <= mesTimes.fim;
-  } else if (movOuServPool.servico) {
-    const { servico } = movOuServPool;
+  const data = moment.utc(dataHora);
+  const dataAno = parseInt(data.format('YYYY'), 10);
+  const dataMes = parseInt(data.format('MM'), 10);
 
-    const dataHora = new Date(servico.dataHora);
-    return dataHora >= mesTimes.inicio && dataHora <= mesTimes.fim;
-  }
-
-  return false;
+  return parseInt(mes, 10) === dataMes && parseInt(ano, 10) === dataAno;
 }
 
 export function calcularCotas(props) {
@@ -234,7 +232,7 @@ export function calcularCotas(props) {
   return { cotaCsll, cotaIr };
 }
 
-export function temTabelaCotas({ formaPagamento, mes }) {
-  return formaPagamento === 'PAGAMENTO EM COTAS' &&
-    parseInt(mes, 10) % 3 === 0;
+export function temTabelaCotas({ formaPagamento }, { mes }) {
+  return formaPagamento === 'PAGAMENTO EM COTAS'
+    && parseInt(mes, 10) % 3 === 0;
 }

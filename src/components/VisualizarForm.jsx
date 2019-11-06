@@ -1,180 +1,195 @@
-import React, { Component, Fragment } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Input, Button, Row, Col, Icon, DatePicker } from 'antd';
+import {
+  Input,
+  Button,
+  Row,
+  Col,
+  DatePicker,
+} from 'antd';
 
-import { pegarDominio, pegarPessoaId, pegarEmpresaImpostos, cnpjMask } from '../services';
+import {
+  pegarTrimestre,
+  pegarDominio,
+  pegarPessoaId,
+  pegarEmpresaImpostos,
+  cnpjMask,
+} from '../services';
+
+import Connect from '../store/Connect';
+import {
+  carregarDominio,
+  carregarMovimento,
+  carregarCompetencia,
+  carregarEmpresa,
+} from '../store/movimento';
 
 import './VisualizarForm.css';
 
 const { MonthPicker } = DatePicker;
 
-class VisualizarForm extends Component {
-  static propTypes = {
-    onSubmit: PropTypes.func.isRequired,
-    printer: PropTypes.oneOfType([PropTypes.object, PropTypes.string]).isRequired,
-  }
-  state = {
-    num: '',
-    mes: '',
-    ano: '',
-    submit: false,
-    submitText: 'Selecionar',
-    disableNum: true,
-    pessoa: {
-      numeroSistema: '',
-      nome: '',
-      formaPagamento: '',
-      cnpj: '',
-      simples: false,
-    },
-    dominio: [],
-  }
-  async componentDidMount() {
-    const dominio = await pegarDominio();
-    this.setState({ dominio, disableNum: false });
-  }
+function VisualizarForm(props) {
+  const { store, dispatch, printer } = props;
+  const { dominio, empresa, competencia } = store;
 
-  handleSubmit = () => {
-    this.setState({
-      submit: false,
-      submitText: <Icon type="loading" theme="outlined" />,
-    }, () => {
-      this.props.onSubmit({
-        cnpj: this.state.pessoa.cnpj,
-        mes: this.state.mes,
-        ano: this.state.ano,
-        nome: this.state.pessoa.nome,
-        formaPagamento: this.state.pessoa.formaPagamento,
-        numeroSistema: this.state.num,
-      }).then(() => this.setState({ submit: true, submitText: 'Selecionar' }));
+  const [num, setNum] = useState('');
+  const [submit, setSubmit] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [disableNum, setDisableNum] = useState(true);
+
+  useEffect(() => {
+    pegarDominio().then((dominioRes) => {
+      dispatch(carregarDominio(dominioRes));
+      setDisableNum(false);
     });
-  }
+  }, [disableNum]);
 
-  handleData = (e, mesAno) => {
-    console.log(mesAno);
-    if (!mesAno) this.setState({ ano: '', mes: '' }, this.checkSubmit);
-    else {
-      const [mes, ano] = mesAno.split('-');
-      this.setState({ ano, mes: parseInt(mes, 10).toString() }, () => {
-        console.log(this.state.mes, this.state.ano);
-        this.checkSubmit();
-      });
+  useEffect(() => {
+    if (empresa.cnpj && competencia.mes && competencia.ano && !submit) {
+      setSubmit(true);
     }
+  }, [num, competencia]);
+
+  const handleSubmit = async () => {
+    setSubmit(false);
+    setLoading(true);
+
+    const dados = await pegarTrimestre(empresa.cnpj, competencia);
+
+    dispatch(carregarMovimento(dados));
+
+    setSubmit(true);
+    setLoading(false);
   };
 
-  handleMes = mes => this.setState({ mes }, () => this.checkSubmit());
-
-  handleAno = ano => this.setState({ ano }, () => this.checkSubmit());
-
-  checkSubmit = () => {
-    if (this.state.mes && this.state.ano && this.state.pessoa.cnpj) {
-      this.setState({ submit: true });
-    } else {
-      this.setState({ submit: false });
+  const handleDate = (e, mesAno) => {
+    if (!mesAno) dispatch(carregarCompetencia({ mes: '', ano: '' }));
+    else {
+      const [mes, ano] = mesAno.split('-');
+      dispatch(carregarCompetencia({ ano, mes: parseInt(mes, 10).toString() }));
     }
-  }
 
-  handleNum = async (e) => {
-    const { dominio } = this.state;
-    const num = e.target.value;
-    const empresa = dominio.find(o => o.numero === num);
-    if (empresa) {
-      const { cnpj } = empresa;
+    setSubmit(false);
+  };
+
+  const handleNum = async (e) => {
+    const numInput = e.target.value;
+    setNum(numInput);
+
+    const empresaSelected = dominio.find((o) => o.numero === numInput);
+    if (empresaSelected) {
+      const { cnpj } = empresaSelected;
       try {
         const [pessoaPg, aliquota] = await Promise.all([
           pegarPessoaId(cnpj), pegarEmpresaImpostos(cnpj),
         ]);
 
-        const pessoa = {
+        const emp = {
           nome: pessoaPg.nome,
           simples: aliquota.tributacao === 'SN',
           cnpj,
-          numeroSistema: num,
+          numeroSistema: numInput,
         };
 
         if (aliquota.formaPagamento === 'adiantamento') {
-          pessoa.formaPagamento = 'PAGAMENTO ANTECIPADO';
+          emp.formaPagamento = 'PAGAMENTO ANTECIPADO';
         } else if (aliquota.formaPagamento === 'cotas') {
-          pessoa.formaPagamento = 'PAGAMENTO EM COTAS';
+          emp.formaPagamento = 'PAGAMENTO EM COTAS';
         } else if (aliquota.formaPagamento === 'acumulado') {
-          pessoa.formaPagamento = 'PAGAMENTO ACUMULADO NO FINAL DO TRIMESTRE';
+          emp.formaPagamento = 'PAGAMENTO ACUMULADO NO FINAL DO TRIMESTRE';
         }
 
-        this.setState({ pessoa, num }, () => this.checkSubmit());
+        dispatch(carregarEmpresa(emp));
       } catch (err) {
-        this.setState({
-          pessoa: {
-            numeroSistema: '',
-            nome: '',
-            formaPagamento: '',
-            cnpj: '',
-            simples: false,
-          },
-        }, () => this.checkSubmit());
-        console.error(err);
-      }
-    } else {
-      this.setState({
-        pessoa: {
+        const emp = {
           numeroSistema: '',
           nome: '',
           formaPagamento: '',
           cnpj: '',
           simples: false,
-        },
-      }, () => this.checkSubmit());
-
-      this.setState({ num });
+        };
+        dispatch(carregarEmpresa(emp));
+        console.error(err);
+      }
+    } else {
+      const emp = {
+        numeroSistema: '',
+        nome: '',
+        formaPagamento: '',
+        cnpj: '',
+        simples: false,
+      };
+      dispatch(carregarEmpresa(emp));
     }
-  }
-  render() {
-    return (
-      <Fragment>
-        <Row
-          gutter={10}
-          justify="center"
-          type="flex"
+
+    setSubmit(false);
+  };
+
+  return (
+    <>
+      <Row
+        gutter={10}
+        justify="center"
+        type="flex"
+      >
+        <Col span={4} className="form-input">
+          <Input
+            addonBefore="Número"
+            onChange={handleNum}
+            value={num}
+            disabled={disableNum}
+          />
+        </Col>
+        <Col span={4} className="form-input">
+          <MonthPicker onChange={handleDate} placeholder="Selecione o Mês" format="MM-YYYY" />
+        </Col>
+        <Col span={16} className="form-input">
+          <Input addonBefore="Nome" value={empresa.nome} disabled />
+        </Col>
+        <Col span={8} className="form-input">
+          <Input addonBefore="CNPJ" value={cnpjMask(empresa.cnpj)} disabled />
+        </Col>
+        <Col span={16} className="form-input">
+          <Input addonBefore="Forma de Pagamento Trimestrais" value={empresa.formaPagamento} disabled />
+        </Col>
+      </Row>
+      <Row
+        type="flex"
+        justify="end"
+        gutter={16}
+      >
+        <Col
+          className="form-input"
         >
-          <Col span={4} className="form-input">
-            <Input
-              addonBefore="Número"
-              onChange={this.handleNum}
-              value={this.state.num}
-              disabled={this.state.disableNum}
-            />
-          </Col>
-          <Col span={4} className="form-input">
-            <MonthPicker onChange={this.handleData} placeholder="Selecione o Mês" format="MM-YYYY" />
-          </Col>
-          <Col span={16} className="form-input">
-            <Input addonBefore="Nome" value={this.state.pessoa.nome} disabled />
-          </Col>
-          <Col span={8} className="form-input">
-            <Input addonBefore="CNPJ" value={cnpjMask(this.state.pessoa.cnpj)} disabled />
-          </Col>
-          <Col span={16} className="form-input">
-            <Input addonBefore="Forma de Pagamento Trimestrais" value={this.state.pessoa.formaPagamento} disabled />
-          </Col>
-        </Row>
-        <Row
-          type="flex"
-          justify="end"
-          gutter={16}
+          {printer}
+        </Col>
+        <Col
+          className="form-input"
         >
-          <Col
-            className="form-input"
-          >
-            {this.props.printer}
-          </Col>
-          <Col
-            className="form-input"
-          >
-            <Button type="primary" onClick={this.handleSubmit} disabled={!this.state.submit}>{this.state.submitText}</Button>
-          </Col>
-        </Row>
-      </Fragment>
-    );
-  }
+          <Button type="primary" onClick={handleSubmit} disabled={!submit} loading={loading}>Selecionar</Button>
+        </Col>
+      </Row>
+    </>
+  );
 }
 
-export default VisualizarForm;
+VisualizarForm.propTypes = {
+  store: PropTypes.shape({
+    dominio: PropTypes.array,
+    empresa: PropTypes.shape({
+      numeroSistema: PropTypes.string,
+      nome: PropTypes.string,
+      formaPagamento: PropTypes.string,
+      cnpj: PropTypes.string,
+      simples: PropTypes.bool,
+    }),
+    competencia: PropTypes.shape({
+      mes: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+      ano: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    }),
+  }).isRequired,
+  dispatch: PropTypes.func.isRequired,
+  printer: PropTypes.oneOfType([PropTypes.object, PropTypes.string]).isRequired,
+};
+
+export default Connect(VisualizarForm);

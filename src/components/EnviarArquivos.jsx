@@ -1,6 +1,13 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Row, Col, message, Upload, Button, Icon } from 'antd';
+import {
+  Row,
+  Col,
+  message,
+  Upload,
+  Button,
+  Icon,
+} from 'antd';
 
 import { api } from '../services';
 
