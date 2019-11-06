@@ -2,12 +2,13 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Row, Col, Table } from 'antd';
 
+import { TableToPrint } from '.';
 import { R$ } from '../services';
 
 import Connect from '../store/Connect';
 
 function GuiasTable(props) {
-  const { store } = props;
+  const { store, printable } = props;
   const { trimestreData, competencia, empresa } = store;
   const { movimentosPool, servicosPool } = trimestreData;
   const { mes } = competencia;
@@ -125,6 +126,15 @@ function GuiasTable(props) {
 
   const { dataSource, columns } = gerarTable();
 
+  if (printable) {
+    return (
+      <TableToPrint
+        dataSource={dataSource}
+        columns={columns}
+      />
+    );
+  }
+
   return (
     <Row
       type="flex"
@@ -147,6 +157,7 @@ function GuiasTable(props) {
 }
 
 GuiasTable.propTypes = {
+  printable: PropTypes.bool,
   store: PropTypes.shape({
     dominio: PropTypes.array,
     trimestreData: PropTypes.object,
@@ -164,6 +175,10 @@ GuiasTable.propTypes = {
       ano: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     }),
   }).isRequired,
+};
+
+GuiasTable.defaultProps = {
+  printable: false,
 };
 
 export default Connect(GuiasTable);

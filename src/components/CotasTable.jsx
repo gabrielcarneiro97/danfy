@@ -2,13 +2,18 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Table, Col, Row } from 'antd';
 
+import { TableToPrint } from '.';
 import { R$, calcularCotas, temTabelaCotas } from '../services';
 
-function defineDataSource(props) {
-  const { cotaCsll, cotaIr } = calcularCotas(props);
+import Connect from '../store/Connect';
+
+function CotasTable(props) {
+  const { store, printable } = props;
+  const { competencia, empresa, trimestreData } = store;
+  const { cotaCsll, cotaIr } = calcularCotas(trimestreData);
 
   const dataSource = [];
-  if (temTabelaCotas(props.dados.complementares)) {
+  if (temTabelaCotas(empresa, competencia)) {
     for (let num = 1; num <= 3; num += 1) {
       const row = {
         key: `${num}-cotas-table`,
@@ -28,11 +33,15 @@ function defineDataSource(props) {
       dataSource.push(row);
     }
   }
-  return dataSource;
-}
 
-function CotasTable(props) {
-  const dataSource = defineDataSource(props);
+  if (printable) {
+    return (
+      <TableToPrint
+        dataSource={dataSource}
+        columns={CotasTable.columns}
+      />
+    );
+  }
 
   return (
     <Row
@@ -56,9 +65,28 @@ function CotasTable(props) {
 }
 
 CotasTable.propTypes = {
-  dados: PropTypes.shape({ // eslint-disable-line
-    trimestre: PropTypes.object,
+  printable: PropTypes.bool,
+  store: PropTypes.shape({
+    dominio: PropTypes.array,
+    trimestreData: PropTypes.object,
+    notasPool: PropTypes.array,
+    notasServicoPool: PropTypes.array,
+    empresa: PropTypes.shape({
+      numeroSistema: PropTypes.string,
+      nome: PropTypes.string,
+      formaPagamento: PropTypes.string,
+      cnpj: PropTypes.string,
+      simples: PropTypes.bool,
+    }),
+    competencia: PropTypes.shape({
+      mes: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+      ano: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    }),
   }).isRequired,
+};
+
+CotasTable.defaultProps = {
+  printable: false,
 };
 
 CotasTable.columns = [{
@@ -75,4 +103,4 @@ CotasTable.columns = [{
   key: 'irpj',
 }];
 
-export default CotasTable;
+export default Connect(CotasTable);

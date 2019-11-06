@@ -2,18 +2,22 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Table, Row, Col } from 'antd';
 
+import { TableToPrint } from '.';
 import { pegaMes, R$ } from '../services';
 
-function defineDataSource(props) {
-  const stg = str => <strong>{str}</strong>;
+import Connect from '../store/Connect';
 
-  const { trimestreData } = props.dados;
+function AcumuladosTable(props) {
+  const { store, printable } = props;
+  const { trimestreData } = store;
+
+  const stg = (str) => <strong>{str}</strong>;
+
   const dataSource = [];
 
   Object.keys(trimestreData).forEach((key) => {
     if (key !== 'movimentosPool' && key !== 'servicosPool') {
       const mes = key === 'trim' ? <strong>Trimestre</strong> : pegaMes(key);
-
 
       const { totalSomaPool } = trimestreData[key];
       const { retencao, totalSoma } = totalSomaPool;
@@ -29,11 +33,14 @@ function defineDataSource(props) {
     }
   });
 
-  return dataSource;
-}
-
-function AcumuladosTable(props) {
-  const dataSource = defineDataSource(props);
+  if (printable) {
+    return (
+      <TableToPrint
+        dataSource={dataSource}
+        columns={AcumuladosTable.columns}
+      />
+    );
+  }
 
   return (
     <Row
@@ -55,27 +62,48 @@ function AcumuladosTable(props) {
 }
 
 AcumuladosTable.propTypes = {
-  dados: PropTypes.shape({ // eslint-disable-line
-    trimestre: PropTypes.object,
+  printable: PropTypes.bool,
+  store: PropTypes.shape({
+    dominio: PropTypes.array,
+    trimestreData: PropTypes.object,
+    notasPool: PropTypes.array,
+    notasServicoPool: PropTypes.array,
+    empresa: PropTypes.shape({
+      numeroSistema: PropTypes.string,
+      nome: PropTypes.string,
+      formaPagamento: PropTypes.string,
+      cnpj: PropTypes.string,
+      simples: PropTypes.bool,
+    }),
+    competencia: PropTypes.shape({
+      mes: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+      ano: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    }),
   }).isRequired,
 };
 
-AcumuladosTable.columns = [{
-  title: 'Mês',
-  dataIndex: 'mes',
-  key: 'mes',
-}, {
-  title: 'CSLL',
-  dataIndex: 'csll',
-  key: 'csll',
-}, {
-  title: 'IRPJ',
-  dataIndex: 'irpj',
-  key: 'irpj',
-}, {
-  title: 'Faturamento',
-  dataIndex: 'faturamento',
-  key: 'faturamento',
-}];
+AcumuladosTable.defaultProps = {
+  printable: false,
+};
 
-export default AcumuladosTable;
+AcumuladosTable.columns = [
+  {
+    title: 'Mês',
+    dataIndex: 'mes',
+    key: 'mes',
+  }, {
+    title: 'CSLL',
+    dataIndex: 'csll',
+    key: 'csll',
+  }, {
+    title: 'IRPJ',
+    dataIndex: 'irpj',
+    key: 'irpj',
+  }, {
+    title: 'Faturamento',
+    dataIndex: 'faturamento',
+    key: 'faturamento',
+  },
+];
+
+export default Connect(AcumuladosTable);

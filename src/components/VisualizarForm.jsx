@@ -9,6 +9,10 @@ import {
 } from 'antd';
 
 import {
+  Printer,
+} from '.';
+
+import {
   pegarTrimestre,
   pegarDominio,
   pegarPessoaId,
@@ -29,7 +33,7 @@ import './VisualizarForm.css';
 const { MonthPicker } = DatePicker;
 
 function VisualizarForm(props) {
-  const { store, dispatch, printer } = props;
+  const { store, dispatch } = props;
   const { dominio, empresa, competencia } = store;
 
   const [num, setNum] = useState('');
@@ -161,7 +165,7 @@ function VisualizarForm(props) {
         <Col
           className="form-input"
         >
-          {printer}
+          <Printer />
         </Col>
         <Col
           className="form-input"
@@ -189,7 +193,6 @@ VisualizarForm.propTypes = {
     }),
   }).isRequired,
   dispatch: PropTypes.func.isRequired,
-  printer: PropTypes.oneOfType([PropTypes.object, PropTypes.string]).isRequired,
 };
 
 export default Connect(VisualizarForm);

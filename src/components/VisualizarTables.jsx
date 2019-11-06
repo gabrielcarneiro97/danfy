@@ -23,11 +23,16 @@ function VisualizarTables(props) {
   const movimentosPoolMes = movimentosPool.filter((mP) => eDoMes(mP, competencia));
   const servicosPoolMes = servicosPool.filter((sP) => eDoMes(sP, competencia));
 
+  const temMovimento = movimentosPoolMes.length > 0;
+  const temServico = servicosPoolMes.length > 0;
+
+  const temMovimentoOuServico = temMovimento || temServico;
+
   return (
     <>
       <div className="steps-content-tables">
         {
-          movimentosPoolMes.length !== 0
+          temMovimento
           && (
             <>
               <Divider orientation="left">Movimentos</Divider>
@@ -36,7 +41,7 @@ function VisualizarTables(props) {
           )
         }
         {
-          servicosPoolMes.length !== 0
+          temServico
           && (
             <>
               <Divider orientation="left">Serviços</Divider>
@@ -44,21 +49,23 @@ function VisualizarTables(props) {
             </>
           )
         }
-        <>
-          <Divider orientation="left">Guias</Divider>
-          <GuiasTable />
-        </>
-
-        <>
-          <Divider orientation="left">Acumulados</Divider>
-          {/* <AcumuladosTable /> */}
-        </>
+        {
+          temMovimentoOuServico
+          && (
+            <>
+              <Divider orientation="left">Guias</Divider>
+              <GuiasTable />
+              <Divider orientation="left">Acumulados</Divider>
+              <AcumuladosTable />
+            </>
+          )
+        }
         {
           temTabelaCotas(empresa, competencia)
           && (
             <>
               <Divider orientation="left">Cotas</Divider>
-              {/* <CotasTable /> */}
+              <CotasTable />
             </>
           )
         }

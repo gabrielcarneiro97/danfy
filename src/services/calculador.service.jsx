@@ -203,8 +203,7 @@ export function eDoMes(movOuServPool, { mes, ano }) {
   return parseInt(mes, 10) === dataMes && parseInt(ano, 10) === dataAno;
 }
 
-export function calcularCotas(props) {
-  const { trimestreData } = props.dados;
+export function calcularCotas(trimestreData) {
   const trimestre = trimestreData.trim.totalSomaPool;
 
   const valorIr = (trimestre.impostoPool.imposto.irpj - trimestre.retencao.irpj) +

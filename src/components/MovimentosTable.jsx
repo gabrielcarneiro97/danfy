@@ -8,7 +8,7 @@ import {
   Popconfirm,
 } from 'antd';
 
-import { MovimentoValorInput } from '.';
+import { MovimentoValorInput, TableToPrint } from '.';
 import {
   R$,
   retornarTipo,
@@ -45,7 +45,7 @@ function valoresRender(valor, renderObj) {
 }
 
 function MovimentosTable(props) {
-  const { store, dispatch } = props;
+  const { store, dispatch, printable } = props;
   const { trimestreData, notasPool, competencia } = store;
 
   const { movimentosPool } = trimestreData;
@@ -139,6 +139,12 @@ function MovimentosTable(props) {
 
     totais = somaTotalMovimento(valores, totais);
 
+
+    if (printable) {
+      valores.cor = floating(valores.valorFinal) < floating(valores.valorInicial) ? '#FFF701' : null;
+      return valores;
+    }
+
     const editar = (
       <Popconfirm
         title="Deseja mesmo editar esse movimento?"
@@ -193,6 +199,21 @@ function MovimentosTable(props) {
     dataSource.push(totais);
   }
 
+  if (printable) {
+    dataSource.sort((a, b) => {
+      if (!a.numero || a.numero > b.numero) {
+        return 1;
+      }
+      return -1;
+    });
+
+    return (
+      <TableToPrint
+        dataSource={dataSource}
+        columns={MovimentosTable.columns}
+      />
+    );
+  }
 
   return (
     <Row
@@ -235,6 +256,11 @@ MovimentosTable.propTypes = {
     }),
   }).isRequired,
   dispatch: PropTypes.func.isRequired,
+  printable: PropTypes.bool,
+};
+
+MovimentosTable.defaultProps = {
+  printable: false,
 };
 
 MovimentosTable.columns = [

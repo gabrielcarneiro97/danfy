@@ -9,6 +9,8 @@ import {
   Button,
 } from 'antd';
 
+import { TableToPrint } from '.';
+
 import {
   R$,
   excluirServico,
@@ -24,7 +26,7 @@ function eCancelada(nota) {
 }
 
 function ServicosTable(props) {
-  const { dispatch, store } = props;
+  const { dispatch, store, printable } = props;
   const { trimestreData, notasServicoPool, competencia } = store;
 
   const { servicosPool } = trimestreData;
@@ -78,6 +80,15 @@ function ServicosTable(props) {
   };
 
   const dataSource = defineDataSource();
+
+  if (printable) {
+    return (
+      <TableToPrint
+        dataSource={dataSource}
+        columns={ServicosTable.columns}
+      />
+    );
+  }
 
   return (
     <Row
@@ -201,6 +212,7 @@ ServicosTable.columns = [
 ];
 
 ServicosTable.propTypes = {
+  printable: PropTypes.bool,
   store: PropTypes.shape({
     dominio: PropTypes.array,
     trimestreData: PropTypes.object,
@@ -219,6 +231,10 @@ ServicosTable.propTypes = {
     }),
   }).isRequired,
   dispatch: PropTypes.func.isRequired,
+};
+
+ServicosTable.defaultProps = {
+  printable: false,
 };
 
 export default Connect(ServicosTable);
