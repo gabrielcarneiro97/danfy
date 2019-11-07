@@ -3,7 +3,7 @@ import { Route, Switch, Redirect } from 'react-router-dom';
 import { Layout } from 'antd';
 import PropTypes from 'prop-types';
 
-import { MainMenu, ImportarNotas, VisualizarMovimento } from '.';
+import { MainMenu, ImportarNotas, VisualizarMovimento, VisualizarEstoque } from '.';
 
 const { Content, Sider } = Layout;
 
@@ -26,6 +26,7 @@ function MainLogged({ match }) {
           <Switch>
             <Route exact path={`${match.path}/importar`} component={ImportarNotas} />
             <Route exact path={`${match.path}/visualizar`} component={VisualizarMovimento} />
+            <Route exact path={`${match.path}/estoque`} component={VisualizarEstoque} />
 
             <Redirect from="/app" to={`${match.url}/importar`} />
           </Switch>

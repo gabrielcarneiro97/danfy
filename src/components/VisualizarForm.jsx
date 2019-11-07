@@ -1,182 +1,214 @@
-import React, { Component, Fragment } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Input, Button, Row, Col, Select, Icon } from 'antd';
+import {
+  Input,
+  Button,
+  Row,
+  Col,
+  DatePicker,
+} from 'antd';
 
-import { pegarDominio, pegarPessoaId, pegarEmpresaImpostos, cnpjMask } from '../services';
+import {
+  Printer,
+} from '.';
+
+import {
+  pegarTrimestre,
+  pegarDominio,
+  pegarPessoaId,
+  pegarEmpresaImpostos,
+  cnpjMask,
+} from '../services';
+
+import Connect from '../store/Connect';
+import {
+  carregarDominio,
+  carregarMovimento,
+  carregarCompetencia,
+  carregarEmpresa,
+  limparTrimestre,
+} from '../store/movimento';
 
 import './VisualizarForm.css';
 
-const { Option } = Select;
+const { MonthPicker } = DatePicker;
 
-class VisualizarForm extends Component {
-  static propTypes = {
-    onSubmit: PropTypes.func.isRequired,
-    printer: PropTypes.oneOfType([PropTypes.object, PropTypes.string]).isRequired,
-  }
-  state = {
-    num: '',
-    mes: '',
-    ano: '',
-    submit: false,
-    submitText: 'Selecionar',
-    disableNum: true,
-    pessoa: {
-      numeroSistema: '',
-      nome: '',
-      formaPagamento: '',
-      cnpj: '',
-      simples: false,
-    },
-    dominio: {},
-  }
-  componentDidMount() {
-    pegarDominio().then(dominio => this.setState({ dominio, disableNum: false }));
-  }
+function VisualizarForm(props) {
+  const { store, dispatch } = props;
+  const {
+    dominio,
+    empresa,
+    competencia,
+    trimestreData,
+  } = store;
 
-  handleSubmit = () => {
-    this.setState({
-      submit: false,
-      submitText: <Icon type="loading" theme="outlined" />,
-    }, () => {
-      this.props.onSubmit({
-        cnpj: this.state.pessoa.cnpj,
-        mes: this.state.mes,
-        ano: this.state.ano,
-        nome: this.state.pessoa.nome,
-        formaPagamento: this.state.pessoa.formaPagamento,
-        numeroSistema: this.state.num,
-      }).then(() => this.setState({ submit: true, submitText: 'Selecionar' }));
+  const { movimentosPool, servicosPool } = trimestreData;
+
+  const [num, setNum] = useState('');
+  const [submit, setSubmit] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [disableNum, setDisableNum] = useState(true);
+  const [acheiEmpresa, setAcheiEmpresa] = useState(false);
+
+  useEffect(() => {
+    pegarDominio().then((dominioRes) => {
+      dispatch(carregarDominio(dominioRes));
+      setDisableNum(false);
     });
-  }
+  }, [disableNum]);
 
-  handleMes = mes => this.setState({ mes }, () => this.checkSubmit());
-
-  handleAno = ano => this.setState({ ano }, () => this.checkSubmit());
-
-  checkSubmit = () => {
-    if (this.state.mes && this.state.ano && this.state.pessoa.cnpj) {
-      this.setState({ submit: true });
-    } else {
-      this.setState({ submit: false });
+  useEffect(() => {
+    if (empresa.cnpj && competencia.mes && competencia.ano) {
+      setSubmit(true);
+    } else if ((movimentosPool.length > 0 || servicosPool.length > 0) && !empresa.cnpj) {
+      console.log('limpou');
+      dispatch(limparTrimestre());
     }
-  }
+  }, [num, competencia, acheiEmpresa]);
 
-  handleNum = (e) => {
-    const { empresas } = this.state.dominio;
-    const num = e.target.value;
-    const cnpj = empresas[num];
+  const handleSubmit = async () => {
+    setSubmit(false);
+    setLoading(true);
 
-    if (cnpj) {
-      pegarPessoaId(cnpj).then((empresa) => {
-        pegarEmpresaImpostos(cnpj).then((impostos) => {
-          const pessoa = {
-            nome: empresa.nome,
-            simples: impostos.tributacao === 'SN',
-            cnpj,
-            numeroSistema: num,
-          };
+    const dados = await pegarTrimestre(empresa.cnpj, competencia);
 
-          if (impostos.formaPagamentoTrimestrais === 'adiantamento') {
-            pessoa.formaPagamento = 'PAGAMENTO ANTECIPADO';
-          } else if (impostos.formaPagamentoTrimestrais === 'cotas') {
-            pessoa.formaPagamento = 'PAGAMENTO EM COTAS';
-          } else if (impostos.formaPagamentoTrimestrais === 'acumulado') {
-            pessoa.formaPagamento = 'PAGAMENTO ACUMULADO NO FINAL DO TRIMESTRE';
-          }
+    dispatch(carregarMovimento(dados));
 
-          this.setState({ pessoa }, () => this.checkSubmit());
-        }).catch(err => console.error(err));
-      }).catch(err => console.error(err));
-    } else {
-      this.setState({
-        pessoa: {
+    setSubmit(true);
+    setLoading(false);
+  };
+
+  const handleDate = (e, mesAno) => {
+    if (!mesAno) dispatch(carregarCompetencia({ mes: '', ano: '' }));
+    else {
+      const [mes, ano] = mesAno.split('-');
+      dispatch(carregarCompetencia({ ano, mes: parseInt(mes, 10).toString() }));
+    }
+
+    setSubmit(false);
+  };
+
+  const handleNum = async (e) => {
+    const numInput = e.target.value;
+    setNum(numInput);
+
+    const empresaSelected = dominio.find((o) => o.numero === numInput);
+    if (empresaSelected) {
+      const { cnpj } = empresaSelected;
+      try {
+        const [pessoaPg, aliquota] = await Promise.all([
+          pegarPessoaId(cnpj), pegarEmpresaImpostos(cnpj),
+        ]);
+
+        const emp = {
+          nome: pessoaPg.nome,
+          simples: aliquota.tributacao === 'SN',
+          cnpj,
+          numeroSistema: numInput,
+        };
+
+        if (aliquota.formaPagamento === 'adiantamento') {
+          emp.formaPagamento = 'PAGAMENTO ANTECIPADO';
+        } else if (aliquota.formaPagamento === 'cotas') {
+          emp.formaPagamento = 'PAGAMENTO EM COTAS';
+        } else if (aliquota.formaPagamento === 'acumulado') {
+          emp.formaPagamento = 'PAGAMENTO ACUMULADO NO FINAL DO TRIMESTRE';
+        }
+
+        dispatch(carregarEmpresa(emp));
+        setAcheiEmpresa(true);
+      } catch (err) {
+        const emp = {
           numeroSistema: '',
           nome: '',
           formaPagamento: '',
           cnpj: '',
           simples: false,
-        },
-      }, () => this.checkSubmit());
+        };
+        dispatch(carregarEmpresa(emp));
+        setAcheiEmpresa(false);
+        console.error(err);
+      }
+    } else {
+      const emp = {
+        numeroSistema: '',
+        nome: '',
+        formaPagamento: '',
+        cnpj: '',
+        simples: false,
+      };
+      dispatch(carregarEmpresa(emp));
+      setAcheiEmpresa(false);
     }
 
-    this.setState({ num: e.target.value });
-  }
-  render() {
-    return (
-      <Fragment>
-        <Row
-          gutter={10}
-          justify="center"
-          type="flex"
+    setSubmit(false);
+  };
+
+  return (
+    <>
+      <Row
+        gutter={10}
+        justify="center"
+        type="flex"
+      >
+        <Col span={4} className="form-input">
+          <Input
+            addonBefore="Número"
+            onChange={handleNum}
+            value={num}
+            disabled={disableNum}
+          />
+        </Col>
+        <Col span={4} className="form-input">
+          <MonthPicker onChange={handleDate} placeholder="Selecione o Mês" format="MM-YYYY" />
+        </Col>
+        <Col span={16} className="form-input">
+          <Input addonBefore="Nome" value={empresa.nome} disabled />
+        </Col>
+        <Col span={8} className="form-input">
+          <Input addonBefore="CNPJ" value={cnpjMask(empresa.cnpj)} disabled />
+        </Col>
+        <Col span={16} className="form-input">
+          <Input addonBefore="Forma de Pagamento Trimestrais" value={empresa.formaPagamento} disabled />
+        </Col>
+      </Row>
+      <Row
+        type="flex"
+        justify="end"
+        gutter={16}
+      >
+        <Col
+          className="form-input"
         >
-          <Col span={8} className="form-input">
-            <Input
-              addonBefore="Número"
-              onChange={this.handleNum}
-              value={this.state.num}
-              disabled={this.state.disableNum}
-            />
-          </Col>
-          <Col span={8} className="form-input">
-            <Select
-              placeholder="Mês"
-              style={{ width: '100%' }}
-              onChange={this.handleMes}
-            >
-              <Option value="1">Janeiro</Option>
-              <Option value="2">Fevereiro</Option>
-              <Option value="3">Março</Option>
-              <Option value="4">Abril</Option>
-              <Option value="5">Maio</Option>
-              <Option value="6">Junho</Option>
-              <Option value="7">Julho</Option>
-              <Option value="8">Agosto</Option>
-              <Option value="9">Setembro</Option>
-              <Option value="10">Outubro</Option>
-              <Option value="11">Novembro</Option>
-              <Option value="12">Dezembro</Option>
-            </Select>
-          </Col>
-          <Col span={8} className="form-input">
-            <Select
-              placeholder="Ano"
-              style={{ width: '100%' }}
-              onChange={this.handleAno}
-            >
-              <Option value="2017">2017</Option>
-              <Option value="2018">2018</Option>
-              <Option value="2019">2019</Option>
-            </Select>
-          </Col>
-          <Col span={15} className="form-input">
-            <Input addonBefore="Nome" value={this.state.pessoa.nome} disabled />
-          </Col>
-          <Col span={9} className="form-input">
-            <Input addonBefore="CNPJ" value={cnpjMask(this.state.pessoa.cnpj)} disabled />
-          </Col>
-          <Col span={24} className="form-input">
-            <Input addonBefore="Forma de Pagamento Trimestrais" value={this.state.pessoa.formaPagamento} disabled />
-          </Col>
-        </Row>
-        <Row
-          type="flex"
-          justify="end"
-          gutter={16}
+          <Printer />
+        </Col>
+        <Col
+          className="form-input"
         >
-          <Col
-            className="form-input"
-          >
-            {this.props.printer}
-          </Col>
-          <Col
-            className="form-input"
-          >
-            <Button type="primary" onClick={this.handleSubmit} disabled={!this.state.submit}>{this.state.submitText}</Button>
-          </Col>
-        </Row>
-      </Fragment>
-    );
-  }
+          <Button type="primary" onClick={handleSubmit} disabled={!submit} loading={loading}>Selecionar</Button>
+        </Col>
+      </Row>
+    </>
+  );
 }
 
-export default VisualizarForm;
+VisualizarForm.propTypes = {
+  store: PropTypes.shape({
+    dominio: PropTypes.array,
+    empresa: PropTypes.shape({
+      numeroSistema: PropTypes.string,
+      nome: PropTypes.string,
+      formaPagamento: PropTypes.string,
+      cnpj: PropTypes.string,
+      simples: PropTypes.bool,
+    }),
+    competencia: PropTypes.shape({
+      mes: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+      ano: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    }),
+    trimestreData: PropTypes.object,
+  }).isRequired,
+  dispatch: PropTypes.func.isRequired,
+};
+
+export default Connect(VisualizarForm);

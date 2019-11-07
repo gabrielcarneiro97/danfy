@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Button, Modal, Input } from 'antd';
 
@@ -113,7 +113,7 @@ class AdicionalDeducaoBtn extends Component {
 
   render() {
     return (
-      <Fragment>
+      <>
         <Button
           icon="plus"
           size="small"
@@ -137,7 +137,7 @@ class AdicionalDeducaoBtn extends Component {
         >
           <Input onChange={this.handleModalInput} value={this.state.modal.input} />
         </Modal>
-      </Fragment>
+      </>
     );
   }
 }

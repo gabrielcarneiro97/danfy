@@ -2,42 +2,45 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Table, Row, Col } from 'antd';
 
+import { TableToPrint } from '.';
 import { pegaMes, R$ } from '../services';
 
-function defineDataSource(props) {
-  const { trimestre } = props.dados;
+import Connect from '../store/Connect';
+
+function AcumuladosTable(props) {
+  const { store, printable } = props;
+  const { trimestreData } = store;
+
+  const stg = (str) => <strong>{str}</strong>;
+
   const dataSource = [];
 
-  Object.keys(trimestre).forEach((key) => {
-    if (key === 'totais') {
-      const mes = <strong>Trimestre</strong>;
-      const el = trimestre[key];
+  Object.keys(trimestreData).forEach((key) => {
+    if (key !== 'movimentosPool' && key !== 'servicosPool') {
+      const mes = key === 'trim' ? <strong>Trimestre</strong> : pegaMes(key);
+
+      const { totalSomaPool } = trimestreData[key];
+      const { retencao, totalSoma } = totalSomaPool;
+      const { imposto } = totalSomaPool.impostoPool;
 
       dataSource.push({
         key: `acumulado-${key}`,
         mes,
-        csll: <strong>{R$(el.impostos.csll - el.impostos.retencoes.csll)}</strong>,
-        irpj: <strong>{R$(el.impostos.irpj - el.impostos.retencoes.irpj)}</strong>,
-        faturamento: <strong>{R$(el.lucro + el.servicos)}</strong>,
-      });
-    } else {
-      const mes = pegaMes(key);
-      const el = trimestre[key];
-
-      dataSource.push({
-        key: `acumulado-${key}`,
-        mes,
-        csll: R$(el.totais.impostos.csll - el.totais.impostos.retencoes.csll),
-        irpj: R$(el.totais.impostos.irpj - el.totais.impostos.retencoes.irpj),
-        faturamento: R$(el.totais.lucro + el.totais.servicos),
+        csll: key === 'trim' ? stg(R$(imposto.csll - retencao.csll)) : R$(imposto.csll - retencao.csll),
+        irpj: key === 'trim' ? stg(R$(imposto.irpj - retencao.irpj)) : R$(imposto.irpj - retencao.irpj),
+        faturamento: key === 'trim' ? stg(R$(totalSoma.valorMovimento + totalSoma.valorServico)) : R$(totalSoma.valorMovimento + totalSoma.valorServico),
       });
     }
   });
-  return dataSource;
-}
 
-function AcumuladosTable(props) {
-  const dataSource = defineDataSource(props);
+  if (printable) {
+    return (
+      <TableToPrint
+        dataSource={dataSource}
+        columns={AcumuladosTable.columns}
+      />
+    );
+  }
 
   return (
     <Row
@@ -59,27 +62,48 @@ function AcumuladosTable(props) {
 }
 
 AcumuladosTable.propTypes = {
-  dados: PropTypes.shape({ // eslint-disable-line
-    trimestre: PropTypes.object,
+  printable: PropTypes.bool,
+  store: PropTypes.shape({
+    dominio: PropTypes.array,
+    trimestreData: PropTypes.object,
+    notasPool: PropTypes.array,
+    notasServicoPool: PropTypes.array,
+    empresa: PropTypes.shape({
+      numeroSistema: PropTypes.string,
+      nome: PropTypes.string,
+      formaPagamento: PropTypes.string,
+      cnpj: PropTypes.string,
+      simples: PropTypes.bool,
+    }),
+    competencia: PropTypes.shape({
+      mes: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+      ano: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    }),
   }).isRequired,
 };
 
-AcumuladosTable.columns = [{
-  title: 'Mês',
-  dataIndex: 'mes',
-  key: 'mes',
-}, {
-  title: 'CSLL',
-  dataIndex: 'csll',
-  key: 'csll',
-}, {
-  title: 'IRPJ',
-  dataIndex: 'irpj',
-  key: 'irpj',
-}, {
-  title: 'Faturamento',
-  dataIndex: 'faturamento',
-  key: 'faturamento',
-}];
+AcumuladosTable.defaultProps = {
+  printable: false,
+};
 
-export default AcumuladosTable;
+AcumuladosTable.columns = [
+  {
+    title: 'Mês',
+    dataIndex: 'mes',
+    key: 'mes',
+  }, {
+    title: 'CSLL',
+    dataIndex: 'csll',
+    key: 'csll',
+  }, {
+    title: 'IRPJ',
+    dataIndex: 'irpj',
+    key: 'irpj',
+  }, {
+    title: 'Faturamento',
+    dataIndex: 'faturamento',
+    key: 'faturamento',
+  },
+];
+
+export default Connect(AcumuladosTable);

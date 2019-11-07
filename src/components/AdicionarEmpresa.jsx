@@ -47,11 +47,13 @@ class AdicionarEmpresa extends Component {
     const { dados } = this.props;
     const { dataTable } = this.state;
 
-    dados.forEach(({ cnpj, nome }) => {
-      if (!this.state.hasDone.includes(cnpj) && dataTable.filter(el => el.key === `${cnpj}-table`).length === 0) {
+    console.log(dados);
+
+    dados.forEach(({ cpfcnpj, nome }) => {
+      if (!this.state.hasDone.includes(cpfcnpj) && dataTable.filter(el => el.key === `${cpfcnpj}-table`).length === 0) {
         const dadosEmpresa = {
           nome,
-          cnpj,
+          cnpj: cpfcnpj,
         };
 
         const adicionar = (
@@ -61,7 +63,7 @@ class AdicionarEmpresa extends Component {
         );
 
         const row = {
-          key: `${cnpj}-table`,
+          key: `${cpfcnpj}-table`,
           adicionar,
           ...dadosEmpresa,
         };

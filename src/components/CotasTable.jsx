@@ -2,63 +2,46 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Table, Col, Row } from 'antd';
 
-import { R$ } from '../services';
+import { TableToPrint } from '.';
+import { R$, calcularCotas, temTabelaCotas } from '../services';
 
-function calcularCotas(props) {
-  const { totais } = props.dados.trimestre;
-  const valorIr = totais.impostos.irpj +
-    (totais.impostos.adicionalIr - totais.impostos.retencoes.irpj);
-  const valorCsll = totais.impostos.csll - totais.impostos.retencoes.csll;
-
-  let cotaIr = { valor: 0, numero: 0 };
-  let cotaCsll = { valor: 0, numero: 0 };
-
-  if (valorIr / 3 > 1000) {
-    cotaIr = { valor: valorIr / 3, numero: 3 };
-  } else if (valorIr / 2 > 1000) {
-    cotaIr = { valor: valorIr / 2, numero: 2 };
-  } else {
-    cotaIr = { valor: valorIr, numero: 1 };
-  }
-  if (valorCsll / 3 > 1000) {
-    cotaCsll = { valor: valorCsll / 3, numero: 3 };
-  } else if (valorCsll / 2 > 1000) {
-    cotaCsll = { valor: valorCsll / 2, numero: 2 };
-  } else {
-    cotaCsll = { valor: valorCsll, numero: 1 };
-  }
-
-  return { cotaCsll, cotaIr };
-}
-
-function defineDataSource(props) {
-  const { cotaCsll, cotaIr } = calcularCotas(props);
-
-  const dataSource = [];
-
-  for (let num = 1; num <= 3; num += 1) {
-    const row = {
-      key: `${num}-cotas-table`,
-      numero: num,
-      csll: '0,00',
-      irpj: '0,00',
-    };
-
-    if (cotaCsll.numero >= num) {
-      row.csll = R$(cotaCsll.valor);
-    }
-
-    if (cotaIr.numero >= num) {
-      row.irpj = R$(cotaIr.valor);
-    }
-
-    dataSource.push(row);
-  }
-  return dataSource;
-}
+import Connect from '../store/Connect';
 
 function CotasTable(props) {
-  const dataSource = defineDataSource(props);
+  const { store, printable } = props;
+  const { competencia, empresa, trimestreData } = store;
+  const { cotaCsll, cotaIr } = calcularCotas(trimestreData);
+
+  const dataSource = [];
+  if (temTabelaCotas(empresa, competencia)) {
+    for (let num = 1; num <= 3; num += 1) {
+      const row = {
+        key: `${num}-cotas-table`,
+        numero: num,
+        csll: '0,00',
+        irpj: '0,00',
+      };
+
+      if (cotaCsll.numero >= num) {
+        row.csll = R$(cotaCsll.valor);
+      }
+
+      if (cotaIr.numero >= num) {
+        row.irpj = R$(cotaIr.valor);
+      }
+
+      dataSource.push(row);
+    }
+  }
+
+  if (printable) {
+    return (
+      <TableToPrint
+        dataSource={dataSource}
+        columns={CotasTable.columns}
+      />
+    );
+  }
 
   return (
     <Row
@@ -82,9 +65,28 @@ function CotasTable(props) {
 }
 
 CotasTable.propTypes = {
-  dados: PropTypes.shape({ // eslint-disable-line
-    trimestre: PropTypes.object,
+  printable: PropTypes.bool,
+  store: PropTypes.shape({
+    dominio: PropTypes.array,
+    trimestreData: PropTypes.object,
+    notasPool: PropTypes.array,
+    notasServicoPool: PropTypes.array,
+    empresa: PropTypes.shape({
+      numeroSistema: PropTypes.string,
+      nome: PropTypes.string,
+      formaPagamento: PropTypes.string,
+      cnpj: PropTypes.string,
+      simples: PropTypes.bool,
+    }),
+    competencia: PropTypes.shape({
+      mes: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+      ano: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    }),
   }).isRequired,
+};
+
+CotasTable.defaultProps = {
+  printable: false,
 };
 
 CotasTable.columns = [{
@@ -101,4 +103,4 @@ CotasTable.columns = [{
   key: 'irpj',
 }];
 
-export default CotasTable;
+export default Connect(CotasTable);

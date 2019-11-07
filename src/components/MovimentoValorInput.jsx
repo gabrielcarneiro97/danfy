@@ -1,45 +1,42 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Input } from 'antd';
 
-class MovimentoValorInput extends Component {
-  static propTypes = {
-    onChange: PropTypes.func.isRequired,
-    movimento: PropTypes.object.isRequired, // eslint-disable-line
-    value: PropTypes.oneOfType([
-      PropTypes.number,
-      PropTypes.string,
-    ]).isRequired,
-    name: PropTypes.string,
-    disabled: PropTypes.bool,
-  }
+function MovimentoValorInput(props) {
+  const { onChange, movimentoPoolWithKey } = props;
+  const [name] = useState(props.name); // eslint-disable-line
+  const [value, setValue] = useState(props.value); // eslint-disable-line
+  const [disabled] = useState(props.disabled); // eslint-disable-line
 
-  static defaultProps = {
-    name: '',
-    disabled: false,
-  }
-
-  state = {
-    value: this.props.value,
-    name: this.props.name,
-    disabled: this.props.disabled,
+  const handleChange = (e) => {
+    setValue(e.target.value);
+    onChange(e.target.value, name, movimentoPoolWithKey);
   };
 
-  handleChange = (e) => {
-    const { value } = e.target;
-
-    this.props.onChange(value, this.state.name, this.props.movimento);
-    this.setState({ value });
-  }
-
-  render() {
-    return (<Input
-      value={this.state.value}
-      onChange={this.handleChange}
-      disabled={this.state.disabled}
+  return (
+    <Input
+      value={value}
+      onChange={handleChange}
+      disabled={disabled}
       size="small"
-    />);
-  }
+    />
+  );
 }
+
+MovimentoValorInput.propTypes = {
+  onChange: PropTypes.func.isRequired,
+  movimentoPoolWithKey: PropTypes.object.isRequired, // eslint-disable-line
+  value: PropTypes.oneOfType([
+    PropTypes.number,
+    PropTypes.string,
+  ]).isRequired,
+  name: PropTypes.string,
+  disabled: PropTypes.bool,
+};
+
+MovimentoValorInput.defaultProps = {
+  name: '',
+  disabled: false,
+};
 
 export default MovimentoValorInput;

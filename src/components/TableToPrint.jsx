@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import moment from 'moment';
 import './TableToPrint.css';
 
 function TableToPrint(props) {
@@ -29,7 +30,7 @@ function TableToPrint(props) {
           content: <th key={child.key}>{child.title}</th>,
         });
       });
-    } else if (el.key !== 'editar') {
+    } else if (el.key !== 'editar' && el.key !== 'id') {
       keyOrder.push(el.key);
       headRows[0].push({
         key: el.key,
@@ -43,7 +44,17 @@ function TableToPrint(props) {
     if (element) {
       Object.keys(element).forEach((key) => {
         const index = keyOrder.indexOf(key);
-        dataRows[num][index] = <td key={`${element.key}-${key}`}>{element[key]}</td>;
+        dataRows[num][index] = (
+          <td
+            key={`${element.key}-${key}`}
+            style={{
+              backgroundColor: element.cor,
+              fontWeight: element.fontWeight,
+            }}
+          >
+            {moment.isMoment(element[key]) ? element[key].format('DD/MM/YYYY') : element[key]}
+          </td>
+        );
       });
     }
   });

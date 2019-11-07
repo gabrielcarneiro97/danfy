@@ -1,219 +1,184 @@
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { Row, Col, Table } from 'antd';
 
-import { AdicionalDeducaoBtn } from '.';
-import { R$, floating } from '../services';
+import { TableToPrint } from '.';
+import { R$ } from '../services';
 
-class GuiasTable extends Component {
-  static propTypes = {
-    dados: PropTypes.shape({ // eslint-disable-line
-      servicos: PropTypes.array,
-      movimentos: PropTypes.array,
-      complementares: PropTypes.object,
-      trimestre: PropTypes.object,
-    }).isRequired,
-    onChange: PropTypes.func.isRequired,
-  };
+import Connect from '../store/Connect';
 
-  state = {
-    complementares: this.props.dados.complementares,
-    trimestre: this.props.dados.trimestre,
-  };
+function GuiasTable(props) {
+  const { store, printable } = props;
+  const { trimestreData, competencia, empresa } = store;
+  const { movimentosPool, servicosPool } = trimestreData;
+  const { mes } = competencia;
 
-  temServicos = () => Object.keys(this.props.dados.servicos).length > 0;
-  temMovimentos = () => Object.keys(this.props.dados.movimentos).length > 0;
+  const temMovimentos = movimentosPool.length > 0;
+  const temServicos = servicosPool.length > 0;
 
-  updateImposto = (valor, tipo, imposto) => new Promise((resolve) => {
-    const { dados } = this.props;
-    const { mes } = this.state.complementares;
-    const totaisMes = dados.trimestre[mes];
-    const tipoPlural = tipo === 'adicional' ? 'adicionais' : 'deducoes';
-
-    if (!totaisMes[tipoPlural]) totaisMes[tipoPlural] = {};
-
-    totaisMes[tipoPlural][imposto] = R$(valor);
-
-    this.props.onChange(dados);
-    resolve();
-  });
-
-  valorRender(valor, imposto, complementares, totaisMes) {
-    const { adicionais, deducoes } = totaisMes;
-
-    const adicional = adicionais ? floating(adicionais[imposto]) : null;
-    const deducao = deducoes ? floating(deducoes[imposto]) : null;
-
-    let valorLiquido = floating(valor);
-    if (deducao) valorLiquido -= deducao;
-
-    if (adicional) valorLiquido += adicional;
-
-    const check = adicional || deducao;
-
-    return (
-      <Row
-        type="flex"
-      >
-        <Col span={16}>
-          {R$(valor)}
-          {check ? <span>&nbsp;</span> : ''}
-          {adicional ? <span>+ {R$(adicional)} </span> : ''}
-          {deducao ? <span>- {R$(deducao)} </span> : ''}
-          {check ? <span>= {R$(valorLiquido)} </span> : ''}
-        </Col>
-        <Col
-          span={8}
-          style={{
-            textAlign: 'right',
-          }}
-        >
-          <AdicionalDeducaoBtn
-            complementares={complementares}
-            imposto={imposto}
-            onChange={this.updateImposto}
-            totais={totaisMes}
-          />
-        </Col>
-      </Row>
-    );
-  }
-
-  gerarTable() {
-    const { complementares, trimestre } = this.state;
+  const gerarTable = () => {
     const columns = [];
-    const dataSource = [];
     const data = {};
-    const totaisMes = trimestre[complementares.mes];
-    const { impostos } = totaisMes.totais;
 
-    if (this.temMovimentos()) {
-      const icmsValor = impostos.icms.proprio + impostos.icms.difal.origem;
+    if (!trimestreData[mes]) {
+      return {
+        dataSource: [],
+        columns: [],
+      };
+    }
+
+    const { acumulado, retencao, impostoPool } = trimestreData[mes].totalSomaPool;
+    const { imposto, icms } = impostoPool;
+    const trimestre = trimestreData.trim.totalSomaPool;
+
+    if (temMovimentos) {
       columns.push({
         title: 'ICMS',
         dataIndex: 'icms',
         key: 'icms',
-        render: valor => this.valorRender(valor, 'icms', complementares, totaisMes),
       });
-      data.icms = icmsValor;
+      data.icms = R$(icms.proprio + icms.difalOrigem);
     }
 
-    if (this.temServicos()) {
+    if (temServicos) {
       columns.push({
         title: 'ISS',
         dataIndex: 'iss',
         key: 'iss',
-        render: valor => this.valorRender(valor, 'iss', complementares, totaisMes),
       });
-      data.iss = impostos.iss - impostos.retencoes.iss;
+      data.iss = R$(imposto.iss - retencao.iss);
     }
 
     columns.push({
       title: 'PIS',
       dataIndex: 'pis',
       key: 'pis',
-      render: valor => this.valorRender(valor, 'pis', complementares, totaisMes),
     });
 
-    data.pis = (impostos.pis - impostos.retencoes.pis) + impostos.acumulado.pis;
+    data.pis = R$((imposto.pis - retencao.pis) + acumulado.pis);
 
     columns.push({
       title: 'COFINS',
       dataIndex: 'cofins',
       key: 'cofins',
-      render: valor => this.valorRender(valor, 'cofins', complementares, totaisMes),
     });
 
-    data.cofins = (impostos.cofins - impostos.retencoes.cofins) + impostos.acumulado.cofins;
+    data.cofins = R$((imposto.cofins - retencao.cofins) + acumulado.cofins);
 
-    if (parseInt(complementares.mes, 10) % 3 === 0 &&
-      complementares.formaPagamento !== 'PAGAMENTO ANTECIPADO') {
+    if (parseInt(mes, 10) % 3 === 0
+    && empresa.formaPagamento !== 'PAGAMENTO ANTECIPADO') {
       columns.push({
         title: 'CSLL',
         dataIndex: 'csll',
         key: 'csll',
-        render: valor => this.valorRender(valor, 'csll', complementares, totaisMes),
       });
-      data.csll = (trimestre.totais.impostos.csll - trimestre.totais.impostos.retencoes.csll);
+      data.csll = R$(trimestre.impostoPool.imposto.csll - trimestre.retencao.csll);
 
       columns.push({
         title: 'IRPJ + ADICIONAL',
         dataIndex: 'irpj',
         key: 'irpj',
-        render: valor => this.valorRender(valor, 'irpj', complementares, totaisMes),
       });
-      data.irpj = ((trimestre.totais.impostos.irpj -
-        trimestre.totais.impostos.retencoes.irpj) +
-        trimestre.totais.impostos.adicionalIr);
-    } else if (parseInt(complementares.mes, 10) % 3 !== 0 &&
-      complementares.formaPagamento === 'PAGAMENTO ANTECIPADO') {
+      data.irpj = R$((trimestre.impostoPool.imposto.irpj - trimestre.retencao.irpj) +
+        trimestre.impostoPool.imposto.adicionalIr);
+    } else if (parseInt(mes, 10) % 3 !== 0
+      && empresa.formaPagamento === 'PAGAMENTO ANTECIPADO') {
       columns.push({
         title: 'CSLL',
         dataIndex: 'csll',
         key: 'csll',
-        render: valor => this.valorRender(valor, 'csll', complementares, totaisMes),
       });
-      data.csll = (impostos.csll - impostos.retencoes.csll);
+
+      data.csll = R$(imposto.csll - retencao.csll);
 
       columns.push({
         title: 'IRPJ',
         dataIndex: 'irpj',
         key: 'irpj',
-        render: valor => this.valorRender(valor, 'irpj', complementares, totaisMes),
       });
-      data.irpj = (impostos.irpj - impostos.retencoes.irpj);
-    } else if (parseInt(complementares.mes, 10) % 3 === 0 &&
-      complementares.formaPagamento === 'PAGAMENTO ANTECIPADO') {
+      data.irpj = R$(imposto.irpj - retencao.irpj);
+    } else if (parseInt(mes, 10) % 3 === 0
+      && empresa.formaPagamento === 'PAGAMENTO ANTECIPADO') {
       columns.push({
         title: 'CSLL',
         dataIndex: 'csll',
         key: 'csll',
-        render: valor => this.valorRender(valor, 'csll', complementares, totaisMes),
       });
-      data.csll = (impostos.csll - impostos.retencoes.csll);
+      data.csll = R$(imposto.csll - retencao.csll);
 
       columns.push({
         title: 'IRPJ + ADICIONAL',
         dataIndex: 'irpj',
         key: 'irpj',
-        render: valor => this.valorRender(valor, 'irpj', complementares, totaisMes),
       });
-      data.irpj = (impostos.irpj - impostos.retencoes.irpj) + trimestre.totais.impostos.adicionalIr;
+      data.irpj = R$((imposto.irpj - retencao.irpj) +
+        trimestre.impostoPool.imposto.adicionalIr);
     }
 
     data.key = 'guias';
 
-    dataSource.push(data);
-
     return {
-      dataSource,
+      dataSource: [data],
       columns,
     };
-  }
+  };
 
-  render() {
-    const { dataSource, columns } = this.gerarTable();
 
+  const { dataSource, columns } = gerarTable();
+
+  if (printable) {
     return (
-      <Row
-        type="flex"
-        justify="center"
-      >
-        <Col span={23}>
-          <Table
-            bordered
-            size="small"
-            columns={columns}
-            dataSource={dataSource}
-            pagination={{ position: 'none' }}
-            style={{
-              marginBottom: '20px',
-            }}
-          />
-        </Col>
-      </Row>
+      <TableToPrint
+        dataSource={dataSource}
+        columns={columns}
+      />
     );
   }
+
+  return (
+    <Row
+      type="flex"
+      justify="center"
+    >
+      <Col span={23}>
+        <Table
+          bordered
+          size="small"
+          columns={columns}
+          dataSource={dataSource}
+          pagination={{ position: 'none' }}
+          style={{
+            marginBottom: '20px',
+          }}
+        />
+      </Col>
+    </Row>
+  );
 }
 
-export default GuiasTable;
+GuiasTable.propTypes = {
+  printable: PropTypes.bool,
+  store: PropTypes.shape({
+    dominio: PropTypes.array,
+    trimestreData: PropTypes.object,
+    notasPool: PropTypes.array,
+    notasServicoPool: PropTypes.array,
+    empresa: PropTypes.shape({
+      numeroSistema: PropTypes.string,
+      nome: PropTypes.string,
+      formaPagamento: PropTypes.string,
+      cnpj: PropTypes.string,
+      simples: PropTypes.bool,
+    }),
+    competencia: PropTypes.shape({
+      mes: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+      ano: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    }),
+  }).isRequired,
+};
+
+GuiasTable.defaultProps = {
+  printable: false,
+};
+
+export default Connect(GuiasTable);

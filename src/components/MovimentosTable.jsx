@@ -1,23 +1,277 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { Table, Row, Col, Button, Popconfirm } from 'antd';
+import {
+  Table,
+  Row,
+  Col,
+  Button,
+  Popconfirm,
+} from 'antd';
 
-import { MovimentoValorInput } from '.';
-import { R$, retornarTipo, somaTotalMovimento, cancelarMovimento, floating, editarMovimento, auth } from '../services';
+import { MovimentoValorInput, TableToPrint } from '.';
+import {
+  R$,
+  retornarTipo,
+  somaTotalMovimento,
+  cancelarMovimento,
+  floating,
+  editarMovimento,
+  auth,
+  eDoMes,
+} from '../services';
 
-class MovimentosTable extends Component {
-  static propTypes = {
-    onChange: PropTypes.func.isRequired,
-    notas: PropTypes.object, // eslint-disable-line
-    movimentos: PropTypes.array, // eslint-disable-line
+import Connect from '../store/Connect';
+import { carregarMovimento } from '../store/movimento';
+
+function valoresRender(valor, renderObj) {
+  if (renderObj.key === 'total-movimento') {
+    return valor;
+  }
+  const valorFinal = floating(renderObj.valorFinal);
+  const valorInicial = floating(renderObj.valorInicial);
+
+  if (valorFinal >= valorInicial) {
+    return valor;
   }
 
-  static defaultProps = {
-    notas: {},
-    movimentos: [],
+  return (
+    <span style={{
+      color: 'red',
+    }}
+    >
+      {valor}
+    </span>
+  );
+}
+
+function sorter(a, b) {
+  if (!a.numero || parseInt(a.numero, 10) > parseInt(b.numero, 10)) {
+    return 1;
+  }
+  return -1;
+}
+
+function MovimentosTable(props) {
+  const { store, dispatch, printable } = props;
+  const { trimestreData, notasPool, competencia } = store;
+
+  const { movimentosPool } = trimestreData;
+
+  const movimentosPoolMes = movimentosPool.filter((mP) => eDoMes(mP, competencia));
+
+  const update = (dados) => dispatch(carregarMovimento(dados));
+
+  const [movimentosAlterados, setMovimentosAlterados] = useState({});
+
+  let totais;
+
+  const handleChange = (valor, nome, movimentoPoolWithKey) => {
+    const movimentoPoolNovo = {
+      ...movimentoPoolWithKey,
+      ...movimentosAlterados[movimentoPoolWithKey.key],
+    };
+
+    const { movimento, impostoPool } = movimentoPoolNovo;
+    const { imposto, icms } = impostoPool;
+
+    if (Object.keys(icms).includes(nome)) {
+      icms[nome] = floating(valor);
+    } else if (Object.keys(imposto).includes(nome)) {
+      imposto[nome] = floating(valor);
+    } else if (nome === 'icms') {
+      icms.proprio = floating(valor);
+    } else if (nome === 'baseIcms') {
+      icms.baseCalculo = floating(valor);
+    } else {
+      movimento[nome] = floating(valor);
+    }
+
+    imposto.total = imposto.pis
+    + imposto.cofins
+    + imposto.irpj
+    + imposto.csll
+    + icms.proprio
+    + icms.difalDestino
+    + icms.difalOrigem;
+
+    setMovimentosAlterados({
+      ...movimentosAlterados,
+      [movimentoPoolNovo.key]: {
+        ...movimentoPoolNovo,
+      },
+    });
+  };
+
+  const cancelarMov = (movimentoId, cnpj) => cancelarMovimento(cnpj, movimentoId).then(update);
+
+  const editarMov = (key) => {
+    const movimentoPoolEditado = { ...movimentosAlterados[key] };
+    delete movimentoPoolEditado.movimento.id;
+    delete movimentoPoolEditado.key;
+
+    movimentoPoolEditado.metaDados = {
+      email: auth.currentUser.email,
+      mdDataHora: new Date(),
+      tipo: 'SUB',
+      ativo: true,
+      refMovimentoId: key,
+    };
+
+    editarMovimento(movimentoPoolEditado).then(update);
+  };
+
+  const dataSource = movimentosPoolMes.map((movimentoPool) => {
+    const { movimento, impostoPool } = movimentoPool;
+    const { imposto, icms } = impostoPool;
+    const key = movimento.id;
+    const notaFinal = notasPool.find((n) => n.chave === movimento.notaFinalChave);
+    const notaInicial = notasPool.find((n) => n.chave === movimento.notaInicialChave);
+    const valores = {
+      key,
+      numero: notaFinal.numero,
+      valorInicial: R$(notaInicial.valor),
+      valorFinal: R$(notaFinal.valor),
+      tipoMovimento: retornarTipo(notaFinal.cfop),
+      lucro: R$(movimento.lucro),
+      baseIcms: R$(icms.baseCalculo),
+      icms: R$(icms.proprio),
+      difalOrigem: icms.difalOrigem ? R$(icms.difalOrigem) : '0,00',
+      difalDestino: icms.difalDestino ? R$(icms.difalDestino) : '0,00',
+      pis: R$(imposto.pis),
+      cofins: R$(imposto.cofins),
+      csll: R$(imposto.csll),
+      irpj: R$(imposto.irpj),
+      total: R$(imposto.total),
+    };
+
+    totais = somaTotalMovimento(valores, totais);
+
+    const prejuizo = floating(valores.valorFinal) < floating(valores.valorInicial);
+
+
+    if (printable) {
+      valores.cor = prejuizo ? '#FFF701' : null;
+      valores.fontWeight = prejuizo ? 'bold' : 'normal';
+      return valores;
+    }
+
+    const disabled = !Object.keys(movimentosAlterados).includes(key.toString());
+
+    const editar = (
+      <Popconfirm
+        title="Deseja mesmo editar esse movimento?"
+        okText="Sim"
+        cancelText="Não"
+        onConfirm={() => editarMov(key)}
+      >
+        <Button
+          type="ghost"
+          disabled={disabled}
+          icon="edit"
+        />
+      </Popconfirm>
+    );
+
+    const defineMovimentoValorInput = (nome) => (
+      <MovimentoValorInput
+        movimentoPoolWithKey={{ ...movimentoPool, key }}
+        onChange={handleChange}
+        value={valores[nome]}
+        name={nome}
+      />
+    );
+
+
+    return {
+      key,
+      editar,
+      numero: {
+        key,
+        numero: valores.numero,
+        emitente: notaFinal.emitenteCpfcnpj,
+        cancelarMovimento: cancelarMov,
+      },
+      valorInicial: valores.valorInicial,
+      valorFinal: valores.valorFinal,
+      tipoMovimento: valores.tipoMovimento,
+      lucro: defineMovimentoValorInput('lucro'),
+      baseIcms: defineMovimentoValorInput('baseIcms'),
+      icms: defineMovimentoValorInput('icms'),
+      difalOrigem: defineMovimentoValorInput('difalOrigem'),
+      difalDestino: defineMovimentoValorInput('difalDestino'),
+      pis: defineMovimentoValorInput('pis'),
+      cofins: defineMovimentoValorInput('cofins'),
+      csll: defineMovimentoValorInput('csll'),
+      irpj: defineMovimentoValorInput('irpj'),
+      total: valores.total,
+    };
+  });
+
+  if (totais) {
+    dataSource.push(totais);
   }
 
-  static columns = [{
+  if (printable) {
+    dataSource.sort(sorter);
+
+    return (
+      <TableToPrint
+        dataSource={dataSource}
+        columns={MovimentosTable.columns}
+      />
+    );
+  }
+
+  return (
+    <Row
+      type="flex"
+      justify="center"
+    >
+      <Col span={23}>
+        <Table
+          bordered
+          size="small"
+          columns={MovimentosTable.columns}
+          dataSource={dataSource}
+          scroll={{ x: '150%' }}
+          style={{
+            marginBottom: '20px',
+          }}
+          pagination={{ position: 'top', simple: true }}
+        />
+      </Col>
+    </Row>
+  );
+}
+
+MovimentosTable.propTypes = {
+  store: PropTypes.shape({
+    dominio: PropTypes.array,
+    trimestreData: PropTypes.object,
+    notasPool: PropTypes.array,
+    notasServicoPool: PropTypes.array,
+    empresa: PropTypes.shape({
+      numeroSistema: PropTypes.string,
+      nome: PropTypes.string,
+      formaPagamento: PropTypes.string,
+      cnpj: PropTypes.string,
+      simples: PropTypes.bool,
+    }),
+    competencia: PropTypes.shape({
+      mes: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+      ano: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    }),
+  }).isRequired,
+  dispatch: PropTypes.func.isRequired,
+  printable: PropTypes.bool,
+};
+
+MovimentosTable.defaultProps = {
+  printable: false,
+};
+
+MovimentosTable.columns = [
+  {
     title: 'Editar',
     dataIndex: 'editar',
     key: 'editar',
@@ -27,17 +281,7 @@ class MovimentosTable extends Component {
     dataIndex: 'numero',
     key: 'numero',
     defaultSortOrder: 'ascend',
-    sorter: (a, b) => {
-      if (!a.numero.numero) {
-        return 1;
-      } else if (!b.numero.numero) {
-        return -1;
-      }
-      if (a.numero.numero > b.numero.numero) {
-        return 1;
-      }
-      return -1;
-    },
+    sorter,
     render: (data) => {
       if (data.$$typeof) {
         return data;
@@ -63,11 +307,13 @@ class MovimentosTable extends Component {
     dataIndex: 'valorInicial',
     key: 'valorInicial',
     width: '6.67%',
+    render: valoresRender,
   }, {
     title: 'Valor Nota Final',
     dataIndex: 'valorFinal',
     key: 'valorFinal',
     width: '6.67%',
+    render: valoresRender,
   }, {
     title: 'Tipo de Movimento',
     dataIndex: 'tipoMovimento',
@@ -126,258 +372,7 @@ class MovimentosTable extends Component {
     dataIndex: 'total',
     key: 'total',
     width: '6.67%',
-  }];
+  },
+];
 
-  state = {
-    movimentosAlterados: {},
-  }
-
-  handleChange = (valor, nome, movimento) => {
-    const movimentoNovo = {
-      ...movimento,
-      ...this.state.movimentosAlterados[movimento.key],
-    };
-
-    if (this.state.movimentosAlterados[movimento.key]) {
-      if (!this.state.movimentosAlterados[movimento.key].mudou.includes(nome)) {
-        movimentoNovo.mudou = this.state.movimentosAlterados[movimento.key].mudou.concat(nome);
-      }
-    } else {
-      movimentoNovo.mudou = [nome];
-    }
-
-    if (nome === 'icms') {
-      movimentoNovo.valores.impostos.icms.proprio = floating(valor);
-    } else if (nome === 'baseIcms') {
-      movimentoNovo.valores.impostos.icms.baseDeCalculo = floating(valor);
-    } else if (nome === 'difalDestino' || nome === 'difalOrigem') {
-      if (!movimentoNovo.valores.impostos.icms.difal) {
-        movimentoNovo.valores.impostos.icms.difal = {
-          origem: 0,
-          destino: 0,
-        };
-      }
-      if (nome === 'difalDestino') {
-        movimentoNovo.valores.impostos.icms.difal.destino = floating(valor);
-      } else {
-        movimentoNovo.valores.impostos.icms.difal.origem = floating(valor);
-      }
-    } else if (nome === 'lucro') {
-      movimentoNovo.valores.lucro = floating(valor);
-    } else {
-      movimentoNovo.valores.impostos[nome] = floating(valor);
-    }
-
-    const { impostos } = movimentoNovo.valores;
-
-    movimentoNovo.valores.impostos.total =
-      parseFloat(impostos.pis) +
-      parseFloat(impostos.cofins) +
-      parseFloat(impostos.irpj) +
-      parseFloat(impostos.csll) +
-      parseFloat(impostos.icms.proprio);
-
-    if (movimentoNovo.valores.impostos.icms.difal) {
-      impostos.total +=
-        parseFloat(impostos.icms.difal.origem) +
-        parseFloat(impostos.icms.difal.destino);
-    }
-
-    this.setState({
-      movimentosAlterados: {
-        ...this.state.movimentosAlterados,
-        [movimento.key]: {
-          ...movimentoNovo,
-        },
-      },
-    });
-  }
-
-  cancelarMovimento = (movimentoId, cnpj) => cancelarMovimento(cnpj, movimentoId).then((dados) => {
-    this.props.onChange(dados);
-  })
-
-  editarMovimento = (key) => {
-    const movimentoEditado = { ...this.state.movimentosAlterados[key] };
-    delete movimentoEditado._id;
-    delete movimentoEditado.mudou;
-    delete movimentoEditado.key;
-
-    movimentoEditado.metaDados = {
-      criadoPor: auth.currentUser.email,
-      dataCriacao: new Date().toISOString(),
-      tipo: 'SUB',
-      status: 'ATIVO',
-      movimentoRef: key,
-    };
-
-    editarMovimento(movimentoEditado, this.props.notas[movimentoEditado.notaFinal].emitente)
-      .then((dados) => {
-        this.props.onChange(dados);
-      });
-  }
-
-  defineDataSource = () => {
-    const { movimentos, notas } = this.props;
-    const dataSource = [];
-    let totais;
-    movimentos.forEach((movimento) => {
-      const notaFinal = notas[movimento.notaFinal];
-      const notaInicial = notas[movimento.notaInicial];
-
-      const key = movimento._id;
-
-      const valores = {
-        key,
-        numero: notaFinal.geral.numero,
-        valorInicial: R$(notaInicial.valor.total),
-        valorFinal: R$(notaFinal.valor.total),
-        tipoMovimento: retornarTipo(notaFinal.geral.cfop),
-        lucro: R$(movimento.valores.lucro),
-        baseIcms: R$(movimento.valores.impostos.icms.baseDeCalculo),
-        icms: R$(movimento.valores.impostos.icms.proprio),
-        difalOrigem: movimento.valores.impostos.icms.difal ?
-          R$(movimento.valores.impostos.icms.difal.origem) :
-          '0,00',
-        difalDestino: movimento.valores.impostos.icms.difal ?
-          R$(movimento.valores.impostos.icms.difal.destino) :
-          '0,00',
-        pis: R$(movimento.valores.impostos.pis),
-        cofins: R$(movimento.valores.impostos.cofins),
-        csll: R$(movimento.valores.impostos.csll),
-        irpj: R$(movimento.valores.impostos.irpj),
-        total: R$(movimento.valores.impostos.total),
-      };
-
-      totais = somaTotalMovimento(valores, totais);
-
-      dataSource.push({
-        key,
-        editar: (
-          <Popconfirm
-            title="Deseja mesmo editar esse movimento?"
-            okText="Sim"
-            cancelText="Não"
-            onConfirm={() => this.editarMovimento(key)}
-          >
-            <Button
-              type="ghost"
-              disabled={!Object.keys(this.state.movimentosAlterados).includes(key)}
-              icon="edit"
-            />
-          </Popconfirm>
-        ),
-        numero: {
-          key,
-          numero: notaFinal.geral.numero,
-          emitente: notaFinal.emitente,
-          cancelarMovimento: this.cancelarMovimento,
-        },
-        valorInicial: R$(notaInicial.valor.total),
-        valorFinal: R$(notaFinal.valor.total),
-        tipoMovimento: retornarTipo(notaFinal.geral.cfop),
-        lucro: <MovimentoValorInput
-          movimento={{ ...movimento, key }}
-          onChange={this.handleChange}
-          value={R$(movimento.valores.lucro)}
-          name="lucro"
-        />,
-        baseIcms: <MovimentoValorInput
-          movimento={{ ...movimento, key }}
-          onChange={this.handleChange}
-          value={R$(movimento.valores.impostos.icms.baseDeCalculo)}
-          name="baseIcms"
-        />,
-        icms: <MovimentoValorInput
-          movimento={{ ...movimento, key }}
-          onChange={this.handleChange}
-          value={R$(movimento.valores.impostos.icms.proprio)}
-          name="icms"
-        />,
-        difalOrigem: movimento.valores.impostos.icms.difal ?
-          <MovimentoValorInput
-            movimento={{ ...movimento, key }}
-            onChange={this.handleChange}
-            value={R$(movimento.valores.impostos.icms.difal.origem)}
-            name="difalOrigem"
-          /> :
-          <MovimentoValorInput
-            movimento={{ ...movimento, key }}
-            onChange={this.handleChange}
-            value="0,00"
-            name="difalOrigem"
-          />,
-        difalDestino: movimento.valores.impostos.icms.difal ?
-          <MovimentoValorInput
-            movimento={{ ...movimento, key }}
-            onChange={this.handleChange}
-            value={R$(movimento.valores.impostos.icms.difal.destino)}
-            name="difalDestino"
-          /> :
-          <MovimentoValorInput
-            movimento={{ ...movimento, key }}
-            onChange={this.handleChange}
-            value="0,00"
-            name="difalDestino"
-          />,
-        pis: <MovimentoValorInput
-          movimento={{ ...movimento, key }}
-          onChange={this.handleChange}
-          value={R$(movimento.valores.impostos.pis)}
-          name="pis"
-        />,
-        cofins: <MovimentoValorInput
-          movimento={{ ...movimento, key }}
-          onChange={this.handleChange}
-          value={R$(movimento.valores.impostos.cofins)}
-          name="cofins"
-        />,
-        csll: <MovimentoValorInput
-          movimento={{ ...movimento, key }}
-          onChange={this.handleChange}
-          value={R$(movimento.valores.impostos.csll)}
-          name="csll"
-        />,
-        irpj: <MovimentoValorInput
-          movimento={{ ...movimento, key }}
-          onChange={this.handleChange}
-          value={R$(movimento.valores.impostos.irpj)}
-          name="irpj"
-        />,
-        total: R$(movimento.valores.impostos.total),
-      });
-    });
-
-    if (totais) {
-      dataSource.push(totais);
-    }
-    return dataSource;
-  }
-
-  render() {
-    const dataSource = this.defineDataSource();
-
-    return (
-      <Row
-        type="flex"
-        justify="center"
-      >
-        <Col span={23}>
-          <Table
-            bordered
-            size="small"
-            columns={MovimentosTable.columns}
-            dataSource={dataSource}
-            scroll={{ x: '150%' }}
-            style={{
-              marginBottom: '20px',
-            }}
-            pagination={{ position: 'top', simple: true }}
-          />
-        </Col>
-      </Row>
-    );
-  }
-}
-
-export default MovimentosTable;
+export default Connect(MovimentosTable);

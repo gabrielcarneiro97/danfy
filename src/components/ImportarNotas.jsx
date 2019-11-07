@@ -1,6 +1,12 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Steps, Button, Icon, Popconfirm, message } from 'antd';
+import {
+  Steps,
+  Button,
+  Icon,
+  Popconfirm,
+  message,
+} from 'antd';
 
 import { EnviarArquivos, AdicionarEmpresa, ConciliarMovimentos, ConciliarServicos } from '.';
 import { pegarDominio, gravarMovimentos, gravarServicos } from '../services';
@@ -74,9 +80,9 @@ class ImportarNotas extends Component {
     this.setState({ dados });
   }
 
-  handleChangeMovimentos = movimentos => this.setState({ movimentos });
+  handleChangeMovimentos = (movimentos) => this.setState({ movimentos });
 
-  handleChangeServicos = servicos => this.setState({ servicos });
+  handleChangeServicos = (servicos) => this.setState({ servicos });
 
   movimentosLoadEnd = () => this.setState({ movimentosIsLoading: false });
 
@@ -100,19 +106,19 @@ class ImportarNotas extends Component {
     this.setState({ current, adicionar: false });
   }
 
-  paraMovimentos = () => {
-    pegarDominio().then(({ empresas }) => {
-      const dominioArray = Object.values(empresas);
-      const pessoasArray = Object.keys(this.state.dados.pessoas);
+  paraMovimentos = async () => {
+    try {
+      const dominio = await pegarDominio();
+      const dominioArray = dominio.map(o => o.cnpj);
+      const pessoasArray = this.state.dados.pessoas.map(o => o.cpfcnpj);
       const adicionarArray = [];
 
-      this.setState({ dominio: empresas });
+      this.setState({ dominio });
 
       pessoasArray.forEach((pessoaId) => {
         if (pessoaId.length === 14) {
           if (!dominioArray.includes(pessoaId)) {
-            const pessoa = this.state.dados.pessoas[pessoaId];
-            pessoa.cnpj = pessoaId;
+            const pessoa = this.state.dados.pessoas.find(o => o.cpfcnpj === pessoaId);
             adicionarArray.push(pessoa);
           }
         }
@@ -122,7 +128,9 @@ class ImportarNotas extends Component {
       } else {
         this.okModal();
       }
-    }).catch(err => console.error(err));
+    } catch (err) {
+      console.error(err);
+    }
   }
 
   paraServicos = () => {
@@ -136,63 +144,23 @@ class ImportarNotas extends Component {
   }
 
   enviar = () => {
-    this.setState({ enviando: true }, () => {
+    this.setState({ enviando: true }, async () => {
       const { movimentos, servicos } = this.state;
 
-      const movimentosParaGravar = {};
-      const servicosParaGravar = {};
+      const movimentosConferidos = movimentos.filter((movPool) => movPool.movimento.conferido);
+      const servicosConferidos = servicos.filter((servPool) => servPool.servico.conferido);
 
-      let servicosGravados = servicos.length === 0;
-      let movimentosGravados = movimentos.length === 0;
-
-      movimentos.forEach((movimento) => {
-        if (movimento.conferido) {
-          const nota = this.getNfe(movimento.notaFinal);
-
-          const empresa = nota.emitente;
-          if (!movimentosParaGravar[empresa]) {
-            movimentosParaGravar[empresa] = [];
-          }
-          movimentosParaGravar[empresa].push(movimento);
-        }
-      });
-
-      servicos.forEach((servico) => {
-        if (servico.conferido) {
-          const nota = this.getNfse(servico.nota);
-
-          const empresa = nota.emitente;
-          if (!servicosParaGravar[empresa]) {
-            servicosParaGravar[empresa] = [];
-          }
-          servicosParaGravar[empresa].push(servico);
-        }
-      });
-
-      const fim = () => {
-        if (movimentosGravados && servicosGravados) {
-          message.success('Tudo gravado com sucesso!');
-          this.props.history.push('/app/visualizar');
-        }
-      };
-
-      gravarMovimentos(movimentosParaGravar).then(() => {
-        movimentosGravados = true;
-        fim();
-      }).catch((err) => {
+      try {
+        await Promise.all([
+          gravarMovimentos(movimentosConferidos),
+          gravarServicos(servicosConferidos),
+        ]);
+      } catch (err) {
         console.error(err);
-        movimentosGravados = true;
-        fim();
-      });
+      }
 
-      gravarServicos(servicosParaGravar).then(() => {
-        servicosGravados = true;
-        fim();
-      }).catch((err) => {
-        console.error(err);
-        servicosGravados = true;
-        fim();
-      });
+      message.success('Tudo gravado com sucesso!');
+      this.props.history.push('/app/visualizar');
     });
   }
 
@@ -200,7 +168,7 @@ class ImportarNotas extends Component {
     const { current } = this.state;
 
     return (
-      <Fragment>
+      <>
         <AdicionarEmpresa
           visible={this.state.adicionar}
           dados={this.state.adicionarArray}
@@ -230,7 +198,7 @@ class ImportarNotas extends Component {
           }
         </div>
         <div className="steps-content">{this.steps[this.state.current].content}</div>
-      </Fragment>
+      </>
     );
   }
 }
