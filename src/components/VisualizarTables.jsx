@@ -23,8 +23,8 @@ function VisualizarTables(props) {
   const movimentosPoolMes = movimentosPool.filter((mP) => eDoMes(mP, competencia));
   const servicosPoolMes = servicosPool.filter((sP) => eDoMes(sP, competencia));
 
-  const temMovimento = movimentosPoolMes.length > 0;
-  const temServico = servicosPoolMes.length > 0;
+  const temMovimento = movimentosPoolMes.length > 0 && empresa.cnpj;
+  const temServico = servicosPoolMes.length > 0 && empresa.cnpj;
 
   const temMovimentoOuServico = temMovimento || temServico;
 

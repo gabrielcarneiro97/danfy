@@ -49,6 +49,7 @@ function TableToPrint(props) {
             key={`${element.key}-${key}`}
             style={{
               backgroundColor: element.cor,
+              fontWeight: element.fontWeight,
             }}
           >
             {moment.isMoment(element[key]) ? element[key].format('DD/MM/YYYY') : element[key]}

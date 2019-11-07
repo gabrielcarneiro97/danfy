@@ -10,7 +10,7 @@ function MovimentoValorInput(props) {
 
   const handleChange = (e) => {
     setValue(e.target.value);
-    onChange(value, name, movimentoPoolWithKey);
+    onChange(e.target.value, name, movimentoPoolWithKey);
   };
 
   return (

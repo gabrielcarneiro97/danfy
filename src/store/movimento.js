@@ -19,6 +19,15 @@ export const movimentoStore = {
   dominio: [],
 };
 
+export const trimestreVazio = {
+  notasPool: [],
+  notasServicoPool: [],
+  trimestreData: {
+    movimentosPool: [],
+    servicosPool: [],
+  },
+};
+
 export const CARREGA_TRIMESTRE_DATA = Symbol('CARREGA_TRIMESTRE_DATA');
 export const CARREGAR_DADOS = Symbol('CARREGAR_DADOS');
 export const CARREGAR_DOMINIO = Symbol('CARREGAR_DOMINIO');
@@ -122,5 +131,12 @@ export function carregarCompetencia(competencia) {
   return {
     type: CARREGAR_COMPETENCIA,
     competencia,
+  };
+}
+
+export function limparTrimestre() {
+  return {
+    type: CARREGAR_DADOS,
+    dados: trimestreVazio,
   };
 }

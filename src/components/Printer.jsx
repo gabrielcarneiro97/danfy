@@ -37,8 +37,8 @@ function Printer(props) {
   const movimentosPoolMes = movimentosPool.filter((mP) => eDoMes(mP, competencia));
   const servicosPoolMes = servicosPool.filter((sP) => eDoMes(sP, competencia));
 
-  const temMovimento = movimentosPoolMes.length > 0;
-  const temServico = servicosPoolMes.length > 0;
+  const temMovimento = movimentosPoolMes.length > 0 && empresa.cnpj;
+  const temServico = servicosPoolMes.length > 0 && empresa.cnpj;
 
   const temMovimentoOuServico = temMovimento || temServico;
 
@@ -49,9 +49,12 @@ function Printer(props) {
       <ReactToPrint
         trigger={() => <Button disabled={!temMovimentoOuServico}>Imprimir</Button>}
         content={() => printRef}
+        pageStyle="@page { size: auto;  margin: 13mm; margin-bottom: 10mm } @media print { body { -webkit-print-color-adjust: exact; } }"
       />
       <div style={{ display: 'none' }}>
-        <div ref={(el) => { printRef = el; }}>
+        <div
+          ref={(el) => { printRef = el; }}
+        >
           <h2
             style={{
               width: '100%',

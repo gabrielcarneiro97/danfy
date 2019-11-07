@@ -26,6 +26,7 @@ import {
   carregarMovimento,
   carregarCompetencia,
   carregarEmpresa,
+  limparTrimestre,
 } from '../store/movimento';
 
 import './VisualizarForm.css';
@@ -34,12 +35,20 @@ const { MonthPicker } = DatePicker;
 
 function VisualizarForm(props) {
   const { store, dispatch } = props;
-  const { dominio, empresa, competencia } = store;
+  const {
+    dominio,
+    empresa,
+    competencia,
+    trimestreData,
+  } = store;
+
+  const { movimentosPool, servicosPool } = trimestreData;
 
   const [num, setNum] = useState('');
   const [submit, setSubmit] = useState(false);
   const [loading, setLoading] = useState(false);
   const [disableNum, setDisableNum] = useState(true);
+  const [acheiEmpresa, setAcheiEmpresa] = useState(false);
 
   useEffect(() => {
     pegarDominio().then((dominioRes) => {
@@ -49,10 +58,13 @@ function VisualizarForm(props) {
   }, [disableNum]);
 
   useEffect(() => {
-    if (empresa.cnpj && competencia.mes && competencia.ano && !submit) {
+    if (empresa.cnpj && competencia.mes && competencia.ano) {
       setSubmit(true);
+    } else if ((movimentosPool.length > 0 || servicosPool.length > 0) && !empresa.cnpj) {
+      console.log('limpou');
+      dispatch(limparTrimestre());
     }
-  }, [num, competencia]);
+  }, [num, competencia, acheiEmpresa]);
 
   const handleSubmit = async () => {
     setSubmit(false);
@@ -104,6 +116,7 @@ function VisualizarForm(props) {
         }
 
         dispatch(carregarEmpresa(emp));
+        setAcheiEmpresa(true);
       } catch (err) {
         const emp = {
           numeroSistema: '',
@@ -113,6 +126,7 @@ function VisualizarForm(props) {
           simples: false,
         };
         dispatch(carregarEmpresa(emp));
+        setAcheiEmpresa(false);
         console.error(err);
       }
     } else {
@@ -124,6 +138,7 @@ function VisualizarForm(props) {
         simples: false,
       };
       dispatch(carregarEmpresa(emp));
+      setAcheiEmpresa(false);
     }
 
     setSubmit(false);
@@ -191,6 +206,7 @@ VisualizarForm.propTypes = {
       mes: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
       ano: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     }),
+    trimestreData: PropTypes.object,
   }).isRequired,
   dispatch: PropTypes.func.isRequired,
 };

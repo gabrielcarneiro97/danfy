@@ -44,6 +44,13 @@ function valoresRender(valor, renderObj) {
   );
 }
 
+function sorter(a, b) {
+  if (!a.numero || parseInt(a.numero, 10) > parseInt(b.numero, 10)) {
+    return 1;
+  }
+  return -1;
+}
+
 function MovimentosTable(props) {
   const { store, dispatch, printable } = props;
   const { trimestreData, notasPool, competencia } = store;
@@ -139,11 +146,16 @@ function MovimentosTable(props) {
 
     totais = somaTotalMovimento(valores, totais);
 
+    const prejuizo = floating(valores.valorFinal) < floating(valores.valorInicial);
+
 
     if (printable) {
-      valores.cor = floating(valores.valorFinal) < floating(valores.valorInicial) ? '#FFF701' : null;
+      valores.cor = prejuizo ? '#FFF701' : null;
+      valores.fontWeight = prejuizo ? 'bold' : 'normal';
       return valores;
     }
+
+    const disabled = !Object.keys(movimentosAlterados).includes(key.toString());
 
     const editar = (
       <Popconfirm
@@ -154,7 +166,7 @@ function MovimentosTable(props) {
       >
         <Button
           type="ghost"
-          disabled={!Object.keys(movimentosAlterados).includes(key.toString())}
+          disabled={disabled}
           icon="edit"
         />
       </Popconfirm>
@@ -200,12 +212,7 @@ function MovimentosTable(props) {
   }
 
   if (printable) {
-    dataSource.sort((a, b) => {
-      if (!a.numero || a.numero > b.numero) {
-        return 1;
-      }
-      return -1;
-    });
+    dataSource.sort(sorter);
 
     return (
       <TableToPrint
@@ -274,19 +281,7 @@ MovimentosTable.columns = [
     dataIndex: 'numero',
     key: 'numero',
     defaultSortOrder: 'ascend',
-    sorter: (a, b) => {
-      if (!a.numero.numero) {
-        return 1;
-      }
-
-      if (!b.numero.numero) {
-        return -1;
-      }
-      if (a.numero.numero > b.numero.numero) {
-        return 1;
-      }
-      return -1;
-    },
+    sorter,
     render: (data) => {
       if (data.$$typeof) {
         return data;
