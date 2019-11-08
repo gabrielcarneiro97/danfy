@@ -32,13 +32,14 @@ function EnvioFimButton(props) {
         gravarMovimentos(movimentosConferidos),
         gravarServicos(servicosConferidos),
       ]);
+      message.success('Tudo gravado com sucesso!');
+      history.push('/app/visualizar');
     } catch (err) {
+      message.error('Erro no envio dos arquivos!');
       console.error(err);
     }
 
     setLoading(false);
-    message.success('Tudo gravado com sucesso!');
-    history.push('/app/visualizar');
   };
 
   return (
