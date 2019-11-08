@@ -1,8 +1,17 @@
 export const importacaoStore = {
+  movimentosWithIndex: [],
+  servicosWithIndex: [],
   notasPool: [],
+  notasPoolImportadas: [],
   notasServicoPool: [],
   pessoasPool: [],
   dominio: [],
+  empresa: {
+    cnpj: '',
+    nome: '',
+    numeroSistema: '',
+  },
+  fileList: [],
 };
 
 export const NFE_ADD = Symbol('NFE_ADD');
@@ -16,8 +25,17 @@ export const PESSOA_RMV = Symbol('PESSOA_RMV');
 
 export const CARREGAR_DOMINIO = Symbol('CARREGAR_DOMINIO');
 
+export const CARREGAR_EMPRESA = Symbol('CARREGAR_EMPRESA');
+
+export const CARREGAR_FILES = Symbol('CARREGAR_FILES');
+
+export const CARREGAR_MOVIMENTOS = Symbol('CARREGAR_MOVIMENTOS');
+
+export const CARREGAR_SERVICOS = Symbol('CARREGAR_SERVICOS');
+
 function nfeController(state, action) {
   const newState = { ...state };
+
   if (action.type === NFE_ADD) {
     newState.notasPool.push(action.notaPool);
   } else {
@@ -31,7 +49,7 @@ function nfeController(state, action) {
 
 function nfseController(state, action) {
   const newState = { ...state };
-  if (action.type === NFE_ADD) {
+  if (action.type === NFSE_ADD) {
     newState.notasServicoPool.push(action.notaServicoPool);
   } else {
     newState.notasServicoPool = newState.notasServicoPool.filter(
@@ -44,7 +62,7 @@ function nfseController(state, action) {
 
 function pessoasController(state, action) {
   const newState = { ...state };
-  if (action.type === NFE_ADD) {
+  if (action.type === PESSOA_ADD) {
     newState.pessoasPool.push(action.pessoaPool);
   } else {
     newState.pessoasPool = newState.pessoasPool.filter(
@@ -64,7 +82,44 @@ function setDominio(state, action) {
   return newState;
 }
 
+function setEmpresa(state, action) {
+  const newState = {
+    ...state,
+    empresa: action.empresa,
+  };
+
+  return newState;
+}
+
+function setFileList(state, action) {
+  const newState = {
+    ...state,
+    fileList: action.fileList,
+  };
+
+  return newState;
+}
+
+function setMovimentos(state, action) {
+  const newState = {
+    ...state,
+    movimentosWithIndex: action.movimentosWithIndex,
+  };
+
+  return newState;
+}
+
+function setServicos(state, action) {
+  const newState = {
+    ...state,
+    servicosWithIndex: action.servicosWithIndex,
+  };
+
+  return newState;
+}
+
 export default function importacaoReducer(state = importacaoStore, action) {
+  if (!action) return state;
   switch (action.type) {
     case NFE_ADD:
     case NFE_RMV:
@@ -76,7 +131,15 @@ export default function importacaoReducer(state = importacaoStore, action) {
     case PESSOA_RMV:
       return pessoasController(state, action);
     case CARREGAR_DOMINIO:
-      return setDominio(setDominio, action);
+      return setDominio(state, action);
+    case CARREGAR_EMPRESA:
+      return setEmpresa(state, action);
+    case CARREGAR_FILES:
+      return setFileList(state, action);
+    case CARREGAR_MOVIMENTOS:
+      return setMovimentos(state, action);
+    case CARREGAR_SERVICOS:
+      return setServicos(state, action);
     default:
       break;
   }
@@ -130,5 +193,33 @@ export function carregarDominio(dominio) {
   return {
     type: CARREGAR_DOMINIO,
     dominio,
+  };
+}
+
+export function carregarEmpresa(empresa) {
+  return {
+    type: CARREGAR_EMPRESA,
+    empresa,
+  };
+}
+
+export function carregarArquivos(fileList) {
+  return {
+    type: CARREGAR_FILES,
+    fileList,
+  };
+}
+
+export function carregarMovimentos(movimentosWithIndex) {
+  return {
+    type: CARREGAR_MOVIMENTOS,
+    movimentosWithIndex,
+  };
+}
+
+export function carregarServicos(servicosWithIndex) {
+  return {
+    type: CARREGAR_SERVICOS,
+    servicosWithIndex,
   };
 }

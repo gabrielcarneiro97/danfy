@@ -1,4 +1,4 @@
-import React, { Component, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import {
   Row,
@@ -18,33 +18,32 @@ import {
   addPessoa,
   removeNota,
   removeNotaServico,
+  carregarArquivos,
 } from '../store/importacao';
 
-const adicionarPessoas = (pessoas, pessoasToAdd) => {
-  const pessoasNew = [...pessoas];
-  pessoasToAdd.forEach((pessoa) => {
-    const pessoaId = pessoas.findIndex((p) => p.cpfcnpj === pessoa.pessoa.cpfcnpj);
-    if (pessoaId !== -1) pessoasNew[pessoaId] = pessoa.pessoa;
-    else pessoasNew.push(pessoa.pessoa);
-  });
-  return pessoasNew;
-};
-
 function EnviarArquivos(props) {
-  const { store, dispatch } = props;
+  const { store, dispatch, onEnd } = props;
   const [ended, setEnded] = useState(0);
+  const { fileList } = store;
+
+  useEffect(() => {
+    if (fileList.length > 0 && fileList.length === ended) {
+      message.success('Arquivos Importados com Sucesso!');
+      console.log(fileList);
+      onEnd();
+    }
+  }, [ended, fileList]);
 
   const { pessoasPool } = store;
 
-  const endedAdd = () => setEnded(ended + 1);
-  const endedRemove = () => setEnded(ended - 1);
+  const addEnded = () => setEnded(ended + 1);
+  const subEnded = () => setEnded(ended - 1);
 
   const addPessoas = (pessoasToAdd) => {
     pessoasToAdd.forEach((pessoaPool) => {
       const pessoaId = pessoasPool.findIndex(
         (pP) => pP.pessoa.cpfcnpj === pessoaPool.pessoa.cpfcnpj,
       );
-
       if (pessoaId === -1) dispatch(addPessoa(pessoaPool));
     });
   };
@@ -65,103 +64,66 @@ function EnviarArquivos(props) {
 
     return true;
   };
+
+  const uploadChange = async (info) => {
+    const data = info.file.response;
+
+    if (info.fileList.length !== fileList.length) {
+      dispatch(carregarArquivos(info.fileList));
+    }
+
+    if (info.file.status === 'done') {
+      addEnded();
+      await adicionarNota(data);
+    } else if (info.file.status === 'error') {
+      message.error(`Arquivo: ${info.file.name} invalido!`);
+      addEnded();
+    } else if (info.file.status === 'removed') {
+      subEnded();
+      await removerNota(data);
+    }
+  };
+
+  return (
+    <Row
+      type="flex"
+      justify="center"
+      align="top"
+    >
+      <Col span={12} style={{ textAlign: 'center' }}>
+        <Upload
+          name="file"
+          action={`${api}/file`}
+          accept=".xml"
+          headers={{
+            authorization: 'authorization-text',
+            'Access-Control-Allow-Origin': '*',
+          }}
+          multiple
+          onChange={uploadChange}
+          defaultFileList={fileList}
+        >
+          <Button>
+            <Icon type="plus" />
+            Selecionar Arquivos
+          </Button>
+        </Upload>
+      </Col>
+    </Row>
+  );
 }
 
-class EnviarArquivosClass extends Component {
-  static propTypes = {
-    onEnd: PropTypes.func.isRequired,
-  };
+EnviarArquivos.propTypes = {
+  store: PropTypes.shape({
+    pessoasPool: PropTypes.array,
+    fileList: PropTypes.array,
+  }).isRequired,
+  dispatch: PropTypes.func.isRequired,
+  onEnd: PropTypes.func,
+};
 
-  state = {
-    nfse: [],
-    nfe: [],
-    pessoas: [],
-  };
+EnviarArquivos.defaultProps = {
+  onEnd: () => true,
+};
 
-  adicionarNota = dados => new Promise((resolve) => {
-    console.log(dados);
-    if (dados.tipo === 'nfe') {
-      this.setState(prevState => ({
-        ...prevState,
-        nfe: [...prevState.nfe, dados.notaPool],
-        pessoas: adicionarPessoas(prevState.pessoas, dados.pessoas),
-      }), resolve);
-    } else {
-      this.setState(prevState => ({
-        ...prevState,
-        nfse: [...prevState.nfse, dados.notaPool],
-        pessoas: adicionarPessoas(prevState.pessoas, dados.pessoas),
-      }), resolve);
-    }
-  });
-
-  removerNota = nota => new Promise((resolve) => {
-    if (nota.tipo === 'nfe') {
-      this.setState(prevState => ({
-        ...prevState,
-        nfe: prevState.nfe.filter(el => el.nota.chave !== nota.nota.chave),
-      }), resolve);
-    } else {
-      this.setState(prevState => ({
-        ...prevState,
-        nfse: prevState.nfse.filter(el => el.nota.chave !== nota.nota.chave),
-      }), resolve);
-    }
-  });
-
-  ended = 0;
-
-  upProps = {
-    name: 'file',
-    action: `${api}/file`,
-    accept: '.xml',
-    headers: {
-      authorization: 'authorization-text',
-      'Access-Control-Allow-Origin': '*',
-    },
-    multiple: true,
-    onChange: async (info) => {
-      const data = info.file.response;
-
-      if (info.file.status === 'done') {
-        this.ended += 1;
-        await this.adicionarNota(data);
-      } else if (info.file.status === 'error') {
-        message.error(`Arquivo: ${info.file.name} invalido!`);
-        this.ended += 1;
-      } else if (info.file.status === 'removed') {
-        this.ended -= 1;
-        await this.removerNota(data);
-      }
-
-      if (this.ended === info.fileList.length) {
-        if (info.file.status === 'error') {
-          message.error('Erro!');
-        } else {
-          message.success('Todas as notas foram importadas!');
-          this.props.onEnd(this.state);
-        }
-      }
-    },
-  };
-
-  render() {
-    return (
-      <Row
-        type="flex"
-        justify="center"
-        align="top"
-      >
-        <Col span={12} style={{ textAlign: 'center' }}>
-          <Upload {...this.upProps}>
-            <Button>
-              <Icon type="plus" /> Selecionar Arquivos
-            </Button>
-          </Upload>
-        </Col>
-      </Row>
-    );
-  }
-}
-
-export default Connect(EnviarArquivosClass);
+export default Connect(EnviarArquivos);

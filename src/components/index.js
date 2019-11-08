@@ -33,3 +33,5 @@ export { default as EstoqueTabelaButtonUpload } from './EstoqueTabelaButtonUploa
 export { default as EstoqueTabelaCheckbox } from './EstoqueTabelaCheckbox';
 export { default as EstoqueAddButton } from './EstoqueAddButton';
 export { default as PrintEstoque } from './PrintEstoque';
+export { default as ImportarForm } from './ImportarForm';
+export { default as EnvioFimButton } from './EnvioFimButton';

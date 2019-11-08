@@ -1,39 +1,162 @@
-import React, { Component } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import PropTypes from 'prop-types';
-import { Icon, Col, Row, Table, Checkbox } from 'antd';
+import {
+  Col,
+  Row,
+  Table,
+  Checkbox,
+} from 'antd';
 
 import { NotaInicial } from '.';
 import { auth, pegarDominioId, api } from '../services';
+
+import { addNota, carregarMovimentos } from '../store/importacao';
+import Connect from '../store/Connect';
 
 function eSaida(nota) {
   return nota.tipo === '1' || nota.cfop === '1113' || nota.cfop === '1202' || nota.cfop === '2202';
 }
 
-function cancelada(nota) {
-  return nota.status === 'CANCELADA';
-}
-
 function interestadual(notaPool) {
-  return notaPool.nota.estadoDestinoId === notaPool.nota.estadoGeradorId ?
-    'INTERNO' :
-    `INTERESTADUAL ${notaPool.nota.estadoGeradorId} -> ${notaPool.nota.estadoDestinoId}`;
+  return notaPool.nota.estadoDestinoId === notaPool.nota.estadoGeradorId
+    ? 'DENTRO DO ESTADO'
+    : `INTERESTADUAL ${notaPool.nota.estadoGeradorId} -> ${notaPool.nota.estadoDestinoId}`;
 }
 
-class ConciliarMovimentos extends Component {
-  static propTypes = {
-    novaNota: PropTypes.func.isRequired,
-    onChange: PropTypes.func.isRequired,
-    onLoadEnd: PropTypes.func.isRequired,
-    dominio: PropTypes.func.isRequired,
-    dados: PropTypes.shape({
-      nfe: PropTypes.array,
-      nfse: PropTypes.array,
-      pessoas: PropTypes.array,
-    }).isRequired,
-  }
 
-  static columns = [{
+function ConciliarMovimentos(props) {
+  const { store, dispatch } = props;
+  const {
+    movimentosWithIndex,
+    empresa,
+    notasPool,
+    fileList,
+  } = store;
+
+  const [dataLoading, setDataLoading] = useState(true);
+
+  useEffect(() => {
+    const notasFinaisChave = fileList.filter(
+      ({ response: { tipo, notaPool: { nota } } }) => {
+        if (tipo === 'nfe') return eSaida(nota) && nota.emitenteCpfcnpj === empresa.cnpj;
+        return false;
+      },
+    ).map(({ response: { notaPool: { nota } } }) => nota.chave);
+
+    if (notasFinaisChave.length === 0) {
+      setDataLoading(false);
+      return;
+    }
+
+    pegarDominioId().then(async (dominioCodigo) => {
+      const { email } = auth.currentUser;
+
+      const usuario = {
+        dominioCodigo,
+        email,
+      };
+
+      const { data } = await axios.post(`${api}/movimentos/calcular`, { notasFinaisChave, usuario });
+      const { movimentos, notasIniciais } = data;
+
+      notasIniciais.forEach((np) => dispatch(addNota(np)));
+
+      const movsWithId = movimentos.map((el, index) => ({ ...el, index }));
+
+      dispatch(carregarMovimentos(movsWithId));
+      setDataLoading(false);
+    });
+  }, []);
+
+  const getNota = (chave) => notasPool.find((nP) => nP.nota.chave === chave);
+
+  const alterarMovimento = (movimentoPoolWithIndex, notaPool) => {
+    const movimentosWithIndexNovo = movimentosWithIndex.map((el) => {
+      if (el.index === movimentoPoolWithIndex.index) {
+        return movimentoPoolWithIndex;
+      }
+      return el;
+    });
+
+    if (notaPool) {
+      dispatch(addNota(notaPool));
+      dispatch(carregarMovimentos(movimentosWithIndexNovo));
+    } else {
+      dispatch(carregarMovimentos(movimentosWithIndexNovo));
+    }
+  };
+
+  const dataSource = movimentosWithIndex.map((movimentoPoolWithIndex) => {
+    const { movimento } = movimentoPoolWithIndex;
+    const notaFinalPool = getNota(movimento.notaFinalChave);
+    const tipoOperacao = interestadual(notaFinalPool);
+    const notaFinal = notaFinalPool.nota;
+
+    const notaInicial = movimento.notaInicialChave
+      ? getNota(movimento.notaInicialChave).nota
+      : null;
+
+    return {
+      key: `${movimentoPoolWithIndex.index}-${notaFinal.numero}`,
+      numero: movimentoPoolWithIndex.index + 1,
+      notaInicial: <NotaInicial
+        movimentoPoolWithIndex={movimentoPoolWithIndex}
+        notaFinal={notaFinal}
+        notaInicial={notaInicial}
+        onChange={alterarMovimento}
+      />,
+      notaFinal: notaFinal.numero,
+      baseImpostos: movimento.lucro,
+      tipoOperacao,
+      confirmar: <Checkbox
+        checked={movimento.conferido}
+        onChange={(e) => {
+          const movimentoPWINovo = {
+            ...movimentoPoolWithIndex,
+          };
+          movimentoPWINovo.movimento.conferido = e.target.checked;
+          alterarMovimento(movimentoPWINovo);
+        }}
+      />,
+    };
+  });
+
+  return (
+    <Row
+      type="flex"
+      justify="center"
+      align="top"
+    >
+      <Col span={23} style={{ textAlign: 'center' }}>
+        <Table
+          dataSource={dataSource}
+          columns={ConciliarMovimentos.columns}
+          loading={dataLoading}
+        />
+      </Col>
+    </Row>
+  );
+}
+
+ConciliarMovimentos.propTypes = {
+  store: PropTypes.shape({
+    empresa: PropTypes.shape({
+      numeroSistema: PropTypes.string,
+      nome: PropTypes.string,
+      cnpj: PropTypes.string,
+    }),
+    fileList: PropTypes.array,
+    movimentosWithIndex: PropTypes.array,
+    notasPool: PropTypes.array,
+    pessoasPool: PropTypes.array,
+    dominio: PropTypes.array,
+  }).isRequired,
+  dispatch: PropTypes.func.isRequired,
+};
+
+ConciliarMovimentos.columns = [
+  {
     title: 'Número',
     dataIndex: 'numero',
     key: 'numero',
@@ -47,12 +170,7 @@ class ConciliarMovimentos extends Component {
     key: 'notaFinal',
     defaultSortOrder: 'ascend',
     sorter: (a, b) => {
-      if (!a.notaFinal) {
-        return 1;
-      } else if (!b.notaFinal) {
-        return -1;
-      }
-      if (a.notaFinal > b.notaFinal) {
+      if (!a.notaFinal || a.notaFinal > b.notaFinal) {
         return 1;
       }
       return -1;
@@ -70,140 +188,7 @@ class ConciliarMovimentos extends Component {
     dataIndex: 'confirmar',
     key: 'confirmar',
     align: 'center',
-  }];
+  },
+];
 
-  state = {
-    isLoading: true,
-    dados: {},
-    movimentosWithIndex: [],
-  }
-
-  async componentDidMount() {
-    const { dados } = this.props;
-    const dominioCnpjs = this.props.dominio().map(o => o.cnpj);
-
-    const notasFinaisChave = [];
-
-    dados.nfe.forEach(({ nota }) => {
-      if (eSaida(nota) && !cancelada(nota) && dominioCnpjs.includes(nota.emitenteCpfcnpj)) {
-        notasFinaisChave.push(nota.chave);
-      }
-    });
-
-    try {
-      const dominioCodigo = await pegarDominioId();
-      const { email } = auth.currentUser;
-
-      const usuario = {
-        dominioCodigo,
-        email,
-      };
-
-      const { data } = await axios.post(`${api}/movimentos/calcular`, { notasFinaisChave, usuario });
-      const { movimentos, notasIniciais } = data;
-      dados.nfe = dados.nfe.concat(notasIniciais);
-
-      const movimentosWithIndex = movimentos.map((el, index) => ({ ...el, index }));
-
-      this.props.onChange(movimentos);
-      this.props.onLoadEnd();
-      this.setState({ isLoading: false, dados, movimentosWithIndex });
-    } catch (err) {
-      console.error(err);
-    }
-  }
-
-  getNfe = chave => (
-    this.state.dados.nfe ?
-      this.state.dados.nfe.find(el => el.nota.chave === chave) :
-      this.props.dados.nfe.find(el => el.nota.chave === chave)
-  )
-
-  alterarMovimento = (movimentoPoolWithIndex, notaPool) => {
-    const { movimentosWithIndex } = this.state;
-    const movimentosWithIndexNovo = [];
-
-    movimentosWithIndex.forEach((el) => {
-      if (el.index === movimentoPoolWithIndex.index) {
-        movimentosWithIndexNovo.push(movimentoPoolWithIndex);
-      } else {
-        movimentosWithIndexNovo.push(el);
-      }
-    });
-    if (notaPool) {
-      this.props.novaNota(notaPool);
-      const { dados } = this.state;
-      dados.nfe.push(notaPool);
-      this.setState({ dados, movimentosWithIndex: movimentosWithIndexNovo });
-    } else {
-      this.setState({ movimentosWithIndex: movimentosWithIndexNovo });
-    }
-    this.props.onChange(movimentosWithIndexNovo);
-  }
-
-  render() {
-    const dataSource = [];
-
-    const { movimentosWithIndex } = this.state;
-
-    movimentosWithIndex.forEach((movimentoPoolWithIndex) => {
-      const { movimento } = movimentoPoolWithIndex;
-      const notaFinalPool = this.getNfe(movimento.notaFinalChave);
-      const tipoOperacao = interestadual(notaFinalPool);
-      const notaFinal = notaFinalPool.nota;
-
-      const notaInicial = movimento.notaInicialChave ?
-        this.getNfe(movimento.notaInicialChave).nota :
-        null;
-
-      dataSource.push({
-        key: `${movimentoPoolWithIndex.index}-${notaFinal.numero}`,
-        numero: movimentoPoolWithIndex.index + 1,
-        notaInicial: <NotaInicial
-          movimentoPoolWithIndex={movimentoPoolWithIndex}
-          notaFinal={notaFinal}
-          notaInicial={notaInicial}
-          onChange={this.alterarMovimento}
-        />,
-        notaFinal: notaFinal.numero,
-        baseImpostos: movimento.lucro,
-        tipoOperacao,
-        confirmar: <Checkbox
-          checked={movimento.conferido}
-          onChange={(e) => {
-            const movimentoPWINovo = {
-              ...movimentoPoolWithIndex,
-            };
-            movimentoPWINovo.movimento.conferido = e.target.checked;
-            this.alterarMovimento(movimentoPWINovo);
-          }}
-        />,
-      });
-    });
-
-    return (
-      <Row
-        type="flex"
-        justify="center"
-        align="top"
-      >
-        <Col span={23} style={{ textAlign: 'center' }}>
-          {
-            this.state.isLoading
-            &&
-            <Icon type="loading" style={{ fontSize: '90px', color: '#1890ff' }} />
-        }
-          {
-            !this.state.isLoading
-            &&
-            <div>
-              <Table dataSource={dataSource} columns={ConciliarMovimentos.columns} />
-            </div>
-          }
-        </Col>
-      </Row>
-    );
-  }
-}
-
-export default ConciliarMovimentos;
+export default Connect(ConciliarMovimentos);
