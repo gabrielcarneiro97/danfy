@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import Context from './config';
 import estoqueReducer, { estoqueStore } from './estoque';
 import movimentoReducer, { movimentoStore } from './movimento';
+import importacaoReducer, { importacaoStore } from './importacao';
 
 function composer(reducer, store) {
   const Store = (props) => {
@@ -46,3 +47,5 @@ function composer(reducer, store) {
 export const EstoqueStore = composer(estoqueReducer, estoqueStore);
 
 export const MovimentoStore = composer(movimentoReducer, movimentoStore);
+
+export const ImportacaoStore = composer(importacaoReducer, importacaoStore);

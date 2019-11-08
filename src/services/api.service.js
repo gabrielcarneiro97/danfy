@@ -10,10 +10,17 @@ export const firebaseApp = firebase.initializeApp(firebaseConfig);
 export const auth = firebase.auth();
 export const db = firebase.database();
 
-export function loginGoogle(/* options */) {
+export async function loginGoogle(/* options */) {
   const provider = new firebase.auth.GoogleAuthProvider();
 
-  return firebase.auth().signInWithPopup(provider);
+  const { user } = await auth.signInWithPopup(provider);
+
+  if (!user.email.endsWith('@andreacontabilidade.com')
+  && user.email !== 'gabriel.carneiro.castro@gmail.com') {
+    await auth.signOut();
+  }
+
+  return true;
 }
 
 export async function getEstoque(estoqueInfosGerais) {

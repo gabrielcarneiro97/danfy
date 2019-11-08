@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, useState } from 'react';
 import PropTypes from 'prop-types';
 import {
   Row,
@@ -11,18 +11,63 @@ import {
 
 import { api } from '../services';
 
-function adicionarPessoas(pessoasOld, pessoasToAdd) {
-  const pessoasNew = [...pessoasOld];
+import Connect from '../store/Connect';
+import {
+  addNota,
+  addNotaServico,
+  addPessoa,
+  removeNota,
+  removeNotaServico,
+} from '../store/importacao';
+
+const adicionarPessoas = (pessoas, pessoasToAdd) => {
+  const pessoasNew = [...pessoas];
   pessoasToAdd.forEach((pessoa) => {
-    const pessoaId = pessoasOld.findIndex(p => p.cpfcnpj === pessoa.pessoa.cpfcnpj);
+    const pessoaId = pessoas.findIndex((p) => p.cpfcnpj === pessoa.pessoa.cpfcnpj);
     if (pessoaId !== -1) pessoasNew[pessoaId] = pessoa.pessoa;
     else pessoasNew.push(pessoa.pessoa);
   });
-
   return pessoasNew;
+};
+
+function EnviarArquivos(props) {
+  const { store, dispatch } = props;
+  const [ended, setEnded] = useState(0);
+
+  const { pessoasPool } = store;
+
+  const endedAdd = () => setEnded(ended + 1);
+  const endedRemove = () => setEnded(ended - 1);
+
+  const addPessoas = (pessoasToAdd) => {
+    pessoasToAdd.forEach((pessoaPool) => {
+      const pessoaId = pessoasPool.findIndex(
+        (pP) => pP.pessoa.cpfcnpj === pessoaPool.pessoa.cpfcnpj,
+      );
+
+      if (pessoaId === -1) dispatch(addPessoa(pessoaPool));
+    });
+  };
+
+  const adicionarNota = async (dados) => {
+    if (dados.tipo === 'nfe') dispatch(addNota(dados.notaPool));
+    else if (dados.tipo === 'nfse') dispatch(addNotaServico(dados.notaPool));
+    else return false;
+
+    addPessoas(dados.pessoas);
+    return true;
+  };
+
+  const removerNota = async (dados) => {
+    if (dados.tipo === 'nfe') dispatch(removeNota(dados.notaPool));
+    else if (dados.tipo === 'nfse') dispatch(removeNotaServico(dados.notaPool));
+    else return false;
+
+    return true;
+  };
 }
 
-class EnviarArquivos extends Component {
+class EnviarArquivosClass extends Component {
   static propTypes = {
     onEnd: PropTypes.func.isRequired,
   };
@@ -34,6 +79,7 @@ class EnviarArquivos extends Component {
   };
 
   adicionarNota = dados => new Promise((resolve) => {
+    console.log(dados);
     if (dados.tipo === 'nfe') {
       this.setState(prevState => ({
         ...prevState,
@@ -118,4 +164,4 @@ class EnviarArquivos extends Component {
   }
 }
 
-export default EnviarArquivos;
+export default Connect(EnviarArquivosClass);

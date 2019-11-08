@@ -61,7 +61,6 @@ function VisualizarForm(props) {
     if (empresa.cnpj && competencia.mes && competencia.ano) {
       setSubmit(true);
     } else if ((movimentosPool.length > 0 || servicosPool.length > 0) && !empresa.cnpj) {
-      console.log('limpou');
       dispatch(limparTrimestre());
     }
   }, [num, competencia, acheiEmpresa]);

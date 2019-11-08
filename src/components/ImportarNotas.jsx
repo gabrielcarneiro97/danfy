@@ -13,6 +13,8 @@ import { pegarDominio, gravarMovimentos, gravarServicos } from '../services';
 
 import './ImportarNotas.css';
 
+import { ImportacaoStore } from '../store/Store';
+
 const { Step } = Steps;
 
 class ImportarNotas extends Component {
@@ -168,7 +170,7 @@ class ImportarNotas extends Component {
     const { current } = this.state;
 
     return (
-      <>
+      <ImportacaoStore>
         <AdicionarEmpresa
           visible={this.state.adicionar}
           dados={this.state.adicionarArray}
@@ -198,7 +200,7 @@ class ImportarNotas extends Component {
           }
         </div>
         <div className="steps-content">{this.steps[this.state.current].content}</div>
-      </>
+      </ImportacaoStore>
     );
   }
 }
