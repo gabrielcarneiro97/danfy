@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import {
   BrowserRouter,
   Route,
@@ -12,12 +12,10 @@ import moment from 'moment';
 import 'moment/locale/pt-br';
 import 'antd/dist/antd.css';
 
-import {
-  PrivateRoute,
-  MainLogged,
-  Login,
-  Navbar,
-} from './components';
+import PrivateRoute from './components/PrivateRoute';
+import MainLogged from './components/MainLogged';
+import Login from './components/Login';
+import Navbar from './components/Navbar';
 
 const { Header } = Layout;
 

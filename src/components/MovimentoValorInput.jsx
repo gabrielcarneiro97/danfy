@@ -3,10 +3,16 @@ import PropTypes from 'prop-types';
 import { Input } from 'antd';
 
 function MovimentoValorInput(props) {
-  const { onChange, movimentoPoolWithKey } = props;
-  const [name] = useState(props.name); // eslint-disable-line
-  const [value, setValue] = useState(props.value); // eslint-disable-line
-  const [disabled] = useState(props.disabled); // eslint-disable-line
+  const {
+    onChange,
+    movimentoPoolWithKey,
+    name: propsName,
+    value: propsValue,
+    disabled: propsDisabled,
+  } = props;
+  const [name] = useState(propsName);
+  const [value, setValue] = useState(propsValue);
+  const [disabled] = useState(propsDisabled);
 
   const handleChange = (e) => {
     setValue(e.target.value);

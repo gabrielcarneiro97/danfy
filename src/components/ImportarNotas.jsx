@@ -7,13 +7,11 @@ import {
   Col,
 } from 'antd';
 
-import {
-  EnviarArquivos,
-  ConciliarMovimentos,
-  ConciliarServicos,
-  ImportarForm,
-  EnvioFimButton,
-} from '.';
+import EnviarArquivos from './EnviarArquivos';
+import ConciliarMovimentos from './ConciliarMovimentos';
+import ConciliarServicos from './ConciliarServicos';
+import ImportarForm from './ImportarForm';
+import EnvioFimButton from './EnvioFimButton';
 
 import './ImportarNotas.css';
 

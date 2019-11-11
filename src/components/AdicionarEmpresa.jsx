@@ -1,7 +1,8 @@
 import React, { Component, Fragment } from 'react';
 import { Modal, Table } from 'antd';
 import PropTypes from 'prop-types';
-import { AliquotasEmpresa } from '.';
+
+import AliquotasEmpresa from './AliquotasEmpresa';
 
 class AdicionarEmpresa extends Component {
   static propTypes = {

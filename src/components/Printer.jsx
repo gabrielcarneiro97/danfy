@@ -8,13 +8,11 @@ import {
   Button,
 } from 'antd';
 
-import {
-  MovimentosTable,
-  ServicosTable,
-  AcumuladosTable,
-  CotasTable,
-  GuiasTable,
-} from '.';
+import MovimentosTable from './MovimentosTable';
+import ServicosTable from './ServicosTable';
+import AcumuladosTable from './AcumuladosTable';
+import CotasTable from './CotasTable';
+import GuiasTable from './GuiasTable';
 
 import {
   pegaMes,

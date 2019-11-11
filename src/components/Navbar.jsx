@@ -26,7 +26,7 @@ function Navbar(props) {
         }<a style={{ color: '#FFF' }}>
           <span style={{ fontWeight: 'bolder' }}>DANFY </span>
           <span style={{ fontWeight: 'lighter' }}>{version}</span>
-          {
+        {
             // eslint-disable-next-line
         }</a>
       </Col>
@@ -35,7 +35,7 @@ function Navbar(props) {
           // eslint-disable-next-line
         }<a className="login-btn" onClick={handleClick}>
           <Icon type={icon} />
-          {
+        {
             // eslint-disable-next-line
         }</a>
       </Col>

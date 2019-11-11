@@ -6,13 +6,11 @@ import {
   Col,
 } from 'antd';
 
-import {
-  EstoqueTabelaInput,
-  EstoqueTabelaDatePicker,
-  EstoqueTabelaButtonUpload,
-  EstoqueTabelaCheckbox,
-  EstoqueAddButton,
-} from '.';
+import EstoqueTabelaInput from './EstoqueTabelaInput';
+import EstoqueTabelaDatePicker from './EstoqueTabelaDatePicker';
+import EstoqueTabelaButtonUpload from './EstoqueTabelaButtonUpload';
+import EstoqueTabelaCheckbox from './EstoqueTabelaCheckbox';
+import EstoqueAddButton from './EstoqueAddButton';
 
 import Connect from '../store/Connect';
 

@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Row, Col, Table } from 'antd';
 
-import { TableToPrint } from '.';
+import TableToPrint from './TableToPrint';
 import { R$ } from '../services';
 
 import Connect from '../store/Connect';
@@ -79,8 +79,8 @@ function GuiasTable(props) {
         dataIndex: 'irpj',
         key: 'irpj',
       });
-      data.irpj = R$((trimestre.impostoPool.imposto.irpj - trimestre.retencao.irpj) +
-        trimestre.impostoPool.imposto.adicionalIr);
+      data.irpj = R$((trimestre.impostoPool.imposto.irpj - trimestre.retencao.irpj)
+      + trimestre.impostoPool.imposto.adicionalIr);
     } else if (parseInt(mes, 10) % 3 !== 0
       && empresa.formaPagamento === 'PAGAMENTO ANTECIPADO') {
       columns.push({
@@ -111,8 +111,8 @@ function GuiasTable(props) {
         dataIndex: 'irpj',
         key: 'irpj',
       });
-      data.irpj = R$((imposto.irpj - retencao.irpj) +
-        trimestre.impostoPool.imposto.adicionalIr);
+      data.irpj = R$((imposto.irpj - retencao.irpj)
+      + trimestre.impostoPool.imposto.adicionalIr);
     }
 
     data.key = 'guias';

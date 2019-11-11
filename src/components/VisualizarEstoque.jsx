@@ -1,6 +1,8 @@
 import React from 'react';
 
-import { VisualizarEstoqueForm, EstoqueTable, PrintEstoque } from '.';
+import VisualizarEstoqueForm from './VisualizarEstoqueForm';
+import EstoqueTable from './EstoqueTable';
+import PrintEstoque from './PrintEstoque';
 
 import './VisualizarMovimento.css';
 

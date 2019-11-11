@@ -1,13 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Divider } from 'antd';
-import {
-  MovimentosTable,
-  ServicosTable,
-  GuiasTable,
-  AcumuladosTable,
-  CotasTable,
-} from '.';
+
+import MovimentosTable from './MovimentosTable';
+import ServicosTable from './ServicosTable';
+import AcumuladosTable from './AcumuladosTable';
+import CotasTable from './CotasTable';
+import GuiasTable from './GuiasTable';
+
 import { eDoMes, temTabelaCotas } from '../services';
 
 import Connect from '../store/Connect';

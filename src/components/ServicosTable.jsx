@@ -9,7 +9,7 @@ import {
   Button,
 } from 'antd';
 
-import { TableToPrint } from '.';
+import TableToPrint from './TableToPrint';
 
 import {
   R$,

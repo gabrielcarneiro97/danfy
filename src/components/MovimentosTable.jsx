@@ -8,7 +8,8 @@ import {
   Popconfirm,
 } from 'antd';
 
-import { MovimentoValorInput, TableToPrint } from '.';
+import MovimentoValorInput from './MovimentoValorInput';
+import TableToPrint from './TableToPrint';
 import {
   R$,
   retornarTipo,

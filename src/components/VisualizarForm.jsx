@@ -8,9 +8,7 @@ import {
   DatePicker,
 } from 'antd';
 
-import {
-  Printer,
-} from '.';
+import Printer from './Printer';
 
 import {
   pegarTrimestre,

@@ -5,12 +5,13 @@ import PropTypes from 'prop-types';
 
 import { auth } from '../services';
 
-import { LoginForm } from '.';
+import LoginForm from './LoginForm';
 
 const { Content } = Layout;
 
 function Login(props) {
-  const { from } = props.location.state || { from: { pathname: '/app' } };
+  const { location, history } = props;
+  const { from } = location.state || { from: { pathname: '/app' } };
 
   if (auth.currentUser !== null) {
     return <Redirect to={from} />;
@@ -20,7 +21,7 @@ function Login(props) {
     <Content style={{ minHeight: '92vh' }}>
       <Row type="flex" justify="center" align="middle">
         <Col lg={6} md={8} sm={12}>
-          <LoginForm history={props.history} />
+          <LoginForm history={history} />
         </Col>
       </Row>
     </Content>

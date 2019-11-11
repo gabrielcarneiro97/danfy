@@ -2,9 +2,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 
-import Connect from '../store/Connect';
-import { TableToPrint } from '.';
+import TableToPrint from './TableToPrint';
 import { R$ } from '../services';
+
+import Connect from '../store/Connect';
 
 function PrintEstoque(props) {
   const { store } = props;
@@ -65,6 +66,9 @@ function PrintEstoque(props) {
 PrintEstoque.propTypes = {
   store: PropTypes.shape({
     estoqueArray: PropTypes.array,
+    estoqueInfosGerais: PropTypes.shape({
+      diaMesAno: PropTypes.string,
+    }),
   }).isRequired,
 };
 

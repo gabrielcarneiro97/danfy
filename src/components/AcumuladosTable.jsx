@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Table, Row, Col } from 'antd';
 
-import { TableToPrint } from '.';
+import TableToPrint from './TableToPrint';
 import { pegaMes, R$ } from '../services';
 
 import Connect from '../store/Connect';

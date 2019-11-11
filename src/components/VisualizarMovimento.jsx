@@ -1,9 +1,7 @@
 import React from 'react';
 
-import {
-  VisualizarForm,
-  VisualizarTables,
-} from '.';
+import VisualizarForm from './VisualizarForm';
+import VisualizarTables from './VisualizarTables';
 
 import './VisualizarMovimento.css';
 

@@ -8,7 +8,7 @@ import {
   Checkbox,
 } from 'antd';
 
-import { NotaInicial } from '.';
+import NotaInicial from './NotaInicial';
 import { auth, pegarDominioId, api } from '../services';
 
 import { addNota, carregarMovimentos } from '../store/importacao';

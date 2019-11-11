@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Table, Col, Row } from 'antd';
 
-import { TableToPrint } from '.';
+import TableToPrint from './TableToPrint';
 import { R$, calcularCotas, temTabelaCotas } from '../services';
 
 import Connect from '../store/Connect';
