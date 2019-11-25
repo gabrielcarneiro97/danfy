@@ -1,9 +1,16 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
+import ReactToPrint from 'react-to-print';
+import {
+  Button,
+  Col,
+  Row,
+  Divider,
+} from 'antd';
 
 import TableToPrint from './TableToPrint';
-import { R$ } from '../services';
+import { R$, cnpjMask } from '../services';
 
 import Connect from '../store/Connect';
 
@@ -56,9 +63,36 @@ function PrintEstoque(props) {
     },
   ];
 
+  let printRef = React.createRef();
+
   return (
     <>
-      <TableToPrint columns={columns} dataSource={data} />
+      <ReactToPrint
+        trigger={() => <Button disabled={estoqueArray.length === 0}>Imprimir</Button>}
+        content={() => printRef}
+        pageStyle="@page { size: auto;  margin: 13mm; margin-bottom: 10mm } @media print { body { -webkit-print-color-adjust: exact; } }"
+      />
+      <div style={{ display: 'none' }}>
+        <div
+          ref={(el) => { printRef = el; }}
+        >
+          <h2
+            style={{
+              width: '100%',
+              textAlign: 'center',
+              marginTop: '2%',
+            }}
+          >
+            {`(${estoqueInfosGerais.numeroSistema}) ${estoqueInfosGerais.nome} - ${cnpjMask(estoqueInfosGerais.cnpj)}`}
+          </h2>
+          <Row type="flex" justify="center">
+            <Divider orientation="left">{`Estoque - ${diaMesAno && diaMesAno.format('DD/MM/YYYY')}`}</Divider>
+            <Col span={24}>
+              <TableToPrint columns={columns} dataSource={data} />
+            </Col>
+          </Row>
+        </div>
+      </div>
     </>
   );
 }
@@ -68,6 +102,9 @@ PrintEstoque.propTypes = {
     estoqueArray: PropTypes.array,
     estoqueInfosGerais: PropTypes.shape({
       diaMesAno: PropTypes.string,
+      numeroSistema: PropTypes.string,
+      nome: PropTypes.string,
+      cnpj: PropTypes.string,
     }),
   }).isRequired,
 };

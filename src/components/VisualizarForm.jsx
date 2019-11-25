@@ -53,7 +53,7 @@ function VisualizarForm(props) {
       dispatch(carregarDominio(dominioRes));
       setDisableNum(false);
     });
-  }, [disableNum]);
+  }, []);
 
   useEffect(() => {
     if (empresa.cnpj && competencia.mes && competencia.ano) {

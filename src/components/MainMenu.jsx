@@ -1,4 +1,4 @@
-import React, { Component, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import propTypes from 'prop-types';
 import axios from 'axios';
 import { withRouter, Link } from 'react-router-dom';
@@ -20,7 +20,7 @@ function MainMenu(props) {
       setNodeVer(version.node);
       setDbVer(version.db);
     });
-  }, [apiVer, nodeVer, dbVer]);
+  }, []);
 
   return (
     <>
@@ -33,6 +33,12 @@ function MainMenu(props) {
           <Link to={`${match.url}/importar`}>
             <Icon type="download" />
             Importar Notas
+          </Link>
+        </Menu.Item>
+        <Menu.Item key={`${match.url}/clientes`}>
+          <Link to={`${match.url}/clientes`}>
+            <Icon type="team" />
+            Gerenciar Clientes
           </Link>
         </Menu.Item>
         <Menu.Item key={`${match.url}/visualizar`}>

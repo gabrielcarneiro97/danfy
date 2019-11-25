@@ -2,7 +2,6 @@ import React from 'react';
 
 import VisualizarEstoqueForm from './VisualizarEstoqueForm';
 import EstoqueTable from './EstoqueTable';
-import PrintEstoque from './PrintEstoque';
 
 import './VisualizarMovimento.css';
 
@@ -15,7 +14,6 @@ function VisualizarEstoque() {
         <VisualizarEstoqueForm />
       </div>
       <div style={{ marginTop: '30px' }}>
-        {/* <PrintEstoque /> */}
         <EstoqueTable />
       </div>
     </EstoqueStore>

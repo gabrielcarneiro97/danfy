@@ -22,6 +22,8 @@ function EstoqueTable(props) {
 
   const handleChange = (pag, filters) => setFiltros(filters);
 
+  const temEstoque = estoqueArray.length > 0;
+
   const columns = [
     {
       title: 'Editar',
@@ -146,13 +148,18 @@ function EstoqueTable(props) {
       </Row>
       <Row>
         <Col>
-          <Table
-            rowKey="id"
-            bordered
-            columns={columns}
-            dataSource={estoqueArray}
-            onChange={handleChange}
-          />
+          {
+            temEstoque
+            && (
+              <Table
+                rowKey="id"
+                bordered
+                columns={columns}
+                dataSource={estoqueArray}
+                onChange={handleChange}
+              />
+            )
+          }
         </Col>
       </Row>
     </>

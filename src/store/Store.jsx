@@ -5,6 +5,8 @@ import Context from './config';
 import estoqueReducer, { estoqueStore } from './estoque';
 import movimentoReducer, { movimentoStore } from './movimento';
 import importacaoReducer, { importacaoStore } from './importacao';
+import clientesReducer, { clientesStore } from './clientes';
+
 
 function composer(reducer, store) {
   const Store = (props) => {
@@ -49,3 +51,5 @@ export const EstoqueStore = composer(estoqueReducer, estoqueStore);
 export const MovimentoStore = composer(movimentoReducer, movimentoStore);
 
 export const ImportacaoStore = composer(importacaoReducer, importacaoStore);
+
+export const ClientesStore = composer(clientesReducer, clientesStore);

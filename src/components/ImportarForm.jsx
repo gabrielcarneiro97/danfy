@@ -39,7 +39,7 @@ function ImportarForm(props) {
       dispatch(carregarDominio(dominioRes));
       setDisableNum(false);
     });
-  }, [disableNum]);
+  }, []);
 
   useEffect(() => {
     if (cnpjInput !== '') {

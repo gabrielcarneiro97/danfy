@@ -9,6 +9,8 @@ import {
 } from 'antd';
 import axios from 'axios';
 
+import PrintEstoque from './PrintEstoque';
+
 import {
   pegarDominio,
   pegarPessoaId,
@@ -23,7 +25,7 @@ import { carregarEstoque, carregarInfosGerais } from '../store/estoque';
 import './VisualizarForm.css';
 
 function VisualizarEstoqueForm(props) {
-  const { dispatch, store, printer } = props;
+  const { dispatch, store } = props;
   const { estoqueInfosGerais } = store;
   const { diaMesAno, cnpj, nome } = estoqueInfosGerais;
 
@@ -74,6 +76,7 @@ function VisualizarEstoqueForm(props) {
 
   const handleNum = async (e) => {
     const inputNum = e.target.value;
+    setNum(inputNum);
     const empresa = dominio.find((o) => o.numero === inputNum);
     if (empresa) {
       const { cnpj: empCnpj } = empresa;
@@ -83,18 +86,16 @@ function VisualizarEstoqueForm(props) {
         const pessoa = {
           nome: pessoaPg.nome,
           cnpj: empCnpj,
-          numeroSistema: num,
+          numeroSistema: inputNum,
         };
 
         dispatch(carregarInfosGerais(pessoa));
-        setNum(inputNum);
       } catch (err) {
         dispatch(carregarInfosGerais({
           numeroSistema: '',
           nome: '',
           cnpj: '',
         }));
-        setNum(inputNum);
         console.error(err);
       }
     } else {
@@ -103,7 +104,6 @@ function VisualizarEstoqueForm(props) {
         nome: '',
         cnpj: '',
       }));
-      setNum(inputNum);
     }
   };
 
@@ -144,7 +144,7 @@ function VisualizarEstoqueForm(props) {
             marginTop: '5px',
           }}
         >
-          {printer}
+          <PrintEstoque />
         </Col>
         <Col
           style={{
@@ -183,11 +183,6 @@ VisualizarEstoqueForm.propTypes = {
     estoqueInfosGerais: PropTypes.object,
   }).isRequired,
   dispatch: PropTypes.func.isRequired,
-  printer: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
-};
-
-VisualizarEstoqueForm.defaultProps = {
-  printer: '',
 };
 
 export default Connect(VisualizarEstoqueForm);
