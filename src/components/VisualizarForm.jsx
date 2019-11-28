@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
+import moment from 'moment';
 import {
   Input,
   Button,
@@ -43,6 +44,8 @@ function VisualizarForm(props) {
   } = store;
 
   const { numParam, compParam } = useParams();
+
+  const monthPicker = useRef();
 
   const { movimentosPool, servicosPool } = trimestreData;
 
@@ -140,6 +143,7 @@ function VisualizarForm(props) {
 
   useEffect(() => {
     if (numParam !== '000' && compParam !== '00-0000' && dominio.length > 0) {
+      monthPicker.current.picker.handleChange(moment(compParam, 'MM-YYYY'));
       (async () => {
         await handleNum(numParam);
         await handleDate(null, compParam);
@@ -176,7 +180,12 @@ function VisualizarForm(props) {
           />
         </Col>
         <Col span={4} className="form-input">
-          <MonthPicker onChange={handleDate} placeholder="Selecione o Mês" format="MM-YYYY" />
+          <MonthPicker
+            onChange={handleDate}
+            placeholder="Selecione o Mês"
+            format="MM-YYYY"
+            ref={monthPicker}
+          />
         </Col>
         <Col span={16} className="form-input">
           <Input addonBefore="Nome" value={empresa.nome} disabled />
