@@ -8,6 +8,8 @@ import {
   DatePicker,
 } from 'antd';
 
+import { useParams } from 'react-router-dom';
+
 import Printer from './Printer';
 
 import {
@@ -40,6 +42,8 @@ function VisualizarForm(props) {
     trimestreData,
   } = store;
 
+  const { numParam, compParam } = useParams();
+
   const { movimentosPool, servicosPool } = trimestreData;
 
   const [num, setNum] = useState('');
@@ -47,33 +51,7 @@ function VisualizarForm(props) {
   const [loading, setLoading] = useState(false);
   const [disableNum, setDisableNum] = useState(true);
   const [acheiEmpresa, setAcheiEmpresa] = useState(false);
-
-  useEffect(() => {
-    pegarDominio().then((dominioRes) => {
-      dispatch(carregarDominio(dominioRes));
-      setDisableNum(false);
-    });
-  }, []);
-
-  useEffect(() => {
-    if (empresa.cnpj && competencia.mes && competencia.ano) {
-      setSubmit(true);
-    } else if ((movimentosPool.length > 0 || servicosPool.length > 0) && !empresa.cnpj) {
-      dispatch(limparTrimestre());
-    }
-  }, [num, competencia, acheiEmpresa]);
-
-  const handleSubmit = async () => {
-    setSubmit(false);
-    setLoading(true);
-
-    const dados = await pegarTrimestre(empresa.cnpj, competencia);
-
-    dispatch(carregarMovimento(dados));
-
-    setSubmit(true);
-    setLoading(false);
-  };
+  const [getFromParams, setGetFromParams] = useState(false);
 
   const handleDate = (e, mesAno) => {
     if (!mesAno) dispatch(carregarCompetencia({ mes: '', ano: '' }));
@@ -86,7 +64,7 @@ function VisualizarForm(props) {
   };
 
   const handleNum = async (e) => {
-    const numInput = e.target.value;
+    const numInput = (e.target && e.target.value) || e;
     setNum(numInput);
 
     const empresaSelected = dominio.find((o) => o.numero === numInput);
@@ -140,6 +118,47 @@ function VisualizarForm(props) {
 
     setSubmit(false);
   };
+
+  const handleSubmit = async () => {
+    setSubmit(false);
+    setLoading(true);
+
+    const dados = await pegarTrimestre(empresa.cnpj, competencia);
+
+    dispatch(carregarMovimento(dados));
+
+    setSubmit(true);
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    pegarDominio().then((dominioRes) => {
+      dispatch(carregarDominio(dominioRes));
+      setDisableNum(false);
+    });
+  }, []);
+
+  useEffect(() => {
+    if (numParam !== '000' && compParam !== '00-0000' && dominio.length > 0) {
+      (async () => {
+        await handleNum(numParam);
+        await handleDate(null, compParam);
+        setGetFromParams(true);
+      })();
+    }
+  }, [dominio]);
+
+  useEffect(() => {
+    if (getFromParams) handleSubmit();
+  }, [getFromParams]);
+
+  useEffect(() => {
+    if (empresa.cnpj && competencia.mes && competencia.ano) {
+      setSubmit(true);
+    } else if ((movimentosPool.length > 0 || servicosPool.length > 0) && !empresa.cnpj) {
+      dispatch(limparTrimestre());
+    }
+  }, [num, competencia, acheiEmpresa]);
 
   return (
     <>

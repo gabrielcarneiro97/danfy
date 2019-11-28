@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
+import moment from 'moment';
 import { withRouter } from 'react-router-dom';
 
 import {
@@ -14,17 +15,28 @@ import Connect from '../store/Connect';
 
 function EnvioFimButton(props) {
   const { disabled, store, history } = props;
-  const { movimentosWithIndex, servicosWithIndex } = store;
+  const { movimentosWithIndex, servicosWithIndex, empresa } = store;
+  const { numeroSistema } = empresa;
+
+  let mesAno = '00-0000';
 
   const [loading, setLoading] = useState(false);
 
   const enviar = async () => {
     setLoading(true);
     const movimentosConferidos = movimentosWithIndex.filter(
-      (movPool) => movPool.movimento.conferido,
+      (movPool) => {
+        const { movimento, dataHora } = movPool;
+        mesAno = moment(dataHora).format('MM-YYYY');
+        return movimento.conferido;
+      },
     );
     const servicosConferidos = servicosWithIndex.filter(
-      (servPool) => servPool.servico.conferido,
+      (servPool) => {
+        const { servico, dataHora } = servPool;
+        mesAno = moment(dataHora).format('MM-YYYY');
+        return servico.conferido;
+      },
     );
 
     try {
@@ -33,7 +45,7 @@ function EnvioFimButton(props) {
         gravarServicos(servicosConferidos),
       ]);
       message.success('Tudo gravado com sucesso!');
-      history.push('/app/visualizar');
+      history.push(`/app/visualizar/${numeroSistema}/${mesAno}`);
     } catch (err) {
       message.error('Erro no envio dos arquivos!');
       console.error(err);

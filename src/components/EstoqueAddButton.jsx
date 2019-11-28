@@ -62,8 +62,7 @@ function EstoqueAddButton(props) {
     const prod = produto();
 
     try {
-      const res = await axios.post(`${api}/estoque/${cnpj}`, prod);
-      console.log(res);
+      await axios.post(`${api}/estoque/${cnpj}`, prod);
       const estoque = await getEstoque(estoqueInfosGerais);
 
       dispatch(carregarEstoque(estoque));

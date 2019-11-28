@@ -25,7 +25,6 @@ function ImportarForm(props) {
     dominio,
     empresa,
   } = store;
-
   const [num, setNum] = useState('');
   const [submit, setSubmit] = useState(false);
   const [disableNum, setDisableNum] = useState(true);

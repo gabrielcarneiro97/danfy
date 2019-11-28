@@ -40,7 +40,7 @@ function VisualizarEstoqueForm(props) {
       setDominio(dom);
       setDisableNum(false);
     });
-  });
+  }, []);
 
 
   const pegarEstoque = async () => {
