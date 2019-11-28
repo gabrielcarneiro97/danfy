@@ -29,7 +29,6 @@ function EnviarArquivos(props) {
   useEffect(() => {
     if (fileList.length > 0 && fileList.length === ended) {
       message.success('Arquivos Importados com Sucesso!');
-      console.log(fileList);
       onEnd();
     }
   }, [ended, fileList]);

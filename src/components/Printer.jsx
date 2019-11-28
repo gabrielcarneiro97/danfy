@@ -38,14 +38,12 @@ function Printer(props) {
   const temMovimento = movimentosPoolMes.length > 0 && empresa.cnpj;
   const temServico = servicosPoolMes.length > 0 && empresa.cnpj;
 
-  const temMovimentoOuServico = temMovimento || temServico;
-
   let printRef = React.createRef();
 
   return (
     <div>
       <ReactToPrint
-        trigger={() => <Button disabled={!temMovimentoOuServico}>Imprimir</Button>}
+        trigger={() => <Button disabled={!trimestreData.trim}>Imprimir</Button>}
         content={() => printRef}
         pageStyle="@page { size: auto;  margin: 13mm; margin-bottom: 10mm } @media print { body { -webkit-print-color-adjust: exact; } }"
       />
@@ -95,7 +93,7 @@ function Printer(props) {
 
             }
             {
-              temMovimentoOuServico
+              trimestreData.trim
               && (
                 <>
                   <Divider orientation="left">Relatório de Guias</Divider>

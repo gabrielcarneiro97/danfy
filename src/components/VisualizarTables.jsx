@@ -26,8 +26,6 @@ function VisualizarTables(props) {
   const temMovimento = movimentosPoolMes.length > 0 && empresa.cnpj;
   const temServico = servicosPoolMes.length > 0 && empresa.cnpj;
 
-  const temMovimentoOuServico = temMovimento || temServico;
-
   return (
     <>
       <div className="steps-content-tables">
@@ -50,7 +48,7 @@ function VisualizarTables(props) {
           )
         }
         {
-          temMovimentoOuServico
+          trimestreData.trim
           && (
             <>
               <Divider orientation="left">Guias</Divider>

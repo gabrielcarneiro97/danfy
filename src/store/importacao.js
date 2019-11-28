@@ -33,8 +33,24 @@ export const CARREGAR_MOVIMENTOS = Symbol('CARREGAR_MOVIMENTOS');
 
 export const CARREGAR_SERVICOS = Symbol('CARREGAR_SERVICOS');
 
+export const LIMPAR = Symbol('LIMPAR');
+
+function spreadState(state) {
+  return {
+    movimentosWithIndex: [...state.movimentosWithIndex],
+    servicosWithIndex: [...state.servicosWithIndex],
+    notasPool: [...state.notasPool],
+    notasPoolImportadas: [...state.notasPoolImportadas],
+    notasServicoPool: [...state.notasServicoPool],
+    pessoasPool: [...state.pessoasPool],
+    dominio: [...state.dominio],
+    empresa: { ...state.empresa },
+    fileList: [...state.fileList],
+  };
+}
+
 function nfeController(state, action) {
-  const newState = { ...state };
+  const newState = spreadState(state);
 
   if (action.type === NFE_ADD) {
     newState.notasPool.push(action.notaPool);
@@ -48,7 +64,7 @@ function nfeController(state, action) {
 }
 
 function nfseController(state, action) {
-  const newState = { ...state };
+  const newState = spreadState(state);
   if (action.type === NFSE_ADD) {
     newState.notasServicoPool.push(action.notaServicoPool);
   } else {
@@ -61,7 +77,7 @@ function nfseController(state, action) {
 }
 
 function pessoasController(state, action) {
-  const newState = { ...state };
+  const newState = spreadState(state);
   if (action.type === PESSOA_ADD) {
     newState.pessoasPool.push(action.pessoaPool);
   } else {
@@ -75,7 +91,7 @@ function pessoasController(state, action) {
 
 function setDominio(state, action) {
   const newState = {
-    ...state,
+    ...spreadState(state),
     dominio: action.dominio,
   };
 
@@ -84,7 +100,7 @@ function setDominio(state, action) {
 
 function setEmpresa(state, action) {
   const newState = {
-    ...state,
+    ...spreadState(state),
     empresa: action.empresa,
   };
 
@@ -93,7 +109,7 @@ function setEmpresa(state, action) {
 
 function setFileList(state, action) {
   const newState = {
-    ...state,
+    ...spreadState(state),
     fileList: action.fileList,
   };
 
@@ -102,7 +118,7 @@ function setFileList(state, action) {
 
 function setMovimentos(state, action) {
   const newState = {
-    ...state,
+    ...spreadState(state),
     movimentosWithIndex: action.movimentosWithIndex,
   };
 
@@ -111,11 +127,15 @@ function setMovimentos(state, action) {
 
 function setServicos(state, action) {
   const newState = {
-    ...state,
+    ...spreadState(state),
     servicosWithIndex: action.servicosWithIndex,
   };
 
   return newState;
+}
+
+function limpar() {
+  return importacaoStore;
 }
 
 export default function importacaoReducer(state = importacaoStore, action) {
@@ -140,6 +160,8 @@ export default function importacaoReducer(state = importacaoStore, action) {
       return setMovimentos(state, action);
     case CARREGAR_SERVICOS:
       return setServicos(state, action);
+    case LIMPAR:
+      return limpar();
     default:
       break;
   }
@@ -221,5 +243,11 @@ export function carregarServicos(servicosWithIndex) {
   return {
     type: CARREGAR_SERVICOS,
     servicosWithIndex,
+  };
+}
+
+export function limparStore() {
+  return {
+    type: LIMPAR,
   };
 }

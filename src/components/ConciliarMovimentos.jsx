@@ -38,7 +38,11 @@ function ConciliarMovimentos(props) {
 
   useEffect(() => {
     const notasFinaisChave = fileList.filter(
-      ({ response: { tipo, notaPool: { nota } } }) => {
+      ({ response }) => {
+        const { tipo, notaPool } = response;
+        if (!tipo) return false;
+
+        const { nota } = notaPool;
         if (tipo === 'nfe') return eSaida(nota) && nota.emitenteCpfcnpj === empresa.cnpj;
         return false;
       },
