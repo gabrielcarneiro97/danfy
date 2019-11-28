@@ -46,7 +46,7 @@ function valoresRender(valor, renderObj) {
 }
 
 function sorter(a, b) {
-  if (!a.numero || parseInt(a.numero, 10) > parseInt(b.numero, 10)) {
+  if (!a.num || parseInt(a.num, 10) > parseInt(b.num, 10)) {
     return 1;
   }
   return -1;
@@ -186,6 +186,7 @@ function MovimentosTable(props) {
     return {
       key,
       editar,
+      num: valores.numero,
       numero: {
         key,
         numero: valores.numero,
