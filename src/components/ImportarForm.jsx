@@ -43,8 +43,8 @@ function ImportarForm(props) {
   useEffect(() => {
     if (cnpjInput !== '') {
       setSubmit(true);
-    }
-  }, [num, acheiEmpresa]);
+    } else setSubmit(false);
+  }, [num, acheiEmpresa, cnpjInput]);
 
   const handleSubmit = async () => {
     const emp = {
@@ -74,6 +74,7 @@ function ImportarForm(props) {
       try {
         const pessoaPg = await pegarPessoaId(cnpj);
 
+
         setNomeInput(pessoaPg.nome);
         setCnpjInput(cnpj);
 
@@ -85,8 +86,6 @@ function ImportarForm(props) {
     } else {
       limparInputs();
     }
-
-    setSubmit(false);
   };
 
   return (

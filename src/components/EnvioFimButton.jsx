@@ -18,7 +18,7 @@ function EnvioFimButton(props) {
   const { movimentosWithIndex, servicosWithIndex, empresa } = store;
   const { numeroSistema } = empresa;
 
-  let mesAno = '00-0000';
+  let mesAno = '';
 
   const [loading, setLoading] = useState(false);
 
@@ -26,14 +26,16 @@ function EnvioFimButton(props) {
     setLoading(true);
     const movimentosConferidos = movimentosWithIndex.filter(
       (movPool) => {
-        const { movimento, dataHora } = movPool;
+        const { movimento } = movPool;
+        const { dataHora } = movimento;
         mesAno = moment(dataHora).format('MM-YYYY');
         return movimento.conferido;
       },
     );
     const servicosConferidos = servicosWithIndex.filter(
       (servPool) => {
-        const { servico, dataHora } = servPool;
+        const { servico } = servPool;
+        const { dataHora } = servico;
         mesAno = moment(dataHora).format('MM-YYYY');
         return servico.conferido;
       },
@@ -45,7 +47,8 @@ function EnvioFimButton(props) {
         gravarServicos(servicosConferidos),
       ]);
       message.success('Tudo gravado com sucesso!');
-      history.push(`/app/visualizar/${numeroSistema}/${mesAno}`);
+      if (mesAno === '') history.push('/app/visualizar');
+      else history.push(`/app/visualizar?numParam=${numeroSistema}&compParam=${mesAno}`);
     } catch (err) {
       message.error('Erro no envio dos arquivos!');
       console.error(err);

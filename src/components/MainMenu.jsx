@@ -26,7 +26,7 @@ function MainMenu(props) {
     <>
       <Menu
         mode="inline"
-        selectedKeys={[pathname.replace(/\/\d{3}\/\d{2}-\d{4}/, '')]}
+        selectedKeys={[pathname.split('?')[0]]}
         style={{ height: '92%', borderRight: 0, backgroundColor: 'white' }}
       >
         <Menu.Item key={`${match.url}/importar`}>
@@ -42,7 +42,7 @@ function MainMenu(props) {
           </Link>
         </Menu.Item>
         <Menu.Item key={`${match.url}/visualizar`}>
-          <Link to={`${match.url}/visualizar/000/00-0000`}>
+          <Link to={`${match.url}/visualizar`}>
             <Icon type="folder-open" />
             Visualizar Movimento
           </Link>

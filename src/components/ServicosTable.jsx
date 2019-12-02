@@ -25,6 +25,13 @@ function eCancelada(nota) {
   return nota.status === 'CANCELADA';
 }
 
+function sorter(a, b) {
+  if (!a.numero || (parseInt(a.numero, 10) > parseInt(b.numero, 10))) {
+    return 1;
+  }
+  return -1;
+}
+
 function ServicosTable(props) {
   const { dispatch, store, printable } = props;
   const { trimestreData, notasServicoPool, competencia } = store;
@@ -82,6 +89,8 @@ function ServicosTable(props) {
   const dataSource = defineDataSource();
 
   if (printable) {
+    dataSource.sort(sorter);
+    console.log(dataSource);
     return (
       <TableToPrint
         dataSource={dataSource}
@@ -119,12 +128,7 @@ ServicosTable.columns = [
     key: 'nota',
     fixed: true,
     defaultSortOrder: 'ascend',
-    sorter: (a, b) => {
-      if (!a.nota.numero || (a.nota.numero > b.nota.numero)) {
-        return 1;
-      }
-      return -1;
-    },
+    sorter,
     render: (numero, data) => {
       if (data.$$typeof) {
         return data;

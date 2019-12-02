@@ -130,6 +130,7 @@ function MovimentosTable(props) {
     const valores = {
       key,
       numero: notaFinal.numero,
+      num: notaFinal.numero,
       valorInicial: R$(notaInicial.valor),
       valorFinal: R$(notaFinal.valor),
       tipoMovimento: retornarTipo(notaFinal.cfop),
@@ -186,7 +187,7 @@ function MovimentosTable(props) {
     return {
       key,
       editar,
-      num: valores.numero,
+      num: valores.num,
       numero: {
         key,
         numero: valores.numero,

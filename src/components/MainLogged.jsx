@@ -29,7 +29,7 @@ function MainLogged({ match }) {
         >
           <Switch>
             <Route exact path={`${match.path}/importar`} component={ImportarNotas} />
-            <Route exact path={`${match.path}/visualizar/:numParam/:compParam`} component={VisualizarMovimento} />
+            <Route exact path={`${match.path}/visualizar`} component={VisualizarMovimento} />
             <Route exact path={`${match.path}/estoque`} component={VisualizarEstoque} />
             <Route exact path={`${match.path}/clientes`} component={GerenciarClientes} />
 

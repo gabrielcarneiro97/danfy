@@ -9,7 +9,9 @@ import {
   DatePicker,
 } from 'antd';
 
-import { useParams } from 'react-router-dom';
+import qs from 'qs';
+
+import { useLocation } from 'react-router-dom';
 
 import Printer from './Printer';
 
@@ -43,7 +45,9 @@ function VisualizarForm(props) {
     trimestreData,
   } = store;
 
-  const { numParam, compParam } = useParams();
+  const { search } = useLocation();
+
+  const { numParam, compParam } = qs.parse(search, { ignoreQueryPrefix: true });
 
   const monthPicker = useRef();
 
@@ -142,7 +146,7 @@ function VisualizarForm(props) {
   }, []);
 
   useEffect(() => {
-    if (numParam !== '000' && compParam !== '00-0000' && dominio.length > 0) {
+    if (numParam && compParam && dominio.length > 0) {
       monthPicker.current.picker.handleChange(moment(compParam, 'MM-YYYY'));
       (async () => {
         await handleNum(numParam);
