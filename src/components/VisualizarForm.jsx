@@ -71,7 +71,8 @@ function VisualizarForm(props) {
   };
 
   const handleNum = async (e) => {
-    const numInput = (e.target && e.target.value) || e;
+    const numInput = (e.target && e.target.value) || '';
+
     setNum(numInput);
 
     const empresaSelected = dominio.find((o) => o.numero === numInput);
@@ -89,13 +90,11 @@ function VisualizarForm(props) {
           numeroSistema: numInput,
         };
 
-        if (aliquota.formaPagamento === 'adiantamento') {
-          emp.formaPagamento = 'PAGAMENTO ANTECIPADO';
-        } else if (aliquota.formaPagamento === 'cotas') {
-          emp.formaPagamento = 'PAGAMENTO EM COTAS';
-        } else if (aliquota.formaPagamento === 'acumulado') {
-          emp.formaPagamento = 'PAGAMENTO ACUMULADO NO FINAL DO TRIMESTRE';
-        }
+        emp.formaPagamento = emp.simples ? 'SIMPLES NACIONAL' : {
+          adiantamento: 'LUCRO PRESSUMIDO - PAGAMENTO ANTECIPADO',
+          cotas: 'LUCRO PRESSUMIDO - PAGAMENTO EM COTAS',
+          acumulado: 'LUCRO PRESSUMIDO - PAGAMENTO ACUMULADO NO FINAL DO TRIMESTRE',
+        }[aliquota.formaPagamento];
 
         dispatch(carregarEmpresa(emp));
         setAcheiEmpresa(true);
@@ -163,10 +162,15 @@ function VisualizarForm(props) {
   useEffect(() => {
     if (empresa.cnpj && competencia.mes && competencia.ano) {
       setSubmit(true);
-    } else if ((movimentosPool.length > 0 || servicosPool.length > 0) && !empresa.cnpj) {
+    } else if ((movimentosPool.length > 0 || servicosPool.length > 0)) {
+      console.log('limpei');
       dispatch(limparTrimestre());
     }
   }, [num, competencia, acheiEmpresa]);
+
+  useEffect(() => {
+    if (empresa.cnpj) dispatch(limparTrimestre());
+  }, [competencia]);
 
   return (
     <>
@@ -198,7 +202,7 @@ function VisualizarForm(props) {
           <Input addonBefore="CNPJ" value={cnpjMask(empresa.cnpj)} disabled />
         </Col>
         <Col span={16} className="form-input">
-          <Input addonBefore="Forma de Pagamento Trimestrais" value={empresa.formaPagamento} disabled />
+          <Input addonBefore="Tributação" value={empresa.formaPagamento} disabled />
         </Col>
       </Row>
       <Row

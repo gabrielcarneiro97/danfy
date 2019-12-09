@@ -73,6 +73,7 @@ function EnviarArquivos(props) {
 
     if (info.file.status === 'done') {
       addEnded();
+      console.log(data);
       await adicionarNota(data);
     } else if (info.file.status === 'error') {
       message.error(`Arquivo: ${info.file.name} invalido!`);

@@ -32,96 +32,23 @@ function sorter(a, b) {
   return -1;
 }
 
-function ServicosTable(props) {
-  const { dispatch, store, printable } = props;
-  const { trimestreData, notasServicoPool, competencia } = store;
-
-  const { servicosPool } = trimestreData;
-
-  const update = (dados) => dispatch(carregarMovimento(dados));
-
-  const apagaServico = (servicoPool) => () => excluirServico(servicoPool).then(update);
-
-  const defineDataSource = () => {
-    let totais;
-
-    const servicosPoolMes = servicosPool.filter((sP) => eDoMes(sP, competencia));
-
-    const dataSource = servicosPoolMes.map((servicoPool) => {
-      const { servico, imposto, retencao } = servicoPool;
-
-      const numero = parseInt(servico.notaChave.substring(18), 10);
-      const nota = notasServicoPool.find((n) => n.chave === servico.notaChave);
-
-      const valores = {
-        key: servico.notaChave,
-        numero,
-        nota: numero,
-        status: nota.status,
-        data: moment(servico.dataHora).format('DD[/]MMM'),
-        valorServico: R$(servico.valor),
-        issRetido: eCancelada(nota) ? R$(0) : R$(retencao.iss),
-        pisRetido: eCancelada(nota) ? R$(0) : R$(retencao.pis),
-        cofinsRetido: eCancelada(nota) ? R$(0) : R$(retencao.cofins),
-        csllRetido: eCancelada(nota) ? R$(0) : R$(retencao.csll),
-        irpjRetido: eCancelada(nota) ? R$(0) : R$(retencao.irpj),
-        totalRetido: eCancelada(nota) ? R$(0) : R$(retencao.total),
-        iss: R$(imposto.iss),
-        pis: R$(imposto.pis),
-        cofins: R$(imposto.cofins),
-        csll: R$(imposto.csll),
-        irpj: R$(imposto.irpj),
-        total: R$(imposto.total),
-        excluir: apagaServico(servicoPool),
-      };
-
-      totais = somaTotalServico(valores, totais);
-
-      return valores;
-    });
-
-    if (totais) {
-      dataSource.push(totais);
-    }
-    return dataSource;
-  };
-
-  const dataSource = defineDataSource();
-
-  if (printable) {
-    dataSource.sort(sorter);
-    console.log(dataSource);
-    return (
-      <TableToPrint
-        dataSource={dataSource}
-        columns={ServicosTable.columns}
-      />
-    );
-  }
+function numRender(numero, data) {
+  if (data.$$typeof) return data;
+  if (!numero) return '';
 
   return (
-    <Row
-      type="flex"
-      justify="center"
+    <Popconfirm
+      title="Deseja mesmo excluir esse serviço?"
+      okText="Sim"
+      cancelText="Não"
+      onConfirm={data.excluir}
     >
-      <Col span={23}>
-        <Table
-          bordered
-          size="small"
-          columns={ServicosTable.columns}
-          dataSource={dataSource}
-          scroll={{ x: '110%' }}
-          pagination={{ position: 'top', simple: true }}
-          style={{
-            marginBottom: '20px',
-          }}
-        />
-      </Col>
-    </Row>
+      <Button type="ghost">{numero}</Button>
+    </Popconfirm>
   );
 }
 
-ServicosTable.columns = [
+const lpColumns = [
   {
     title: 'Nota',
     dataIndex: 'nota',
@@ -129,26 +56,7 @@ ServicosTable.columns = [
     fixed: true,
     defaultSortOrder: 'ascend',
     sorter,
-    render: (numero, data) => {
-      if (data.$$typeof) {
-        return data;
-      }
-
-      if (!numero) {
-        return '';
-      }
-
-      return (
-        <Popconfirm
-          title="Deseja mesmo excluir esse serviço?"
-          okText="Sim"
-          cancelText="Não"
-          onConfirm={data.excluir}
-        >
-          <Button type="ghost">{numero}</Button>
-        </Popconfirm>
-      );
-    },
+    render: numRender,
   }, {
     title: 'Status',
     dataIndex: 'status',
@@ -215,11 +123,150 @@ ServicosTable.columns = [
   },
 ];
 
+const simplesColumns = [
+  {
+    title: 'Nota',
+    dataIndex: 'nota',
+    key: 'nota',
+    fixed: true,
+    defaultSortOrder: 'ascend',
+    sorter,
+    render: numRender,
+  }, {
+    title: 'Status',
+    dataIndex: 'status',
+    key: 'status',
+  }, {
+    title: 'Data',
+    dataIndex: 'data',
+    key: 'data',
+  }, {
+    title: 'Valor do Serviço',
+    dataIndex: 'valorServico',
+    key: 'valorServico',
+  }, {
+    title: 'Retenções',
+    children: [{
+      title: 'ISS',
+      dataIndex: 'issRetido',
+      key: 'issRetido',
+    }],
+  }, {
+    title: 'ISS',
+    dataIndex: 'iss',
+    key: 'iss',
+  }, {
+    title: 'Total',
+    dataIndex: 'total',
+    key: 'total',
+  },
+];
+
+function ServicosTable(props) {
+  const {
+    dispatch,
+    store,
+    printable,
+  } = props;
+  const {
+    simplesData,
+    trimestreData,
+    notasServicoPool,
+    competencia,
+    empresa,
+  } = store;
+
+  const { simples } = empresa;
+
+  const { servicosPool } = simples ? simplesData : trimestreData;
+
+  const columns = simples ? simplesColumns : lpColumns;
+
+  const update = (dados) => dispatch(carregarMovimento(dados));
+
+  const apagaServico = (servicoPool) => () => excluirServico(servicoPool).then(update);
+
+  let totais;
+
+  const servicosPoolMes = simples ? servicosPool : servicosPool.filter(
+    (sP) => eDoMes(sP, competencia),
+  );
+
+  const dataSource = servicosPoolMes.map((servicoPool) => {
+    const { servico, imposto, retencao } = servicoPool;
+
+    const numero = parseInt(servico.notaChave.substring(18), 10);
+    const nota = notasServicoPool.find((n) => n.chave === servico.notaChave);
+
+    const valores = {
+      key: servico.notaChave,
+      numero,
+      nota: numero,
+      status: nota.status,
+      data: moment(servico.dataHora).format('DD[/]MMM'),
+      valorServico: R$(servico.valor),
+      issRetido: eCancelada(nota) ? R$(0) : R$(retencao.iss),
+      pisRetido: eCancelada(nota) ? R$(0) : R$(retencao.pis),
+      cofinsRetido: eCancelada(nota) ? R$(0) : R$(retencao.cofins),
+      csllRetido: eCancelada(nota) ? R$(0) : R$(retencao.csll),
+      irpjRetido: eCancelada(nota) ? R$(0) : R$(retencao.irpj),
+      totalRetido: eCancelada(nota) ? R$(0) : R$(retencao.total),
+      iss: R$(imposto.iss),
+      pis: R$(imposto.pis),
+      cofins: R$(imposto.cofins),
+      csll: R$(imposto.csll),
+      irpj: R$(imposto.irpj),
+      total: R$(imposto.total),
+      excluir: apagaServico(servicoPool),
+    };
+
+    totais = somaTotalServico(valores, totais);
+
+    return valores;
+  });
+
+  if (totais) {
+    dataSource.push(totais);
+  }
+
+  if (printable) {
+    dataSource.sort(sorter);
+    return (
+      <TableToPrint
+        dataSource={dataSource}
+        columns={columns}
+      />
+    );
+  }
+
+  return (
+    <Row
+      type="flex"
+      justify="center"
+    >
+      <Col span={23}>
+        <Table
+          bordered
+          size="small"
+          columns={columns}
+          dataSource={dataSource}
+          scroll={{ x: '110%' }}
+          pagination={{ position: 'top', simple: true }}
+          style={{
+            marginBottom: '20px',
+          }}
+        />
+      </Col>
+    </Row>
+  );
+}
+
 ServicosTable.propTypes = {
   printable: PropTypes.bool,
   store: PropTypes.shape({
     dominio: PropTypes.array,
     trimestreData: PropTypes.object,
+    simplesData: PropTypes.object,
     notasPool: PropTypes.array,
     notasServicoPool: PropTypes.array,
     empresa: PropTypes.shape({

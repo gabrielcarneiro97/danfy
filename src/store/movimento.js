@@ -16,6 +16,10 @@ export const movimentoStore = {
     movimentosPool: [],
     servicosPool: [],
   },
+  simplesData: {
+    movimentosPool: [],
+    servicosPool: [],
+  },
   dominio: [],
 };
 
