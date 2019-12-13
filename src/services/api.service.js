@@ -85,8 +85,20 @@ export function adicionarEmpresaImpostos(aliquota) {
   });
 }
 
-export async function gravarMovimentos(movimentos) {
-  const atualizar = {};
+export function pegarEmpresaImpostos(cnpj) {
+  return new Promise((resolve, reject) => {
+    axios.get(`${api}/aliquotas`, {
+      params: {
+        cnpj,
+      },
+    }).then((res) => {
+      resolve(res.data);
+    }).catch(reject);
+  });
+}
+
+export async function gravarMovimentos(movimentos, cnpj) {
+  const atualizar = new Set();
   try {
     await Promise.all(movimentos.map(async (movimentoPool) => {
       const { dataHora, donoCpfcnpj } = movimentoPool.movimento;
@@ -94,28 +106,27 @@ export async function gravarMovimentos(movimentos) {
       const mes = (data.getUTCMonth() + 1).toString();
       const ano = data.getUTCFullYear().toString();
 
-      atualizar[donoCpfcnpj] = atualizar[donoCpfcnpj] || new Set();
-      atualizar[donoCpfcnpj].add(`${mes}/${ano}`);
+      atualizar.add(`${mes}/${ano}`);
       return axios.post(`${api}/movimentos/push`, {
         donoCpfcnpj, movimentoPool, valorInicial: 0,
       });
     }));
 
-    await Promise.all(Object.keys(atualizar).map(async (cnpj) => {
-      const empresa = atualizar[cnpj];
-      const promises = [];
+    const { tributacao } = await pegarEmpresaImpostos(cnpj);
 
-      empresa.forEach((mesAno) => {
-        const mes = mesAno.split('/')[0];
-        const ano = mesAno.split('/')[1];
-        promises.push(axios.put(`${api}/trimestre`, {}, {
-          params: {
-            cnpj, mes, ano,
-          },
-        }));
+    const simples = tributacao === 'SN';
+
+
+    const route = simples ? 'simples' : 'trimestre';
+
+    await Promise.all(Array.from(atualizar).map(async (mesAno) => {
+      const [mes, ano] = mesAno.split('/');
+
+      return axios.put(`${api}/${route}`, {}, {
+        params: {
+          cnpj, mes, ano,
+        },
       });
-
-      return Promise.all(promises);
     }));
 
     return true;
@@ -125,8 +136,8 @@ export async function gravarMovimentos(movimentos) {
   }
 }
 
-export async function gravarServicos(servicos) {
-  const atualizar = {};
+export async function gravarServicos(servicos, cnpj) {
+  const atualizar = new Set();
   try {
     await Promise.all(servicos.map(async (servicoPool) => {
       const { dataHora, donoCpfcnpj } = servicoPool.servico;
@@ -134,28 +145,26 @@ export async function gravarServicos(servicos) {
       const mes = (data.getUTCMonth() + 1).toString();
       const ano = data.getUTCFullYear().toString();
 
-      atualizar[donoCpfcnpj] = atualizar[donoCpfcnpj] || new Set();
-      atualizar[donoCpfcnpj].add(`${mes}/${ano}`);
+      atualizar.add(`${mes}/${ano}`);
       return axios.post(`${api}/servicos/push`, {
         donoCpfcnpj, servicoPool,
       });
     }));
 
-    await Promise.all(Object.keys(atualizar).map(async (cnpj) => {
-      const empresa = atualizar[cnpj];
-      const promises = [];
+    const { tributacao } = await pegarEmpresaImpostos(cnpj);
 
-      empresa.forEach((mesAno) => {
-        const mes = mesAno.split('/')[0];
-        const ano = mesAno.split('/')[1];
-        promises.push(axios.put(`${api}/trimestre`, {}, {
-          params: {
-            cnpj, mes, ano,
-          },
-        }));
+    const simples = tributacao === 'SN';
+
+    const route = simples ? 'simples' : 'trimestre';
+
+    await Promise.all(Array.from(atualizar).map(async (mesAno) => {
+      const [mes, ano] = mesAno.split('/');
+
+      return axios.put(`${api}/${route}`, {}, {
+        params: {
+          cnpj, mes, ano,
+        },
       });
-
-      return Promise.all(promises);
     }));
 
     return true;
@@ -177,18 +186,6 @@ export async function pegarPessoaId(pessoaId) {
     console.log(err);
     throw err;
   }
-}
-
-export function pegarEmpresaImpostos(cnpj) {
-  return new Promise((resolve, reject) => {
-    axios.get(`${api}/aliquotas`, {
-      params: {
-        cnpj,
-      },
-    }).then((res) => {
-      resolve(res.data);
-    }).catch(reject);
-  });
 }
 
 export function cancelarMovimento(cnpj, movimentoId) {
@@ -255,6 +252,28 @@ export async function pegarTrimestre(cnpj, { mes, ano }) {
       cnpj,
       mes,
       ano,
+    },
+  });
+
+  return data;
+}
+
+export async function pegarSimples(cnpj, { mes, ano }) {
+  const { data } = await axios.get(`${api}/simples`, {
+    params: {
+      cnpj,
+      mes,
+      ano,
+    },
+  });
+
+  return data;
+}
+
+export async function recalcularSimples(cnpj, { mes, ano }) {
+  const { data } = await axios.put(`${api}/simples`, {}, {
+    params: {
+      cnpj, mes, ano,
     },
   });
 

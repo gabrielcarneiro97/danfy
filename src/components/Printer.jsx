@@ -13,6 +13,7 @@ import ServicosTable from './ServicosTable';
 import AcumuladosTable from './AcumuladosTable';
 import CotasTable from './CotasTable';
 import GuiasTable from './GuiasTable';
+import SimplesTable from './SimplesTable';
 
 import {
   pegaMes,
@@ -28,9 +29,14 @@ import Connect from '../store/Connect';
 
 function Printer(props) {
   const { store } = props;
-  const { trimestreData, competencia, empresa } = store;
+  const {
+    trimestreData,
+    simplesData,
+    competencia,
+    empresa,
+  } = store;
 
-  const { movimentosPool, servicosPool } = trimestreData;
+  const { movimentosPool, servicosPool } = empresa.simples ? simplesData : trimestreData;
 
   const movimentosPoolMes = movimentosPool.filter((mP) => eDoMes(mP, competencia));
   const servicosPoolMes = servicosPool.filter((sP) => eDoMes(sP, competencia));
@@ -40,17 +46,27 @@ function Printer(props) {
 
   let printRef = React.createRef();
 
+  const printStyle = `
+    @page { size: auto; margin: 10mm; margin-bottom: 10mm; margin-top: 12mm; }
+    @media print { body { -webkit-print-color-adjust: exact; } }
+  `;
+
   return (
     <div>
       <ReactToPrint
-        trigger={() => <Button disabled={!trimestreData.trim}>Imprimir</Button>}
+        trigger={() => <Button disabled={!trimestreData.trim && !simplesData.simples.id}>Imprimir</Button>}
         content={() => printRef}
-        pageStyle="@page { size: auto;  margin: 13mm; margin-bottom: 10mm } @media print { body { -webkit-print-color-adjust: exact; } }"
+        pageStyle={printStyle}
       />
       <div style={{ display: 'none' }}>
         <div
           ref={(el) => { printRef = el; }}
         >
+          <div style={{ fontSize: '1px', color: 'white' }}>
+            {`${cnpjMask(empresa.cnpj)}`}
+            <br />
+            {`${pegaMes(competencia.mes)}/${competencia.ano}`}
+          </div>
           <h2
             style={{
               width: '100%',
@@ -74,7 +90,7 @@ function Printer(props) {
               && (
                 <>
                   <Divider orientation="left">Relatório de Vendas</Divider>
-                  <Col span={24}>
+                  <Col span={24} className="tables">
                     <MovimentosTable printable />
                   </Col>
                 </>
@@ -85,7 +101,7 @@ function Printer(props) {
               && (
                 <>
                   <Divider orientation="left">Relatório de Serviços Prestados</Divider>
-                  <Col span={24}>
+                  <Col span={24} className="tables">
                     <ServicosTable printable />
                   </Col>
                 </>
@@ -97,11 +113,11 @@ function Printer(props) {
               && (
                 <>
                   <Divider orientation="left">Relatório de Guias</Divider>
-                  <Col span={24}>
+                  <Col span={24} className="small tables">
                     <GuiasTable printable />
                   </Col>
                   <Divider orientation="left">Acumulados</Divider>
-                  <Col span={24}>
+                  <Col span={24} className="small tables">
                     <AcumuladosTable printable />
                   </Col>
                 </>
@@ -112,9 +128,18 @@ function Printer(props) {
               && (
                 <>
                   <Divider orientation="left">Cotas</Divider>
-                  <Col span={24}>
+                  <Col span={24} className="small tables">
                     <CotasTable printable />
                   </Col>
+                </>
+              )
+            }
+            {
+              empresa.simples && simplesData.simples.id
+              && (
+                <>
+                  <Divider orientation="left">Receitas (Simples)</Divider>
+                  <SimplesTable printable />
                 </>
               )
             }
@@ -130,6 +155,7 @@ Printer.propTypes = {
   store: PropTypes.shape({
     dominio: PropTypes.array,
     trimestreData: PropTypes.object,
+    simplesData: PropTypes.object,
     notasPool: PropTypes.array,
     notasServicoPool: PropTypes.array,
     empresa: PropTypes.shape({

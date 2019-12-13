@@ -37,16 +37,17 @@ function ConciliarMovimentos(props) {
   const [dataLoading, setDataLoading] = useState(true);
 
   useEffect(() => {
-    const notasFinaisChave = fileList.filter(
-      ({ response }) => {
-        const { tipo, notaPool } = response;
-        if (!tipo) return false;
+    const notasFinaisChave = fileList.reduce((acc, crr) => acc.concat(crr.response), [])
+      .filter(
+        (response) => {
+          const { tipo, notaPool } = response;
+          if (!tipo) return false;
 
-        const { nota } = notaPool;
-        if (tipo === 'nfe') return eSaida(nota) && nota.emitenteCpfcnpj === empresa.cnpj;
-        return false;
-      },
-    ).map(({ response: { notaPool: { nota } } }) => nota.chave);
+          const { nota } = notaPool;
+          if (tipo === 'nfe') return eSaida(nota) && nota.emitenteCpfcnpj === empresa.cnpj;
+          return false;
+        },
+      ).map(({ notaPool: { nota } }) => nota.chave);
 
     if (notasFinaisChave.length === 0) {
       setDataLoading(false);

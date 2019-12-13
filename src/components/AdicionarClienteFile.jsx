@@ -28,7 +28,7 @@ function AdicionarClienteFile(props) {
     const data = info.file.response;
 
     if (info.file.status === 'done') {
-      onData(data);
+      onData(data[0]);
       loadingEnd();
       message.success(`Arquivo: ${info.file.name} aceito!`);
     } else if (info.file.status === 'error') {

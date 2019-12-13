@@ -16,7 +16,7 @@ import Connect from '../store/Connect';
 function EnvioFimButton(props) {
   const { disabled, store, history } = props;
   const { movimentosWithIndex, servicosWithIndex, empresa } = store;
-  const { numeroSistema } = empresa;
+  const { numeroSistema, cnpj } = empresa;
 
   let mesAno = '';
 
@@ -43,8 +43,8 @@ function EnvioFimButton(props) {
 
     try {
       await Promise.all([
-        gravarMovimentos(movimentosConferidos),
-        gravarServicos(servicosConferidos),
+        gravarMovimentos(movimentosConferidos, cnpj),
+        gravarServicos(servicosConferidos, cnpj),
       ]);
       message.success('Tudo gravado com sucesso!');
       if (mesAno === '') history.push('/app/visualizar');

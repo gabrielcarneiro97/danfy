@@ -54,9 +54,17 @@ function sorter(a, b) {
 
 function MovimentosTable(props) {
   const { store, dispatch, printable } = props;
-  const { trimestreData, notasPool, competencia } = store;
+  const {
+    trimestreData,
+    simplesData,
+    notasPool,
+    competencia,
+    empresa,
+  } = store;
 
-  const { movimentosPool } = trimestreData;
+  const { simples } = empresa;
+
+  const { movimentosPool } = simples ? simplesData : trimestreData;
 
   const movimentosPoolMes = movimentosPool.filter((mP) => eDoMes(mP, competencia));
 
@@ -251,6 +259,7 @@ MovimentosTable.propTypes = {
   store: PropTypes.shape({
     dominio: PropTypes.array,
     trimestreData: PropTypes.object,
+    simplesData: PropTypes.object,
     notasPool: PropTypes.array,
     notasServicoPool: PropTypes.array,
     empresa: PropTypes.shape({

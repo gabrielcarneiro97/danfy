@@ -16,11 +16,13 @@ import { useLocation } from 'react-router-dom';
 import Printer from './Printer';
 
 import {
+  pegarSimples,
   pegarTrimestre,
   pegarDominio,
   pegarPessoaId,
   pegarEmpresaImpostos,
   cnpjMask,
+  recalcularSimples,
 } from '../services';
 
 import Connect from '../store/Connect';
@@ -29,7 +31,7 @@ import {
   carregarMovimento,
   carregarCompetencia,
   carregarEmpresa,
-  limparTrimestre,
+  limparDados,
 } from '../store/movimento';
 
 import './VisualizarForm.css';
@@ -43,6 +45,7 @@ function VisualizarForm(props) {
     empresa,
     competencia,
     trimestreData,
+    simplesData,
   } = store;
 
   const { search } = useLocation();
@@ -51,7 +54,7 @@ function VisualizarForm(props) {
 
   const monthPicker = useRef();
 
-  const { movimentosPool, servicosPool } = trimestreData;
+  const { movimentosPool, servicosPool } = empresa.simples ? simplesData : trimestreData;
 
   const [num, setNum] = useState('');
   const [submit, setSubmit] = useState(false);
@@ -59,6 +62,7 @@ function VisualizarForm(props) {
   const [disableNum, setDisableNum] = useState(true);
   const [acheiEmpresa, setAcheiEmpresa] = useState(false);
   const [getFromParams, setGetFromParams] = useState(false);
+  const [disableRecalc, setDisableRecalc] = useState(true);
 
   const handleDate = (e, mesAno) => {
     if (!mesAno) dispatch(carregarCompetencia({ mes: '', ano: '' }));
@@ -129,12 +133,22 @@ function VisualizarForm(props) {
     setSubmit(false);
     setLoading(true);
 
-    const dados = await pegarTrimestre(empresa.cnpj, competencia);
+    const dados = empresa.simples
+      ? await pegarSimples(empresa.cnpj, competencia)
+      : await pegarTrimestre(empresa.cnpj, competencia);
 
-    dispatch(carregarMovimento(dados));
+    if (dados) dispatch(carregarMovimento(dados));
 
+    setDisableRecalc(false);
     setSubmit(true);
     setLoading(false);
+  };
+
+  const recalcular = async () => {
+    setDisableRecalc(true);
+    const simples = await recalcularSimples(empresa.cnpj, competencia);
+    dispatch(carregarMovimento(simples));
+    setDisableRecalc(false);
   };
 
   useEffect(() => {
@@ -148,7 +162,7 @@ function VisualizarForm(props) {
     if (numParam && compParam && dominio.length > 0) {
       monthPicker.current.picker.handleChange(moment(compParam, 'MM-YYYY'));
       (async () => {
-        await handleNum(numParam);
+        await handleNum({ target: { value: numParam } });
         await handleDate(null, compParam);
         setGetFromParams(true);
       })();
@@ -162,15 +176,17 @@ function VisualizarForm(props) {
   useEffect(() => {
     if (empresa.cnpj && competencia.mes && competencia.ano) {
       setSubmit(true);
-    } else if ((movimentosPool.length > 0 || servicosPool.length > 0)) {
-      console.log('limpei');
-      dispatch(limparTrimestre());
+    } else if ((movimentosPool.length >= 0 || servicosPool.length >= 0)) {
+      dispatch(limparDados());
     }
   }, [num, competencia, acheiEmpresa]);
 
   useEffect(() => {
-    if (empresa.cnpj) dispatch(limparTrimestre());
-  }, [competencia]);
+    if (empresa.cnpj) {
+      setDisableRecalc(true);
+      dispatch(limparDados());
+    }
+  }, [competencia, num]);
 
   return (
     <>
@@ -210,6 +226,16 @@ function VisualizarForm(props) {
         justify="end"
         gutter={16}
       >
+        {
+          empresa.simples
+          && (
+            <Col className="form-input">
+              <Button onClick={recalcular} disabled={disableRecalc}>
+                Recalcular Mês
+              </Button>
+            </Col>
+          )
+        }
         <Col
           className="form-input"
         >
@@ -240,6 +266,7 @@ VisualizarForm.propTypes = {
       ano: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     }),
     trimestreData: PropTypes.object,
+    simplesData: PropTypes.object,
   }).isRequired,
   dispatch: PropTypes.func.isRequired,
 };

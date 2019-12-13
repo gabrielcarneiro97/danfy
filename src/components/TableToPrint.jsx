@@ -4,7 +4,7 @@ import moment from 'moment';
 import './TableToPrint.css';
 
 function TableToPrint(props) {
-  const { columns, dataSource } = props;
+  const { columns, dataSource, showHead } = props;
 
   if (dataSource.length === 0) {
     return <div />;
@@ -49,7 +49,7 @@ function TableToPrint(props) {
             key={`${element.key}-${key}`}
             style={{
               backgroundColor: element.cor,
-              fontWeight: element.fontWeight,
+              fontWeight: element.fontWeight || (columns[index] && columns[index].fontWeight),
             }}
           >
             {moment.isMoment(element[key]) ? element[key].format('DD/MM/YYYY') : element[key]}
@@ -61,19 +61,24 @@ function TableToPrint(props) {
 
   return (
     <table className="table-print">
-      <thead>
-        {(() => {
-          const rows = [];
-          headRows.forEach((row, id) => {
-            const each = [];
-            row.forEach((r) => {
-              each.push(r.content);
-            });
-            rows.push(<tr key={`${id}-head-row`}>{each}</tr>); // eslint-disable-line
-          });
-          return rows;
-        })()}
-      </thead>
+      {
+        showHead
+        && (
+          <thead>
+            {(() => {
+              const rows = [];
+              headRows.forEach((row, id) => {
+                const each = [];
+                row.forEach((r) => {
+                  each.push(r.content);
+                });
+                rows.push(<tr key={`${id}-head-row`}>{each}</tr>); // eslint-disable-line
+              });
+              return rows;
+            })()}
+          </thead>
+        )
+      }
       <tbody>
         {(() => {
           const rows = [];
@@ -90,6 +95,11 @@ function TableToPrint(props) {
 TableToPrint.propTypes = {
   columns: PropTypes.array, // eslint-disable-line
   dataSource: PropTypes.array, // eslint-disable-line
+  showHead: PropTypes.bool,
+};
+
+TableToPrint.defaultProps = {
+  showHead: true,
 };
 
 export default TableToPrint;

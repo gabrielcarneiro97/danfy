@@ -28,7 +28,9 @@ function AdicionarCliente(props) {
     });
   }, []);
 
-  const recebeuXml = ({ notaPool: { nota }, pessoas }) => {
+  const recebeuXml = (data) => {
+    const { notaPool, pessoas } = data;
+    const nota = data.tipo === 'nfe' ? notaPool.nota : notaPool.notaServico;
     const emitente = pessoas.find((pP) => pP.pessoa.cpfcnpj === nota.emitenteCpfcnpj).pessoa;
 
     setEmpresaDados(emitente);

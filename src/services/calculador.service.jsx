@@ -4,8 +4,10 @@ import 'moment-timezone';
 
 
 export function R$(valp) {
-  if (valp === null) return '0,00';
-  let valor = parseFloat(valp).toFixed(2);
+  if (!valp) return '0,00';
+  let valor = valp.toString();
+  valor = valor.replace(/,/g, '.');
+  valor = parseFloat(valor).toFixed(2);
 
   let negativo = '';
 
@@ -103,11 +105,11 @@ export function somaTotalMovimento(movimento, total) {
     };
   }
   Object.keys(retorno).forEach((key) => {
-    if (key !== 'editar' &&
-      key !== 'numero' &&
-      key !== 'key' &&
-      key !== 'tipoMovimento' &&
-      key !== 'valorFinal') {
+    if (key !== 'editar'
+      && key !== 'numero'
+      && key !== 'key'
+      && key !== 'tipoMovimento'
+      && key !== 'valorFinal') {
       retorno[key] = R$(floating(retorno[key]) + floating(movimento[key]));
     } else if (key === 'valorFinal' && movimento.tipoMovimento !== 'DEVOLUÇÃO DE VENDA') {
       retorno[key] = R$(floating(retorno[key]) + floating(movimento[key]));
@@ -131,13 +133,13 @@ export const cfopDevolucaoSimbolica = ['5919', '6919'];
 export function retornarTipo(cfop) {
   if (cfopCompra.includes(cfop)) {
     return 'COMPRA';
-  } else if (cfopDevolucao.includes(cfop)) {
+  } if (cfopDevolucao.includes(cfop)) {
     return 'DEVOLUÇÃO DE VENDA';
-  } else if (cfopVenda.includes(cfop) || cfopVendaConsignacao.includes(cfop)) {
+  } if (cfopVenda.includes(cfop) || cfopVendaConsignacao.includes(cfop)) {
     return 'VENDA';
-  } else if (cfopConsignacao.includes(cfop)) {
+  } if (cfopConsignacao.includes(cfop)) {
     return 'CONSIGNAÇÃO';
-  } else if (cfopCompraConsignacao.includes(cfop)) {
+  } if (cfopCompraConsignacao.includes(cfop)) {
     return 'COMPRA DEFINITIVA';
   } else if (cfopDevolucaoConsignacao.includes(cfop)) {
     return 'DEVOLUÇÃO DE CONSIGNAÇÃO';
@@ -206,8 +208,8 @@ export function eDoMes(movOuServPool, { mes, ano }) {
 export function calcularCotas(trimestreData) {
   const trimestre = trimestreData.trim.totalSomaPool;
 
-  const valorIr = (trimestre.impostoPool.imposto.irpj - trimestre.retencao.irpj) +
-    trimestre.impostoPool.imposto.adicionalIr;
+  const valorIr = (trimestre.impostoPool.imposto.irpj - trimestre.retencao.irpj)
+    + trimestre.impostoPool.imposto.adicionalIr;
   const valorCsll = trimestre.impostoPool.imposto.csll - trimestre.retencao.csll;
 
   let cotaIr = { valor: 0, numero: 0 };

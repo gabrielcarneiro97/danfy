@@ -7,6 +7,7 @@ import ServicosTable from './ServicosTable';
 import AcumuladosTable from './AcumuladosTable';
 import CotasTable from './CotasTable';
 import GuiasTable from './GuiasTable';
+import SimplesTable from './SimplesTable';
 
 import { eDoMes, temTabelaCotas } from '../services';
 
@@ -16,9 +17,14 @@ import './VisualizarTables.css';
 
 function VisualizarTables(props) {
   const { store } = props;
-  const { trimestreData, competencia, empresa } = store;
+  const {
+    trimestreData,
+    simplesData,
+    competencia,
+    empresa,
+  } = store;
 
-  const { movimentosPool, servicosPool } = trimestreData;
+  const { movimentosPool, servicosPool } = empresa.simples ? simplesData : trimestreData;
 
   const movimentosPoolMes = movimentosPool.filter((mP) => eDoMes(mP, competencia));
   const servicosPoolMes = servicosPool.filter((sP) => eDoMes(sP, competencia));
@@ -67,6 +73,15 @@ function VisualizarTables(props) {
             </>
           )
         }
+        {
+          empresa.simples && simplesData.simples.id
+          && (
+            <>
+              <Divider orientation="left">Receitas (Simples)</Divider>
+              <SimplesTable />
+            </>
+          )
+        }
       </div>
     </>
   );
@@ -76,6 +91,7 @@ VisualizarTables.propTypes = {
   store: PropTypes.shape({
     dominio: PropTypes.array,
     trimestreData: PropTypes.object,
+    simplesData: PropTypes.object,
     notasPool: PropTypes.array,
     notasServicoPool: PropTypes.array,
     empresa: PropTypes.shape({

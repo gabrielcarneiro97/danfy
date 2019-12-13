@@ -26,6 +26,8 @@ function EnviarArquivos(props) {
   const [ended, setEnded] = useState(0);
   const { fileList } = store;
 
+  console.log(store);
+
   useEffect(() => {
     if (fileList.length > 0 && fileList.length === ended) {
       message.success('Arquivos Importados com Sucesso!');
@@ -47,7 +49,7 @@ function EnviarArquivos(props) {
     });
   };
 
-  const adicionarNota = async (dados) => {
+  const adicionarNota = (dados) => {
     if (dados.tipo === 'nfe') dispatch(addNota(dados.notaPool));
     else if (dados.tipo === 'nfse') dispatch(addNotaServico(dados.notaPool));
     else return false;
@@ -73,8 +75,7 @@ function EnviarArquivos(props) {
 
     if (info.file.status === 'done') {
       addEnded();
-      console.log(data);
-      await adicionarNota(data);
+      data.forEach(adicionarNota);
     } else if (info.file.status === 'error') {
       message.error(`Arquivo: ${info.file.name} invalido!`);
       addEnded();

@@ -19,16 +19,38 @@ export const movimentoStore = {
   simplesData: {
     movimentosPool: [],
     servicosPool: [],
+    simples: {
+      totalDoze: 0,
+      totalExercicio: 0,
+      totalRetido: 0,
+      totalNaoRetido: 0,
+      totalServicos: 0,
+      totalMovimentos: 0,
+      totalMes: 0,
+    },
   },
   dominio: [],
 };
 
-export const trimestreVazio = {
+export const dadosVazio = {
   notasPool: [],
   notasServicoPool: [],
   trimestreData: {
     movimentosPool: [],
     servicosPool: [],
+  },
+  simplesData: {
+    movimentosPool: [],
+    servicosPool: [],
+    simples: {
+      totalDoze: 0,
+      totalExercicio: 0,
+      totalRetido: 0,
+      totalNaoRetido: 0,
+      totalServicos: 0,
+      totalMovimentos: 0,
+      totalMes: 0,
+    },
   },
 };
 
@@ -37,6 +59,7 @@ export const CARREGAR_DADOS = Symbol('CARREGAR_DADOS');
 export const CARREGAR_DOMINIO = Symbol('CARREGAR_DOMINIO');
 export const CARREGAR_EMPRESA = Symbol('CARREGAR_EMPRESA');
 export const CARREGAR_COMPETENCIA = Symbol('CARREGAR_COMPETENCIA');
+export const CARREGAR_SIMPLES = Symbol('CARREGAR_SIMPLES');
 
 function loadTrim(state, action) {
   const newState = { ...state };
@@ -50,7 +73,6 @@ function loadTrim(state, action) {
 
 function carregarDados(state, action) {
   const { dados } = action;
-
   return {
     ...state,
     ...dados,
@@ -84,6 +106,18 @@ function setCompetencia(state, action) {
   return newState;
 }
 
+function setSimples(state, action) {
+  const newState = {
+    ...state,
+    simplesData: {
+      ...state.simplesData,
+      simples: action.simples,
+    },
+  };
+
+  return newState;
+}
+
 export default function movimentoReducer(state = movimentoStore, action) {
   switch (action.type) {
     case CARREGA_TRIMESTRE_DATA:
@@ -96,6 +130,8 @@ export default function movimentoReducer(state = movimentoStore, action) {
       return setEmpresa(state, action);
     case CARREGAR_COMPETENCIA:
       return setCompetencia(state, action);
+    case CARREGAR_SIMPLES:
+      return setSimples(state, action);
     default:
       break;
   }
@@ -138,9 +174,16 @@ export function carregarCompetencia(competencia) {
   };
 }
 
-export function limparTrimestre() {
+export function carregarSimples(simples) {
+  return {
+    type: CARREGAR_SIMPLES,
+    simples,
+  };
+}
+
+export function limparDados() {
   return {
     type: CARREGAR_DADOS,
-    dados: trimestreVazio,
+    dados: dadosVazio,
   };
 }
