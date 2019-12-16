@@ -140,72 +140,84 @@ function AdicionarClienteForm(props) {
               </Select>
             </Col>
           </Row>
-          <Row className="row">
-            <Col span={12} style={{ marginTop: '5px', marginBottom: '5px' }}>
-              <Checkbox
-                onChange={setLiminar}
-                style={{
-                  width: '100%',
-                }}
+          {
+            tributacao === 'LP'
+            && (
+              <>
+                <Row className="row">
+                  <Col span={12} style={{ marginTop: '5px', marginBottom: '5px' }}>
+                    <Checkbox
+                      onChange={setLiminar}
+                      style={{
+                        width: '100%',
+                      }}
+                    >
+                      Liminar de Redução
+                    </Checkbox>
+                  </Col>
+                  <Col span={12}>
+                    <Select onChange={setFormaPagamento} defaultValue={formaPagamento} style={{ width: '100%' }}>
+                      <Option value="adiantamento">Adiantamento</Option>
+                      <Option value="acumulado">Acumulado por Trimestre</Option>
+                      <Option value="cotas">Pagamento em Cotas</Option>
+                    </Select>
+                  </Col>
+                </Row>
+                <Divider dashed>Impostos Estaduais (ICMS)</Divider>
+                <Row
+                  gutter={8}
+                  className="row"
+                >
+                  <Col span={12}>
+                    <Input addonBefore="Aliquota" value={impostosEmpresa.icmsAliquota} disabled />
+                  </Col>
+                  <Col span={12}>
+                    <Input addonBefore="Redução" value={impostosEmpresa.icmsReducao} disabled />
+                  </Col>
+                </Row>
+              </>
+            )
+          }
+        </Col>
+        {
+          tributacao === 'LP'
+          && (
+            <Col span={12}>
+              <Divider dashed>Impostos Federais</Divider>
+              <Row
+                gutter={8}
+                className="row"
               >
-                Liminar de Redução
-              </Checkbox>
+                <Col span={12}>
+                  <Input addonBefore="IRPJ" value={impostosEmpresa.irpj} disabled />
+                </Col>
+                <Col span={12}>
+                  <Input addonBefore="CSLL" value={impostosEmpresa.csll} disabled />
+                </Col>
+              </Row>
+              <Row
+                gutter={8}
+                className="row"
+              >
+                <Col span={12}>
+                  <Input addonBefore="PIS" value={impostosEmpresa.pis} disabled />
+                </Col>
+                <Col span={12}>
+                  <Input addonBefore="COFINS" value={impostosEmpresa.cofins} disabled />
+                </Col>
+              </Row>
+              <Divider dashed>Impostos Municipais</Divider>
+              <Row
+                gutter={8}
+                className="row"
+              >
+                <Col span={24}>
+                  <Input addonBefore="ISS" defaultValue={impostosEmpresa.iss} onChange={setIss} />
+                </Col>
+              </Row>
             </Col>
-            <Col span={12}>
-              <Select onChange={setFormaPagamento} defaultValue={formaPagamento} style={{ width: '100%' }}>
-                <Option value="adiantamento">Adiantamento</Option>
-                <Option value="acumulado">Acumulado por Trimestre</Option>
-                <Option value="cotas">Pagamento em Cotas</Option>
-              </Select>
-            </Col>
-          </Row>
-          <Divider dashed>Impostos Estaduais (ICMS)</Divider>
-          <Row
-            gutter={8}
-            className="row"
-          >
-            <Col span={12}>
-              <Input addonBefore="Aliquota" value={impostosEmpresa.icmsAliquota} disabled />
-            </Col>
-            <Col span={12}>
-              <Input addonBefore="Redução" value={impostosEmpresa.icmsReducao} disabled />
-            </Col>
-          </Row>
-        </Col>
-        <Col span={12}>
-          <Divider dashed>Impostos Federais</Divider>
-          <Row
-            gutter={8}
-            className="row"
-          >
-            <Col span={12}>
-              <Input addonBefore="IRPJ" value={impostosEmpresa.irpj} disabled />
-            </Col>
-            <Col span={12}>
-              <Input addonBefore="CSLL" value={impostosEmpresa.csll} disabled />
-            </Col>
-          </Row>
-          <Row
-            gutter={8}
-            className="row"
-          >
-            <Col span={12}>
-              <Input addonBefore="PIS" value={impostosEmpresa.pis} disabled />
-            </Col>
-            <Col span={12}>
-              <Input addonBefore="COFINS" value={impostosEmpresa.cofins} disabled />
-            </Col>
-          </Row>
-          <Divider dashed>Impostos Municipais</Divider>
-          <Row
-            gutter={8}
-            className="row"
-          >
-            <Col span={24}>
-              <Input addonBefore="ISS" defaultValue={impostosEmpresa.iss} onChange={setIss} />
-            </Col>
-          </Row>
-        </Col>
+          )
+        }
       </Row>
       <Row type="flex" justify="end">
         <Divider />

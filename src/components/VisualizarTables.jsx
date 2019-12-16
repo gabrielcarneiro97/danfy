@@ -49,7 +49,7 @@ function VisualizarTables(props) {
           && (
             <>
               <Divider orientation="left">Serviços</Divider>
-              <ServicosTable />
+              <ServicosTable printable={false} />
             </>
           )
         }

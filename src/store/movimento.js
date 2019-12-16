@@ -30,11 +30,13 @@ export const movimentoStore = {
     },
   },
   dominio: [],
+  grupos: [],
 };
 
 export const dadosVazio = {
   notasPool: [],
   notasServicoPool: [],
+  grupos: [],
   trimestreData: {
     movimentosPool: [],
     servicosPool: [],
@@ -60,6 +62,7 @@ export const CARREGAR_DOMINIO = Symbol('CARREGAR_DOMINIO');
 export const CARREGAR_EMPRESA = Symbol('CARREGAR_EMPRESA');
 export const CARREGAR_COMPETENCIA = Symbol('CARREGAR_COMPETENCIA');
 export const CARREGAR_SIMPLES = Symbol('CARREGAR_SIMPLES');
+export const CARREGAR_GRUPOS = Symbol('CARREGAR_GRUPOS');
 
 function loadTrim(state, action) {
   const newState = { ...state };
@@ -118,6 +121,15 @@ function setSimples(state, action) {
   return newState;
 }
 
+function setGrupos(state, action) {
+  const newState = {
+    ...state,
+    grupos: action.grupos,
+  };
+
+  return newState;
+}
+
 export default function movimentoReducer(state = movimentoStore, action) {
   switch (action.type) {
     case CARREGA_TRIMESTRE_DATA:
@@ -132,6 +144,8 @@ export default function movimentoReducer(state = movimentoStore, action) {
       return setCompetencia(state, action);
     case CARREGAR_SIMPLES:
       return setSimples(state, action);
+    case CARREGAR_GRUPOS:
+      return setGrupos(state, action);
     default:
       break;
   }
@@ -178,6 +192,13 @@ export function carregarSimples(simples) {
   return {
     type: CARREGAR_SIMPLES,
     simples,
+  };
+}
+
+export function carregarGrupos(grupos) {
+  return {
+    type: CARREGAR_GRUPOS,
+    grupos,
   };
 }
 

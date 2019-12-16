@@ -8,6 +8,7 @@ import {
 import { ClientesStore } from '../store/Store';
 
 import AdicionarCliente from './AdicionarCliente';
+import GerenciarGrupos from './GerenciarGrupos';
 
 function GerenciarClientes() {
   return (
@@ -16,6 +17,10 @@ function GerenciarClientes() {
         <Divider>Adicionar Cliente</Divider>
         <Col>
           <AdicionarCliente />
+        </Col>
+        <Divider>Gerenciar Grupos</Divider>
+        <Col>
+          <GerenciarGrupos />
         </Col>
       </Row>
     </ClientesStore>

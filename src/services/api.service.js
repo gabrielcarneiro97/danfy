@@ -279,3 +279,17 @@ export async function recalcularSimples(cnpj, { mes, ano }) {
 
   return data;
 }
+
+export async function getGrupos(cnpj) {
+  const { data } = await axios.get(`${api}/grupo/${cnpj}`);
+
+  return data;
+}
+
+export async function alterarGrupoServico(servicoPool, novoGrupoId) {
+  const { id } = servicoPool.servico;
+
+  const { data } = await axios.put(`${api}/servicos/${id}`, { grupoId: novoGrupoId });
+
+  return data;
+}

@@ -14,12 +14,17 @@ import TableToPrint from './TableToPrint';
 import {
   R$,
   excluirServico,
+  alterarGrupoServico,
   somaTotalServico,
   eDoMes,
 } from '../services';
 
+import GrupoSelect from './GrupoSelect';
+
 import Connect from '../store/Connect';
 import { carregarMovimento } from '../store/movimento';
+
+import '../assets/colors.css';
 
 function eCancelada(nota) {
   return nota.status === 'CANCELADA';
@@ -43,7 +48,7 @@ function numRender(numero, data) {
       cancelText="Não"
       onConfirm={data.excluir}
     >
-      <Button type="ghost">{numero}</Button>
+      <Button type="ghost" style={{ width: '100%' }}>{numero}</Button>
     </Popconfirm>
   );
 }
@@ -128,7 +133,6 @@ const simplesColumns = [
     title: 'Nota',
     dataIndex: 'nota',
     key: 'nota',
-    fixed: true,
     defaultSortOrder: 'ascend',
     sorter,
     render: numRender,
@@ -174,17 +178,32 @@ function ServicosTable(props) {
     notasServicoPool,
     competencia,
     empresa,
+    grupos,
   } = store;
 
   const { simples } = empresa;
 
   const { servicosPool } = simples ? simplesData : trimestreData;
 
-  const columns = simples ? simplesColumns : lpColumns;
+  const columns = simples ? [...simplesColumns] : [...lpColumns];
+
+  if (grupos.length > 0) {
+    console.log(grupos.length, printable);
+    columns.push({
+      title: 'Grupo',
+      dataIndex: 'grupoId',
+      key: 'grupoId',
+      render: (value, row) => <GrupoSelect initialValue={value} onChange={row.mudarGrupo} />,
+    });
+  }
 
   const update = (dados) => dispatch(carregarMovimento(dados));
 
   const apagaServico = (servicoPool) => () => excluirServico(servicoPool).then(update);
+
+  const mudarGrupo = (servicoPool) => (novoGrupoId) => alterarGrupoServico(
+    servicoPool, novoGrupoId,
+  ).then(update);
 
   let totais;
 
@@ -198,9 +217,13 @@ function ServicosTable(props) {
     const numero = parseInt(servico.notaChave.substring(18), 10);
     const nota = notasServicoPool.find((n) => n.chave === servico.notaChave);
 
+    const grupo = grupos.find((g) => g.id === servico.grupoId);
+
     const valores = {
+      cor: grupo && grupo.cor,
       key: servico.notaChave,
       numero,
+      grupoId: printable ? (grupo && grupo.nome) || '' : servico.grupoId,
       nota: numero,
       status: nota.status,
       data: moment(servico.dataHora).format('DD[/]MMM'),
@@ -218,6 +241,7 @@ function ServicosTable(props) {
       irpj: R$(imposto.irpj),
       total: R$(imposto.total),
       excluir: apagaServico(servicoPool),
+      mudarGrupo: mudarGrupo(servicoPool),
     };
 
     totais = somaTotalServico(valores, totais);
@@ -250,8 +274,9 @@ function ServicosTable(props) {
           size="small"
           columns={columns}
           dataSource={dataSource}
-          scroll={{ x: '110%' }}
+          scroll={{ x: simples ? 'max-content' : '110%' }}
           pagination={{ position: 'top', simple: true }}
+          rowClassName={({ cor }) => (cor ? cor.replace('#', 'color-') : '')}
           style={{
             marginBottom: '20px',
           }}
@@ -265,6 +290,7 @@ ServicosTable.propTypes = {
   printable: PropTypes.bool,
   store: PropTypes.shape({
     dominio: PropTypes.array,
+    grupos: PropTypes.array,
     trimestreData: PropTypes.object,
     simplesData: PropTypes.object,
     notasPool: PropTypes.array,

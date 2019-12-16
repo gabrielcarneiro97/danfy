@@ -23,6 +23,7 @@ import {
   pegarEmpresaImpostos,
   cnpjMask,
   recalcularSimples,
+  getGrupos,
 } from '../services';
 
 import Connect from '../store/Connect';
@@ -31,6 +32,7 @@ import {
   carregarMovimento,
   carregarCompetencia,
   carregarEmpresa,
+  carregarGrupos,
   limparDados,
 } from '../store/movimento';
 
@@ -137,7 +139,11 @@ function VisualizarForm(props) {
       ? await pegarSimples(empresa.cnpj, competencia)
       : await pegarTrimestre(empresa.cnpj, competencia);
 
-    if (dados) dispatch(carregarMovimento(dados));
+    if (dados) {
+      const grupos = await getGrupos(empresa.cnpj);
+      dispatch(carregarGrupos(grupos));
+      dispatch(carregarMovimento(dados));
+    }
 
     setDisableRecalc(false);
     setSubmit(true);
@@ -254,6 +260,7 @@ function VisualizarForm(props) {
 VisualizarForm.propTypes = {
   store: PropTypes.shape({
     dominio: PropTypes.array,
+    grupos: PropTypes.array,
     empresa: PropTypes.shape({
       numeroSistema: PropTypes.string,
       nome: PropTypes.string,
