@@ -46,6 +46,15 @@ function EditarGrupoModal(props) {
     if (nome !== '' && descricao !== '' && cor !== '') setOkDisabled(false);
   }, [nome, descricao, cor]);
 
+  useEffect(() => {
+    if (visible) {
+      setId(defaultData.id);
+      setNome(defaultData.nome);
+      setDescricao(defaultData.descricao);
+      setCor(defaultData.cor);
+    }
+  }, [visible]);
+
   const limparDados = () => {
     setId('');
     setNome('');
@@ -81,7 +90,6 @@ function EditarGrupoModal(props) {
   };
 
   const onChangeInput = (setState) => (e) => setState(e.target.value);
-
 
   return (
     <Modal

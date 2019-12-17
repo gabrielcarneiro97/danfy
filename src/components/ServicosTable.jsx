@@ -201,7 +201,7 @@ function ServicosTable(props) {
       key: 'grupoId',
       width: 150,
       sorter: grupoSorter,
-      render: (value, row) => <GrupoSelect initialValue={value} onChange={row.mudarGrupo} />,
+      render: (value, row) => (row.key === 'total-servicos' ? '' : <GrupoSelect initialValue={value} onChange={row.mudarGrupo} />),
     });
   }
 

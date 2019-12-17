@@ -51,7 +51,9 @@ function GerenciarGruposTable(props) {
 
   return (
     <>
-      <GerenciarGruposButton buttonText="Adicionar Grupo" />
+      <GerenciarGruposButton
+        buttonText="Adicionar Grupo"
+      />
       <Table
         columns={columns}
         dataSource={dataSource}
