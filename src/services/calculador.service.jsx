@@ -54,6 +54,7 @@ export function somaTotalServico(servico, total) {
   if (!total) {
     retorno = {
       key: 'total-servicos',
+      grupoId: '',
       nota: '',
       status: <strong>TOTAIS: </strong>,
       data: '',
@@ -74,7 +75,11 @@ export function somaTotalServico(servico, total) {
   }
 
   Object.keys(retorno).forEach((key) => {
-    if (key !== 'nota' && key !== 'status' && key !== 'key' && key !== 'data') {
+    if (key !== 'nota'
+      && key !== 'status'
+      && key !== 'key'
+      && key !== 'data'
+      && key !== 'grupoId') {
       retorno[key] = R$(floating(retorno[key]) + floating(servico[key]));
     }
   });
@@ -141,13 +146,13 @@ export function retornarTipo(cfop) {
     return 'CONSIGNAÇÃO';
   } if (cfopCompraConsignacao.includes(cfop)) {
     return 'COMPRA DEFINITIVA';
-  } else if (cfopDevolucaoConsignacao.includes(cfop)) {
+  } if (cfopDevolucaoConsignacao.includes(cfop)) {
     return 'DEVOLUÇÃO DE CONSIGNAÇÃO';
-  } else if (cfopDevolucaoCompra.includes(cfop)) {
+  } if (cfopDevolucaoCompra.includes(cfop)) {
     return 'DEVOLUÇÃO DE COMPRA';
-  } else if (cfopDevolucaoDemonstracao.includes(cfop)) {
+  } if (cfopDevolucaoDemonstracao.includes(cfop)) {
     return 'DEVOLUÇÃO DEMONSTRAÇÃO';
-  } else if (cfopDevolucaoSimbolica.includes(cfop)) {
+  } if (cfopDevolucaoSimbolica.includes(cfop)) {
     return 'DEVOLUÇÃO SIMBÓLICA';
   }
   return '';
@@ -234,6 +239,16 @@ export function calcularCotas(trimestreData) {
 }
 
 export function temTabelaCotas({ formaPagamento }, { mes }) {
-  return formaPagamento === 'PAGAMENTO EM COTAS'
+  return formaPagamento === 'LUCRO PRESUMIDO - PAGAMENTO EM COTAS'
     && parseInt(mes, 10) % 3 === 0;
+}
+
+export function dateToComp(date) {
+  const d = new Date(date);
+
+  return { mes: d.getMonth() + 1, ano: d.getFullYear() };
+}
+
+export function compToDate(comp) {
+  return new Date(comp.ano, comp.mes - 1);
 }

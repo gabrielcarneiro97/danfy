@@ -58,6 +58,8 @@ function VisualizarForm(props) {
 
   const { movimentosPool, servicosPool } = empresa.simples ? simplesData : trimestreData;
 
+  console.log(trimestreData);
+
   const [num, setNum] = useState('');
   const [submit, setSubmit] = useState(false);
   const [loading, setLoading] = useState(false);

@@ -5,7 +5,7 @@ import { Table } from 'antd';
 
 import Connect from '../store/Connect';
 
-import GerenciarGruposAddButton from './GerenciarGruposAddButton';
+import GerenciarGruposButton from './GerenciarGruposButton';
 import ShowColor from './ShowColor';
 
 
@@ -32,13 +32,26 @@ function GerenciarGruposTable(props) {
         return <ShowColor hex={hex} />;
       },
     },
+    {
+      title: 'Editar',
+      key: 'editar',
+      render: (t, row) => (
+        <GerenciarGruposButton
+          defaultData={row}
+          buttonType="link"
+          buttonText="Editar"
+        />
+      ),
+    },
   ];
 
   const dataSource = grupos.map((g) => ({ ...g, key: g.id }));
 
+  dataSource.sort((a, b) => a.id - b.id);
+
   return (
     <>
-      <GerenciarGruposAddButton />
+      <GerenciarGruposButton buttonText="Adicionar Grupo" />
       <Table
         columns={columns}
         dataSource={dataSource}

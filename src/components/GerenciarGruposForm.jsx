@@ -23,7 +23,6 @@ function GerenciarGruposForm(props) {
   const { store, dispatch, onSubmit } = props;
   const {
     dominio,
-    empresa,
   } = store;
   const [num, setNum] = useState('');
   const [submit, setSubmit] = useState(false);
@@ -36,6 +35,16 @@ function GerenciarGruposForm(props) {
   useEffect(() => {
     if (dominio.length > 0) setDisableNum(false);
   }, [dominio]);
+
+  useEffect(() => {
+    const emp = {
+      nome: '',
+      cnpj: '',
+      numeroSistema: '',
+    };
+
+    dispatch(carregarEmpresa(emp));
+  }, [num]);
 
   useEffect(() => {
     if (cnpjInput !== '') {
@@ -54,7 +63,6 @@ function GerenciarGruposForm(props) {
 
     dispatch(carregarEmpresa(emp));
     dispatch(carregarGrupos(grupos));
-    setSubmit(false);
     onSubmit();
   };
 
@@ -103,7 +111,7 @@ function GerenciarGruposForm(props) {
             addonBefore="Número"
             onChange={handleNum}
             value={num}
-            disabled={disableNum || !!empresa.cnpj}
+            disabled={disableNum}
           />
         </Col>
         <Col span={12} className="form-input">

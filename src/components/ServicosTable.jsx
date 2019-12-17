@@ -37,6 +37,13 @@ function sorter(a, b) {
   return -1;
 }
 
+function grupoSorter(a, b) {
+  if (!a.grupoId || (parseInt(a.grupoId, 10) > parseInt(b.grupoId, 10))) {
+    return 1;
+  }
+  return -1;
+}
+
 function numRender(numero, data) {
   if (data.$$typeof) return data;
   if (!numero) return '';
@@ -188,11 +195,12 @@ function ServicosTable(props) {
   const columns = simples ? [...simplesColumns] : [...lpColumns];
 
   if (grupos.length > 0) {
-    console.log(grupos.length, printable);
     columns.push({
       title: 'Grupo',
       dataIndex: 'grupoId',
       key: 'grupoId',
+      width: 150,
+      sorter: grupoSorter,
       render: (value, row) => <GrupoSelect initialValue={value} onChange={row.mudarGrupo} />,
     });
   }

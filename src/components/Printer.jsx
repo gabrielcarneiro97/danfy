@@ -14,6 +14,7 @@ import AcumuladosTable from './AcumuladosTable';
 import CotasTable from './CotasTable';
 import GuiasTable from './GuiasTable';
 import SimplesTable from './SimplesTable';
+import GruposTable from './GruposTable';
 
 import {
   pegaMes,
@@ -34,6 +35,7 @@ function Printer(props) {
     simplesData,
     competencia,
     empresa,
+    grupos,
   } = store;
 
   const { movimentosPool, servicosPool } = empresa.simples ? simplesData : trimestreData;
@@ -54,7 +56,13 @@ function Printer(props) {
   return (
     <div>
       <ReactToPrint
-        trigger={() => <Button disabled={!trimestreData.trim && !simplesData.simples.id}>Imprimir</Button>}
+        trigger={() => (
+          <Button
+            disabled={!trimestreData.trim && !simplesData.simples.id}
+          >
+              Imprimir
+          </Button>
+        )}
         content={() => printRef}
         pageStyle={printStyle}
       />
@@ -109,6 +117,17 @@ function Printer(props) {
 
             }
             {
+              grupos.length > 0
+              && (
+                <>
+                  <Divider orientation="left">Divisão</Divider>
+                  <Col span={24} className="tables">
+                    <GruposTable printable />
+                  </Col>
+                </>
+              )
+            }
+            {
               trimestreData.trim
               && (
                 <>
@@ -154,6 +173,7 @@ function Printer(props) {
 Printer.propTypes = {
   store: PropTypes.shape({
     dominio: PropTypes.array,
+    grupos: PropTypes.array,
     trimestreData: PropTypes.object,
     simplesData: PropTypes.object,
     notasPool: PropTypes.array,

@@ -17,7 +17,7 @@ function AcumuladosTable(props) {
 
   Object.keys(trimestreData).forEach((key) => {
     if (key !== 'movimentosPool' && key !== 'servicosPool') {
-      const mes = key === 'trim' ? <strong>Trimestre</strong> : pegaMes(key);
+      const mes = key === 'trim' ? stg('Trimestre') : pegaMes(key);
 
       const { totalSomaPool } = trimestreData[key];
       const { retencao, totalSoma } = totalSomaPool;

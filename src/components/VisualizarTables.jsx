@@ -8,6 +8,7 @@ import AcumuladosTable from './AcumuladosTable';
 import CotasTable from './CotasTable';
 import GuiasTable from './GuiasTable';
 import SimplesTable from './SimplesTable';
+import GruposTable from './GruposTable';
 
 import { eDoMes, temTabelaCotas } from '../services';
 
@@ -22,6 +23,7 @@ function VisualizarTables(props) {
     simplesData,
     competencia,
     empresa,
+    grupos,
   } = store;
 
   const { movimentosPool, servicosPool } = empresa.simples ? simplesData : trimestreData;
@@ -49,7 +51,16 @@ function VisualizarTables(props) {
           && (
             <>
               <Divider orientation="left">Serviços</Divider>
-              <ServicosTable printable={false} />
+              <ServicosTable />
+            </>
+          )
+        }
+        {
+          grupos.length > 0
+          && (
+            <>
+              <Divider orientation="left">Divisão</Divider>
+              <GruposTable />
             </>
           )
         }
@@ -92,6 +103,7 @@ VisualizarTables.propTypes = {
     dominio: PropTypes.array,
     trimestreData: PropTypes.object,
     simplesData: PropTypes.object,
+    grupos: PropTypes.array,
     notasPool: PropTypes.array,
     notasServicoPool: PropTypes.array,
     empresa: PropTypes.shape({

@@ -1,17 +1,20 @@
-import React, { useState } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 
 import GerenciarGruposForm from './GerenciarGruposForm';
 import GerenciarGruposTable from './GerenciarGruposTable';
 
+import Connect from '../store/Connect';
 
-function GerenciarGrupos() {
-  const [temEmpresa, setTemEmpresa] = useState(false);
+function GerenciarGrupos(props) {
+  const { store } = props;
+  const { empresa } = store;
 
   return (
     <>
-      <GerenciarGruposForm onSubmit={() => setTemEmpresa(true)} />
+      <GerenciarGruposForm />
       {
-        temEmpresa
+        empresa.cnpj !== ''
         && (
           <GerenciarGruposTable />
         )
@@ -20,4 +23,15 @@ function GerenciarGrupos() {
   );
 }
 
-export default GerenciarGrupos;
+GerenciarGrupos.propTypes = {
+  store: PropTypes.shape({
+    empresa: PropTypes.shape({
+      numeroSistema: PropTypes.string,
+      nome: PropTypes.string,
+      cnpj: PropTypes.string,
+    }),
+  }).isRequired,
+};
+
+
+export default Connect(GerenciarGrupos);
