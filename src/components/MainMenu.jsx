@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import propTypes from 'prop-types';
-import axios from 'axios';
 import { withRouter, Link } from 'react-router-dom';
 import { Menu, Icon } from 'antd';
 
-import { api } from '../services';
+import { getVersion } from '../services/api.service';
 
 function MainMenu(props) {
   const { match, location } = props;
@@ -15,7 +14,7 @@ function MainMenu(props) {
   const [dbVer, setDbVer] = useState('');
 
   useEffect(() => {
-    axios.get(`${api}/version`).then(({ data: version }) => {
+    getVersion().then((version) => {
       setApiVer(version.api);
       setNodeVer(version.node);
       setDbVer(version.db);

@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import {
   Button,
   Modal,
@@ -10,7 +9,7 @@ import {
   message,
 } from 'antd';
 
-import { api, getEstoque } from '../services';
+import { getEstoque, criarEstoqueProduto } from '../services/api.service';
 import { carregarEstoque } from '../store/estoque';
 import Connect from '../store/Connect';
 import { floating } from '../services/calculador.service';
@@ -62,7 +61,7 @@ function EstoqueAddButton(props) {
     const prod = produto();
 
     try {
-      await axios.post(`${api}/estoque/${cnpj}`, prod);
+      await criarEstoqueProduto(cnpj, prod);
       const estoque = await getEstoque(estoqueInfosGerais);
 
       dispatch(carregarEstoque(estoque));

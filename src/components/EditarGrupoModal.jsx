@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import axios from 'axios';
 import {
   Modal,
   Input,
@@ -13,7 +12,7 @@ import { CompactPicker } from 'react-color';
 
 import colors from '../assets/colors';
 
-import { api, getGrupos } from '../services';
+import { getGrupos, editarGrupo, criarGrupo } from '../services/api.service';
 
 import { carregarGrupos } from '../store/clientes';
 
@@ -75,8 +74,8 @@ function EditarGrupoModal(props) {
     const g = grupo();
 
     try {
-      if (id) await axios.put(`${api}/grupo/${cnpj}`, g);
-      else await axios.post(`${api}/grupo/${cnpj}`, g);
+      if (id) await editarGrupo(cnpj, g);
+      else await criarGrupo(cnpj, g);
 
       const gps = await getGrupos(cnpj);
 

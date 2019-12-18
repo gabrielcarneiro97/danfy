@@ -8,7 +8,6 @@ import Connect from '../store/Connect';
 import GerenciarGruposButton from './GerenciarGruposButton';
 import ShowColor from './ShowColor';
 
-
 function GerenciarGruposTable(props) {
   const { store } = props;
   const { grupos } = store;

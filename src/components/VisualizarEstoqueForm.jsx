@@ -7,7 +7,6 @@ import {
   Col,
   DatePicker,
 } from 'antd';
-import axios from 'axios';
 
 import PrintEstoque from './PrintEstoque';
 
@@ -15,9 +14,10 @@ import {
   pegarDominio,
   pegarPessoaId,
   getEstoque,
-  cnpjMask,
-  api,
-} from '../services';
+  atualizarEstoque,
+} from '../services/api.service';
+
+import { cnpjMask } from '../services/calculador.service';
 
 import Connect from '../store/Connect';
 import { carregarEstoque, carregarInfosGerais } from '../store/estoque';
@@ -53,16 +53,9 @@ function VisualizarEstoqueForm(props) {
     return true;
   };
 
-  const atualizarEstoque = async () => {
+  const atualizar = async () => {
     setUpdateLoading(true);
-    const { data } = await axios.put(
-      `${api}/estoque/${estoqueInfosGerais.cnpj}`,
-      {}, {
-        params: {
-          data: estoqueInfosGerais.diaMesAno.format('DD-MM-YYYY'),
-        },
-      },
-    );
+    const data = await atualizarEstoque(estoqueInfosGerais);
 
     dispatch(carregarEstoque(data.estoqueAtualizado));
 
@@ -152,7 +145,7 @@ function VisualizarEstoqueForm(props) {
           }}
         >
           <Button
-            onClick={atualizarEstoque}
+            onClick={atualizar}
             disabled={disabled}
             loading={updateLoading}
           >

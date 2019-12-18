@@ -4,7 +4,6 @@ import axios from 'axios';
 import { api } from './publics';
 import { firebaseConfig } from './private';
 
-
 export const firebaseApp = firebase.initializeApp(firebaseConfig);
 
 export const auth = firebase.auth();
@@ -33,68 +32,42 @@ export async function getEstoque(estoqueInfosGerais) {
   return data;
 }
 
-export function pegarDominioId() {
-  return new Promise((resolve, reject) => {
-    if (!auth.currentUser) {
-      reject(new Error('Nenum usuário logado!'));
-    }
+export async function pegarDominioId() {
+  if (!auth.currentUser) throw new Error('Nenum usuário logado!');
 
-    const { uid } = auth.currentUser;
+  const { uid } = auth.currentUser;
+  const { data } = await axios.get(`${api}/dominio/id/${uid}`);
 
-    axios.get(`${api}/dominio/id`, {
-      params: {
-        uid,
-      },
-    }).then((res) => {
-      resolve(res.data);
-    }).catch(reject);
+  return data;
+}
+
+export async function pegarDominio() {
+  const codigo = await pegarDominioId();
+  const { data } = await axios.get(`${api}/dominio/codigo/${codigo}`);
+
+  return data;
+}
+
+export async function adicionarEmpresaDominio(cnpj, numero) {
+  const dominioId = await pegarDominioId();
+
+  return axios.post(`${api}/dominio/empresa`, {
+    cnpj,
+    numero,
+    dominioId,
   });
 }
 
-export function pegarDominio() {
-  return new Promise((resolve, reject) => {
-    pegarDominioId().then((codigo) => {
-      axios.get(`${api}/dominio`, {
-        params: {
-          codigo,
-        },
-      }).then((res) => {
-        resolve(res.data);
-      }).catch(reject);
-    }).catch(reject);
-  });
-}
-
-export function adicionarEmpresaDominio(cnpj, numero) {
-  return new Promise((resolve, reject) => {
-    pegarDominioId().then((dominioId) => {
-      axios.post(`${api}/dominio/empresa`, {
-        cnpj,
-        numero,
-        dominioId,
-      }).then(() => {
-        resolve();
-      }).catch(reject);
-    });
-  });
-}
-
-export function adicionarEmpresaImpostos(aliquota) {
+export async function adicionarEmpresaImpostos(aliquota) {
   return axios.post(`${api}/aliquotas`, {
     aliquota,
   });
 }
 
-export function pegarEmpresaImpostos(cnpj) {
-  return new Promise((resolve, reject) => {
-    axios.get(`${api}/aliquotas`, {
-      params: {
-        cnpj,
-      },
-    }).then((res) => {
-      resolve(res.data);
-    }).catch(reject);
-  });
+export async function pegarEmpresaImpostos(cnpj) {
+  const { data } = await axios.get(`${api}/aliquotas/${cnpj}`);
+
+  return data;
 }
 
 export async function gravarMovimentos(movimentos, cnpj) {
@@ -122,11 +95,7 @@ export async function gravarMovimentos(movimentos, cnpj) {
     await Promise.all(Array.from(atualizar).map(async (mesAno) => {
       const [mes, ano] = mesAno.split('/');
 
-      return axios.put(`${api}/${route}`, {}, {
-        params: {
-          cnpj, mes, ano,
-        },
-      });
+      return axios.put(`${api}/${route}/${cnpj}/${mes}/${ano}`);
     }));
 
     return true;
@@ -134,6 +103,12 @@ export async function gravarMovimentos(movimentos, cnpj) {
     console.log(err);
     throw err;
   }
+}
+
+export async function calcularServico(notaServico) {
+  const { data } = await axios.get(`${api}/servicos/calcular/${notaServico.chave}`);
+
+  return data;
 }
 
 export async function gravarServicos(servicos, cnpj) {
@@ -160,11 +135,7 @@ export async function gravarServicos(servicos, cnpj) {
     await Promise.all(Array.from(atualizar).map(async (mesAno) => {
       const [mes, ano] = mesAno.split('/');
 
-      return axios.put(`${api}/${route}`, {}, {
-        params: {
-          cnpj, mes, ano,
-        },
-      });
+      return axios.put(`${api}/${route}/${cnpj}/${mes}/${ano}`);
     }));
 
     return true;
@@ -176,11 +147,7 @@ export async function gravarServicos(servicos, cnpj) {
 
 export async function pegarPessoaId(pessoaId) {
   try {
-    const { data } = await axios.get(`${api}/pessoas/flat`, {
-      params: {
-        pessoaId,
-      },
-    });
+    const { data } = await axios.get(`${api}/pessoas/${pessoaId}`);
     return data;
   } catch (err) {
     console.log(err);
@@ -188,74 +155,85 @@ export async function pegarPessoaId(pessoaId) {
   }
 }
 
-export function cancelarMovimento(cnpj, movimentoId) {
-  return new Promise((resolve, reject) => {
-    axios.put(`${api}/movimentos/cancelar`, {}, {
-      params: {
-        cnpj,
-        movimentoId,
-      },
-    }).then(({ data }) => {
-      resolve(data);
-    }).catch(reject);
-  });
+export async function calcularMovimentos(notasFinaisChave, usuario) {
+  const { data } = await axios.post(`${api}/movimentos/calcular`, { notasFinaisChave, usuario });
+  return data;
 }
 
-export function editarMovimento(movimentoPoolNovo) {
-  const { metaDados } = movimentoPoolNovo;
-  return new Promise((resolve, reject) => {
-    const movimentoAntigoId = metaDados.refMovimentoId;
-
-    axios.put(`${api}/movimentos/editar`, { movimentoNovoObj: movimentoPoolNovo }, {
-      params: {
-        movimentoAntigoId,
-        cnpj: movimentoPoolNovo.movimento.donoCpfcnpj,
-      },
-    }).then(({ data }) => {
-      resolve(data);
-    }).catch(reject);
-  });
-}
-
-export function pegarServico(cnpj, servicoId) {
-  return new Promise((resolve, reject) => {
-    axios.get(`${api}/servicos/id`, {
-      params: {
-        cnpj,
-        servicoId,
-      },
-    }).then(({ data: servico }) => {
-      resolve(servico);
-    }).catch(reject);
-  });
-}
-
-export function excluirServico(servicoPool) {
-  const { servico } = servicoPool;
-  const cnpj = servico.donoCpfcnpj;
-  const servicoId = servico.id;
-  return new Promise((resolve, reject) => {
-    axios.delete(`${api}/servicos/id`, {
-      params: {
-        cnpj,
-        servicoId,
-      },
-    }).then(({ data }) => {
-      resolve(data);
-    }).catch(reject);
-  });
-}
-
-export async function pegarTrimestre(cnpj, { mes, ano }) {
-  const { data } = await axios.get(`${api}/trimestre`, {
+export async function movimentoSlim(movimento, notaFinal, valorInicial) {
+  const { data } = await axios.get(`${api}/movimentos/slim/${notaFinal.emitenteCpfcnpj}`, {
     params: {
-      cnpj,
-      mes,
-      ano,
+      valorInicial,
+      notaFinalChave: movimento.notaFinalChave,
     },
   });
 
   return data;
+}
+
+export async function cancelarMovimento(cnpj, movimentoId) {
+  const { data } = await axios.put(`${api}/movimentos/cancelar/${cnpj}/${movimentoId}`);
+
+  return data;
+}
+
+export async function editarMovimento(movimentoPoolNovo) {
+  const { metaDados } = movimentoPoolNovo;
+  const movimentoAntigoId = metaDados.refMovimentoId;
+  const cnpj = movimentoPoolNovo.movimento.donoCpfcnpj;
+
+  const { data } = await axios.put(
+    `${api}/movimentos/editar/${cnpj}/${movimentoAntigoId}`,
+    { movimentoNovoObj: movimentoPoolNovo },
+  );
+
+  return data;
+}
+
+export async function pegarServico(cnpj, servicoId) {
+  const { data } = await axios.get(`${api}/servicos/id/${cnpj}/${servicoId}`);
+
+  return data;
+}
+
+export async function excluirServico(servicoPool) {
+  const { servico } = servicoPool;
+  const cnpj = servico.donoCpfcnpj;
+  const servicoId = servico.id;
+
+  const { data } = await axios.delete(`${api}/servicos/${cnpj}/${servicoId}`);
+
+  return data;
+}
+
+export async function pegarTrimestre(cnpj, { mes, ano }) {
+  const { data } = await axios.get(`${api}/trimestre/${cnpj}/${mes}/${ano}`);
+
+  return data;
+}
+
+export async function criarEstoqueProduto(cnpj, produto) {
+  return axios.post(`${api}/estoque/${cnpj}`, produto);
+}
+
+export async function atualizarEstoque(estoqueInfosGerais) {
+  const { data } = await axios.put(
+    `${api}/estoque/${estoqueInfosGerais.cnpj}`, null,
+    {
+      params: {
+        data: estoqueInfosGerais.diaMesAno.format('DD-MM-YYYY'),
+      },
+    },
+  );
+
+  return data;
+}
+
+export async function editarEstoqueProduto(id, produto) {
+  return axios.put(
+    `${api}/estoque/${produto.donoCpfcnpj}/${id}`,
+    produto,
+  );
 }
 
 export async function pegarSimples(cnpj, { mes, ano }) {
@@ -286,10 +264,24 @@ export async function getGrupos(cnpj) {
   return data;
 }
 
+export async function criarGrupo(cnpj, grupo) {
+  return axios.post(`${api}/grupo/${cnpj}`, grupo);
+}
+
+export async function editarGrupo(cnpj, grupo) {
+  return axios.put(`${api}/grupo/${cnpj}`, grupo);
+}
+
 export async function alterarGrupoServico(servicoPool, novoGrupoId) {
   const { id } = servicoPool.servico;
 
   const { data } = await axios.put(`${api}/servicos/${id}`, { grupoId: novoGrupoId });
+
+  return data;
+}
+
+export async function getVersion() {
+  const { data } = await axios.get(`${api}/version`);
 
   return data;
 }

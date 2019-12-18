@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import axios from 'axios';
 import {
   Table,
   Row,
@@ -8,7 +7,9 @@ import {
   Checkbox,
 } from 'antd';
 
-import { api, R$ } from '../services';
+import { R$ } from '../services/calculador.service';
+
+import { calcularServico } from '../services/api.service';
 
 import { carregarServicos } from '../store/importacao';
 import Connect from '../store/Connect';
@@ -27,11 +28,7 @@ function ConciliarServicos(props) {
 
     Promise.all(
       notasServicoPool.map(async ({ notaServico }, index) => {
-        const { data: servico } = await axios.get(`${api}/servicos/calcular`, {
-          params: {
-            notaServicoChave: notaServico.chave,
-          },
-        });
+        const servico = await calcularServico(notaServico);
         return {
           ...servico,
           index,

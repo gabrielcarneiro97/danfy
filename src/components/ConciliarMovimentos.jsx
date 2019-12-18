@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import PropTypes from 'prop-types';
 import {
   Col,
@@ -9,7 +8,7 @@ import {
 } from 'antd';
 
 import NotaInicial from './NotaInicial';
-import { auth, pegarDominioId, api } from '../services';
+import { auth, pegarDominioId, calcularMovimentos } from '../services/api.service';
 
 import { addNota, carregarMovimentos } from '../store/importacao';
 import Connect from '../store/Connect';
@@ -62,8 +61,7 @@ function ConciliarMovimentos(props) {
         email,
       };
 
-      const { data } = await axios.post(`${api}/movimentos/calcular`, { notasFinaisChave, usuario });
-      const { movimentos, notasIniciais } = data;
+      const { movimentos, notasIniciais } = await calcularMovimentos(notasFinaisChave, usuario);
 
       notasIniciais.forEach((np) => dispatch(addNota(np)));
 

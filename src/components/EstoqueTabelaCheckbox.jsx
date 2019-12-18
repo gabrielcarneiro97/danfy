@@ -1,9 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Checkbox } from 'antd';
-import axios from 'axios';
 
-import { api } from '../services';
+import { editarEstoqueProduto } from '../services';
 import Connect from '../store/Connect';
 import { atualizacaoPersistida, atualizarProduto } from '../store/estoque';
 
@@ -23,10 +22,9 @@ function EstoqueTabelaCheckbox({
     disabled = true;
     produtoEstoque.ativo = checked;
     dispatch(atualizarProduto(produtoEstoque));
-    await axios.put(
-      `${api}/estoque/${produtoEstoque.donoCpfcnpj}/${id}`,
-      produtoEstoque,
-    );
+
+    await editarEstoqueProduto(id, produtoEstoque);
+
     dispatch(atualizacaoPersistida(produtoEstoque));
     disabled = false;
   };
