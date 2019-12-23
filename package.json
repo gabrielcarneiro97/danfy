@@ -3,6 +3,11 @@
   "version": "2.2.0",
   "private": true,
   "dependencies": {
+    "@types/jest": "^24.0.24",
+    "@types/node": "^12.12.21",
+    "@types/react": "^16.9.17",
+    "@types/react-dom": "^16.9.4",
+    "@types/react-router-dom": "^5.1.3",
     "antd": "^3.24.2",
     "axios": "^0.18.0",
     "babel-eslint": "^10.0.3",
@@ -18,7 +23,8 @@
     "react-router": "^5.1.2",
     "react-router-dom": "^5.1.2",
     "react-scripts": "^3.2.0",
-    "react-to-print": "2.0.0-alpha-2"
+    "react-to-print": "2.0.0-alpha-2",
+    "typescript": "^3.7.4"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -28,6 +34,8 @@
     "deploy": "firebase deploy --only hosting"
   },
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^2.12.0",
+    "@typescript-eslint/parser": "^2.12.0",
     "eslint": "^6.5.1",
     "eslint-config-airbnb": "^18.0.1",
     "eslint-plugin-import": "^2.18.2",
