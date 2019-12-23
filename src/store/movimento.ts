@@ -1,4 +1,9 @@
-export const movimentoStore = {
+import {
+  MovimentoStore, TrimestreData, Dominio, Empresa, // eslint-disable-line no-unused-vars
+  Competencia, SimplesData, Grupo, Simples, // eslint-disable-line no-unused-vars
+} from '../types';
+
+export const movimentoStore : MovimentoStore = {
   competencia: {
     mes: '',
     ano: '',
@@ -33,7 +38,7 @@ export const movimentoStore = {
   grupos: [],
 };
 
-export const dadosVazio = {
+export const dadosVazio : MovimentoStore = {
   notasPool: [],
   notasServicoPool: [],
   grupos: [],
@@ -64,9 +69,22 @@ export const CARREGAR_COMPETENCIA = Symbol('CARREGAR_COMPETENCIA');
 export const CARREGAR_SIMPLES = Symbol('CARREGAR_SIMPLES');
 export const CARREGAR_GRUPOS = Symbol('CARREGAR_GRUPOS');
 
-function loadTrim(state, action) {
-  const newState = { ...state };
+export type Action = {
+  type : Symbol;
+  trimestreData? : TrimestreData;
+  dados?: MovimentoStore;
+  dominio? : Dominio[];
+  empresa? : Empresa;
+  competencia? : Competencia;
+  simples? : Simples;
+  grupos? : Grupo[];
+}
+
+function loadTrim(state : MovimentoStore, action : Action) {
+  const newState : MovimentoStore = { ...state };
   const { trimestreData } = action;
+
+  if (!trimestreData) return newState;
 
   return {
     ...newState,
@@ -74,7 +92,7 @@ function loadTrim(state, action) {
   };
 }
 
-function carregarDados(state, action) {
+function carregarDados(state : MovimentoStore, action : Action) {
   const { dados } = action;
   return {
     ...state,
@@ -82,8 +100,8 @@ function carregarDados(state, action) {
   };
 }
 
-function setDominio(state, action) {
-  const newState = {
+function setDominio(state : MovimentoStore, action : Action) {
+  const newState : MovimentoStore = {
     ...state,
     dominio: action.dominio,
   };
@@ -91,7 +109,7 @@ function setDominio(state, action) {
   return newState;
 }
 
-function setEmpresa(state, action) {
+function setEmpresa(state : MovimentoStore, action : Action) {
   const newState = {
     ...state,
     empresa: action.empresa,
@@ -100,7 +118,7 @@ function setEmpresa(state, action) {
   return newState;
 }
 
-function setCompetencia(state, action) {
+function setCompetencia(state : MovimentoStore, action : Action) {
   const newState = {
     ...state,
     competencia: action.competencia,
@@ -109,28 +127,39 @@ function setCompetencia(state, action) {
   return newState;
 }
 
-function setSimples(state, action) {
+function setSimples(state : MovimentoStore, action : Action) {
   const newState = {
     ...state,
+  };
+  const { simples } = action;
+
+  if (!simples) return newState;
+
+  return {
+    ...newState,
     simplesData: {
       ...state.simplesData,
-      simples: action.simples,
+      simples,
     },
   };
-
-  return newState;
 }
 
-function setGrupos(state, action) {
+function setGrupos(state : MovimentoStore, action : Action) {
   const newState = {
     ...state,
-    grupos: action.grupos,
   };
 
-  return newState;
+  const { grupos } = action;
+
+  if (!grupos) return newState;
+
+  return {
+    ...newState,
+    grupos,
+  };
 }
 
-export default function movimentoReducer(state = movimentoStore, action) {
+export default function movimentoReducer(state = movimentoStore, action : Action) : MovimentoStore {
   switch (action.type) {
     case CARREGA_TRIMESTRE_DATA:
       return loadTrim(state, action);
@@ -153,56 +182,56 @@ export default function movimentoReducer(state = movimentoStore, action) {
   return state;
 }
 
-export function carregarTrimestre(trimestreData) {
+export function carregarTrimestre(trimestreData : TrimestreData) : Action {
   return {
     type: CARREGA_TRIMESTRE_DATA,
     trimestreData,
   };
 }
 
-export function carregarMovimento(dados) {
+export function carregarMovimento(dados : MovimentoStore) : Action {
   return {
     type: CARREGAR_DADOS,
     dados,
   };
 }
 
-export function carregarDominio(dominio) {
+export function carregarDominio(dominio : Dominio[]) : Action {
   return {
     type: CARREGAR_DOMINIO,
     dominio,
   };
 }
 
-export function carregarEmpresa(empresa) {
+export function carregarEmpresa(empresa : Empresa) : Action {
   return {
     type: CARREGAR_EMPRESA,
     empresa,
   };
 }
 
-export function carregarCompetencia(competencia) {
+export function carregarCompetencia(competencia : Competencia) : Action {
   return {
     type: CARREGAR_COMPETENCIA,
     competencia,
   };
 }
 
-export function carregarSimples(simples) {
+export function carregarSimples(simples : Simples) : Action {
   return {
     type: CARREGAR_SIMPLES,
     simples,
   };
 }
 
-export function carregarGrupos(grupos) {
+export function carregarGrupos(grupos : Grupo[]) : Action {
   return {
     type: CARREGAR_GRUPOS,
     grupos,
   };
 }
 
-export function limparDados() {
+export function limparDados() : Action {
   return {
     type: CARREGAR_DADOS,
     dados: dadosVazio,

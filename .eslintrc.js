@@ -3,10 +3,14 @@ module.exports = {
     "browser": true
   },
   "plugins": [
+    "typescript",
     "react-hooks",
     "@typescript-eslint"
   ],
-  "extends": "airbnb",
+  "extends": [
+    "airbnb",
+    "plugin:@typescript-eslint/recommended"
+  ],
   "parser":  "@typescript-eslint/parser",
   "settings": {
     "import/resolver": {
@@ -17,6 +21,7 @@ module.exports = {
   },
   "rules": {
     "jsx-a11y/href-no-hash": "off",
+    "@typescript-eslint/type-annotation-spacing": "off",
     "jsx-a11y/anchor-is-valid": ["error", {
       "specialLink": ["hrefLeft", "hrefRight"],
       "aspects": ["noHref", "invalidHref", "preferButton"]

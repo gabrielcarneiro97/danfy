@@ -1,0 +1,287 @@
+export type pgStr = string;
+export type pgNum = number;
+export type pgDate = Date;
+export type pgBool = boolean;
+
+export type pgType = pgStr | pgNum | pgDate | pgBool;
+
+export type Competencia = {
+  mes : string;
+  ano : string;
+}
+
+export type Empresa = {
+  cnpj: string;
+  nome: string;
+  numeroSistema: string;
+  formaPagamento: string;
+  simples: boolean;
+}
+
+export type Total = {
+  id : pgNum;
+  donoCpfcnpj : pgStr;
+  dataHora : pgDate;
+  totalMovimentoId : pgNum;
+  totalServicoId : pgNum;
+  totalSomaId : pgNum;
+  anual : pgBool;
+  trimestral : pgBool;
+}
+
+export type TotalMovimento = {
+  id : pgNum;
+  impostoId : pgNum;
+  valorSaida : pgNum;
+  lucro : pgNum;
+}
+
+export type Imposto = {
+  id : pgNum;
+  cofins : pgNum;
+  csll : pgNum;
+  irpj : pgNum;
+  adicionalIr : pgNum;
+  pis : pgNum;
+  total : pgNum;
+  icmsId : pgNum;
+  iss : pgNum;
+}
+
+export type Icms = {
+  id : pgNum;
+  baseCalculo : pgNum;
+  composicaoBase : pgNum;
+  difalDestino : pgNum;
+  difalOrigem : pgNum;
+  proprio : pgNum;
+}
+
+export type TotalServico = {
+  id : pgNum;
+  total : pgNum;
+  impostoId : pgNum;
+  retencaoId : pgNum;
+}
+
+export type Retencao = {
+  id : pgNum;
+  iss : pgNum;
+  irpj : pgNum;
+  pis : pgNum;
+  cofins : pgNum;
+  csll : pgNum;
+  inss : pgNum;
+  total : pgNum;
+}
+
+export type TotalSoma = {
+  id : pgNum;
+  valorMovimento : pgNum;
+  valorServico : pgNum;
+  impostoId : pgNum;
+  retencaoId : pgNum;
+  acumuladoId : pgNum;
+}
+
+export type Acumulado = {
+  id : pgNum;
+  pis : pgNum;
+  cofins : pgNum;
+}
+
+export type Movimento = {
+  id : pgNum;
+  notaFinalChave : pgStr;
+  notaInicialChave : pgStr;
+  valorSaida : pgNum;
+  lucro : pgNum;
+  dataHora : pgDate;
+  conferido : pgBool;
+  impostoId : pgNum;
+  metaDadosId : pgNum;
+  donoCpfcnpj : pgStr;
+}
+
+export type Servico = {
+  id : pgNum;
+  donoCpfcnpj : pgStr;
+  notaChave : pgStr;
+  retencaoId : pgNum;
+  impostoId : pgNum;
+  dataHora : pgDate;
+  valor : pgNum;
+  conferido : pgBool;
+  metaDadosId : pgNum;
+  grupoId : pgNum;
+}
+
+export type MetaDados = {
+  mdId : pgNum;
+  email : pgStr;
+  mdDataHora : pgDate;
+  tipo : pgStr;
+  ativo : pgBool;
+  refMovimentoId : pgNum;
+  refServicoId : pgNum;
+}
+
+export type Nota = {
+  chave : pgStr;
+  emitenteCpfcnpj : pgStr;
+  destinatarioCpfcnpj : pgStr;
+  textoComplementar : pgStr;
+  cfop : pgStr;
+  dataHora : pgDate;
+  numero : pgStr;
+  status : pgStr;
+  tipo : pgStr;
+  destinatarioContribuinte : pgStr;
+  estadoDestinoId : pgNum;
+  estadoGeradorId : pgNum;
+  valor : pgNum;
+}
+
+export type Produto = {
+  id : pgNum;
+  nome : pgStr;
+  descricao : pgStr;
+  quantidade : pgNum;
+  valor : pgNum;
+  notaChave : pgStr;
+}
+
+export type NotaServico = {
+  chave : pgStr;
+  emitenteCpfcnpj : pgStr;
+  destinatarioCpfcnpj : pgStr;
+  numero : pgStr;
+  status : pgStr;
+  dataHora : pgDate;
+  retencaoId : pgNum;
+  valor : pgNum;
+  iss : pgNum;
+  descricao : pgStr;
+}
+
+export type Simples = {
+  id? : pgNum;
+  donoCpfcnpj? : pgStr;
+  dataHora? : pgDate;
+  totalServicos : pgNum;
+  totalMovimentos : pgNum;
+  totalMes : pgNum;
+  totalRetido : pgNum;
+  totalNaoRetido : pgNum;
+  totalExercicio : pgNum;
+  totalDoze : pgNum;
+}
+
+export type Grupo = {
+  id : pgNum;
+  donoCpfcnpj : pgStr;
+  nome : pgStr;
+  descricao : pgStr;
+  cor : pgStr;
+}
+
+export type Dominio = {
+  id : pgNum;
+  codigo : pgNum;
+  numero : pgNum;
+  cnpj : pgStr;
+}
+
+export type ImpostoPool = {
+  imposto : Imposto;
+  icms : Icms;
+}
+
+export type TotalMovimentoPool = {
+  totalMovimento : TotalMovimento;
+  impostoPool : ImpostoPool;
+}
+
+export type TotalServicoPool = {
+  totalServico : TotalServico;
+  imposto : Imposto;
+  retencao : Retencao;
+}
+
+export type TotalSomaPool = {
+  totalSoma : TotalSoma;
+  impostoPool : ImpostoPool;
+  retencao : Retencao;
+  acumulado : Acumulado;
+}
+
+export type TotalPool = {
+  total : Total;
+  totalMovimentoPool : TotalMovimentoPool;
+  totalServicoPool : TotalServicoPool;
+  totalSomaPool : TotalSomaPool;
+};
+
+export type MovimentoPool = {
+  movimento : Movimento;
+  metaDados : MetaDados;
+  impostoPool : ImpostoPool;
+}
+
+export type ServicoPool = {
+  servico : Servico;
+  metaDados : MetaDados;
+  imposto : Imposto;
+  retencao : Retencao;
+}
+
+export type NotaPool = {
+  nota : Nota;
+  produtos : Produto[];
+}
+
+export type NotaServicoPool = {
+  notaServico : NotaServico;
+  retencao : Retencao;
+}
+
+export type MesData = {
+  totalPool: TotalPool;
+  movimentosPool: MovimentoPool[];
+  servicosPool: ServicoPool[];
+};
+
+export type TrimestreData = {
+  movimentosPool: MovimentoPool[];
+  servicosPool: ServicoPool[];
+  trim?: TotalPool;
+  1?: MesData;
+  2?: MesData;
+  3?: MesData;
+  4?: MesData;
+  5?: MesData;
+  6?: MesData;
+  7?: MesData;
+  8?: MesData;
+  9?: MesData;
+  10?: MesData;
+  11?: MesData;
+  12?: MesData;
+}
+
+export type SimplesData = {
+  movimentosPool : MovimentoPool[];
+  servicosPool : ServicoPool[];
+  simples: Simples;
+}
+
+export type MovimentoStore = {
+  competencia? : Competencia;
+  empresa? : Empresa;
+  notasPool : NotaPool[];
+  notasServicoPool : NotaServicoPool[];
+  trimestreData : TrimestreData;
+  simplesData: SimplesData;
+  dominio? : Dominio[];
+  grupos : Grupo[];
+}
