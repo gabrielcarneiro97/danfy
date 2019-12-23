@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { Table, Row, Col } from 'antd';
 
 import TableToPrint from './TableToPrint';
@@ -7,13 +6,34 @@ import { pegaMes, R$ } from '../services';
 
 import Connect from '../store/Connect';
 
-function AcumuladosTable(props) {
+type propTypes = {
+  printable : boolean;
+  store: {
+    dominio: object[],
+    trimestreData: any,
+    notasPool: object[],
+    notasServicoPool: object[],
+    empresa: {
+      numeroSistema: string,
+      nome: string,
+      formaPagamento: string,
+      cnpj: string,
+      simples: boolean,
+    }
+    competencia: {
+      mes: number | string,
+      ano: number | string,
+    },
+  };
+};
+
+function AcumuladosTable(props : propTypes) {
   const { store, printable } = props;
   const { trimestreData } = store;
 
-  const stg = (str) => <strong>{str}</strong>;
+  const stg = (str : string) => <strong>{str}</strong>;
 
-  const dataSource = [];
+  const dataSource : any[] = [];
 
   Object.keys(trimestreData).forEach((key) => {
     if (key !== 'movimentosPool' && key !== 'servicosPool') {
@@ -60,27 +80,6 @@ function AcumuladosTable(props) {
     </Row>
   );
 }
-
-AcumuladosTable.propTypes = {
-  printable: PropTypes.bool,
-  store: PropTypes.shape({
-    dominio: PropTypes.array,
-    trimestreData: PropTypes.object,
-    notasPool: PropTypes.array,
-    notasServicoPool: PropTypes.array,
-    empresa: PropTypes.shape({
-      numeroSistema: PropTypes.string,
-      nome: PropTypes.string,
-      formaPagamento: PropTypes.string,
-      cnpj: PropTypes.string,
-      simples: PropTypes.bool,
-    }),
-    competencia: PropTypes.shape({
-      mes: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-      ano: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-    }),
-  }).isRequired,
-};
 
 AcumuladosTable.defaultProps = {
   printable: false,
