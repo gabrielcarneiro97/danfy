@@ -245,28 +245,22 @@ export type NotaServicoPool = {
   retencao : Retencao;
 }
 
-export type MesData = {
-  totalPool: TotalPool;
-  movimentosPool: MovimentoPool[];
-  servicosPool: ServicoPool[];
-};
-
 export type TrimestreData = {
   movimentosPool: MovimentoPool[];
   servicosPool: ServicoPool[];
   trim?: TotalPool;
-  1?: MesData;
-  2?: MesData;
-  3?: MesData;
-  4?: MesData;
-  5?: MesData;
-  6?: MesData;
-  7?: MesData;
-  8?: MesData;
-  9?: MesData;
-  10?: MesData;
-  11?: MesData;
-  12?: MesData;
+  1?: TotalPool;
+  2?: TotalPool;
+  3?: TotalPool;
+  4?: TotalPool;
+  5?: TotalPool;
+  6?: TotalPool;
+  7?: TotalPool;
+  8?: TotalPool;
+  9?: TotalPool;
+  10?: TotalPool;
+  11?: TotalPool;
+  12?: TotalPool;
 }
 
 export type SimplesData = {

@@ -18,27 +18,34 @@ function AcumuladosTable(props : propTypes) : JSX.Element {
 
   const stg = (str : string) : JSX.Element => <strong>{str}</strong>;
 
-  const dataSource : any[] = [];
+  const dataSource : {
+    key : string;
+    mes : string | JSX.Element;
+    csll : string | JSX.Element;
+    irpj : string | JSX.Element;
+    faturamento : string | JSX.Element;
+  }[] = [];
 
   Object.keys(trimestreData).forEach((k) => {
     const key = k as keyof TrimestreData;
     if (key !== 'movimentosPool' && key !== 'servicosPool') {
       const mes = key === 'trim' ? stg('Trimestre') : pegaMes(key);
 
-      const totalSomaPool = key === 'trim' ? trimestreData[key]?.totalSomaPool : trimestreData[key]?.totalPool.totalSomaPool;
+      const data = trimestreData[key];
 
-      if (totalSomaPool) {
-        const { retencao, totalSoma } = totalSomaPool;
-        const { imposto } = totalSomaPool.impostoPool;
+      if (!data) return;
 
-        dataSource.push({
-          key: `acumulado-${key}`,
-          mes,
-          csll: key === 'trim' ? stg(R$(imposto.csll - retencao.csll)) : R$(imposto.csll - retencao.csll),
-          irpj: key === 'trim' ? stg(R$(imposto.irpj - retencao.irpj)) : R$(imposto.irpj - retencao.irpj),
-          faturamento: key === 'trim' ? stg(R$(totalSoma.valorMovimento + totalSoma.valorServico)) : R$(totalSoma.valorMovimento + totalSoma.valorServico),
-        });
-      }
+      const { totalSomaPool } = data;
+      const { retencao, totalSoma } = totalSomaPool;
+      const { imposto } = totalSomaPool.impostoPool;
+
+      dataSource.push({
+        key: `acumulado-${key}`,
+        mes,
+        csll: key === 'trim' ? stg(R$(imposto.csll - retencao.csll)) : R$(imposto.csll - retencao.csll),
+        irpj: key === 'trim' ? stg(R$(imposto.irpj - retencao.irpj)) : R$(imposto.irpj - retencao.irpj),
+        faturamento: key === 'trim' ? stg(R$(totalSoma.valorMovimento + totalSoma.valorServico)) : R$(totalSoma.valorMovimento + totalSoma.valorServico),
+      });
     }
   });
 
