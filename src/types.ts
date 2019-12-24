@@ -14,8 +14,25 @@ export type Empresa = {
   cnpj: string;
   nome: string;
   numeroSistema: string;
-  formaPagamento: string;
-  simples: boolean;
+  formaPagamento?: string;
+  simples?: boolean;
+}
+
+export type Pessoa = {
+  cpfcnpj : pgStr;
+  nome : pgStr;
+  enderecoId : pgNum;
+};
+
+export type Endereco = {
+  id : pgNum;
+  logradouro : pgStr;
+  numero : pgStr;
+  cep : pgStr;
+  complemento : pgStr;
+  municipioId : pgNum;
+  estadoId : pgNum;
+  paisId : pgNum;
 }
 
 export type Total = {
@@ -245,6 +262,11 @@ export type NotaServicoPool = {
   retencao : Retencao;
 }
 
+export type PessoaPool = {
+  pessoa : Pessoa;
+  endereco : Endereco;
+}
+
 export type TrimestreData = {
   movimentosPool: MovimentoPool[];
   servicosPool: ServicoPool[];
@@ -278,4 +300,12 @@ export type MovimentoStore = {
   simplesData: SimplesData;
   dominio? : Dominio[];
   grupos : Grupo[];
+}
+
+export type ClientesStore = {
+  dominioId: string;
+  dominio: Dominio[];
+  pessoasPool: PessoaPool[];
+  empresa: Empresa;
+  grupos: Grupo[];
 }

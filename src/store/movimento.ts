@@ -1,6 +1,5 @@
 import {
-  MovimentoStore, TrimestreData, Dominio, Empresa, // eslint-disable-line no-unused-vars
-  Competencia, SimplesData, Grupo, Simples, // eslint-disable-line no-unused-vars
+  MovimentoStore, TrimestreData, Dominio, Empresa, Competencia, Grupo, Simples,
 } from '../types';
 
 export const movimentoStore : MovimentoStore = {
@@ -70,7 +69,7 @@ export const CARREGAR_SIMPLES = Symbol('CARREGAR_SIMPLES');
 export const CARREGAR_GRUPOS = Symbol('CARREGAR_GRUPOS');
 
 export type Action = {
-  type : Symbol;
+  type : symbol;
   trimestreData? : TrimestreData;
   dados?: MovimentoStore;
   dominio? : Dominio[];
@@ -80,7 +79,7 @@ export type Action = {
   grupos? : Grupo[];
 }
 
-function loadTrim(state : MovimentoStore, action : Action) {
+function loadTrim(state : MovimentoStore, action : Action) : MovimentoStore {
   const newState : MovimentoStore = { ...state };
   const { trimestreData } = action;
 
@@ -92,7 +91,7 @@ function loadTrim(state : MovimentoStore, action : Action) {
   };
 }
 
-function carregarDados(state : MovimentoStore, action : Action) {
+function carregarDados(state : MovimentoStore, action : Action) : MovimentoStore {
   const { dados } = action;
   return {
     ...state,
@@ -100,7 +99,7 @@ function carregarDados(state : MovimentoStore, action : Action) {
   };
 }
 
-function setDominio(state : MovimentoStore, action : Action) {
+function setDominio(state : MovimentoStore, action : Action) : MovimentoStore {
   const newState : MovimentoStore = {
     ...state,
     dominio: action.dominio,
@@ -109,7 +108,7 @@ function setDominio(state : MovimentoStore, action : Action) {
   return newState;
 }
 
-function setEmpresa(state : MovimentoStore, action : Action) {
+function setEmpresa(state : MovimentoStore, action : Action) : MovimentoStore {
   const newState = {
     ...state,
     empresa: action.empresa,
@@ -118,7 +117,7 @@ function setEmpresa(state : MovimentoStore, action : Action) {
   return newState;
 }
 
-function setCompetencia(state : MovimentoStore, action : Action) {
+function setCompetencia(state : MovimentoStore, action : Action) : MovimentoStore {
   const newState = {
     ...state,
     competencia: action.competencia,
@@ -127,7 +126,7 @@ function setCompetencia(state : MovimentoStore, action : Action) {
   return newState;
 }
 
-function setSimples(state : MovimentoStore, action : Action) {
+function setSimples(state : MovimentoStore, action : Action) : MovimentoStore {
   const newState = {
     ...state,
   };
@@ -144,7 +143,7 @@ function setSimples(state : MovimentoStore, action : Action) {
   };
 }
 
-function setGrupos(state : MovimentoStore, action : Action) {
+function setGrupos(state : MovimentoStore, action : Action) : MovimentoStore {
   const newState = {
     ...state,
   };
