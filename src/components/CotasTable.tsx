@@ -1,14 +1,33 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { Table, Col, Row } from 'antd';
 
 import TableToPrint from './TableToPrint';
-import { R$, calcularCotas, temTabelaCotas } from '../services';
+import { R$, calcularCotas, temTabelaCotas } from '../services/calculador.service';
 
 import Connect from '../store/Connect';
+import { MovimentoStore } from '../types';
 
-function CotasTable(props) {
-  const { store, printable } = props;
+type propTypes = {
+  printable: boolean;
+  store: MovimentoStore;
+}
+
+const columns = [{
+  title: 'Nº',
+  dataIndex: 'numero',
+  key: 'numero',
+}, {
+  title: 'CSLL',
+  dataIndex: 'csll',
+  key: 'csll',
+}, {
+  title: 'IRPJ',
+  dataIndex: 'irpj',
+  key: 'irpj',
+}];
+
+function CotasTable(props : propTypes) : JSX.Element {
+  const { store, printable = false } = props;
   const { competencia, empresa, trimestreData } = store;
   const { cotaCsll, cotaIr } = calcularCotas(trimestreData);
 
@@ -38,7 +57,7 @@ function CotasTable(props) {
     return (
       <TableToPrint
         dataSource={dataSource}
-        columns={CotasTable.columns}
+        columns={columns}
       />
     );
   }
@@ -52,9 +71,9 @@ function CotasTable(props) {
         <Table
           bordered
           size="small"
-          columns={CotasTable.columns}
+          columns={columns}
           dataSource={dataSource}
-          pagination={{ position: 'none' }}
+          pagination={{ position: undefined }}
           style={{
             marginBottom: '20px',
           }}
@@ -63,44 +82,5 @@ function CotasTable(props) {
     </Row>
   );
 }
-
-CotasTable.propTypes = {
-  printable: PropTypes.bool,
-  store: PropTypes.shape({
-    dominio: PropTypes.array,
-    trimestreData: PropTypes.object,
-    notasPool: PropTypes.array,
-    notasServicoPool: PropTypes.array,
-    empresa: PropTypes.shape({
-      numeroSistema: PropTypes.string,
-      nome: PropTypes.string,
-      formaPagamento: PropTypes.string,
-      cnpj: PropTypes.string,
-      simples: PropTypes.bool,
-    }),
-    competencia: PropTypes.shape({
-      mes: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-      ano: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-    }),
-  }).isRequired,
-};
-
-CotasTable.defaultProps = {
-  printable: false,
-};
-
-CotasTable.columns = [{
-  title: 'Nº',
-  dataIndex: 'numero',
-  key: 'numero',
-}, {
-  title: 'CSLL',
-  dataIndex: 'csll',
-  key: 'csll',
-}, {
-  title: 'IRPJ',
-  dataIndex: 'irpj',
-  key: 'irpj',
-}];
 
 export default Connect(CotasTable);

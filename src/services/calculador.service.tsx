@@ -1,9 +1,12 @@
 import React from 'react';
 import moment from 'moment';
 import 'moment-timezone';
+import {
+  Empresa, Competencia, MesesNum, TrimestreData, Cota,
+} from '../types';
 
 
-export function R$(valp) {
+export function R$(valp : number | string) : string {
   if (!valp) return '0,00';
   let valor = valp.toString();
   valor = valor.replace(/,/g, '.');
@@ -36,7 +39,7 @@ export function R$(valp) {
   return `${negativo}${esquerda},${direita}`;
 }
 
-export function floating(stringVal) {
+export function floating(stringVal?: string) : number {
   if (stringVal === undefined || stringVal === null) {
     return 0;
   }
@@ -49,7 +52,7 @@ export function floating(stringVal) {
   return parseFloat(stringVal.replace(/\./g, '').replace(/,/g, '.'));
 }
 
-export function somaTotalServico(servico, total) {
+export function somaTotalServico(servico : any, total : any) : any {
   let retorno = { ...total };
   if (!total) {
     retorno = {
@@ -74,7 +77,7 @@ export function somaTotalServico(servico, total) {
     };
   }
 
-  Object.keys(retorno).forEach((key) => {
+  Object.keys(retorno).forEach((key : string) => {
     if (key !== 'nota'
       && key !== 'status'
       && key !== 'key'
@@ -87,7 +90,7 @@ export function somaTotalServico(servico, total) {
   return retorno;
 }
 
-export function somaTotalMovimento(movimento, total) {
+export function somaTotalMovimento(movimento : any, total : any) : any {
   let retorno = { ...total };
   if (!total) {
     retorno = {
@@ -158,7 +161,7 @@ export function retornarTipo(cfop) {
   return '';
 }
 
-export function pegaMes(mes) {
+export function pegaMes(mes : MesesNum) : string {
   return {
     1: 'Janeiro',
     2: 'Fevereiro',
@@ -175,7 +178,7 @@ export function pegaMes(mes) {
   }[mes];
 }
 
-export function cnpjMask(cnpj, tirar) {
+export function cnpjMask(cnpj : string, tirar : boolean) : string {
   const strCnpj = String(cnpj);
 
   if (tirar && strCnpj.length === 18) {
@@ -189,16 +192,19 @@ export function cnpjMask(cnpj, tirar) {
   return `${strCnpj.slice(0, 2)}.${strCnpj.slice(2, 5)}.${strCnpj.slice(5, 8)}/${strCnpj.slice(8, 12)}-${strCnpj.slice(12, 14)}`;
 }
 
-export function mesInicioFim(mes, ano) {
-  const inicio = new Date(ano, parseInt(mes, 10) - 1);
-  const fim = new Date(new Date(ano, parseInt(mes, 10)) - 1);
+export function mesInicioFim(mes : number | string,
+  ano : number | string) : { inicio : Date; fim : Date } {
+  const inicio = new Date(parseInt(ano.toString(), 10), parseInt(mes.toString(), 10) - 1);
+  const fim = new Date(
+    new Date(parseInt(ano.toString(), 10), parseInt(mes.toString(), 10)).getTime() - 1,
+  );
 
   return {
     inicio, fim,
   };
 }
 
-export function eDoMes(movOuServPool, { mes, ano }) {
+export function eDoMes(movOuServPool : any, { mes, ano } : any) : any {
   if (!movOuServPool.movimento && !movOuServPool.servico) return false;
 
   const { dataHora } = movOuServPool.movimento ? movOuServPool.movimento : movOuServPool.servico;
@@ -210,7 +216,13 @@ export function eDoMes(movOuServPool, { mes, ano }) {
   return parseInt(mes, 10) === dataMes && parseInt(ano, 10) === dataAno;
 }
 
-export function calcularCotas(trimestreData) {
+export function calcularCotas(
+  trimestreData : TrimestreData,
+) : { cotaCsll : Cota; cotaIr : Cota } {
+  if (!trimestreData.trim) {
+    return { cotaCsll: { valor: 0, numero: 0 }, cotaIr: { valor: 0, numero: 0 } };
+  }
+
   const trimestre = trimestreData.trim.totalSomaPool;
 
   const valorIr = (trimestre.impostoPool.imposto.irpj - trimestre.retencao.irpj)
@@ -238,17 +250,20 @@ export function calcularCotas(trimestreData) {
   return { cotaCsll, cotaIr };
 }
 
-export function temTabelaCotas({ formaPagamento }, { mes }) {
+export function temTabelaCotas(empresa?: Empresa, competencia?: Competencia) : boolean {
+  if (!empresa || !competencia) return false;
+  const { formaPagamento } = empresa;
+  const { mes } = competencia;
   return formaPagamento === 'LUCRO PRESUMIDO - PAGAMENTO EM COTAS'
     && parseInt(mes, 10) % 3 === 0;
 }
 
-export function dateToComp(date) {
+export function dateToComp(date : Date) : Competencia {
   const d = new Date(date);
 
-  return { mes: d.getMonth() + 1, ano: d.getFullYear() };
+  return { mes: (d.getMonth() + 1).toString(), ano: d.getFullYear().toString() };
 }
 
-export function compToDate(comp) {
-  return new Date(comp.ano, comp.mes - 1);
+export function compToDate(comp : Competencia) : Date {
+  return new Date(parseInt(comp.ano, 10), parseInt(comp.mes, 10) - 1);
 }

@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
 import {
   Modal,
   Input,
@@ -8,7 +7,7 @@ import {
   message,
 } from 'antd';
 
-import { CompactPicker } from 'react-color';
+import { CompactPicker, ColorResult } from 'react-color';
 
 import colors from '../assets/colors';
 
@@ -17,17 +16,33 @@ import { getGrupos, editarGrupo, criarGrupo } from '../services/api.service';
 import { carregarGrupos } from '../store/clientes';
 
 import Connect from '../store/Connect';
+import { ClientesStore, GrupoLite } from '../types';
+
+type propTypes = {
+  store : ClientesStore;
+  dispatch : Function;
+  onClose? : (e?: React.MouseEvent<HTMLElement, MouseEvent>) => void;
+  visible? : boolean;
+  title? : string;
+  okText? : string;
+  defaultData? : GrupoLite;
+}
 
 
-function EditarGrupoModal(props) {
+function EditarGrupoModal(props : propTypes) : JSX.Element {
   const {
-    onClose,
-    visible,
-    title,
-    okText,
     dispatch,
     store,
-    defaultData,
+    onClose,
+    visible = false,
+    title = 'Modal',
+    okText = 'Ok',
+    defaultData = {
+      id: '',
+      nome: '',
+      cor: '',
+      descricao: '',
+    },
   } = props;
 
   const { empresa } = store;
@@ -54,7 +69,7 @@ function EditarGrupoModal(props) {
     }
   }, [visible]);
 
-  const limparDados = () => {
+  const limparDados = () : void => {
     setId('');
     setNome('');
     setDescricao('');
@@ -62,14 +77,14 @@ function EditarGrupoModal(props) {
     setModalLoading(false);
   };
 
-  const grupo = () => ({
+  const grupo = () : GrupoLite => ({
     id,
     nome,
     descricao,
     cor,
   });
 
-  const addGrupo = async () => {
+  const addGrupo = async () : Promise<void> => {
     setModalLoading(true);
     const g = grupo();
 
@@ -81,14 +96,16 @@ function EditarGrupoModal(props) {
 
       dispatch(carregarGrupos(gps));
       message.success(`Grupo ${nome} modificado com sucesso!`);
-      onClose();
+      if (onClose) onClose();
     } catch (err) {
       console.error(err);
       message.error(`Falha ao modificadar o grupo: ${nome}`);
     }
   };
 
-  const onChangeInput = (setState) => (e) => setState(e.target.value);
+  const onChangeInput = (setState : Function) => (
+    e : React.ChangeEvent<HTMLInputElement>,
+  ) : void => setState(e.target.value);
 
   return (
     <Modal
@@ -132,7 +149,7 @@ function EditarGrupoModal(props) {
             <CompactPicker
               color={cor}
               colors={colors}
-              onChangeComplete={(color) => setCor(color.hex)}
+              onChangeComplete={(color : ColorResult) : void => setCor(color.hex)}
             />
           </Col>
         </Row>
@@ -140,41 +157,5 @@ function EditarGrupoModal(props) {
     </Modal>
   );
 }
-
-EditarGrupoModal.propTypes = {
-  onClose: PropTypes.func,
-  visible: PropTypes.bool,
-  title: PropTypes.string,
-  okText: PropTypes.string,
-  defaultData: PropTypes.shape({
-    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-    nome: PropTypes.string,
-    descricao: PropTypes.string,
-    cor: PropTypes.string,
-  }),
-  store: PropTypes.shape({
-    empresa: PropTypes.shape({
-      numeroSistema: PropTypes.string,
-      nome: PropTypes.string,
-      cnpj: PropTypes.string,
-    }),
-    grupos: PropTypes.array,
-  }).isRequired,
-  dispatch: PropTypes.func.isRequired,
-};
-
-EditarGrupoModal.defaultProps = {
-  onClose: () => true,
-  visible: false,
-  title: 'Modal',
-  okText: 'Ok',
-  defaultData: {
-    id: '',
-    nome: '',
-    descricao: '',
-    cor: '',
-  },
-};
-
 
 export default Connect(EditarGrupoModal);
