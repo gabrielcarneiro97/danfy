@@ -9,7 +9,7 @@ import {
   message,
 } from 'antd';
 
-import { gravarMovimentos, gravarServicos } from '../services';
+import { gravarMovimentos, gravarServicos } from '../services/api.service';
 
 import Connect from '../store/Connect';
 
