@@ -5,7 +5,7 @@ import { Table } from 'antd';
 import Connect from '../store/Connect';
 
 
-function ClientesTable() {
+function ClientesTable() : JSX.Element {
   return (
     <>
       ClientesTable

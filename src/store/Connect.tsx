@@ -1,7 +1,7 @@
 import React from 'react';
 import Context from './config';
 
-const Connect = (Component : any) => (props : any) : JSX.Element => (
+const Connect = (Component : (props : any) => JSX.Element) => (props : any) : JSX.Element => (
   <Context.Consumer>
     {({
       dispatch,

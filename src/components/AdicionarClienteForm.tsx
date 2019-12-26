@@ -1,6 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
-
 import {
   Button,
   Input,
@@ -11,6 +9,7 @@ import {
   Divider,
   message,
 } from 'antd';
+import { CheckboxChangeEvent } from 'antd/lib/checkbox';
 
 import {
   adicionarEmpresaDominio,
@@ -22,6 +21,7 @@ import {
 import Connect from '../store/Connect';
 
 import { carregarDominio } from '../store/clientes';
+import { Dominio, ClientesStore } from '../types';
 
 const { Option } = Select;
 
@@ -45,11 +45,24 @@ const aliquotasLiminar = {
   iss: 0.03,
 };
 
-function AdicionarClienteForm(props) {
+type propTypes = {
+  store : ClientesStore;
+  dispatch : Function;
+  onEnd? : Function;
+  empresaDados? : {
+    cpfcnpj: string;
+    nome: string;
+  };
+}
+
+function AdicionarClienteForm(props : propTypes) : JSX.Element {
   const {
-    empresaDados,
+    empresaDados = {
+      cpfcnpj: '',
+      nome: '',
+    },
     store,
-    onEnd,
+    onEnd = () : boolean => true,
     dispatch,
   } = props;
   const { cpfcnpj, nome } = empresaDados;
@@ -66,23 +79,23 @@ function AdicionarClienteForm(props) {
     setEnviarDisabled(
       Number.isNaN(parseInt(numero, 10))
       || parseInt(numero, 10) < 0
-      || parseFloat(impostosEmpresa.iss) < 0,
+      || parseFloat(impostosEmpresa.iss.toString()) < 0,
     );
   }, [numero, impostosEmpresa.iss]);
 
-  const setLiminar = (e) => {
+  const setLiminar = (e : CheckboxChangeEvent) : void => {
     const liminar = e.target.checked;
     if (liminar) setImpostosEmpresa(aliquotasLiminar);
     else setImpostosEmpresa(aliquotasPadrao);
   };
 
-  const setIss = (e) => {
-    const iss = e.target.value;
+  const setIss = (e : React.ChangeEvent<HTMLInputElement>) : void => {
+    const iss = parseFloat(e.target.value);
     setImpostosEmpresa({ ...impostosEmpresa, iss });
   };
 
-  const enviar = () => {
-    if (dominio.find((e) => e.numero === numero)) {
+  const enviar = () : void => {
+    if (dominio.find((e : Dominio) => e.numero === numero)) {
       message.error(`Número ${numero} já utilizado!`);
       return;
     }
@@ -131,7 +144,7 @@ function AdicionarClienteForm(props) {
             className="row"
           >
             <Col span={12}>
-              <Input addonBefore="Número" defaultValue={numero} onChange={(e) => setNumero(e.target.value)} />
+              <Input addonBefore="Número" defaultValue={numero} onChange={(e) : void => setNumero(e.target.value)} />
             </Col>
             <Col span={12}>
               <Select onChange={setTributacao} defaultValue={tributacao} style={{ width: '100%' }}>
@@ -232,26 +245,5 @@ function AdicionarClienteForm(props) {
     </>
   );
 }
-
-AdicionarClienteForm.propTypes = {
-  empresaDados: PropTypes.shape({
-    cpfcnpj: PropTypes.string,
-    nome: PropTypes.string,
-  }),
-  store: PropTypes.shape({
-    dominio: PropTypes.array,
-  }).isRequired,
-  dispatch: PropTypes.func.isRequired,
-  onEnd: PropTypes.func,
-};
-
-AdicionarClienteForm.defaultProps = {
-  empresaDados: {
-    cpfcnpj: '',
-    nome: '',
-  },
-  onEnd: () => true,
-};
-
 
 export default Connect(AdicionarClienteForm);

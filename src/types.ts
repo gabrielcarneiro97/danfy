@@ -1,3 +1,5 @@
+import { UploadFile } from 'antd/lib/upload/interface';
+
 export type pgStr = string;
 export type pgNum = number;
 export type pgDate = Date;
@@ -205,7 +207,7 @@ export type Grupo = {
 export type Dominio = {
   id : pgNum;
   codigo : pgNum;
-  numero : pgNum;
+  numero : pgStr;
   cnpj : pgStr;
 }
 
@@ -336,6 +338,13 @@ export type ClientesStore = {
   grupos: Grupo[];
 }
 
+export type FileZ = {
+  tipo : string;
+  notaPool : NotaPool | NotaServicoPool;
+}
+
+export type FileList = UploadFile<FileZ>[];
+
 export type ImportacaoStore = {
   movimentosWithIndex: MovimentoPoolWithIndex[];
   servicosWithIndex: ServicoPoolWithIndex[];
@@ -345,7 +354,7 @@ export type ImportacaoStore = {
   pessoasPool: PessoaPool[];
   dominio: Dominio[];
   empresa: Empresa;
-  fileList: object[];
+  fileList: FileList;
 }
 
 export type EstoqueObject = { [key : string] : ProdutoEstoque }
