@@ -22,7 +22,7 @@ export type Pessoa = {
   cpfcnpj : pgStr;
   nome : pgStr;
   enderecoId : pgNum;
-};
+}
 
 export type Endereco = {
   id : pgNum;
@@ -250,7 +250,7 @@ export type TotalPool = {
   totalMovimentoPool : TotalMovimentoPool;
   totalServicoPool : TotalServicoPool;
   totalSomaPool : TotalSomaPool;
-};
+}
 
 export type MovimentoPool = {
   movimento : Movimento;
@@ -348,11 +348,11 @@ export type ImportacaoStore = {
   fileList: object[];
 }
 
-export type EstoqueObject = { [key : string] : ProdutoEstoque };
+export type EstoqueObject = { [key : string] : ProdutoEstoque }
 
 export type EstoqueStore = {
   estoqueInfosGerais: EstoqueInformacoesGerais;
   estoque: EstoqueObject;
   estoqueArray: ProdutoEstoque[];
   modificadosId: pgNum[];
-};
+}

@@ -1,30 +1,36 @@
 import React, { useState } from 'react';
-import PropTypes from 'prop-types';
 import {
   Upload,
   Button,
   message,
 } from 'antd';
+import { UploadChangeParam } from 'antd/lib/upload/interface';
 
 import { api } from '../services';
 
-function AdicionarClienteFile(props) {
-  const { onData, disabled } = props;
+type propTypes = {
+  onData?: Function;
+  disabled?: boolean;
+}
+
+function AdicionarClienteFile(props : propTypes) : JSX.Element {
+  const { onData = () : boolean => false, disabled = false } = props;
 
   const [btnDisabled, setBtnDisabled] = useState(false);
   const [btnLoading, setBtnLoading] = useState(false);
 
-  const loading = () => {
+  const loading = () : boolean => {
     setBtnLoading(true);
     setBtnDisabled(true);
+    return true;
   };
 
-  const loadingEnd = () => {
+  const loadingEnd = () : void => {
     setBtnLoading(false);
     setBtnDisabled(false);
   };
 
-  const uploadChange = async (info) => {
+  const uploadChange = async (info : UploadChangeParam) : Promise<void> => {
     const data = info.file.response;
 
     if (info.file.status === 'done') {
@@ -61,15 +67,5 @@ function AdicionarClienteFile(props) {
     </Upload>
   );
 }
-
-AdicionarClienteFile.propTypes = {
-  onData: PropTypes.func,
-  disabled: PropTypes.bool,
-};
-
-AdicionarClienteFile.defaultProps = {
-  onData: () => false,
-  disabled: false,
-};
 
 export default AdicionarClienteFile;

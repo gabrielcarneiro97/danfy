@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import PropTypes from 'prop-types';
 import { Modal } from 'antd';
 
 import AdicionarClienteFile from './AdicionarClienteFile';
@@ -10,8 +9,13 @@ import { pegarDominio } from '../services';
 import Connect from '../store/Connect';
 
 import { carregarDominio } from '../store/clientes';
+import { PessoaPool, NotaPool, NotaServicoPool } from '../types';
 
-function AdicionarCliente(props) {
+type propTypes = {
+  dispatch : Function;
+}
+
+function AdicionarCliente(props : propTypes) : JSX.Element {
   const { dispatch } = props;
 
   const [empresaDados, setEmpresaDados] = useState({
@@ -28,16 +32,23 @@ function AdicionarCliente(props) {
     });
   }, []);
 
-  const recebeuXml = (data) => {
+  const recebeuXml = (data :
+    { tipo : string; notaPool : NotaPool | NotaServicoPool; pessoas : PessoaPool[] }) : void => {
     const { notaPool, pessoas } = data;
-    const nota = data.tipo === 'nfe' ? notaPool.nota : notaPool.notaServico;
-    const emitente = pessoas.find((pP) => pP.pessoa.cpfcnpj === nota.emitenteCpfcnpj).pessoa;
 
-    setEmpresaDados(emitente);
-    setShowModal(true);
+    const nota = data.tipo === 'nfe' ? (notaPool as NotaPool).nota : (notaPool as NotaServicoPool).notaServico;
+
+    const find = pessoas.find(
+      (pP : PessoaPool) => pP.pessoa.cpfcnpj === nota.emitenteCpfcnpj,
+    );
+
+    if (find) {
+      setEmpresaDados(find.pessoa);
+      setShowModal(true);
+    }
   };
 
-  const closeModal = () => setShowModal(false);
+  const closeModal = () : void => setShowModal(false);
 
   return (
     <>
@@ -62,13 +73,5 @@ function AdicionarCliente(props) {
     </>
   );
 }
-
-AdicionarCliente.propTypes = {
-  dispatch: PropTypes.func.isRequired,
-  store: PropTypes.shape({
-    dominio: PropTypes.array,
-  }).isRequired,
-};
-
 
 export default Connect(AdicionarCliente);
