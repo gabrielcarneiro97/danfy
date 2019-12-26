@@ -1,9 +1,12 @@
 import React from 'react';
 import Context from './config';
 
-const Connect = Component => props => (
+const Connect = (Component : any) => (props : any) : JSX.Element => (
   <Context.Consumer>
-    {({ dispatch, store }) => <Component {...props} store={store} dispatch={dispatch} />}
+    {({
+      dispatch,
+      store,
+    }) : JSX.Element => <Component {...props} store={store} dispatch={dispatch} /> /* eslint-disable-line */}
   </Context.Consumer>
 );
 

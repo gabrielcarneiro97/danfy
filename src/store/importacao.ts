@@ -1,4 +1,9 @@
-export const importacaoStore = {
+import {
+  ImportacaoStore, NotaPool, NotaServicoPool, PessoaPool,
+  StoreHandler, Dominio, Empresa, MovimentoPoolWithIndex, ServicoPoolWithIndex,
+} from '../types';
+
+export const importacaoStore : ImportacaoStore = {
   movimentosWithIndex: [],
   servicosWithIndex: [],
   notasPool: [],
@@ -35,7 +40,21 @@ export const CARREGAR_SERVICOS = Symbol('CARREGAR_SERVICOS');
 
 export const LIMPAR = Symbol('LIMPAR');
 
-function spreadState(state) {
+export type Action = {
+  type : symbol;
+  notaPool? : NotaPool;
+  notaServicoPool? : NotaServicoPool;
+  pessoaPool? : PessoaPool;
+  dominio? : Dominio[];
+  empresa? : Empresa;
+  fileList? : object[];
+  movimentosWithIndex? : MovimentoPoolWithIndex[];
+  servicosWithIndex? : ServicoPoolWithIndex[];
+}
+
+export type ImportacaoHandler = StoreHandler<ImportacaoStore, Action>;
+
+function spreadState(state : ImportacaoStore) : ImportacaoStore {
   return {
     movimentosWithIndex: [...state.movimentosWithIndex],
     servicosWithIndex: [...state.servicosWithIndex],
@@ -49,96 +68,131 @@ function spreadState(state) {
   };
 }
 
-function nfeController(state, action) {
+const nfeController : ImportacaoHandler = (state, action) => {
+  const { notaPool } = action;
+
+  if (!notaPool) return state;
+
   const newState = spreadState(state);
 
   if (action.type === NFE_ADD) {
-    newState.notasPool.push(action.notaPool);
+    newState.notasPool.push(notaPool);
   } else {
     newState.notasPool = newState.notasPool.filter(
-      (notaPool) => notaPool.nota.chave !== action.notaPool.nota.chave,
+      (np) => np.nota.chave !== notaPool.nota.chave,
     );
   }
 
   return newState;
-}
+};
 
-function nfseController(state, action) {
+const nfseController : ImportacaoHandler = (state, action) => {
+  const { notaServicoPool } = action;
+
+  if (!notaServicoPool) return state;
+
   const newState = spreadState(state);
+
   if (action.type === NFSE_ADD) {
-    newState.notasServicoPool.push(action.notaServicoPool);
+    newState.notasServicoPool.push(notaServicoPool);
   } else {
     newState.notasServicoPool = newState.notasServicoPool.filter(
-      (notaServicoPool) => notaServicoPool.nota.chave !== action.notaServicoPool.nota.chave,
+      (nsp) => nsp.notaServico.chave !== notaServicoPool.notaServico.chave,
     );
   }
 
   return newState;
-}
+};
 
-function pessoasController(state, action) {
+const pessoasController : ImportacaoHandler = (state, action) => {
+  const { pessoaPool } = action;
+
+  if (!pessoaPool) return state;
+
   const newState = spreadState(state);
+
   if (action.type === PESSOA_ADD) {
-    newState.pessoasPool.push(action.pessoaPool);
+    newState.pessoasPool.push(pessoaPool);
   } else {
     newState.pessoasPool = newState.pessoasPool.filter(
-      (pessoaPool) => pessoaPool.pessoa.cpfcnpj !== action.pessoaPool.pessoa.cpfcnpj,
+      (pp) => pp.pessoa.cpfcnpj !== pessoaPool.pessoa.cpfcnpj,
     );
   }
 
   return newState;
-}
+};
 
-function setDominio(state, action) {
+const setDominio : ImportacaoHandler = (state, action) => {
+  const { dominio } = action;
+
+  if (!dominio) return state;
+
   const newState = {
     ...spreadState(state),
-    dominio: action.dominio,
+    dominio,
   };
 
   return newState;
-}
+};
 
-function setEmpresa(state, action) {
+const setEmpresa : ImportacaoHandler = (state, action) => {
+  const { empresa } = action;
+
+  if (!empresa) return state;
+
   const newState = {
     ...spreadState(state),
-    empresa: action.empresa,
+    empresa,
   };
 
   return newState;
-}
+};
 
-function setFileList(state, action) {
+const setFileList : ImportacaoHandler = (state, action) => {
+  const { fileList } = action;
+
+  if (!fileList) return state;
+
   const newState = {
     ...spreadState(state),
-    fileList: action.fileList,
+    fileList,
   };
 
   return newState;
-}
+};
 
-function setMovimentos(state, action) {
+const setMovimentos : ImportacaoHandler = (state, action) => {
+  const { movimentosWithIndex } = action;
+
+  if (!movimentosWithIndex) return state;
+
   const newState = {
     ...spreadState(state),
-    movimentosWithIndex: action.movimentosWithIndex,
+    movimentosWithIndex,
   };
 
   return newState;
-}
+};
 
-function setServicos(state, action) {
+const setServicos : ImportacaoHandler = (state, action) => {
+  const { servicosWithIndex } = action;
+
+  if (!servicosWithIndex) return state;
+
   const newState = {
     ...spreadState(state),
-    servicosWithIndex: action.servicosWithIndex,
+    servicosWithIndex,
   };
 
   return newState;
-}
+};
 
-function limpar() {
+function limpar() : ImportacaoStore {
   return importacaoStore;
 }
 
-export default function importacaoReducer(state = importacaoStore, action) {
+export default function importacaoReducer(state = importacaoStore,
+  action : Action) : ImportacaoStore {
   if (!action) return state;
   switch (action.type) {
     case NFE_ADD:
@@ -169,84 +223,84 @@ export default function importacaoReducer(state = importacaoStore, action) {
   return state;
 }
 
-export function addNota(notaPool) {
+export function addNota(notaPool : NotaPool) : Action {
   return {
     type: NFE_ADD,
     notaPool,
   };
 }
 
-export function removeNota(notaPool) {
+export function removeNota(notaPool : NotaPool) : Action {
   return {
     type: NFE_RMV,
     notaPool,
   };
 }
 
-export function addNotaServico(notaServicoPool) {
+export function addNotaServico(notaServicoPool : NotaServicoPool) : Action {
   return {
     type: NFSE_ADD,
     notaServicoPool,
   };
 }
 
-export function removeNotaServico(notaServicoPool) {
+export function removeNotaServico(notaServicoPool : NotaServicoPool) : Action {
   return {
     type: NFSE_RMV,
     notaServicoPool,
   };
 }
 
-export function addPessoa(pessoaPool) {
+export function addPessoa(pessoaPool : PessoaPool) : Action {
   return {
     type: PESSOA_ADD,
     pessoaPool,
   };
 }
 
-export function removePessoa(pessoaPool) {
+export function removePessoa(pessoaPool : PessoaPool) : Action {
   return {
     type: PESSOA_RMV,
     pessoaPool,
   };
 }
 
-export function carregarDominio(dominio) {
+export function carregarDominio(dominio : Dominio[]) : Action {
   return {
     type: CARREGAR_DOMINIO,
     dominio,
   };
 }
 
-export function carregarEmpresa(empresa) {
+export function carregarEmpresa(empresa : Empresa) : Action {
   return {
     type: CARREGAR_EMPRESA,
     empresa,
   };
 }
 
-export function carregarArquivos(fileList) {
+export function carregarArquivos(fileList : object[]) : Action {
   return {
     type: CARREGAR_FILES,
     fileList,
   };
 }
 
-export function carregarMovimentos(movimentosWithIndex) {
+export function carregarMovimentos(movimentosWithIndex : MovimentoPoolWithIndex[]) : Action {
   return {
     type: CARREGAR_MOVIMENTOS,
     movimentosWithIndex,
   };
 }
 
-export function carregarServicos(servicosWithIndex) {
+export function carregarServicos(servicosWithIndex : ServicoPoolWithIndex[]) : Action {
   return {
     type: CARREGAR_SERVICOS,
     servicosWithIndex,
   };
 }
 
-export function limparStore() {
+export function limparStore() : Action {
   return {
     type: LIMPAR,
   };

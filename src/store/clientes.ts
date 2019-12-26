@@ -1,5 +1,5 @@
 import {
-  ClientesStore, PessoaPool, Dominio, Empresa, Grupo,
+  ClientesStore, PessoaPool, Dominio, Empresa, Grupo, StoreHandler,
 } from '../types';
 
 export const clientesStore : ClientesStore = {
@@ -38,7 +38,9 @@ export type Action = {
   grupos? : Grupo[];
 }
 
-function setPessoas(state : ClientesStore, action : Action) : ClientesStore {
+export type ClientesHandler = StoreHandler<ClientesStore, Action>;
+
+const setPessoas : ClientesHandler = (state, action) => {
   const { pessoasPool } = action;
 
   if (!pessoasPool) return state;
@@ -49,9 +51,9 @@ function setPessoas(state : ClientesStore, action : Action) : ClientesStore {
   };
 
   return newState;
-}
+};
 
-function setDominio(state : ClientesStore, action : Action) : ClientesStore {
+const setDominio : ClientesHandler = (state, action) => {
   const { dominio } = action;
 
   if (!dominio) return state;
@@ -62,9 +64,9 @@ function setDominio(state : ClientesStore, action : Action) : ClientesStore {
   };
 
   return newState;
-}
+};
 
-function addCliente(state : ClientesStore, action : Action) : ClientesStore {
+const addCliente : ClientesHandler = (state, action) => {
   const { pessoaPool, dominio } = action;
 
   if (!pessoaPool || !dominio) return state;
@@ -76,13 +78,11 @@ function addCliente(state : ClientesStore, action : Action) : ClientesStore {
   };
 
   return newState;
-}
+};
 
-function removeCliente(state : ClientesStore, action : Action) : ClientesStore {
-  return state;
-}
+const removeCliente : ClientesHandler = (state, action) => state;
 
-function setEmpresa(state : ClientesStore, action : Action) : ClientesStore {
+const setEmpresa : ClientesHandler = (state, action) => {
   const { empresa } = action;
 
   if (!empresa) return state;
@@ -93,9 +93,9 @@ function setEmpresa(state : ClientesStore, action : Action) : ClientesStore {
   };
 
   return newState;
-}
+};
 
-function addGrupo(state : ClientesStore, action : Action) : ClientesStore {
+const addGrupo : ClientesHandler = (state, action) => {
   const { grupo } = action;
 
   if (!grupo) return state;
@@ -106,18 +106,18 @@ function addGrupo(state : ClientesStore, action : Action) : ClientesStore {
   };
 
   return newState;
-}
+};
 
-function removeGrupo(state : ClientesStore, action : Action) : ClientesStore {
+const removeGrupo : ClientesHandler = (state, action) => {
   const newState = {
     ...state,
     grupos: state.grupos.filter((grupo) => grupo.id !== action.grupoId),
   };
 
   return newState;
-}
+};
 
-function setGrupos(state : ClientesStore, action : Action) : ClientesStore {
+const setGrupos : ClientesHandler = (state, action) => {
   const { grupos } = action;
 
   if (!grupos) return state;
@@ -128,7 +128,7 @@ function setGrupos(state : ClientesStore, action : Action) : ClientesStore {
   };
 
   return newState;
-}
+};
 
 export default function clientesReducer(state = clientesStore, action : Action) : ClientesStore {
   if (!action) return state;

@@ -209,6 +209,19 @@ export type Dominio = {
   cnpj : pgStr;
 }
 
+export type ProdutoEstoque = {
+  id : pgNum;
+  produtoCodigo : pgStr;
+  notaInicialChave : pgStr;
+  notaFinalChave : pgStr;
+  valorEntrada : pgNum;
+  dataEntrada : pgDate;
+  dataSaida : pgDate;
+  donoCpfcnpj : pgStr;
+  descricao : pgStr;
+  ativo : pgBool;
+}
+
 export type ImpostoPool = {
   imposto : Imposto;
   icms : Icms;
@@ -267,6 +280,10 @@ export type PessoaPool = {
   endereco : Endereco;
 }
 
+export type MovimentoPoolWithIndex = MovimentoPool & { index : number };
+
+export type ServicoPoolWithIndex = ServicoPool & { index : number };
+
 export type TrimestreData = {
   movimentosPool: MovimentoPool[];
   servicosPool: ServicoPool[];
@@ -291,6 +308,15 @@ export type SimplesData = {
   simples: Simples;
 }
 
+export type EstoqueInformacoesGerais = {
+  numeroSistema: string;
+  nome: string;
+  cnpj: string;
+  diaMesAno: string;
+}
+
+export type StoreHandler<S, A> = (state : S, action : A) => S;
+
 export type MovimentoStore = {
   competencia? : Competencia;
   empresa? : Empresa;
@@ -309,3 +335,24 @@ export type ClientesStore = {
   empresa: Empresa;
   grupos: Grupo[];
 }
+
+export type ImportacaoStore = {
+  movimentosWithIndex: MovimentoPoolWithIndex[];
+  servicosWithIndex: ServicoPoolWithIndex[];
+  notasPool: NotaPool[];
+  notasPoolImportadas: NotaPool[];
+  notasServicoPool: NotaServicoPool[];
+  pessoasPool: PessoaPool[];
+  dominio: Dominio[];
+  empresa: Empresa;
+  fileList: object[];
+}
+
+export type EstoqueObject = { [key : string] : ProdutoEstoque };
+
+export type EstoqueStore = {
+  estoqueInfosGerais: EstoqueInformacoesGerais;
+  estoque: EstoqueObject;
+  estoqueArray: ProdutoEstoque[];
+  modificadosId: pgNum[];
+};

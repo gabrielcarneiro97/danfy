@@ -2,7 +2,7 @@ import React from 'react';
 
 export const initialState = {
   store: {},
-  dispatch: () => {},
+  dispatch: () : null => null,
 };
 
 const Context = React.createContext(initialState);

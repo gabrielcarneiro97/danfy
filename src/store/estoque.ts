@@ -1,9 +1,13 @@
-export const estoqueStore = {
+import {
+  EstoqueStore, StoreHandler, ProdutoEstoque, EstoqueObject, EstoqueInformacoesGerais,
+} from '../types';
+
+export const estoqueStore : EstoqueStore = {
   estoqueInfosGerais: {
     numeroSistema: '',
     nome: '',
     cnpj: '',
-    diaMesAno: null,
+    diaMesAno: '',
   },
   estoque: {},
   estoqueArray: [],
@@ -17,12 +21,22 @@ export const TIRA_ID_MODIFICADOS = Symbol('TIRA_ID_MODIFICADOS');
 export const REMOVE_UM = Symbol('REMOVE_UM');
 export const NOVO_ESTOQUE = Symbol('NOVO_ESTOQUE');
 
-function estoqueToArray(state) {
+export type Action = {
+  type : symbol;
+  estoqueInfosGerais? : EstoqueInformacoesGerais;
+  produtoEstoque? : ProdutoEstoque;
+  estoque? : EstoqueObject;
+  estoqueArray? : ProdutoEstoque[];
+}
+
+export type EstoqueHandler = StoreHandler<EstoqueStore, Action>;
+
+function estoqueToArray(state : EstoqueStore) : ProdutoEstoque[] {
   return Object.values(state.estoque).sort((a, b) => a.id - b.id);
 }
 
-function arrayToEstoque(state) {
-  const estoque = {};
+function arrayToEstoque(state : EstoqueStore) : EstoqueObject {
+  const estoque : EstoqueObject = {};
   const { estoqueArray } = state;
 
   estoqueArray.forEach((produtoEstoque) => {
@@ -32,7 +46,7 @@ function arrayToEstoque(state) {
   return estoque;
 }
 
-function adicionaInfosGerais(state, action) {
+const adicionaInfosGerais : EstoqueHandler = (state, action) => {
   const { estoqueInfosGerais } = action;
   const newState = { ...state };
   newState.estoqueInfosGerais = {
@@ -41,23 +55,28 @@ function adicionaInfosGerais(state, action) {
   };
 
   return newState;
-}
+};
 
-function adicionaUm(state, action) {
+const adicionaUm : EstoqueHandler = (state, action) => {
   const { produtoEstoque } = action;
+
+  if (!produtoEstoque) return state;
+
   const { id } = produtoEstoque;
 
   const newState = { ...state };
 
-  newState.estoque[id] = {};
   newState.estoque[id] = produtoEstoque;
   newState.estoqueArray = estoqueToArray(newState);
 
   return newState;
-}
+};
 
-function mudaUm(state, action) {
+const mudaUm : EstoqueHandler = (state, action) => {
   const { produtoEstoque } = action;
+
+  if (!produtoEstoque) return state;
+
   const { id } = produtoEstoque;
 
   const newState = { ...state };
@@ -70,10 +89,13 @@ function mudaUm(state, action) {
   newState.estoqueArray = estoqueToArray(newState);
 
   return newState;
-}
+};
 
-function tiraIdModificados(state, action) {
+const tiraIdModificados : EstoqueHandler = (state, action) => {
   const { produtoEstoque } = action;
+
+  if (!produtoEstoque) return state;
+
   const { id } = produtoEstoque;
 
   const newState = { ...state };
@@ -83,10 +105,13 @@ function tiraIdModificados(state, action) {
   delete newState.modificadosId[i];
 
   return newState;
-}
+};
 
-function removeUm(state, action) {
+const removeUm : EstoqueHandler = (state, action) => {
   const { produtoEstoque } = action;
+
+  if (!produtoEstoque) return state;
+
   const { id } = produtoEstoque;
 
   const newState = { ...state };
@@ -95,9 +120,9 @@ function removeUm(state, action) {
   newState.estoqueArray = estoqueToArray(newState);
 
   return newState;
-}
+};
 
-function novoEstoque(state, action) {
+const novoEstoque : EstoqueHandler = (state, action) => {
   const { estoque, estoqueArray } = action;
 
   const newState = { ...state };
@@ -113,9 +138,9 @@ function novoEstoque(state, action) {
   newState.modificadosId = [];
 
   return newState;
-}
+};
 
-export default function estoqueReducer(state = estoqueStore, action) {
+export default function estoqueReducer(state = estoqueStore, action : Action) : EstoqueStore {
   switch (action.type) {
     case ADICIONA_INFOS_GERAIS:
       return adicionaInfosGerais(state, action);
@@ -136,42 +161,42 @@ export default function estoqueReducer(state = estoqueStore, action) {
   return state;
 }
 
-export function carregarInfosGerais(estoqueInfosGerais) {
+export function carregarInfosGerais(estoqueInfosGerais : EstoqueInformacoesGerais) : Action {
   return {
     type: ADICIONA_INFOS_GERAIS,
     estoqueInfosGerais,
   };
 }
 
-export function novoProduto(produtoEstoque) {
+export function novoProduto(produtoEstoque : ProdutoEstoque) : Action {
   return {
     type: ADICIONA_UM,
     produtoEstoque,
   };
 }
 
-export function atualizarProduto(produtoEstoque) {
+export function atualizarProduto(produtoEstoque : ProdutoEstoque) : Action {
   return {
     type: MUDA_UM,
     produtoEstoque,
   };
 }
 
-export function atualizacaoPersistida(produtoEstoque) {
+export function atualizacaoPersistida(produtoEstoque : ProdutoEstoque) : Action {
   return {
     type: TIRA_ID_MODIFICADOS,
     produtoEstoque,
   };
 }
 
-export function deletarProduto(produtoEstoque) {
+export function deletarProduto(produtoEstoque : ProdutoEstoque) : Action {
   return {
     type: REMOVE_UM,
     produtoEstoque,
   };
 }
 
-export function carregarEstoque(estoqueArray, estoque) {
+export function carregarEstoque(estoqueArray : ProdutoEstoque[], estoque : EstoqueObject) : Action {
   return {
     type: NOVO_ESTOQUE,
     estoqueArray,

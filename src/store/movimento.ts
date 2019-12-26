@@ -1,5 +1,5 @@
 import {
-  MovimentoStore, TrimestreData, Dominio, Empresa, Competencia, Grupo, Simples,
+  MovimentoStore, TrimestreData, Dominio, Empresa, Competencia, Grupo, Simples, StoreHandler,
 } from '../types';
 
 export const movimentoStore : MovimentoStore = {
@@ -79,7 +79,9 @@ export type Action = {
   grupos? : Grupo[];
 }
 
-function loadTrim(state : MovimentoStore, action : Action) : MovimentoStore {
+export type MovimentoHandler = StoreHandler<MovimentoStore, Action>;
+
+const loadTrim : MovimentoHandler = (state, action) => {
   const newState : MovimentoStore = { ...state };
   const { trimestreData } = action;
 
@@ -89,44 +91,44 @@ function loadTrim(state : MovimentoStore, action : Action) : MovimentoStore {
     ...newState,
     trimestreData,
   };
-}
+};
 
-function carregarDados(state : MovimentoStore, action : Action) : MovimentoStore {
+const carregarDados : MovimentoHandler = (state, action) => {
   const { dados } = action;
   return {
     ...state,
     ...dados,
   };
-}
+};
 
-function setDominio(state : MovimentoStore, action : Action) : MovimentoStore {
+const setDominio : MovimentoHandler = (state, action) => {
   const newState : MovimentoStore = {
     ...state,
     dominio: action.dominio,
   };
 
   return newState;
-}
+};
 
-function setEmpresa(state : MovimentoStore, action : Action) : MovimentoStore {
+const setEmpresa : MovimentoHandler = (state, action) => {
   const newState = {
     ...state,
     empresa: action.empresa,
   };
 
   return newState;
-}
+};
 
-function setCompetencia(state : MovimentoStore, action : Action) : MovimentoStore {
+const setCompetencia : MovimentoHandler = (state, action) => {
   const newState = {
     ...state,
     competencia: action.competencia,
   };
 
   return newState;
-}
+};
 
-function setSimples(state : MovimentoStore, action : Action) : MovimentoStore {
+const setSimples : MovimentoHandler = (state, action) => {
   const newState = {
     ...state,
   };
@@ -141,9 +143,9 @@ function setSimples(state : MovimentoStore, action : Action) : MovimentoStore {
       simples,
     },
   };
-}
+};
 
-function setGrupos(state : MovimentoStore, action : Action) : MovimentoStore {
+const setGrupos : MovimentoHandler = (state, action) => {
   const newState = {
     ...state,
   };
@@ -156,7 +158,7 @@ function setGrupos(state : MovimentoStore, action : Action) : MovimentoStore {
     ...newState,
     grupos,
   };
-}
+};
 
 export default function movimentoReducer(state = movimentoStore, action : Action) : MovimentoStore {
   switch (action.type) {
