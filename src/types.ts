@@ -341,6 +341,7 @@ export type ClientesStore = {
 export type FileZ = {
   tipo : string;
   notaPool : NotaPool | NotaServicoPool;
+  pessoas : PessoaPool[];
 }
 
 export type FileList = UploadFile<FileZ>[];

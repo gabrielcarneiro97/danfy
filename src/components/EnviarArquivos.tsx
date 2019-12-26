@@ -9,7 +9,9 @@ import {
   Icon,
 } from 'antd';
 
-import { api } from '../services';
+import { UploadChangeParam } from 'antd/lib/upload';
+import { UploadFile } from 'antd/lib/upload/interface';
+import { api } from '../services/publics';
 
 import Connect from '../store/Connect';
 import {
@@ -20,27 +22,34 @@ import {
   removeNotaServico,
   carregarArquivos,
 } from '../store/importacao';
+import {
+  ImportacaoStore, PessoaPool, FileZ, NotaPool, NotaServicoPool,
+} from '../types';
 
-function EnviarArquivos(props) {
+type propTypes = {
+  store : ImportacaoStore;
+  dispatch : Function;
+  onEnd : Function;
+}
+
+function EnviarArquivos(props : propTypes) : JSX.Element {
   const { store, dispatch, onEnd } = props;
   const [ended, setEnded] = useState(0);
   const { fileList } = store;
 
-  console.log(store);
-
   useEffect(() => {
     if (fileList.length > 0 && fileList.length === ended) {
       message.success('Arquivos Importados com Sucesso!');
-      onEnd();
+      if (onEnd) onEnd();
     }
   }, [ended, fileList]);
 
   const { pessoasPool } = store;
 
-  const addEnded = () => setEnded(ended + 1);
-  const subEnded = () => setEnded(ended - 1);
+  const addEnded = () : void => setEnded(ended + 1);
+  const subEnded = () : void => setEnded(ended - 1);
 
-  const addPessoas = (pessoasToAdd) => {
+  const addPessoas = (pessoasToAdd : PessoaPool[]) : void => {
     pessoasToAdd.forEach((pessoaPool) => {
       const pessoaId = pessoasPool.findIndex(
         (pP) => pP.pessoa.cpfcnpj === pessoaPool.pessoa.cpfcnpj,
@@ -49,29 +58,31 @@ function EnviarArquivos(props) {
     });
   };
 
-  const adicionarNota = (dados) => {
-    if (dados.tipo === 'nfe') dispatch(addNota(dados.notaPool));
-    else if (dados.tipo === 'nfse') dispatch(addNotaServico(dados.notaPool));
+  const adicionarNota = (dados : FileZ) : boolean => {
+    if (dados.tipo === 'nfe') dispatch(addNota(dados.notaPool as NotaPool));
+    else if (dados.tipo === 'nfse') dispatch(addNotaServico(dados.notaPool as NotaServicoPool));
     else return false;
 
     addPessoas(dados.pessoas);
     return true;
   };
 
-  const removerNota = async (dados) => {
-    if (dados.tipo === 'nfe') dispatch(removeNota(dados.notaPool));
-    else if (dados.tipo === 'nfse') dispatch(removeNotaServico(dados.notaPool));
+  const removerNota = (dados : FileZ) : boolean => {
+    if (dados.tipo === 'nfe') dispatch(removeNota(dados.notaPool as NotaPool));
+    else if (dados.tipo === 'nfse') dispatch(removeNotaServico(dados.notaPool as NotaServicoPool));
     else return false;
 
     return true;
   };
 
-  const uploadChange = async (info) => {
+  const uploadChange = (info : UploadChangeParam<UploadFile<FileZ[]>>) : void => {
     const data = info.file.response;
 
     if (info.fileList.length !== fileList.length) {
       dispatch(carregarArquivos(info.fileList));
     }
+
+    if (!data) return;
 
     if (info.file.status === 'done') {
       addEnded();
@@ -81,7 +92,7 @@ function EnviarArquivos(props) {
       addEnded();
     } else if (info.file.status === 'removed') {
       subEnded();
-      await removerNota(data);
+      removerNota(data[0]);
     }
   };
 
@@ -113,18 +124,5 @@ function EnviarArquivos(props) {
     </Row>
   );
 }
-
-EnviarArquivos.propTypes = {
-  store: PropTypes.shape({
-    pessoasPool: PropTypes.array,
-    fileList: PropTypes.array,
-  }).isRequired,
-  dispatch: PropTypes.func.isRequired,
-  onEnd: PropTypes.func,
-};
-
-EnviarArquivos.defaultProps = {
-  onEnd: () => true,
-};
 
 export default Connect(EnviarArquivos);
