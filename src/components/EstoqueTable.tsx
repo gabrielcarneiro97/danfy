@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import PropTypes from 'prop-types';
 import {
   Table,
   Row,
@@ -13,14 +12,19 @@ import EstoqueTabelaCheckbox from './EstoqueTabelaCheckbox';
 import EstoqueAddButton from './EstoqueAddButton';
 
 import Connect from '../store/Connect';
+import { ProdutoEstoqueLite, EstoqueStore } from '../types';
 
-function EstoqueTable(props) {
+type propTypes = {
+  store : EstoqueStore;
+}
+
+function EstoqueTable(props : propTypes) : JSX.Element {
   const { store } = props;
   const { estoqueArray, modificadosId } = store;
 
   const [filtros, setFiltros] = useState({ ativo: [true], dataSaida: ['null'] });
 
-  const handleChange = (pag, filters) => setFiltros(filters);
+  const handleChange = (pag : any, filters : any) : void => setFiltros(filters);
 
   const temEstoque = estoqueArray.length > 0;
 
@@ -29,15 +33,19 @@ function EstoqueTable(props) {
       title: 'Editar',
       dataIndex: 'id',
       key: 'id',
-      render: (id) => <EstoqueTabelaButtonUpload id={id} />,
+      render: (id : string | number) : JSX.Element => <EstoqueTabelaButtonUpload id={id} />,
     },
     {
       title: 'Data Entrada',
       dataIndex: 'dataEntrada',
       key: 'dataEntrada',
-      sorter: (a, b) => new Date(a.dataEntrada) - new Date(b.dataEntrada),
-      defaultSortOrder: 'ascend',
-      render: (v, e) => (
+      sorter: (a : ProdutoEstoqueLite, b : ProdutoEstoqueLite) : number => {
+        const dataA = a.dataEntrada ? new Date(a.dataEntrada).getTime() : 0;
+        const dataB = b.dataEntrada ? new Date(b.dataEntrada).getTime() : 0;
+        return dataA - dataB;
+      },
+      defaultSortOrder: 'ascend' as 'ascend',
+      render: (v : string, e : ProdutoEstoqueLite) : JSX.Element => (
         <EstoqueTabelaDatePicker
           value={v}
           name="dataEntrada"
@@ -51,13 +59,14 @@ function EstoqueTable(props) {
       key: 'dataSaida',
       filters: [{ text: 'Apenas em Estoque', value: 'null' }],
       filteredValue: filtros.dataSaida || null,
-      onFilter: (value, record) => {
+      onFilter: (value : string,
+        record : ProdutoEstoqueLite) : boolean => {
         if (value === 'null') {
           return record.dataSaida === null || modificadosId.includes(record.id);
         }
         return true;
       },
-      render: (v, e) => (
+      render: (v : string, e : ProdutoEstoqueLite) : JSX.Element => (
         <EstoqueTabelaDatePicker
           value={v}
           name="dataSaida"
@@ -69,7 +78,7 @@ function EstoqueTable(props) {
       title: 'Valor Entrada',
       dataIndex: 'valorEntrada',
       key: 'valorEntrada',
-      render: (v, e) => (
+      render: (v : string, e : ProdutoEstoqueLite) : JSX.Element => (
         <EstoqueTabelaInput
           value={v}
           name="valorEntrada"
@@ -81,7 +90,7 @@ function EstoqueTable(props) {
       title: 'Código Produto',
       dataIndex: 'produtoCodigo',
       key: 'produtoCodigo',
-      render: (v, e) => (
+      render: (v : string, e : ProdutoEstoqueLite) : JSX.Element => (
         <EstoqueTabelaInput
           value={v}
           name="produtoCodigo"
@@ -93,7 +102,7 @@ function EstoqueTable(props) {
       title: 'Descrição',
       dataIndex: 'descricao',
       key: 'descricao',
-      render: (v, e) => (
+      render: (v : string, e : ProdutoEstoqueLite) : JSX.Element => (
         <EstoqueTabelaInput
           value={v}
           name="descricao"
@@ -105,7 +114,7 @@ function EstoqueTable(props) {
       title: 'NF Entrada',
       dataIndex: 'notaInicialChave',
       key: 'notaInicialChave',
-      render: (v, e) => (
+      render: (v : string, e : ProdutoEstoqueLite) : JSX.Element => (
         <EstoqueTabelaInput
           value={v}
           name="notaInicialChave"
@@ -117,7 +126,7 @@ function EstoqueTable(props) {
       title: 'NF Saída',
       dataIndex: 'notaFinalChave',
       key: 'notaFinalChave',
-      render: (v, e) => (
+      render: (v : string, e : ProdutoEstoqueLite) : JSX.Element => (
         <EstoqueTabelaInput
           value={v}
           name="notaFinalChave"
@@ -129,10 +138,11 @@ function EstoqueTable(props) {
       title: 'Ativo',
       dataIndex: 'ativo',
       key: 'ativo',
-      filters: [{ text: 'Apenas Ativos', value: true }],
+      filters: [{ text: 'Apenas Ativos', value: 'true' }],
       filteredValue: filtros.ativo || null,
-      onFilter: (value, record) => record.ativo === value,
-      render: (v, e) => (
+      onFilter: (value : string,
+        record : ProdutoEstoqueLite) : boolean => record.ativo?.toString() === value,
+      render: (v : string, e : ProdutoEstoqueLite) : JSX.Element => (
         <EstoqueTabelaCheckbox
           ativo={v}
           id={e.id}
@@ -165,12 +175,5 @@ function EstoqueTable(props) {
     </>
   );
 }
-
-EstoqueTable.propTypes = {
-  store: PropTypes.shape({
-    estoqueArray: PropTypes.array,
-    modificadosId: PropTypes.array,
-  }).isRequired,
-};
 
 export default Connect(EstoqueTable);

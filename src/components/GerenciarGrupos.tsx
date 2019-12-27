@@ -1,12 +1,16 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 
 import GerenciarGruposForm from './GerenciarGruposForm';
 import GerenciarGruposTable from './GerenciarGruposTable';
 
 import Connect from '../store/Connect';
+import { ClientesStore } from '../types';
 
-function GerenciarGrupos(props) {
+type propTypes = {
+  store : ClientesStore;
+}
+
+function GerenciarGrupos(props : propTypes) : JSX.Element {
   const { store } = props;
   const { empresa } = store;
 
@@ -22,16 +26,5 @@ function GerenciarGrupos(props) {
     </>
   );
 }
-
-GerenciarGrupos.propTypes = {
-  store: PropTypes.shape({
-    empresa: PropTypes.shape({
-      numeroSistema: PropTypes.string,
-      nome: PropTypes.string,
-      cnpj: PropTypes.string,
-    }),
-  }).isRequired,
-};
-
 
 export default Connect(GerenciarGrupos);

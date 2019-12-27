@@ -1,5 +1,5 @@
 import {
-  EstoqueStore, StoreHandler, ProdutoEstoque, EstoqueObject, EstoqueInformacoesGerais,
+  EstoqueStore, StoreHandler, EstoqueObject, EstoqueInformacoesGerais, ProdutoEstoqueLite,
 } from '../types';
 
 export const estoqueStore : EstoqueStore = {
@@ -24,14 +24,14 @@ export const NOVO_ESTOQUE = Symbol('NOVO_ESTOQUE');
 export type Action = {
   type : symbol;
   estoqueInfosGerais? : EstoqueInformacoesGerais;
-  produtoEstoque? : ProdutoEstoque;
+  produtoEstoque? : ProdutoEstoqueLite;
   estoque? : EstoqueObject;
-  estoqueArray? : ProdutoEstoque[];
+  estoqueArray? : ProdutoEstoqueLite[];
 }
 
 export type EstoqueHandler = StoreHandler<EstoqueStore, Action>;
 
-function estoqueToArray(state : EstoqueStore) : ProdutoEstoque[] {
+function estoqueToArray(state : EstoqueStore) : ProdutoEstoqueLite[] {
   return Object.values(state.estoque).sort((a, b) => a.id - b.id);
 }
 
@@ -168,35 +168,35 @@ export function carregarInfosGerais(estoqueInfosGerais : EstoqueInformacoesGerai
   };
 }
 
-export function novoProduto(produtoEstoque : ProdutoEstoque) : Action {
+export function novoProduto(produtoEstoque : ProdutoEstoqueLite) : Action {
   return {
     type: ADICIONA_UM,
     produtoEstoque,
   };
 }
 
-export function atualizarProduto(produtoEstoque : ProdutoEstoque) : Action {
+export function atualizarProduto(produtoEstoque : ProdutoEstoqueLite) : Action {
   return {
     type: MUDA_UM,
     produtoEstoque,
   };
 }
 
-export function atualizacaoPersistida(produtoEstoque : ProdutoEstoque) : Action {
+export function atualizacaoPersistida(produtoEstoque : ProdutoEstoqueLite) : Action {
   return {
     type: TIRA_ID_MODIFICADOS,
     produtoEstoque,
   };
 }
 
-export function deletarProduto(produtoEstoque : ProdutoEstoque) : Action {
+export function deletarProduto(produtoEstoque : ProdutoEstoqueLite) : Action {
   return {
     type: REMOVE_UM,
     produtoEstoque,
   };
 }
 
-export function carregarEstoque(estoqueArray? : ProdutoEstoque[],
+export function carregarEstoque(estoqueArray? : ProdutoEstoqueLite[],
   estoque? : EstoqueObject) : Action {
   return {
     type: NOVO_ESTOQUE,

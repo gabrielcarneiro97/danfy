@@ -1,4 +1,5 @@
 import { UploadFile } from 'antd/lib/upload/interface';
+import moment from 'moment';
 
 export type pgStr = string;
 export type pgNum = number;
@@ -224,6 +225,19 @@ export type ProdutoEstoque = {
   ativo : pgBool;
 }
 
+export type ProdutoEstoqueLite = {
+  id : number;
+  produtoCodigo? : string;
+  notaInicialChave? : string;
+  notaFinalChave? : string;
+  valorEntrada? : number;
+  dataEntrada? : Date | string;
+  dataSaida? : Date | string;
+  donoCpfcnpj? : string;
+  descricao? : string;
+  ativo? : boolean;
+}
+
 export type ImpostoPool = {
   imposto : Imposto;
   icms : Icms;
@@ -358,12 +372,12 @@ export type ImportacaoStore = {
   fileList: FileList;
 }
 
-export type EstoqueObject = { [key : string] : ProdutoEstoque }
+export type EstoqueObject = { [key : string] : ProdutoEstoqueLite }
 
 export type EstoqueStore = {
   estoqueInfosGerais: EstoqueInformacoesGerais;
   estoque: EstoqueObject;
-  estoqueArray: ProdutoEstoque[];
+  estoqueArray: ProdutoEstoqueLite[];
   modificadosId: pgNum[];
 }
 

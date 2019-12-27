@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
 import {
   Input,
   Button,
@@ -8,18 +7,24 @@ import {
 } from 'antd';
 
 import {
-  pegarPessoaId,
   cnpjMask,
-} from '../services';
+} from '../services/calculador.service';
 
-import { getGrupos } from '../services/api.service';
+import { getGrupos, pegarPessoaId } from '../services/api.service';
 
 import Connect from '../store/Connect';
 import {
   carregarEmpresa, carregarGrupos,
 } from '../store/clientes';
+import { ClientesStore } from '../types';
 
-function GerenciarGruposForm(props) {
+type propTypes = {
+  store : ClientesStore;
+  dispatch : Function;
+  onSubmit? : Function;
+}
+
+function GerenciarGruposForm(props : propTypes) : JSX.Element {
   const { store, dispatch, onSubmit } = props;
   const {
     dominio,
@@ -52,7 +57,7 @@ function GerenciarGruposForm(props) {
     } else setSubmit(false);
   }, [num, acheiEmpresa, cnpjInput]);
 
-  const handleSubmit = async () => {
+  const handleSubmit = async () : Promise<void> => {
     const emp = {
       nome: nomeInput,
       cnpj: cnpjInput,
@@ -63,16 +68,16 @@ function GerenciarGruposForm(props) {
 
     dispatch(carregarEmpresa(emp));
     dispatch(carregarGrupos(grupos));
-    onSubmit();
+    if (onSubmit) onSubmit();
   };
 
-  const limparInputs = () => {
+  const limparInputs = () : void => {
     setNomeInput('');
     setCnpjInput('');
     setAcheiEmpresa(false);
   };
 
-  const handleNum = async (e) => {
+  const handleNum = async (e : React.ChangeEvent<HTMLInputElement>) : Promise<void> => {
     const numInput = e.target.value;
     setNum(numInput);
 
@@ -130,22 +135,5 @@ function GerenciarGruposForm(props) {
     </>
   );
 }
-
-GerenciarGruposForm.propTypes = {
-  store: PropTypes.shape({
-    dominio: PropTypes.array,
-    empresa: PropTypes.shape({
-      numeroSistema: PropTypes.string,
-      nome: PropTypes.string,
-      cnpj: PropTypes.string,
-    }),
-  }).isRequired,
-  dispatch: PropTypes.func.isRequired,
-  onSubmit: PropTypes.func,
-};
-
-GerenciarGruposForm.defaultProps = {
-  onSubmit: () => true,
-};
 
 export default Connect(GerenciarGruposForm);

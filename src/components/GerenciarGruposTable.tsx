@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 
 import { Table } from 'antd';
 
@@ -7,8 +6,13 @@ import Connect from '../store/Connect';
 
 import GerenciarGruposButton from './GerenciarGruposButton';
 import ShowColor from './ShowColor';
+import { ClientesStore, GrupoLite } from '../types';
 
-function GerenciarGruposTable(props) {
+type propTypes = {
+  store : ClientesStore;
+}
+
+function GerenciarGruposTable(props : propTypes) : JSX.Element {
   const { store } = props;
   const { grupos } = store;
 
@@ -27,16 +31,16 @@ function GerenciarGruposTable(props) {
       title: 'Cor',
       dataIndex: 'cor',
       key: 'cor',
-      render(hex) {
+      render(hex : string | undefined) : JSX.Element {
         return <ShowColor hex={hex} />;
       },
     },
     {
       title: 'Editar',
       key: 'editar',
-      render: (t, row) => (
+      render: (t : any, row : any) : JSX.Element => (
         <GerenciarGruposButton
-          defaultData={row}
+          defaultData={row as GrupoLite}
           buttonType="link"
           buttonText="Editar"
         />
@@ -60,16 +64,5 @@ function GerenciarGruposTable(props) {
     </>
   );
 }
-
-GerenciarGruposTable.propTypes = {
-  store: PropTypes.shape({
-    empresa: PropTypes.shape({
-      numeroSistema: PropTypes.string,
-      nome: PropTypes.string,
-      cnpj: PropTypes.string,
-    }),
-    grupos: PropTypes.array,
-  }).isRequired,
-};
 
 export default Connect(GerenciarGruposTable);

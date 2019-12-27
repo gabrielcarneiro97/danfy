@@ -10,7 +10,7 @@ import { ClientesStore } from '../store/Store';
 import AdicionarCliente from './AdicionarCliente';
 import GerenciarGrupos from './GerenciarGrupos';
 
-function GerenciarClientes() {
+function GerenciarClientes() : JSX.Element {
   return (
     <ClientesStore>
       <Row type="flex" justify="center">
