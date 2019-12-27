@@ -196,7 +196,8 @@ export function deletarProduto(produtoEstoque : ProdutoEstoque) : Action {
   };
 }
 
-export function carregarEstoque(estoqueArray : ProdutoEstoque[], estoque : EstoqueObject) : Action {
+export function carregarEstoque(estoqueArray? : ProdutoEstoque[],
+  estoque? : EstoqueObject) : Action {
   return {
     type: NOVO_ESTOQUE,
     estoqueArray,

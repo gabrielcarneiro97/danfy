@@ -10,4 +10,28 @@ const Connect = (Component : (props : any) => JSX.Element) => (props : any) : JS
   </Context.Consumer>
 );
 
+export function useConnect(context = Context) : { store : any; dispatch : Function } {
+  const contextValue = React.useContext(context);
+
+  if (process.env.NODE_ENV !== 'production' && !contextValue) {
+    throw new Error(
+      'could not find react-redux context value; please ensure the component is wrapped in a <Provider>',
+    );
+  }
+
+  return contextValue;
+}
+
+export function useStore() : any {
+  const { store } = useConnect();
+
+  return store;
+}
+
+export function useDispatch() : Function {
+  const { dispatch } = useConnect();
+
+  return dispatch;
+}
+
 export default Connect;

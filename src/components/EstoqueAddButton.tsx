@@ -8,13 +8,20 @@ import {
   Col,
   message,
 } from 'antd';
+import moment from 'moment';
 
 import { getEstoque, criarEstoqueProduto } from '../services/api.service';
 import { carregarEstoque } from '../store/estoque';
 import Connect from '../store/Connect';
 import { floating } from '../services/calculador.service';
+import { EstoqueStore } from '../types';
 
-function EstoqueAddButton(props) {
+type propTypes = {
+  dispatch : Function;
+  store : EstoqueStore;
+}
+
+function EstoqueAddButton(props : propTypes) : JSX.Element {
   const { store, dispatch } = props;
   const { estoqueInfosGerais } = store;
   const { cnpj, diaMesAno } = estoqueInfosGerais;
@@ -30,7 +37,7 @@ function EstoqueAddButton(props) {
 
   const disabled = cnpj === '' || diaMesAno === null;
 
-  const limparDados = () => {
+  const limparDados = () : void => {
     setDataEntrada(null);
     setDataSaida(null);
     setValorEntrada('');
@@ -39,7 +46,15 @@ function EstoqueAddButton(props) {
     setModalLoading(false);
   };
 
-  const produto = () => ({
+  const produto = () : {
+    dataEntrada: null;
+    dataSaida: null;
+    valorEntrada: number;
+    codigoProduto: string;
+    descricao: string;
+    donoCpfcnpj: string;
+    ativo: boolean;
+  } => ({
     dataEntrada,
     dataSaida,
     valorEntrada: floating(valorEntrada),
@@ -49,14 +64,14 @@ function EstoqueAddButton(props) {
     ativo: true,
   });
 
-  const abrirModal = () => setShowModal(true);
+  const abrirModal = () : void => setShowModal(true);
 
-  const closeModal = () => {
+  const closeModal = () : void => {
     setShowModal(false);
     limparDados();
   };
 
-  const addProduto = async () => {
+  const addProduto = async () : Promise<void> => {
     setModalLoading(true);
     const prod = produto();
 
@@ -74,8 +89,12 @@ function EstoqueAddButton(props) {
     message.success('TOP');
   };
 
-  const onChangeDatePicker = (setState) => (data) => setState(data);
-  const onChangeInput = (setState) => (e) => setState(e.target.value);
+  const onChangeDatePicker = (setState : Function) => (
+    data : moment.Moment | null,
+  ) : void => setState(data);
+  const onChangeInput = (setState : Function) => (
+    e : React.ChangeEvent<HTMLInputElement>,
+  ) : void => setState(e.target.value);
 
   return (
     <div style={{ marginBottom: '5px' }}>

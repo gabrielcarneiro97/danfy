@@ -138,24 +138,26 @@ export const cfopDevolucaoConsignacao = ['5918', '6918'];
 export const cfopDevolucaoDemonstracao = ['6913', '5913'];
 export const cfopDevolucaoSimbolica = ['5919', '6919'];
 
-export function retornarTipo(cfop) {
-  if (cfopCompra.includes(cfop)) {
+export function retornarTipo(cfop : string | number) : string {
+  const cfopStr = cfop.toString();
+
+  if (cfopCompra.includes(cfopStr)) {
     return 'COMPRA';
-  } if (cfopDevolucao.includes(cfop)) {
+  } if (cfopDevolucao.includes(cfopStr)) {
     return 'DEVOLUÇÃO DE VENDA';
-  } if (cfopVenda.includes(cfop) || cfopVendaConsignacao.includes(cfop)) {
+  } if (cfopVenda.includes(cfopStr) || cfopVendaConsignacao.includes(cfopStr)) {
     return 'VENDA';
-  } if (cfopConsignacao.includes(cfop)) {
+  } if (cfopConsignacao.includes(cfopStr)) {
     return 'CONSIGNAÇÃO';
-  } if (cfopCompraConsignacao.includes(cfop)) {
+  } if (cfopCompraConsignacao.includes(cfopStr)) {
     return 'COMPRA DEFINITIVA';
-  } if (cfopDevolucaoConsignacao.includes(cfop)) {
+  } if (cfopDevolucaoConsignacao.includes(cfopStr)) {
     return 'DEVOLUÇÃO DE CONSIGNAÇÃO';
-  } if (cfopDevolucaoCompra.includes(cfop)) {
+  } if (cfopDevolucaoCompra.includes(cfopStr)) {
     return 'DEVOLUÇÃO DE COMPRA';
-  } if (cfopDevolucaoDemonstracao.includes(cfop)) {
+  } if (cfopDevolucaoDemonstracao.includes(cfopStr)) {
     return 'DEVOLUÇÃO DEMONSTRAÇÃO';
-  } if (cfopDevolucaoSimbolica.includes(cfop)) {
+  } if (cfopDevolucaoSimbolica.includes(cfopStr)) {
     return 'DEVOLUÇÃO SIMBÓLICA';
   }
   return '';
@@ -178,7 +180,7 @@ export function pegaMes(mes : MesesNum) : string {
   }[mes];
 }
 
-export function cnpjMask(cnpj : string, tirar : boolean) : string {
+export function cnpjMask(cnpj : string, tirar? : boolean) : string {
   const strCnpj = String(cnpj);
 
   if (tirar && strCnpj.length === 18) {

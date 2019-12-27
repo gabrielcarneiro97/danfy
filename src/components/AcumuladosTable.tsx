@@ -2,7 +2,7 @@ import React from 'react';
 import { Table, Row, Col } from 'antd';
 
 import TableToPrint from './TableToPrint';
-import { pegaMes, R$ } from '../services';
+import { pegaMes, R$ } from '../services/calculador.service';
 
 import Connect from '../store/Connect';
 import { MovimentoStore, TrimestreData } from '../types';

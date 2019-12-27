@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
-import { withRouter } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 
 import {
   Popconfirm,
@@ -12,17 +12,25 @@ import {
 import { gravarMovimentos, gravarServicos } from '../services/api.service';
 
 import Connect from '../store/Connect';
+import { ImportacaoStore } from '../types';
 
-function EnvioFimButton(props) {
-  const { disabled, store, history } = props;
+type propTypes = {
+  disabled? : boolean;
+  store : ImportacaoStore;
+}
+
+function EnvioFimButton(props : propTypes) : JSX.Element {
+  const { disabled = false, store } = props;
   const { movimentosWithIndex, servicosWithIndex, empresa } = store;
   const { numeroSistema, cnpj } = empresa;
+
+  const history = useHistory();
 
   let mesAno = '';
 
   const [loading, setLoading] = useState(false);
 
-  const enviar = async () => {
+  const enviar = async () : Promise<void> => {
     setLoading(true);
     const movimentosConferidos = movimentosWithIndex.filter(
       (movPool) => {
@@ -75,24 +83,4 @@ function EnvioFimButton(props) {
   );
 }
 
-EnvioFimButton.propTypes = {
-  store: PropTypes.shape({
-    empresa: PropTypes.shape({
-      numeroSistema: PropTypes.string,
-      nome: PropTypes.string,
-      cnpj: PropTypes.string,
-    }),
-    servicosWithIndex: PropTypes.array,
-    movimentosWithIndex: PropTypes.array,
-  }).isRequired,
-  disabled: PropTypes.bool,
-  history: PropTypes.shape({
-    push: PropTypes.func,
-  }).isRequired,
-};
-
-EnvioFimButton.defaultProps = {
-  disabled: false,
-};
-
-export default withRouter(Connect(EnvioFimButton));
+export default Connect(EnvioFimButton);

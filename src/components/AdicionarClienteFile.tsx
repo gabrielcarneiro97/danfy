@@ -6,7 +6,7 @@ import {
 } from 'antd';
 import { UploadChangeParam } from 'antd/lib/upload/interface';
 
-import { api } from '../services';
+import { api } from '../services/publics';
 
 type propTypes = {
   onData?: Function;

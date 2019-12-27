@@ -4,7 +4,7 @@ import { Modal } from 'antd';
 import AdicionarClienteFile from './AdicionarClienteFile';
 import AdicionarClienteForm from './AdicionarClienteForm';
 
-import { pegarDominio } from '../services';
+import { pegarDominio } from '../services/api.service';
 
 import Connect from '../store/Connect';
 

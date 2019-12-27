@@ -14,9 +14,10 @@ import { CheckboxChangeEvent } from 'antd/lib/checkbox';
 import {
   adicionarEmpresaDominio,
   adicionarEmpresaImpostos,
-  cnpjMask,
   pegarDominio,
-} from '../services';
+} from '../services/api.service';
+
+import { cnpjMask } from '../services/calculador.service';
 
 import Connect from '../store/Connect';
 
