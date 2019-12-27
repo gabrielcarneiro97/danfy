@@ -85,14 +85,14 @@ export type TotalServico = {
 }
 
 export type Retencao = {
-  id : pgNum;
-  iss : pgNum;
-  irpj : pgNum;
-  pis : pgNum;
-  cofins : pgNum;
-  csll : pgNum;
-  inss : pgNum;
-  total : pgNum;
+  id? : pgNum;
+  iss? : pgNum;
+  irpj? : pgNum;
+  pis? : pgNum;
+  cofins? : pgNum;
+  csll? : pgNum;
+  inss? : pgNum;
+  total? : pgNum;
 }
 
 export type TotalSoma = {
@@ -199,10 +199,10 @@ export type Simples = {
 
 export type Grupo = {
   id : pgNum;
-  donoCpfcnpj : pgStr;
+  donoCpfcnpj? : pgStr;
   nome : pgStr;
-  descricao : pgStr;
-  cor : pgStr;
+  descricao? : pgStr;
+  cor? : pgStr;
 }
 
 export type Dominio = {

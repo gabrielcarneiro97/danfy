@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { Row, Col, Table } from 'antd';
 
 import TableToPrint from './TableToPrint';
@@ -7,8 +6,23 @@ import TableToPrint from './TableToPrint';
 import Connect from '../store/Connect';
 
 import { R$, pegaMes, dateToComp } from '../services/calculador.service';
+import {
+  MovimentoStore, MesesNum, Imposto, Retencao,
+} from '../types';
 
-function GruposTable(props) {
+type propTypes = {
+  printable? : boolean;
+  store : MovimentoStore;
+}
+
+type ColType = {
+  title : string;
+  dataIndex? : string;
+  key? : string;
+  children? : ColType[];
+}
+
+function GruposTable(props : propTypes) : JSX.Element {
   const { store, printable } = props;
   const {
     empresa,
@@ -20,9 +34,9 @@ function GruposTable(props) {
 
   if (grupos.length === 0) return <div />;
 
-  const { simples } = empresa;
+  const { simples } = empresa || { simples: false };
 
-  let columns = [
+  let columns : ColType[] = [
     {
       title: 'Grupo',
       dataIndex: 'grupoNome',
@@ -40,16 +54,17 @@ function GruposTable(props) {
     },
   ];
 
-  let dataSource = [];
+  let dataSource : any[] = [];
 
   const { servicosPool } = simples ? simplesData : trimestreData;
 
-  const meses = simples
+  const meses : MesesNum[] = simples
     ? []
-    : Object.keys(trimestreData).filter((k) => !Number.isNaN(parseInt(k, 10)));
+    : Object.keys(trimestreData)
+      .filter((k) => !Number.isNaN(parseInt(k, 10))).map((m) => parseInt(m, 10) as MesesNum);
 
   if (!simples) {
-    columns = columns.concat([
+    columns = columns.concat(
       {
         title: 'PIS',
         dataIndex: 'pis',
@@ -84,18 +99,46 @@ function GruposTable(props) {
           key: 'csllTotal',
         }),
       },
-    ]);
+    );
   }
 
-  let totais = null;
+  type TotaisSimples = {
+    receita : number | string;
+    iss : number | string;
+    [key : string] : number | string | JSX.Element;
+  };
 
-  dataSource = grupos.concat({ id: null, nome: 'Sem Grupo' }).map((grupo) => {
+  type TotaisLp = {
+    receita : number | string;
+    iss : number | string;
+    pis : number | string;
+    cofins : number | string;
+    [key : string] : number | string | JSX.Element;
+    irpjTotal : number | string;
+    csllTotal : number | string;
+  };
+
+  const totais : TotaisSimples | TotaisLp = simples ? {
+    receita: 0,
+    iss: 0,
+  } : {
+    receita: 0,
+    iss: 0,
+    pis: 0,
+    cofins: 0,
+    ...meses.reduce((acc, mes : MesesNum) => ({ ...acc, [`irpj${mes}`]: 0 }), {}),
+    ...meses.reduce((acc, mes : MesesNum) => ({ ...acc, [`csll${mes}`]: 0 }), {}),
+    irpjTotal: 0,
+    csllTotal: 0,
+  };
+
+  dataSource = grupos.concat({ id: 0, nome: 'Sem Grupo' }).map((grupo) => {
     const { id } = grupo;
     const grupoServicosPool = servicosPool.filter(({ servico }) => servico.grupoId === id);
 
     if (grupoServicosPool.length === 0) return null;
 
-    const data = simples ? {
+    const data : TotaisSimples | TotaisLp = simples ? {
       receita: 0,
       iss: 0,
     } : {
@@ -103,13 +146,13 @@ function GruposTable(props) {
       iss: 0,
       pis: 0,
       cofins: 0,
-      ...meses.reduce((acc, mes) => ({ ...acc, [`irpj${mes}`]: 0 }), {}),
-      ...meses.reduce((acc, mes) => ({ ...acc, [`csll${mes}`]: 0 }), {}),
+      ...meses.reduce((acc, mes : MesesNum) => ({ ...acc, [`irpj${mes}`]: 0 }), {}),
+      ...meses.reduce((acc, mes : MesesNum) => ({ ...acc, [`csll${mes}`]: 0 }), {}),
       irpjTotal: 0,
       csllTotal: 0,
     };
 
-    if (!totais) totais = { ...data };
+    if (!competencia) return null;
 
     const { mes } = competencia;
 
@@ -117,38 +160,70 @@ function GruposTable(props) {
       const { imposto, retencao, servico } = servicoPool;
       const { mes: mesAtual } = dateToComp(servico.dataHora);
 
-      const posRet = {};
+      const posRet : Retencao = {};
 
       Object.keys(imposto).forEach((k) => {
-        posRet[k] = imposto[k] - (retencao[k] || 0);
+        const key = k as keyof Imposto;
+        posRet[key as keyof Retencao] = imposto[key] - (retencao[key as keyof Retencao] || 0);
       });
 
-      if (mesAtual === parseInt(mes, 10)) {
-        data.receita += servico.valor;
-        data.iss += posRet.iss;
+      if (parseInt(mesAtual, 10) === parseInt(mes, 10)) {
+        (data.receita as number) += (servico.valor as number);
+        (data.iss as number) += posRet.iss || 0;
         if (!simples) {
-          data.pis += posRet.pis;
-          data.cofins += posRet.cofins;
+          ((data as TotaisLp).pis as number) += posRet.pis || 0;
+          ((data as TotaisLp).cofins as number) += posRet.cofins || 0;
         }
       }
 
       if (!simples) {
-        data[`irpj${mesAtual}`] += posRet.irpj;
-        data.irpjTotal += posRet.irpj;
+        ((data as TotaisLp)[`irpj${mesAtual}`] as number) += posRet.irpj || 0;
+        ((data as TotaisLp).irpjTotal as number) += posRet.irpj || 0;
 
-        data[`csll${mesAtual}`] += posRet.csll;
-        data.csllTotal += posRet.csll;
+        ((data as TotaisLp)[`csll${mesAtual}`] as number) += posRet.csll || 0;
+        ((data as TotaisLp).csllTotal as number) += posRet.csll || 0;
       }
     });
 
-    const final = {
+    type Cor = {
+      grupoNome : string;
+      cor : string;
+    }
+
+    type SimplesCor = {
+      receita : string;
+      iss : string;
+    } & Cor;
+
+    type LpCor = {
+      receita : string;
+      iss : string;
+      pis : string;
+      cofins : string;
+      [key : string] : string;
+      irpjTotal : string;
+      csllTotal : string;
+    } & Cor;
+
+    const final : SimplesCor | LpCor = {
       grupoNome: grupo.nome,
-      cor: grupo.cor,
+      cor: grupo.cor || '',
+      receita: '',
+      iss: '',
+      pis: '',
+      cofins: '',
+      irpjTotal: '',
+      csllTotal: '',
     };
 
     Object.keys(data).forEach((k) => {
-      totais[k] += data[k];
-      final[k] = R$(data[k]);
+      if (simples) {
+        (totais[k as keyof TotaisSimples] as number) += (data[k as keyof TotaisSimples] as number);
+        final[k as keyof TotaisSimples] = R$(data[k as keyof TotaisSimples] as number | string);
+      } else {
+        (totais[k as keyof TotaisLp] as number) += (data[k as keyof TotaisLp] as number);
+        final[k as keyof TotaisLp] = R$((data as TotaisLp)[k as keyof TotaisLp] as number | string);
+      }
     });
 
     return final;
@@ -156,7 +231,7 @@ function GruposTable(props) {
 
   if (totais) {
     Object.keys(totais).forEach((k) => {
-      if (k !== 'cor' && k !== 'grupoNome') totais[k] = R$(totais[k]);
+      if (k !== 'cor' && k !== 'grupoNome' && totais) totais[k] = R$(totais[k] as number | string);
     });
     totais.grupoNome = <strong>Totais</strong>;
     dataSource.push(totais);
@@ -183,40 +258,13 @@ function GruposTable(props) {
           size="small"
           columns={columns}
           dataSource={dataSource}
-          rowClassName={({ cor }) => (cor ? cor.replace('#', 'color-') : '')}
-          pagination={{ position: 'none' }}
+          rowClassName={({ cor }) : string => (cor ? cor.replace('#', 'color-') : '')}
+          pagination={{ position: undefined }}
           style={{ marginBottom: '20px' }}
         />
       </Col>
     </Row>
   );
 }
-
-GruposTable.propTypes = {
-  printable: PropTypes.bool,
-  store: PropTypes.shape({
-    dominio: PropTypes.array,
-    grupos: PropTypes.array,
-    trimestreData: PropTypes.object,
-    simplesData: PropTypes.object,
-    notasPool: PropTypes.array,
-    notasServicoPool: PropTypes.array,
-    empresa: PropTypes.shape({
-      numeroSistema: PropTypes.string,
-      nome: PropTypes.string,
-      formaPagamento: PropTypes.string,
-      cnpj: PropTypes.string,
-      simples: PropTypes.bool,
-    }),
-    competencia: PropTypes.shape({
-      mes: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-      ano: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-    }),
-  }).isRequired,
-};
-
-GruposTable.defaultProps = {
-  printable: false,
-};
 
 export default Connect(GruposTable);

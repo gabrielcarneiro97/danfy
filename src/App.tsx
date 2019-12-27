@@ -6,7 +6,6 @@ import {
   Redirect,
 } from 'react-router-dom';
 import { Layout } from 'antd';
-import PrintProvider, { NoPrint } from 'react-easy-print';
 import moment from 'moment';
 
 import 'moment/locale/pt-br';
@@ -28,22 +27,18 @@ function Main() {
 function App() {
   return (
     <>
-      <PrintProvider>
-        <NoPrint>
-          <BrowserRouter>
-            <Layout>
-              <Header>
-                <Navbar />
-              </Header>
-              <Switch>
-                <Route exact path="/" component={Main} />
-                <Route exact path="/login" component={Login} />
-                <PrivateRoute path="/app" component={MainLogged} />
-              </Switch>
-            </Layout>
-          </BrowserRouter>
-        </NoPrint>
-      </PrintProvider>
+      <BrowserRouter>
+        <Layout>
+          <Header>
+            <Navbar />
+          </Header>
+          <Switch>
+            <Route exact path="/" component={Main} />
+            <Route exact path="/login" component={Login} />
+            <PrivateRoute path="/app" component={MainLogged} />
+          </Switch>
+        </Layout>
+      </BrowserRouter>
     </>
   );
 }

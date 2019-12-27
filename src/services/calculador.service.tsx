@@ -2,7 +2,7 @@ import React from 'react';
 import moment from 'moment';
 import 'moment-timezone';
 import {
-  Empresa, Competencia, MesesNum, TrimestreData, Cota,
+  Empresa, Competencia, MesesNum, TrimestreData, Cota, MovimentoPool, ServicoPool,
 } from '../types';
 
 
@@ -206,10 +206,18 @@ export function mesInicioFim(mes : number | string,
   };
 }
 
-export function eDoMes(movOuServPool : any, { mes, ano } : any) : any {
-  if (!movOuServPool.movimento && !movOuServPool.servico) return false;
+export function eDoMes(movOuServPool : MovimentoPool | ServicoPool,
+  competencia? : Competencia) : boolean {
+  if (!competencia) return false;
 
-  const { dataHora } = movOuServPool.movimento ? movOuServPool.movimento : movOuServPool.servico;
+  const { mes, ano } = competencia;
+
+  if (!(movOuServPool as MovimentoPool).movimento && !(movOuServPool as ServicoPool).servico) {
+    return false;
+  }
+
+  const { dataHora } = (movOuServPool as MovimentoPool).movimento
+    ? (movOuServPool as MovimentoPool).movimento : (movOuServPool as ServicoPool).servico;
 
   const data = moment.utc(dataHora);
   const dataAno = parseInt(data.format('YYYY'), 10);
@@ -227,9 +235,9 @@ export function calcularCotas(
 
   const trimestre = trimestreData.trim.totalSomaPool;
 
-  const valorIr = (trimestre.impostoPool.imposto.irpj - trimestre.retencao.irpj)
+  const valorIr = (trimestre.impostoPool.imposto.irpj - (trimestre.retencao.irpj || 0))
     + trimestre.impostoPool.imposto.adicionalIr;
-  const valorCsll = trimestre.impostoPool.imposto.csll - trimestre.retencao.csll;
+  const valorCsll = trimestre.impostoPool.imposto.csll - (trimestre.retencao.csll || 0);
 
   let cotaIr = { valor: 0, numero: 0 };
   let cotaCsll = { valor: 0, numero: 0 };

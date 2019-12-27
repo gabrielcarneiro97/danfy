@@ -1,24 +1,31 @@
 import React, { useState } from 'react';
-import PropTypes from 'prop-types';
 
 import { Select } from 'antd';
 
 import Connect from '../store/Connect';
+import { ClientesStore } from '../types';
 
 const { Option } = Select;
 
-function GrupoSelect(props) {
+type propTypes = {
+  store : ClientesStore;
+  onChange? : Function;
+  disabled? : boolean;
+  initialValue? : string | number;
+}
+
+function GrupoSelect(props : propTypes) : JSX.Element {
   const {
     store,
-    onChange,
-    disabled,
-    initialValue,
+    onChange = () : boolean => true,
+    disabled = false,
+    initialValue = '',
   } = props;
   const { grupos } = store;
 
   const [value, setValue] = useState(initialValue);
 
-  const options = [<Option key="null" value={null}>&nbsp;</Option>].concat(
+  const options = [<Option key="null" value={undefined}>&nbsp;</Option>].concat(
     grupos.map((grupo) => (
       <Option key={grupo.id} value={grupo.id}>{grupo.nome}</Option>
     )),
@@ -29,7 +36,7 @@ function GrupoSelect(props) {
       style={{ width: '100%' }}
       disabled={disabled}
       value={value}
-      onChange={(v) => {
+      onChange={(v : string | number) : void => {
         setValue(v);
         onChange(v);
       }}
@@ -38,20 +45,5 @@ function GrupoSelect(props) {
     </Select>
   );
 }
-
-GrupoSelect.propTypes = {
-  store: PropTypes.shape({
-    grupos: PropTypes.array,
-  }).isRequired,
-  onChange: PropTypes.func,
-  disabled: PropTypes.bool,
-  initialValue: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-};
-
-GrupoSelect.defaultProps = {
-  onChange: () => true,
-  disabled: false,
-  initialValue: '',
-};
 
 export default Connect(GrupoSelect);

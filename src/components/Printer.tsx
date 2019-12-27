@@ -1,5 +1,4 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React, { useRef } from 'react';
 import ReactToPrint from 'react-to-print';
 import {
   Divider,
@@ -21,14 +20,19 @@ import {
   cnpjMask,
   eDoMes,
   temTabelaCotas,
-} from '../services';
+} from '../services/calculador.service';
 
 import './Printer.css';
 
 import Connect from '../store/Connect';
+import { MovimentoStore, MesesNum } from '../types';
+
+type propTypes = {
+  store : MovimentoStore;
+}
 
 
-function Printer(props) {
+function Printer(props : propTypes) : JSX.Element {
   const { store } = props;
   const {
     trimestreData,
@@ -38,6 +42,8 @@ function Printer(props) {
     grupos,
   } = store;
 
+  if (!empresa || !competencia) return <div />;
+
   const { movimentosPool, servicosPool } = empresa.simples ? simplesData : trimestreData;
 
   const movimentosPoolMes = movimentosPool.filter((mP) => eDoMes(mP, competencia));
@@ -46,7 +52,7 @@ function Printer(props) {
   const temMovimento = movimentosPoolMes.length > 0 && empresa.cnpj;
   const temServico = servicosPoolMes.length > 0 && empresa.cnpj;
 
-  let printRef = React.createRef();
+  const printRef = useRef<any>();
 
   const printStyle = `
     @page { size: auto; margin: 10mm; margin-bottom: 10mm; margin-top: 12mm; }
@@ -56,24 +62,24 @@ function Printer(props) {
   return (
     <div>
       <ReactToPrint
-        trigger={() => (
+        trigger={() : JSX.Element => (
           <Button
             disabled={!trimestreData.trim && !simplesData.simples.id}
           >
               Imprimir
           </Button>
         )}
-        content={() => printRef}
+        content={() => printRef.current}
         pageStyle={printStyle}
       />
       <div style={{ display: 'none' }}>
         <div
-          ref={(el) => { printRef = el; }}
+          ref={printRef}
         >
           <div style={{ fontSize: '1px', color: 'white' }}>
             {`${cnpjMask(empresa.cnpj)}`}
             <br />
-            {`${pegaMes(competencia.mes)}/${competencia.ano}`}
+            {`${pegaMes(parseInt(competencia.mes, 10) as MesesNum)}/${competencia.ano}`}
           </div>
           <h2
             style={{
@@ -90,7 +96,7 @@ function Printer(props) {
               textAlign: 'center',
             }}
           >
-            {`Competência: ${pegaMes(competencia.mes)}/${competencia.ano}`}
+            {`Competência: ${pegaMes(parseInt(competencia.mes, 10) as MesesNum)}/${competencia.ano}`}
           </h3>
           <Row type="flex" justify="center">
             {
@@ -168,28 +174,5 @@ function Printer(props) {
     </div>
   );
 }
-
-
-Printer.propTypes = {
-  store: PropTypes.shape({
-    dominio: PropTypes.array,
-    grupos: PropTypes.array,
-    trimestreData: PropTypes.object,
-    simplesData: PropTypes.object,
-    notasPool: PropTypes.array,
-    notasServicoPool: PropTypes.array,
-    empresa: PropTypes.shape({
-      numeroSistema: PropTypes.string,
-      nome: PropTypes.string,
-      formaPagamento: PropTypes.string,
-      cnpj: PropTypes.string,
-      simples: PropTypes.bool,
-    }),
-    competencia: PropTypes.shape({
-      mes: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-      ano: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-    }),
-  }).isRequired,
-};
 
 export default Connect(Printer);
