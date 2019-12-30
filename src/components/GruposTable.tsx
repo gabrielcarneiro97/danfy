@@ -7,19 +7,12 @@ import Connect from '../store/Connect';
 
 import { R$, pegaMes, dateToComp } from '../services/calculador.service';
 import {
-  MovimentoStore, MesesNum, Imposto, Retencao,
+  MovimentoStore, MesesNum, Imposto, Retencao, ColType,
 } from '../types';
 
 type propTypes = {
   printable? : boolean;
   store : MovimentoStore;
-}
-
-type ColType = {
-  title : string;
-  dataIndex? : string;
-  key? : string;
-  children? : ColType[];
 }
 
 function GruposTable(props : propTypes) : JSX.Element {

@@ -386,3 +386,10 @@ export type MesesNum = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
 export type Cota = { valor : number; numero : number }
 
 export type GrupoLite = { id: string; nome: string; cor : string; descricao: string }
+
+export type ColType = {
+  title : string;
+  dataIndex? : string;
+  key? : string;
+  children? : ColType[];
+}
