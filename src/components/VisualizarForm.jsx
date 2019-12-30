@@ -99,9 +99,9 @@ function VisualizarForm(props) {
         };
 
         emp.formaPagamento = emp.simples ? 'SIMPLES NACIONAL' : {
-          adiantamento: 'LUCRO PRESSUMIDO - PAGAMENTO ANTECIPADO',
-          cotas: 'LUCRO PRESSUMIDO - PAGAMENTO EM COTAS',
-          acumulado: 'LUCRO PRESSUMIDO - PAGAMENTO ACUMULADO NO FINAL DO TRIMESTRE',
+          adiantamento: 'LUCRO PRESUMIDO - PAGAMENTO ANTECIPADO',
+          cotas: 'LUCRO PRESUMIDO - PAGAMENTO EM COTAS',
+          acumulado: 'LUCRO PRESUMIDO - PAGAMENTO ACUMULADO NO FINAL DO TRIMESTRE',
         }[aliquota.formaPagamento];
 
         dispatch(carregarEmpresa(emp));

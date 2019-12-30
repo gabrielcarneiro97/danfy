@@ -77,6 +77,7 @@ function VisualizarTables(props) {
         }
         {
           temTabelaCotas(empresa, competencia)
+          && trimestreData.trim
           && (
             <>
               <Divider orientation="left">Cotas</Divider>

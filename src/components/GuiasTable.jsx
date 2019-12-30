@@ -66,7 +66,7 @@ function GuiasTable(props) {
     data.cofins = R$((imposto.cofins - retencao.cofins) + acumulado.cofins);
 
     if (parseInt(mes, 10) % 3 === 0
-    && empresa.formaPagamento !== 'LUCRO PRESSUMIDO - PAGAMENTO ANTECIPADO') {
+    && empresa.formaPagamento !== 'LUCRO PRESUMIDO - PAGAMENTO ANTECIPADO') {
       columns.push({
         title: 'CSLL',
         dataIndex: 'csll',
