@@ -1,6 +1,6 @@
 {
   "name": "danfy",
-  "version": "2.2.1",
+  "version": "2.2.2",
   "private": true,
   "dependencies": {
     "@types/jest": "^24.0.24",
