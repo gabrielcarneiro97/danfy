@@ -6,3 +6,5 @@ export const firebaseConfig = {
   storageBucket: 'danfy-4d504.appspot.com',
   messagingSenderId: '979812955533',
 };
+
+export const a = 0;

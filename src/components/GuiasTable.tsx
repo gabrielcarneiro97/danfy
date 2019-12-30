@@ -66,7 +66,7 @@ function GuiasTable(props) {
     data.cofins = R$((imposto.cofins - retencao.cofins) + acumulado.cofins);
 
     if (parseInt(mes, 10) % 3 === 0
-    && empresa.formaPagamento !== 'LUCRO PRESSUMIDO - PAGAMENTO ANTECIPADO') {
+    && empresa.formaPagamento !== 'LUCRO PRESUMIDO - PAGAMENTO ANTECIPADO') {
       columns.push({
         title: 'CSLL',
         dataIndex: 'csll',
@@ -82,7 +82,7 @@ function GuiasTable(props) {
       data.irpj = R$((trimestre.impostoPool.imposto.irpj - trimestre.retencao.irpj)
       + trimestre.impostoPool.imposto.adicionalIr);
     } else if (parseInt(mes, 10) % 3 !== 0
-      && empresa.formaPagamento === 'LUCRO PRESSUMIDO - PAGAMENTO ANTECIPADO') {
+      && empresa.formaPagamento === 'LUCRO PRESUMIDO - PAGAMENTO ANTECIPADO') {
       columns.push({
         title: 'CSLL',
         dataIndex: 'csll',
@@ -98,7 +98,7 @@ function GuiasTable(props) {
       });
       data.irpj = R$(imposto.irpj - retencao.irpj);
     } else if (parseInt(mes, 10) % 3 === 0
-      && empresa.formaPagamento === 'LUCRO PRESSUMIDO - PAGAMENTO ANTECIPADO') {
+      && empresa.formaPagamento === 'LUCRO PRESUMIDO - PAGAMENTO ANTECIPADO') {
       columns.push({
         title: 'CSLL',
         dataIndex: 'csll',

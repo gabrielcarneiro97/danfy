@@ -150,6 +150,7 @@ function Printer(props : propTypes) : JSX.Element {
             }
             {
               temTabelaCotas(empresa, competencia)
+              && trimestreData.trim
               && (
                 <>
                   <Divider orientation="left">Cotas</Divider>
