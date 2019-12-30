@@ -66,6 +66,15 @@ function EstoqueTable(props) {
       ),
     },
     {
+      title: 'NF Entrada Número',
+      render: (v, e) => {
+        if (e.notaInicialChave && e.notaInicialChave.length >= 34) {
+          return parseInt(e.notaInicialChave.slice(25, 34), 10);
+        }
+        return '';
+      },
+    },
+    {
       title: 'Valor Entrada',
       dataIndex: 'valorEntrada',
       key: 'valorEntrada',
@@ -102,7 +111,7 @@ function EstoqueTable(props) {
       ),
     },
     {
-      title: 'NF Entrada',
+      title: 'NF Entrada Chave',
       dataIndex: 'notaInicialChave',
       key: 'notaInicialChave',
       render: (v, e) => (
@@ -114,7 +123,7 @@ function EstoqueTable(props) {
       ),
     },
     {
-      title: 'NF Saída',
+      title: 'NF Saída Chave',
       dataIndex: 'notaFinalChave',
       key: 'notaFinalChave',
       render: (v, e) => (

@@ -2,6 +2,7 @@
 
 # privates
 src/services/private.js
+src/services/private.ts
 
 # dependencies
 *node_modules

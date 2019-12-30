@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Checkbox } from 'antd';
 
@@ -14,22 +14,22 @@ function EstoqueTabelaCheckbox({
   dispatch,
 }) {
   const { estoque } = store;
-  let { disabled } = false;
+  const [disabled, setDisabled] = useState(false);
 
   const onChange = async (e) => {
     const { checked } = e.target;
     const produtoEstoque = estoque[id];
-    disabled = true;
+    setDisabled(true);
     produtoEstoque.ativo = checked;
     dispatch(atualizarProduto(produtoEstoque));
 
     await editarEstoqueProduto(id, produtoEstoque);
 
     dispatch(atualizacaoPersistida(produtoEstoque));
-    disabled = false;
+    setDisabled(false);
   };
 
-  return <Checkbox onChange={onChange} checked={ativo} disabled={disabled}>{id}</Checkbox>;
+  return <Checkbox onChange={onChange} checked={ativo} disabled={disabled} />;
 }
 
 EstoqueTabelaCheckbox.propTypes = {
