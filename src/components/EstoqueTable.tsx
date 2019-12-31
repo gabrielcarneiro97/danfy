@@ -75,6 +75,15 @@ function EstoqueTable(props : propTypes) : JSX.Element {
       ),
     },
     {
+      title: 'NF Entrada Número',
+      render: (v : string, e : ProdutoEstoqueLite) : string | number => {
+        if (e.notaInicialChave && e.notaInicialChave.length >= 34) {
+          return parseInt(e.notaInicialChave.slice(25, 34), 10);
+        }
+        return '';
+      },
+    },
+    {
       title: 'Valor Entrada',
       dataIndex: 'valorEntrada',
       key: 'valorEntrada',

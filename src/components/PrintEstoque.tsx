@@ -25,7 +25,7 @@ function PrintEstoque(props) {
     const produto = { ...prodParam };
     if (!produto.ativo) return [...res];
     if (moment(produto.dataSaida).isAfter(diaMesAno) || produto.dataSaida === null) {
-      produto.nfEntradaNum = parseInt(produto.notaInicialChave.slice(25, 34), 10);
+      produto.nfEntradaNum = produto.notaInicialChave ? parseInt(produto.notaInicialChave.slice(25, 34), 10) : '';
       produto.valorEntrada = R$(produto.valorEntrada);
       produto.dataEntradaFormatada = moment(produto.dataEntrada).format('DD/MM/YYYY');
       return [...res, produto];
