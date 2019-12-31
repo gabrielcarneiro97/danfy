@@ -71,7 +71,6 @@ function EstoqueAddButton(props) {
       console.error(err);
       message.error(`Falha ao adicionar o produto: ${codigoProduto}`);
     }
-    message.success('TOP');
   };
 
   const onChangeDatePicker = (setState) => (data) => setState(data);

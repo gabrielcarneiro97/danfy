@@ -23,14 +23,14 @@ function PrintEstoque(props) {
 
   const data = estoqueArray.length > 0 ? estoqueArray.reduce((res, prodParam) => {
     const produto = { ...prodParam };
-    if (!produto.ativo) return [...res];
+    if (!produto.ativo) return res;
     if (moment(produto.dataSaida).isAfter(diaMesAno) || produto.dataSaida === null) {
-      produto.nfEntradaNum = parseInt(produto.notaInicialChave.slice(25, 34), 10);
+      produto.nfEntradaNum = produto.notaInicialChave ? parseInt(produto.notaInicialChave.slice(25, 34), 10) : '';
       produto.valorEntrada = R$(produto.valorEntrada);
       produto.dataEntradaFormatada = moment(produto.dataEntrada).format('DD/MM/YYYY');
-      return [...res, produto];
+      return res.concat(produto);
     }
-    return [...res];
+    return res;
   }, []) : [];
 
   data.sort((a, b) => new Date(a.dataEntrada) - new Date(b.dataEntrada));
