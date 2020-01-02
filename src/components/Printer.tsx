@@ -52,7 +52,7 @@ function Printer(props : propTypes) : JSX.Element {
   const temMovimento = movimentosPoolMes.length > 0 && empresa.cnpj;
   const temServico = servicosPoolMes.length > 0 && empresa.cnpj;
 
-  const printRef = useRef<any>();
+  const printRef = useRef<HTMLDivElement>(null);
 
   const printStyle = `
     @page { size: auto; margin: 10mm; margin-bottom: 10mm; margin-top: 12mm; }
@@ -69,7 +69,9 @@ function Printer(props : propTypes) : JSX.Element {
               Imprimir
           </Button>
         )}
-        content={() => printRef.current}
+        onBeforePrint={() : void => { document.title = `${empresa.numeroSistema} PLANILHA ${competencia.mes}-${competencia.ano}`; }}
+        onAfterPrint={() : void => { document.title = 'DANFY'; }}
+        content={() : any => printRef.current}
         pageStyle={printStyle}
       />
       <div style={{ display: 'none' }}>

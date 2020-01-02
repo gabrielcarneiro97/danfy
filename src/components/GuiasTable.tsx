@@ -1,33 +1,38 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { Row, Col, Table } from 'antd';
 
 import TableToPrint from './TableToPrint';
-import { R$ } from '../services';
+import { R$ } from '../services/calculador.service';
 
 import Connect from '../store/Connect';
+import { MovimentoStore, MesesNum } from '../types';
 
-function GuiasTable(props) {
-  const { store, printable } = props;
+type propTypes = {
+  printable : boolean;
+  store : MovimentoStore;
+}
+
+function GuiasTable(props : propTypes) : JSX.Element {
+  const { store, printable = false } = props;
   const { trimestreData, competencia, empresa } = store;
   const { movimentosPool, servicosPool } = trimestreData;
-  const { mes } = competencia;
+  const { mes } = competencia || { mes: '' };
 
   const temMovimentos = movimentosPool.length > 0;
   const temServicos = servicosPool.length > 0;
 
-  const gerarTable = () => {
-    const columns = [];
-    const data = {};
+  const columns : any = [];
+  const dataSource : any = [];
+  const data : any = {};
 
-    if (!trimestreData[mes]) {
-      return {
-        dataSource: [],
-        columns: [],
-      };
-    }
+  const mesNum = parseInt(mes, 10) as MesesNum;
 
-    const { acumulado, retencao, impostoPool } = trimestreData[mes].totalSomaPool;
+  const mesData = trimestreData[mesNum];
+
+  if (!mesData || !trimestreData || !trimestreData.trim || !empresa) {
+    dataSource.push({});
+  } else {
+    const { acumulado, retencao, impostoPool } = mesData.totalSomaPool;
     const { imposto, icms } = impostoPool;
     const trimestre = trimestreData.trim.totalSomaPool;
 
@@ -46,7 +51,7 @@ function GuiasTable(props) {
         dataIndex: 'iss',
         key: 'iss',
       });
-      data.iss = R$(imposto.iss - retencao.iss);
+      data.iss = R$(imposto.iss - (retencao.iss || 0));
     }
 
     columns.push({
@@ -55,7 +60,7 @@ function GuiasTable(props) {
       key: 'pis',
     });
 
-    data.pis = R$((imposto.pis - retencao.pis) + acumulado.pis);
+    data.pis = R$((imposto.pis - (retencao.pis || 0)) + acumulado.pis);
 
     columns.push({
       title: 'COFINS',
@@ -63,7 +68,7 @@ function GuiasTable(props) {
       key: 'cofins',
     });
 
-    data.cofins = R$((imposto.cofins - retencao.cofins) + acumulado.cofins);
+    data.cofins = R$((imposto.cofins - (retencao.cofins || 0)) + acumulado.cofins);
 
     if (parseInt(mes, 10) % 3 === 0
     && empresa.formaPagamento !== 'LUCRO PRESUMIDO - PAGAMENTO ANTECIPADO') {
@@ -72,14 +77,14 @@ function GuiasTable(props) {
         dataIndex: 'csll',
         key: 'csll',
       });
-      data.csll = R$(trimestre.impostoPool.imposto.csll - trimestre.retencao.csll);
+      data.csll = R$(trimestre.impostoPool.imposto.csll - (trimestre.retencao.csll || 0));
 
       columns.push({
         title: 'IRPJ + ADICIONAL',
         dataIndex: 'irpj',
         key: 'irpj',
       });
-      data.irpj = R$((trimestre.impostoPool.imposto.irpj - trimestre.retencao.irpj)
+      data.irpj = R$((trimestre.impostoPool.imposto.irpj - (trimestre.retencao.irpj || 0))
       + trimestre.impostoPool.imposto.adicionalIr);
     } else if (parseInt(mes, 10) % 3 !== 0
       && empresa.formaPagamento === 'LUCRO PRESUMIDO - PAGAMENTO ANTECIPADO') {
@@ -89,14 +94,14 @@ function GuiasTable(props) {
         key: 'csll',
       });
 
-      data.csll = R$(imposto.csll - retencao.csll);
+      data.csll = R$(imposto.csll - (retencao.csll || 0));
 
       columns.push({
         title: 'IRPJ',
         dataIndex: 'irpj',
         key: 'irpj',
       });
-      data.irpj = R$(imposto.irpj - retencao.irpj);
+      data.irpj = R$(imposto.irpj - (retencao.irpj || 0));
     } else if (parseInt(mes, 10) % 3 === 0
       && empresa.formaPagamento === 'LUCRO PRESUMIDO - PAGAMENTO ANTECIPADO') {
       columns.push({
@@ -104,27 +109,20 @@ function GuiasTable(props) {
         dataIndex: 'csll',
         key: 'csll',
       });
-      data.csll = R$(imposto.csll - retencao.csll);
+      data.csll = R$(imposto.csll - (retencao.csll || 0));
 
       columns.push({
         title: 'IRPJ + ADICIONAL',
         dataIndex: 'irpj',
         key: 'irpj',
       });
-      data.irpj = R$((imposto.irpj - retencao.irpj)
+      data.irpj = R$((imposto.irpj - (retencao.irpj || 0))
       + trimestre.impostoPool.imposto.adicionalIr);
     }
 
     data.key = 'guias';
-
-    return {
-      dataSource: [data],
-      columns,
-    };
-  };
-
-
-  const { dataSource, columns } = gerarTable();
+    dataSource.push(data);
+  }
 
   if (printable) {
     return (
@@ -146,7 +144,7 @@ function GuiasTable(props) {
           size="small"
           columns={columns}
           dataSource={dataSource}
-          pagination={{ position: 'none' }}
+          pagination={{ position: undefined }}
           style={{
             marginBottom: '20px',
           }}
@@ -155,30 +153,5 @@ function GuiasTable(props) {
     </Row>
   );
 }
-
-GuiasTable.propTypes = {
-  printable: PropTypes.bool,
-  store: PropTypes.shape({
-    dominio: PropTypes.array,
-    trimestreData: PropTypes.object,
-    notasPool: PropTypes.array,
-    notasServicoPool: PropTypes.array,
-    empresa: PropTypes.shape({
-      numeroSistema: PropTypes.string,
-      nome: PropTypes.string,
-      formaPagamento: PropTypes.string,
-      cnpj: PropTypes.string,
-      simples: PropTypes.bool,
-    }),
-    competencia: PropTypes.shape({
-      mes: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-      ano: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-    }),
-  }).isRequired,
-};
-
-GuiasTable.defaultProps = {
-  printable: false,
-};
 
 export default Connect(GuiasTable);
