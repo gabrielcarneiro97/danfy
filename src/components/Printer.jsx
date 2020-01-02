@@ -63,6 +63,8 @@ function Printer(props) {
               Imprimir
           </Button>
         )}
+        onBeforePrint={() => { document.title = `${empresa.numeroSistema} PLANILHA ${competencia.mes}-${competencia.ano}`; }}
+        onAfterPrint={() => { document.title = 'DANFY'; }}
         content={() => printRef}
         pageStyle={printStyle}
       />
