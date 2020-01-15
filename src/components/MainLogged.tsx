@@ -1,7 +1,8 @@
 import React from 'react';
-import { Route, Switch, Redirect } from 'react-router-dom';
+import {
+  Route, Switch, Redirect, useRouteMatch,
+} from 'react-router-dom';
 import { Layout } from 'antd';
-import PropTypes from 'prop-types';
 
 import MainMenu from './MainMenu';
 import ImportarNotas from './ImportarNotas';
@@ -11,8 +12,9 @@ import GerenciarClientes from './GerenciarClientes';
 
 const { Content, Sider } = Layout;
 
+function MainLogged() : JSX.Element {
+  const match = useRouteMatch();
 
-function MainLogged({ match }) {
   return (
     <Layout>
       <Sider width={230}>
@@ -40,12 +42,5 @@ function MainLogged({ match }) {
     </Layout>
   );
 }
-
-MainLogged.propTypes = {
-  match: PropTypes.shape({
-    path: PropTypes.string,
-    url: PropTypes.string,
-  }).isRequired,
-};
 
 export default MainLogged;

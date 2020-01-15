@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import propTypes from 'prop-types';
-import { withRouter, Link } from 'react-router-dom';
+import { Link, useLocation, useRouteMatch } from 'react-router-dom';
 import { Menu, Icon } from 'antd';
 
 import { getVersion } from '../services/api.service';
 
-function MainMenu(props) {
-  const { match, location } = props;
+
+function MainMenu() : JSX.Element {
+  const location = useLocation();
+  const match = useRouteMatch();
   const { pathname } = location;
 
   const [apiVer, setApiVer] = useState('');
@@ -73,13 +74,5 @@ function MainMenu(props) {
     </>
   );
 }
-MainMenu.propTypes = {
-  match: propTypes.shape({
-    url: propTypes.string,
-  }).isRequired,
-  location: propTypes.shape({
-    pathname: propTypes.string,
-  }).isRequired,
-};
 
-export default withRouter(MainMenu);
+export default MainMenu;
