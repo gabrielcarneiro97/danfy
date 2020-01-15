@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
 import {
   Input,
   Button,
@@ -8,10 +7,13 @@ import {
 } from 'antd';
 
 import {
+  cnpjMask,
+} from '../services/calculador.service';
+
+import {
   pegarDominio,
   pegarPessoaId,
-  cnpjMask,
-} from '../services';
+} from '../services/api.service';
 
 import Connect from '../store/Connect';
 import {
@@ -19,8 +21,20 @@ import {
   carregarEmpresa,
 } from '../store/importacao';
 
-function ImportarForm(props) {
-  const { store, dispatch, onSubmit } = props;
+import { ImportacaoStore } from '../types';
+
+type propTypes = {
+  store : ImportacaoStore;
+  dispatch : Function;
+  onSubmit : Function;
+}
+
+function ImportarForm(props : propTypes) : JSX.Element {
+  const {
+    store,
+    dispatch,
+    onSubmit = () : boolean => true,
+  } = props;
   const {
     dominio,
     empresa,
@@ -46,7 +60,7 @@ function ImportarForm(props) {
     } else setSubmit(false);
   }, [num, acheiEmpresa, cnpjInput]);
 
-  const handleSubmit = async () => {
+  const handleSubmit = async () : Promise<void> => {
     const emp = {
       nome: nomeInput,
       cnpj: cnpjInput,
@@ -58,13 +72,13 @@ function ImportarForm(props) {
     onSubmit();
   };
 
-  const limparInputs = () => {
+  const limparInputs = () : void => {
     setNomeInput('');
     setCnpjInput('');
     setAcheiEmpresa(false);
   };
 
-  const handleNum = async (e) => {
+  const handleNum = async (e : React.ChangeEvent<HTMLInputElement>) : Promise<void> => {
     const numInput = e.target.value;
     setNum(numInput);
 
@@ -122,27 +136,5 @@ function ImportarForm(props) {
     </>
   );
 }
-
-ImportarForm.propTypes = {
-  store: PropTypes.shape({
-    dominio: PropTypes.array,
-    empresa: PropTypes.shape({
-      numeroSistema: PropTypes.string,
-      nome: PropTypes.string,
-      cnpj: PropTypes.string,
-    }),
-    competencia: PropTypes.shape({
-      mes: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-      ano: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-    }),
-    trimestreData: PropTypes.object,
-  }).isRequired,
-  dispatch: PropTypes.func.isRequired,
-  onSubmit: PropTypes.func,
-};
-
-ImportarForm.defaultProps = {
-  onSubmit: () => true,
-};
 
 export default Connect(ImportarForm);

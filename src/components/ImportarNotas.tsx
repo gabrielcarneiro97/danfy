@@ -19,7 +19,7 @@ import { ImportacaoStore } from '../store/Store';
 
 const { Step } = Steps;
 
-function ImportarNotas() {
+function ImportarNotas() : JSX.Element {
   const [current, setCurrent] = useState(0);
   const [temEmpresa, setTemEmpresa] = useState(false);
   const [envio, setEnvio] = useState(false);
@@ -27,16 +27,16 @@ function ImportarNotas() {
 
   const lastStep = 2;
 
-  const nextStep = () => {
+  const nextStep = () : void => {
     const next = current + 1;
     if (next === lastStep) setEnvio(true);
     setCurrent(next);
   };
-  const prevStep = () => setCurrent(current - 1);
+  const prevStep = () : void => setCurrent(current - 1);
 
   return (
     <ImportacaoStore>
-      <ImportarForm onSubmit={() => setTemEmpresa(true)} />
+      <ImportarForm onSubmit={() : void => setTemEmpresa(true)} />
       {
         temEmpresa
         && (
@@ -78,7 +78,7 @@ function ImportarNotas() {
               {
                 current === 0
                 && (
-                  <EnviarArquivos onEnd={() => setNextDisabled(false)} />
+                  <EnviarArquivos onEnd={() : void => setNextDisabled(false)} />
                 )
               }
               {
