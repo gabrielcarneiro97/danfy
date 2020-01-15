@@ -113,8 +113,8 @@ export type Acumulado = {
 export type Movimento = {
   [key : string] : any;
   id : pgNum;
-  notaFinalChave : pgStr;
-  notaInicialChave : pgStr;
+  notaFinalChave : pgStr | null;
+  notaInicialChave : pgStr | null;
   valorSaida : pgNum;
   lucro : pgNum;
   dataHora : pgDate;
@@ -297,7 +297,7 @@ export type PessoaPool = {
   endereco : Endereco;
 }
 
-export type MovimentoPoolWithIndex = MovimentoPool & { index : number };
+export type MovimentoPoolWithIndex = MovimentoPool & { index? : number };
 
 export type ServicoPoolWithIndex = ServicoPool & { index : number };
 
@@ -408,3 +408,5 @@ export type Aliquotas = {
   irpj : number;
   iss : number;
 }
+
+export type MovWithIndexAndKey = MovimentoPoolWithIndex & { key : number | string };

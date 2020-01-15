@@ -1,52 +1,39 @@
 import React from 'react';
-import { withRouter } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import { Row, Col, Icon } from 'antd';
-import PropTypes from 'prop-types';
 
-import { auth, version } from '../services';
+import { auth } from '../services/api.service';
+import { version } from '../services/publics';
 
 import './Navbar.css';
 
-function Navbar(props) {
+function Navbar() : JSX.Element {
+  const history = useHistory();
   const icon = auth.currentUser ? 'logout' : 'login';
 
-  const handleClick = () => {
+  const handleClick = () : void => {
     if (auth.currentUser) {
-      auth.signOut().then(() => props.history.push('/login'));
+      auth.signOut().then(() => history.push('/login'));
     } else {
-      props.history.push('/login');
+      history.push('/login');
     }
   };
 
   return (
     <Row style={{ color: '#FFF' }}>
       <Col span={12}>
-        {
-          // eslint-disable-next-line
-        }<a style={{ color: '#FFF' }}>
+        <a style={{ color: '#FFF' }}> { /* eslint-disable-line */ }
           <span style={{ fontWeight: 'bolder' }}>DANFY </span>
           <span style={{ fontWeight: 'lighter' }}>{version}</span>
-        {
-            // eslint-disable-next-line
-        }</a>
+        </a>
       </Col>
       <Col span={12} style={{ textAlign: 'right' }}>
-        {
-          // eslint-disable-next-line
-        }<a className="login-btn" onClick={handleClick}>
+        <a className="login-btn" onClick={handleClick}> { /* eslint-disable-line */ }
           <Icon type={icon} />
-        {
-            // eslint-disable-next-line
-        }</a>
+        </a>
       </Col>
     </Row>
   );
 }
 
-Navbar.propTypes = {
-  history: PropTypes.shape({
-    push: PropTypes.func,
-  }).isRequired,
-};
-
-export default withRouter(Navbar);
+export default Navbar;

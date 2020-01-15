@@ -25,7 +25,7 @@ import {
 import Connect from '../store/Connect';
 import { carregarMovimento } from '../store/movimento';
 import {
-  MovimentoStore, MovimentoPoolWithIndex, Icms, Imposto, Movimento,
+  MovimentoStore, MovWithIndexAndKey, Icms, Imposto, Movimento,
 } from '../types';
 
 function valoresRender(valor : any, renderObj : any) : JSX.Element {
@@ -61,8 +61,6 @@ type propTypes = {
   dispatch : Function;
   printable? : boolean;
 }
-
-type MovWithIndexAndKey = MovimentoPoolWithIndex & { key : number | string };
 
 const columns : any = [
   {

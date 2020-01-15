@@ -1,22 +1,31 @@
 import React, { useState } from 'react';
-import PropTypes from 'prop-types';
 import { Input, Button, Popconfirm } from 'antd';
 
 import { floating } from '../services/calculador.service';
 
 import { movimentoSlim } from '../services/api.service';
+import { Nota, MovWithIndexAndKey } from '../types';
 
 const InputGroup = Input.Group;
 
-function NotaInicial(props) {
-  const { notaInicial, onChange, movimentoPoolWithIndex } = props;
+type propTypes = {
+  notaInicial : Nota;
+  notaFinal : Nota;
+  onChange : Function;
+  movimentoPoolWithIndex : MovWithIndexAndKey;
+}
+
+function NotaInicial(props : propTypes) : JSX.Element {
+  const { notaInicial = null, onChange, movimentoPoolWithIndex } = props;
   const { movimento } = movimentoPoolWithIndex;
 
   const [valorInput, setValorInput] = useState(notaInicial ? notaInicial.numero : '');
 
-  const onInputChange = (e) => setValorInput(e.target.value);
+  const onInputChange = (
+    e : React.ChangeEvent<HTMLInputElement>,
+  ) : void => setValorInput(e.target.value);
 
-  const handleClick = async () => {
+  const handleClick = async () : Promise<void> => {
     const { notaFinal } = props;
 
     if (movimento.notaInicialChave) {
@@ -46,65 +55,36 @@ function NotaInicial(props) {
     }
   };
 
-  const defineTextoPop = () => (movimento.notaInicialChave ? 'Deseja mesmo excluir essa nota?' : 'Deseja adicionar esse valor?');
+  const textoPop = movimento.notaInicialChave
+    ? 'Deseja mesmo excluir essa nota?' : 'Deseja adicionar esse valor?';
 
-  const defineIcon = () => (movimento.notaInicialChave ? 'close' : 'plus');
-
-  const inputRender = () => (
-    <Input
-      size="small"
-      style={{ width: 68 }}
-      placeholder="Valor"
-      value={valorInput}
-      onChange={onInputChange}
-      disabled={movimento.notaInicialChave !== null}
-    />
-  );
-
-  const buttonRender = () => (
-    <Popconfirm
-      title={defineTextoPop()}
-      onConfirm={handleClick}
-      okText="Sim"
-      cancelText="Não"
-    >
-      <Button
-        icon={defineIcon()}
-        size="small"
-      />
-    </Popconfirm>
-  );
+  const icon = (movimento.notaInicialChave ? 'close' : 'plus');
 
   return (
     <InputGroup
       style={{ width: 100 }}
     >
-      {inputRender()}
-      {buttonRender()}
+      <Input
+        size="small"
+        style={{ width: 68 }}
+        placeholder="Valor"
+        value={valorInput}
+        onChange={onInputChange}
+        disabled={movimento.notaInicialChave !== null}
+      />
+      <Popconfirm
+        title={textoPop}
+        onConfirm={handleClick}
+        okText="Sim"
+        cancelText="Não"
+      >
+        <Button
+          icon={icon}
+          size="small"
+        />
+      </Popconfirm>
     </InputGroup>
   );
 }
-
-NotaInicial.propTypes = {
-  onChange: PropTypes.func.isRequired,
-  notaInicial: PropTypes.shape({
-    geral: PropTypes.object,
-    numero: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-  }),
-  notaFinal: PropTypes.shape({
-    emitenteCpfcnpj: PropTypes.string,
-  }).isRequired,
-  movimentoPoolWithIndex: PropTypes.shape({
-    index: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-    movimento: PropTypes.shape({
-      notaFinalChave: PropTypes.string,
-      notaInicialChave: PropTypes.string,
-    }),
-  }).isRequired,
-};
-
-NotaInicial.defaultProps = {
-  notaInicial: null,
-};
 
 export default NotaInicial;

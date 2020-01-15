@@ -1,20 +1,30 @@
 import React, { useState } from 'react';
-import PropTypes from 'prop-types';
 import { Input } from 'antd';
 
-function MovimentoValorInput(props) {
+import { MovWithIndexAndKey } from '../types';
+
+type propTypes = {
+  onChange? : Function;
+  movimentoPoolWithKey : MovWithIndexAndKey;
+  name? : string;
+  value? : number | string;
+  disabled? : boolean;
+}
+
+function MovimentoValorInput(props : propTypes) : JSX.Element {
   const {
-    onChange,
+    onChange = () : boolean => true,
     movimentoPoolWithKey,
     name: propsName,
-    value: propsValue,
-    disabled: propsDisabled,
+    value: propsValue = '',
+    disabled: propsDisabled = false,
   } = props;
+
   const [name] = useState(propsName);
   const [value, setValue] = useState(propsValue);
   const [disabled] = useState(propsDisabled);
 
-  const handleChange = (e) => {
+  const handleChange = (e : React.ChangeEvent<HTMLInputElement>) : void => {
     setValue(e.target.value);
     onChange(e.target.value, name, movimentoPoolWithKey);
   };
@@ -28,21 +38,5 @@ function MovimentoValorInput(props) {
     />
   );
 }
-
-MovimentoValorInput.propTypes = {
-  onChange: PropTypes.func.isRequired,
-  movimentoPoolWithKey: PropTypes.object.isRequired, // eslint-disable-line
-  value: PropTypes.oneOfType([
-    PropTypes.number,
-    PropTypes.string,
-  ]).isRequired,
-  name: PropTypes.string,
-  disabled: PropTypes.bool,
-};
-
-MovimentoValorInput.defaultProps = {
-  name: '',
-  disabled: false,
-};
 
 export default MovimentoValorInput;
