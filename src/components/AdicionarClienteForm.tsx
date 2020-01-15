@@ -22,11 +22,11 @@ import { cnpjMask } from '../services/calculador.service';
 import Connect from '../store/Connect';
 
 import { carregarDominio } from '../store/clientes';
-import { Dominio, ClientesStore } from '../types';
+import { Dominio, ClientesStore, Aliquotas } from '../types';
 
 const { Option } = Select;
 
-const aliquotasPadrao = {
+const aliquotasPadrao : Aliquotas = {
   icmsAliquota: 0.18,
   icmsReducao: 0.2778,
   pis: 0.0065,
@@ -36,7 +36,7 @@ const aliquotasPadrao = {
   iss: 0.03,
 };
 
-const aliquotasLiminar = {
+const aliquotasLiminar : Aliquotas = {
   icmsAliquota: 0.18,
   icmsReducao: 0.2778,
   pis: 0.0065,
@@ -103,7 +103,7 @@ function AdicionarClienteForm(props : propTypes) : JSX.Element {
 
     setEnviarDisabled(true);
 
-    const aliquotas = {
+    const aliquotas : Aliquotas = {
       ...impostosEmpresa,
       formaPagamento,
       tributacao,

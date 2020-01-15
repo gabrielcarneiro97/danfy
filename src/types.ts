@@ -328,7 +328,7 @@ export type EstoqueInformacoesGerais = {
   numeroSistema: string;
   nome: string;
   cnpj: string;
-  diaMesAno: string;
+  diaMesAno: moment.Moment;
 }
 
 export type StoreHandler<S, A> = (state : S, action : A) => S;
@@ -392,4 +392,18 @@ export type ColType = {
   dataIndex? : string;
   key? : string;
   children? : ColType[];
+}
+
+export type Aliquotas = {
+  donoCpfcnpj? : string;
+  ativo? : boolean;
+  formaPagamento? : string;
+  tributacao? : string;
+  icmsAliquota : number;
+  icmsReducao : number;
+  pis : number;
+  cofins : number;
+  csll : number;
+  irpj : number;
+  iss : number;
 }

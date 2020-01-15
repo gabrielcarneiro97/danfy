@@ -42,6 +42,8 @@ function Printer(props : propTypes) : JSX.Element {
     grupos,
   } = store;
 
+  const printRef = useRef<HTMLDivElement>(null);
+
   if (!empresa || !competencia) return <div />;
 
   const { movimentosPool, servicosPool } = empresa.simples ? simplesData : trimestreData;
@@ -52,7 +54,6 @@ function Printer(props : propTypes) : JSX.Element {
   const temMovimento = movimentosPoolMes.length > 0 && empresa.cnpj;
   const temServico = servicosPoolMes.length > 0 && empresa.cnpj;
 
-  const printRef = useRef<HTMLDivElement>(null);
 
   const printStyle = `
     @page { size: auto; margin: 10mm; margin-bottom: 10mm; margin-top: 12mm; }
