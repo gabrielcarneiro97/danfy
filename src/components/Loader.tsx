@@ -1,7 +1,7 @@
 import React from 'react';
 import { Row, Col, Icon } from 'antd';
 
-function Loader() {
+function Loader() : JSX.Element {
   return (
     <Row type="flex" justify="space-around" align="middle">
       <Col style={{ fontSize: '12vw' }}>

@@ -1,18 +1,17 @@
 import React from 'react';
 import { Form, Icon, Button } from 'antd';
-import propTypes from 'prop-types';
+import { useHistory } from 'react-router';
 
-import { loginGoogle } from '../services';
+import { loginGoogle } from '../services/api.service';
 
 import './LoginForm.css';
 
 const FormItem = Form.Item;
 
+function LoginForm() : JSX.Element {
+  const history = useHistory();
 
-function LoginForm(props) {
-  const { history } = props;
-
-  const handleBtnGoogle = () => {
+  const handleBtnGoogle = () : void => {
     const { from } = history.location.state || { from: { pathname: '/app' } };
     loginGoogle().then(() => {
       history.push(from);
@@ -33,16 +32,5 @@ function LoginForm(props) {
     </Form>
   );
 }
-
-LoginForm.propTypes = {
-  history: propTypes.shape({
-    push: propTypes.func,
-    location: propTypes.object,
-  }).isRequired,
-  form: propTypes.shape({
-    getFieldDecorator: propTypes.func,
-    validateFields: propTypes.func,
-  }).isRequired,
-};
 
 export default Form.create()(LoginForm);

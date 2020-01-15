@@ -1,16 +1,15 @@
 import * as React from 'react';
-import { Redirect } from 'react-router-dom';
+import { Redirect, useLocation } from 'react-router-dom';
 import { Row, Col, Layout } from 'antd';
-import PropTypes from 'prop-types';
 
-import { auth } from '../services';
+import { auth } from '../services/api.service';
 
 import LoginForm from './LoginForm';
 
 const { Content } = Layout;
 
-function Login(props) {
-  const { location, history } = props;
+function Login() : JSX.Element {
+  const location = useLocation();
   const { from } = location.state || { from: { pathname: '/app' } };
 
   if (auth.currentUser !== null) {
@@ -21,18 +20,11 @@ function Login(props) {
     <Content style={{ minHeight: '92vh' }}>
       <Row type="flex" justify="center" align="middle">
         <Col lg={6} md={8} sm={12}>
-          <LoginForm history={history} />
+          <LoginForm />
         </Col>
       </Row>
     </Content>
   );
 }
-
-Login.propTypes = {
-  location: PropTypes.shape({
-    state: PropTypes.object,
-  }).isRequired,
-  history: PropTypes.object.isRequired, // eslint-disable-line
-};
 
 export default Login;
