@@ -111,6 +111,7 @@ export type Acumulado = {
 }
 
 export type Movimento = {
+  [key : string] : any;
   id : pgNum;
   notaFinalChave : pgStr;
   notaInicialChave : pgStr;
@@ -137,13 +138,13 @@ export type Servico = {
 }
 
 export type MetaDados = {
-  mdId : pgNum;
+  mdId? : pgNum;
   email : pgStr;
   mdDataHora : pgDate;
   tipo : pgStr;
   ativo : pgBool;
-  refMovimentoId : pgNum;
-  refServicoId : pgNum;
+  refMovimentoId? : pgNum;
+  refServicoId? : pgNum;
 }
 
 export type Nota = {
