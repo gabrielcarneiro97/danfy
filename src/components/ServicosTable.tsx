@@ -12,12 +12,15 @@ import {
 import TableToPrint from './TableToPrint';
 
 import {
-  R$,
   excluirServico,
   alterarGrupoServico,
+} from '../services/api.service';
+
+import {
+  R$,
   somaTotalServico,
   eDoMes,
-} from '../services';
+} from '../services/calculador.service';
 
 import GrupoSelect from './GrupoSelect';
 
@@ -25,26 +28,31 @@ import Connect from '../store/Connect';
 import { carregarMovimento } from '../store/movimento';
 
 import '../assets/colors.css';
+import { NotaServico, MovimentoStore, ServicoPool } from '../types';
 
-function eCancelada(nota) {
+function eCancelada(nota?: NotaServico) : boolean {
+  if (!nota) return false;
   return nota.status === 'CANCELADA';
 }
 
-function sorter(a, b) {
+function sorter(a : NotaServico, b : NotaServico) : number {
   if (!a.numero || (parseInt(a.numero, 10) > parseInt(b.numero, 10))) {
     return 1;
   }
   return -1;
 }
 
-function grupoSorter(a, b) {
+function grupoSorter(
+  a : any,
+  b : any,
+) : number {
   if (!a.grupoId || (parseInt(a.grupoId, 10) > parseInt(b.grupoId, 10))) {
     return 1;
   }
   return -1;
 }
 
-function numRender(numero, data) {
+function numRender(numero : any, data : any) : JSX.Element | string {
   if (data.$$typeof) return data;
   if (!numero) return '';
 
@@ -173,11 +181,17 @@ const simplesColumns = [
   },
 ];
 
-function ServicosTable(props) {
+type propTypes = {
+  store : MovimentoStore;
+  dispatch : Function;
+  printable? : boolean;
+}
+
+function ServicosTable(props : propTypes) : JSX.Element {
   const {
     dispatch,
     store,
-    printable,
+    printable = false,
   } = props;
   const {
     simplesData,
@@ -188,11 +202,11 @@ function ServicosTable(props) {
     grupos,
   } = store;
 
-  const { simples } = empresa;
+  const { simples } = empresa || { simples: false };
 
   const { servicosPool } = simples ? simplesData : trimestreData;
 
-  const columns = simples ? [...simplesColumns] : [...lpColumns];
+  const columns : any[] = simples ? [...simplesColumns] : [...lpColumns];
 
   if (grupos.length > 0) {
     columns.push({
@@ -201,29 +215,36 @@ function ServicosTable(props) {
       key: 'grupoId',
       width: 150,
       sorter: grupoSorter,
-      render: (value, row) => (row.key === 'total-servicos' ? '' : <GrupoSelect initialValue={value} onChange={row.mudarGrupo} />),
+      render: (value : any, row : any) => (
+        row.key === 'total-servicos'
+          ? '' : <GrupoSelect initialValue={value} onChange={row.mudarGrupo} />
+      ),
     });
   }
 
-  const update = (dados) => dispatch(carregarMovimento(dados));
+  const update = (dados : MovimentoStore) : void => dispatch(carregarMovimento(dados));
 
-  const apagaServico = (servicoPool) => () => excluirServico(servicoPool).then(update);
+  const apagaServico = (
+    servicoPool : ServicoPool,
+  ) => () : Promise<void> => excluirServico(servicoPool).then(update);
 
-  const mudarGrupo = (servicoPool) => (novoGrupoId) => alterarGrupoServico(
+  const mudarGrupo = (
+    servicoPool : ServicoPool,
+  ) => (novoGrupoId : string) : Promise<void> => alterarGrupoServico(
     servicoPool, novoGrupoId,
   ).then(update);
 
-  let totais;
+  let totais : any[] = [];
 
   const servicosPoolMes = simples ? servicosPool : servicosPool.filter(
     (sP) => eDoMes(sP, competencia),
   );
 
-  const dataSource = servicosPoolMes.map((servicoPool) => {
+  const dataSource : any[] = servicosPoolMes.map((servicoPool) => {
     const { servico, imposto, retencao } = servicoPool;
 
     const numero = parseInt(servico.notaChave.substring(18), 10);
-    const nota = notasServicoPool.find((n) => n.chave === servico.notaChave);
+    const nota = notasServicoPool.find((nP) => nP.notaServico.chave === servico.notaChave);
 
     const grupo = grupos.find((g) => g.id === servico.grupoId);
 
@@ -233,15 +254,15 @@ function ServicosTable(props) {
       numero,
       grupoId: printable ? (grupo && grupo.nome) || '' : servico.grupoId,
       nota: numero,
-      status: nota.status,
+      status: nota?.notaServico.status,
       data: moment(servico.dataHora).format('DD[/]MMM'),
       valorServico: R$(servico.valor),
-      issRetido: eCancelada(nota) ? R$(0) : R$(retencao.iss),
-      pisRetido: eCancelada(nota) ? R$(0) : R$(retencao.pis),
-      cofinsRetido: eCancelada(nota) ? R$(0) : R$(retencao.cofins),
-      csllRetido: eCancelada(nota) ? R$(0) : R$(retencao.csll),
-      irpjRetido: eCancelada(nota) ? R$(0) : R$(retencao.irpj),
-      totalRetido: eCancelada(nota) ? R$(0) : R$(retencao.total),
+      issRetido: eCancelada(nota?.notaServico) ? R$(0) : R$(retencao.iss || 0),
+      pisRetido: eCancelada(nota?.notaServico) ? R$(0) : R$(retencao.pis || 0),
+      cofinsRetido: eCancelada(nota?.notaServico) ? R$(0) : R$(retencao.cofins || 0),
+      csllRetido: eCancelada(nota?.notaServico) ? R$(0) : R$(retencao.csll || 0),
+      irpjRetido: eCancelada(nota?.notaServico) ? R$(0) : R$(retencao.irpj || 0),
+      totalRetido: eCancelada(nota?.notaServico) ? R$(0) : R$(retencao.total || 0),
       iss: R$(imposto.iss),
       pis: R$(imposto.pis),
       cofins: R$(imposto.cofins),
@@ -257,7 +278,7 @@ function ServicosTable(props) {
     return valores;
   });
 
-  if (totais) {
+  if (totais.length > 0) {
     dataSource.push(totais);
   }
 
