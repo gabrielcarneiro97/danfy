@@ -1,20 +1,25 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import moment from 'moment';
 import './TableToPrint.css';
 
-function TableToPrint(props) {
-  const { columns, dataSource, showHead } = props;
+type propTypes = {
+  showHead? : boolean;
+  columns : any[];
+  dataSource : any[];
+}
+
+function TableToPrint(props : propTypes) : JSX.Element {
+  const { columns, dataSource, showHead = false } = props;
 
   if (dataSource.length === 0) {
     return <div />;
   }
 
-  const headRows = [];
-  const keyOrder = [];
+  const headRows : any[] = [];
+  const keyOrder : any[] = [];
   headRows[0] = [];
   headRows[1] = [];
-  const dataRows = [];
+  const dataRows : any[] = [];
 
   columns.forEach((el) => {
     if (el.children) {
@@ -23,7 +28,7 @@ function TableToPrint(props) {
         key: el.title,
         content: <th key={el.title} colSpan={el.children.length}>{el.title}</th>,
       });
-      el.children.forEach((child) => {
+      el.children.forEach((child : any) => {
         keyOrder.push(child.key);
         headRows[1].push({
           key: child.key,
@@ -34,7 +39,7 @@ function TableToPrint(props) {
       keyOrder.push(el.key);
       headRows[0].push({
         key: el.key,
-        content: <th key={el.key} rowSpan="2">{el.title}</th>,
+        content: <th key={el.key} rowSpan={2}>{el.title}</th>,
       });
     }
   });
@@ -65,11 +70,11 @@ function TableToPrint(props) {
         showHead
         && (
           <thead>
-            {(() => {
-              const rows = [];
+            {(() : any => {
+              const rows : any[] = [];
               headRows.forEach((row, id) => {
-                const each = [];
-                row.forEach((r) => {
+                const each : any[] = [];
+                row.forEach((r : any) => {
                   each.push(r.content);
                 });
                 rows.push(<tr key={`${id}-head-row`}>{each}</tr>); // eslint-disable-line
@@ -80,8 +85,8 @@ function TableToPrint(props) {
         )
       }
       <tbody>
-        {(() => {
-          const rows = [];
+        {(() : any => {
+          const rows : any[] = [];
           dataRows.forEach((row, id) => {
             rows.push(<tr key={`${id}-data-row`}>{row}</tr>); // eslint-disable-line
           });
@@ -91,15 +96,5 @@ function TableToPrint(props) {
     </table>
   );
 }
-
-TableToPrint.propTypes = {
-  columns: PropTypes.array, // eslint-disable-line
-  dataSource: PropTypes.array, // eslint-disable-line
-  showHead: PropTypes.bool,
-};
-
-TableToPrint.defaultProps = {
-  showHead: true,
-};
 
 export default TableToPrint;

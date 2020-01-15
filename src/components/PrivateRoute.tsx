@@ -2,12 +2,18 @@ import React from 'react';
 import { Redirect, Route } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
-import { auth } from '../services';
+import { auth } from '../services/api.service';
 
-function PrivateRoute({ component: Component, ...rest }) {
-  const toRender = (propsRender) => (
+type propTypes = {
+  component : Function;
+  [key : string] : any;
+}
+
+function PrivateRoute(props : propTypes) : JSX.Element {
+  const { component: Component, ...rest } = props;
+  const toRender = (propsRender : { [key : string] : any }) : JSX.Element => (
     auth.currentUser
-      ? <Component {...propsRender} />
+      ? <Component {...propsRender} /> // eslint-disable-line
       : (
         <Redirect
           to={{
@@ -18,7 +24,7 @@ function PrivateRoute({ component: Component, ...rest }) {
       )
   );
 
-  return <Route {...rest} render={toRender} />;
+  return <Route {...rest} render={toRender} />; // eslint-disable-line
 }
 
 PrivateRoute.propTypes = {

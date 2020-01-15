@@ -228,10 +228,12 @@ export type ProdutoEstoque = {
 
 export type ProdutoEstoqueLite = {
   id : number;
+  nfEntradaNum? : number | string;
+  dataEntradaFormatada? : string;
   produtoCodigo? : string;
   notaInicialChave? : string;
   notaFinalChave? : string;
-  valorEntrada? : number;
+  valorEntrada? : number | string;
   dataEntrada? : Date | string;
   dataSaida? : Date | string;
   donoCpfcnpj? : string;

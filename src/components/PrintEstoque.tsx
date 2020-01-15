@@ -1,5 +1,4 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React, { useRef } from 'react';
 import moment from 'moment';
 import ReactToPrint from 'react-to-print';
 import {
@@ -10,11 +9,16 @@ import {
 } from 'antd';
 
 import TableToPrint from './TableToPrint';
-import { R$, cnpjMask } from '../services';
+import { R$, cnpjMask } from '../services/calculador.service';
 
 import Connect from '../store/Connect';
+import { EstoqueStore, ProdutoEstoqueLite } from '../types';
 
-function PrintEstoque(props) {
+type propTypes = {
+  store : EstoqueStore;
+}
+
+function PrintEstoque(props : propTypes) : JSX.Element {
   const { store } = props;
 
   const { estoqueArray, estoqueInfosGerais } = store;
@@ -26,14 +30,16 @@ function PrintEstoque(props) {
     if (!produto.ativo) return [...res];
     if (moment(produto.dataSaida).isAfter(diaMesAno) || produto.dataSaida === null) {
       produto.nfEntradaNum = produto.notaInicialChave ? parseInt(produto.notaInicialChave.slice(25, 34), 10) : '';
-      produto.valorEntrada = R$(produto.valorEntrada);
+      produto.valorEntrada = R$(produto.valorEntrada || 0);
       produto.dataEntradaFormatada = moment(produto.dataEntrada).format('DD/MM/YYYY');
       return [...res, produto];
     }
     return [...res];
-  }, []) : [];
+  }, new Array<ProdutoEstoqueLite>()) : [];
 
-  data.sort((a, b) => new Date(a.dataEntrada) - new Date(b.dataEntrada));
+  data.sort(
+    (a, b) => new Date(a.dataEntrada || 0).getTime() - new Date(b.dataEntrada || 0).getTime(),
+  );
 
   const columns = [
     {
@@ -63,18 +69,18 @@ function PrintEstoque(props) {
     },
   ];
 
-  let printRef = React.createRef();
+  const printRef = useRef<HTMLDivElement>(null);
 
   return (
     <>
       <ReactToPrint
-        trigger={() => <Button disabled={estoqueArray.length === 0}>Imprimir</Button>}
-        content={() => printRef}
+        trigger={() : JSX.Element => <Button disabled={estoqueArray.length === 0}>Imprimir</Button>}
+        content={() : any => printRef.current}
         pageStyle="@page { size: auto;  margin: 13mm; margin-bottom: 10mm } @media print { body { -webkit-print-color-adjust: exact; } }"
       />
       <div style={{ display: 'none' }}>
         <div
-          ref={(el) => { printRef = el; }}
+          ref={printRef}
         >
           <h2
             style={{
@@ -96,17 +102,5 @@ function PrintEstoque(props) {
     </>
   );
 }
-
-PrintEstoque.propTypes = {
-  store: PropTypes.shape({
-    estoqueArray: PropTypes.array,
-    estoqueInfosGerais: PropTypes.shape({
-      diaMesAno: PropTypes.string,
-      numeroSistema: PropTypes.string,
-      nome: PropTypes.string,
-      cnpj: PropTypes.string,
-    }),
-  }).isRequired,
-};
 
 export default Connect(PrintEstoque);
