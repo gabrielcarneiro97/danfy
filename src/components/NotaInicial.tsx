@@ -9,7 +9,7 @@ import { Nota, MovWithIndexAndKey } from '../types';
 const InputGroup = Input.Group;
 
 type propTypes = {
-  notaInicial? : Nota;
+  notaInicial? : Nota | null;
   notaFinal : Nota;
   onChange : Function;
   movimentoPoolWithIndex : MovWithIndexAndKey;

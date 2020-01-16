@@ -28,10 +28,10 @@ function PrintEstoque(props : propTypes) : JSX.Element {
   const data = estoqueArray.length > 0 ? estoqueArray.reduce((res, prodParam) => {
     const produto = { ...prodParam };
     if (!produto.ativo) return [...res];
-    if (moment(produto.dataSaida).isAfter(diaMesAno) || produto.dataSaida === null) {
+    if (moment(produto.dataSaida || 0).isAfter(diaMesAno || 0) || produto.dataSaida === null) {
       produto.nfEntradaNum = produto.notaInicialChave ? parseInt(produto.notaInicialChave.slice(25, 34), 10) : '';
       produto.valorEntrada = R$(produto.valorEntrada || 0);
-      produto.dataEntradaFormatada = moment(produto.dataEntrada).format('DD/MM/YYYY');
+      produto.dataEntradaFormatada = moment(produto.dataEntrada || 0).format('DD/MM/YYYY');
       return [...res, produto];
     }
     return [...res];
@@ -89,7 +89,7 @@ function PrintEstoque(props : propTypes) : JSX.Element {
               marginTop: '2%',
             }}
           >
-            {`(${estoqueInfosGerais.numeroSistema}) ${estoqueInfosGerais.nome} - ${cnpjMask(estoqueInfosGerais.cnpj)}`}
+            {`(${estoqueInfosGerais.numeroSistema}) ${estoqueInfosGerais.nome} - ${cnpjMask(estoqueInfosGerais.cnpj || '')}`}
           </h2>
           <Row type="flex" justify="center">
             <Divider orientation="left">{`Estoque - ${diaMesAno && diaMesAno.format('DD/MM/YYYY')}`}</Divider>

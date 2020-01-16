@@ -7,7 +7,7 @@ import './VisualizarMovimento.css';
 
 import { EstoqueStore } from '../store/Store';
 
-function VisualizarEstoque() {
+function VisualizarEstoque() : JSX.Element {
   return (
     <EstoqueStore>
       <div>

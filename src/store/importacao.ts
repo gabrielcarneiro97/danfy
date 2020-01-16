@@ -1,6 +1,6 @@
 import {
   ImportacaoStore, NotaPool, NotaServicoPool, PessoaPool,
-  StoreHandler, Dominio, Empresa, MovimentoPoolWithIndex, ServicoPoolWithIndex,
+  StoreHandler, Dominio, Empresa, ServicoPoolWithIndex, MovWithIndexAndKey,
 } from '../types';
 
 export const importacaoStore : ImportacaoStore = {
@@ -47,8 +47,8 @@ export type Action = {
   pessoaPool? : PessoaPool;
   dominio? : Dominio[];
   empresa? : Empresa;
-  fileList? : object[];
-  movimentosWithIndex? : MovimentoPoolWithIndex[];
+  fileList? : any[];
+  movimentosWithIndex? : MovWithIndexAndKey[];
   servicosWithIndex? : ServicoPoolWithIndex[];
 }
 
@@ -286,7 +286,7 @@ export function carregarArquivos(fileList : object[]) : Action {
   };
 }
 
-export function carregarMovimentos(movimentosWithIndex : MovimentoPoolWithIndex[]) : Action {
+export function carregarMovimentos(movimentosWithIndex : MovWithIndexAndKey[]) : Action {
   return {
     type: CARREGAR_MOVIMENTOS,
     movimentosWithIndex,

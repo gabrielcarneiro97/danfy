@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import PropTypes from 'prop-types';
 import moment from 'moment';
 import {
   Input,
@@ -21,10 +20,13 @@ import {
   pegarDominio,
   pegarPessoaId,
   pegarEmpresaImpostos,
-  cnpjMask,
   recalcularSimples,
   getGrupos,
-} from '../services';
+} from '../services/api.service';
+
+import {
+  cnpjMask,
+} from '../services/calculador.service';
 
 import Connect from '../store/Connect';
 import {
@@ -37,10 +39,16 @@ import {
 } from '../store/movimento';
 
 import './VisualizarForm.css';
+import { MovimentoStore } from '../types';
 
 const { MonthPicker } = DatePicker;
 
-function VisualizarForm(props) {
+type propTypes = {
+  store : MovimentoStore;
+  dispatch : Function;
+}
+
+function VisualizarForm(props : propTypes) : JSX.Element {
   const { store, dispatch } = props;
   const {
     dominio,
@@ -54,9 +62,9 @@ function VisualizarForm(props) {
 
   const { numParam, compParam } = qs.parse(search, { ignoreQueryPrefix: true });
 
-  const monthPicker = useRef();
+  const monthPicker = useRef<any>(null);
 
-  const { movimentosPool, servicosPool } = empresa.simples ? simplesData : trimestreData;
+  const { movimentosPool, servicosPool } = empresa?.simples ? simplesData : trimestreData;
 
   console.log(trimestreData);
 
@@ -68,7 +76,7 @@ function VisualizarForm(props) {
   const [getFromParams, setGetFromParams] = useState(false);
   const [disableRecalc, setDisableRecalc] = useState(true);
 
-  const handleDate = (e, mesAno) => {
+  const handleDate = (e : any, mesAno : string) : void => {
     if (!mesAno) dispatch(carregarCompetencia({ mes: '', ano: '' }));
     else {
       const [mes, ano] = mesAno.split('-');
@@ -78,12 +86,12 @@ function VisualizarForm(props) {
     setSubmit(false);
   };
 
-  const handleNum = async (e) => {
+  const handleNum = async (e : any) : Promise<void> => {
     const numInput = (e.target && e.target.value) || '';
 
     setNum(numInput);
 
-    const empresaSelected = dominio.find((o) => o.numero === numInput);
+    const empresaSelected = dominio?.find((o) => o.numero === numInput);
     if (empresaSelected) {
       const { cnpj } = empresaSelected;
       try {
@@ -96,13 +104,16 @@ function VisualizarForm(props) {
           simples: aliquota.tributacao === 'SN',
           cnpj,
           numeroSistema: numInput,
+          formaPagamento: '',
         };
 
-        emp.formaPagamento = emp.simples ? 'SIMPLES NACIONAL' : {
+        const seletor : any = {
           adiantamento: 'LUCRO PRESUMIDO - PAGAMENTO ANTECIPADO',
           cotas: 'LUCRO PRESUMIDO - PAGAMENTO EM COTAS',
           acumulado: 'LUCRO PRESUMIDO - PAGAMENTO ACUMULADO NO FINAL DO TRIMESTRE',
-        }[aliquota.formaPagamento];
+        };
+
+        emp.formaPagamento = emp.simples ? 'SIMPLES NACIONAL' : seletor[aliquota.formaPagamento || ''];
 
         dispatch(carregarEmpresa(emp));
         setAcheiEmpresa(true);
@@ -137,12 +148,12 @@ function VisualizarForm(props) {
     setSubmit(false);
     setLoading(true);
 
-    const dados = empresa.simples
-      ? await pegarSimples(empresa.cnpj, competencia)
-      : await pegarTrimestre(empresa.cnpj, competencia);
+    const dados = empresa?.simples
+      ? await pegarSimples(empresa?.cnpj || '', competencia)
+      : await pegarTrimestre(empresa?.cnpj || '', competencia);
 
     if (dados) {
-      const grupos = await getGrupos(empresa.cnpj);
+      const grupos = await getGrupos(empresa?.cnpj || '');
       dispatch(carregarGrupos(grupos));
       dispatch(carregarMovimento(dados));
     }
@@ -152,9 +163,9 @@ function VisualizarForm(props) {
     setLoading(false);
   };
 
-  const recalcular = async () => {
+  const recalcular = async () : Promise<void> => {
     setDisableRecalc(true);
-    const simples = await recalcularSimples(empresa.cnpj, competencia);
+    const simples = await recalcularSimples(empresa?.cnpj || '', competencia);
     dispatch(carregarMovimento(simples));
     setDisableRecalc(false);
   };
@@ -167,7 +178,7 @@ function VisualizarForm(props) {
   }, []);
 
   useEffect(() => {
-    if (numParam && compParam && dominio.length > 0) {
+    if (numParam && compParam && (dominio?.length || 0) > 0) {
       monthPicker.current.picker.handleChange(moment(compParam, 'MM-YYYY'));
       (async () => {
         await handleNum({ target: { value: numParam } });
@@ -182,7 +193,7 @@ function VisualizarForm(props) {
   }, [getFromParams]);
 
   useEffect(() => {
-    if (empresa.cnpj && competencia.mes && competencia.ano) {
+    if (empresa?.cnpj && competencia?.mes && competencia?.ano) {
       setSubmit(true);
     } else if ((movimentosPool.length >= 0 || servicosPool.length >= 0)) {
       dispatch(limparDados());
@@ -190,7 +201,7 @@ function VisualizarForm(props) {
   }, [num, competencia, acheiEmpresa]);
 
   useEffect(() => {
-    if (empresa.cnpj) {
+    if (empresa?.cnpj) {
       setDisableRecalc(true);
       dispatch(limparDados());
     }
@@ -220,13 +231,13 @@ function VisualizarForm(props) {
           />
         </Col>
         <Col span={16} className="form-input">
-          <Input addonBefore="Nome" value={empresa.nome} disabled />
+          <Input addonBefore="Nome" value={empresa?.nome || ''} disabled />
         </Col>
         <Col span={8} className="form-input">
-          <Input addonBefore="CNPJ" value={cnpjMask(empresa.cnpj)} disabled />
+          <Input addonBefore="CNPJ" value={cnpjMask(empresa?.cnpj || '')} disabled />
         </Col>
         <Col span={16} className="form-input">
-          <Input addonBefore="Tributação" value={empresa.formaPagamento} disabled />
+          <Input addonBefore="Tributação" value={empresa?.formaPagamento || ''} disabled />
         </Col>
       </Row>
       <Row
@@ -235,7 +246,7 @@ function VisualizarForm(props) {
         gutter={16}
       >
         {
-          empresa.simples
+          empresa?.simples
           && (
             <Col className="form-input">
               <Button onClick={recalcular} disabled={disableRecalc}>
@@ -258,26 +269,5 @@ function VisualizarForm(props) {
     </>
   );
 }
-
-VisualizarForm.propTypes = {
-  store: PropTypes.shape({
-    dominio: PropTypes.array,
-    grupos: PropTypes.array,
-    empresa: PropTypes.shape({
-      numeroSistema: PropTypes.string,
-      nome: PropTypes.string,
-      formaPagamento: PropTypes.string,
-      cnpj: PropTypes.string,
-      simples: PropTypes.bool,
-    }),
-    competencia: PropTypes.shape({
-      mes: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-      ano: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-    }),
-    trimestreData: PropTypes.object,
-    simplesData: PropTypes.object,
-  }).isRequired,
-  dispatch: PropTypes.func.isRequired,
-};
 
 export default Connect(VisualizarForm);

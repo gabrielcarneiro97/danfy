@@ -31,7 +31,7 @@ function EstoqueTabelaCheckbox(props : propTypes) : JSX.Element {
     produtoEstoque.ativo = checked;
     dispatch(atualizarProduto(produtoEstoque));
 
-    await editarEstoqueProduto(id, produtoEstoque);
+    await editarEstoqueProduto(id.toString(), produtoEstoque);
 
     dispatch(atualizacaoPersistida(produtoEstoque));
     setDisabled(false);

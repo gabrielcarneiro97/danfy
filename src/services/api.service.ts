@@ -11,7 +11,7 @@ import {
   ServicoPool, MovimentoStore,
   Grupo, Competencia,
   NotaPool, Movimento,
-  Nota, Pessoa, Aliquotas,
+  Nota, Pessoa, Aliquotas, GrupoLite,
 } from '../types';
 
 export const firebaseApp = firebase.initializeApp(firebaseConfig);
@@ -36,7 +36,7 @@ export async function getEstoque(estoqueInfosGerais : EstoqueInformacoesGerais)
   : Promise<ProdutoEstoqueLite[]> {
   const { data } = await axios.get(`${api}/estoque/${estoqueInfosGerais.cnpj}`, {
     params: {
-      data: estoqueInfosGerais.diaMesAno.format('DD-MM-YYYY'),
+      data: estoqueInfosGerais?.diaMesAno?.format('DD-MM-YYYY') || '00-00-0000',
     },
   });
 
@@ -232,8 +232,9 @@ export async function excluirServico(servicoPool : ServicoPool) : Promise<any> {
 
 export async function pegarTrimestre(
   cnpj : string,
-  { mes, ano } : Competencia,
+  competencia? : Competencia,
 ) : Promise<MovimentoStore> {
+  const { mes, ano } = competencia || { mes: '', ano: '' };
   const { data } = await axios.get(`${api}/trimestre/${cnpj}/${mes}/${ano}`);
 
   return data;
@@ -253,7 +254,7 @@ export async function atualizarEstoque(
     `${api}/estoque/${estoqueInfosGerais.cnpj}`, null,
     {
       params: {
-        data: estoqueInfosGerais.diaMesAno.format('DD-MM-YYYY'),
+        data: estoqueInfosGerais?.diaMesAno?.format('DD-MM-YYYY') || '00-00-0000',
       },
     },
   );
@@ -273,8 +274,9 @@ export async function editarEstoqueProduto(
 
 export async function pegarSimples(
   cnpj : string,
-  { mes, ano } : Competencia,
+  competencia? : Competencia,
 ) : Promise<MovimentoStore> {
+  const { mes, ano } = competencia || { mes: '', ano: '' };
   const { data } = await axios.get(`${api}/simples`, {
     params: {
       cnpj,
@@ -288,8 +290,9 @@ export async function pegarSimples(
 
 export async function recalcularSimples(
   cnpj : string,
-  { mes, ano } : Competencia,
+  competencia? : Competencia,
 ) : Promise<MovimentoStore> {
+  const { mes, ano } = competencia || { mes: '', ano: '' };
   const { data } = await axios.put(`${api}/simples`, {}, {
     params: {
       cnpj, mes, ano,
@@ -305,11 +308,11 @@ export async function getGrupos(cnpj : string) : Promise<Grupo[]> {
   return data;
 }
 
-export async function criarGrupo(cnpj : string, grupo : string) : Promise<any> {
+export async function criarGrupo(cnpj : string, grupo : GrupoLite) : Promise<any> {
   return axios.post(`${api}/grupo/${cnpj}`, grupo);
 }
 
-export async function editarGrupo(cnpj : string, grupo : string) : Promise<any> {
+export async function editarGrupo(cnpj : string, grupo : GrupoLite) : Promise<any> {
   return axios.put(`${api}/grupo/${cnpj}`, grupo);
 }
 

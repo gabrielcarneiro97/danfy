@@ -62,7 +62,7 @@ function EstoqueTable(props : propTypes) : JSX.Element {
       onFilter: (value : string,
         record : ProdutoEstoqueLite) : boolean => {
         if (value === 'null') {
-          return record.dataSaida === null || modificadosId.includes(record.id);
+          return record.dataSaida === null || modificadosId.includes(record.id || 0);
         }
         return true;
       },

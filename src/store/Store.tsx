@@ -8,20 +8,20 @@ import importacaoReducer, { importacaoStore } from './importacao';
 import clientesReducer, { clientesStore } from './clientes';
 
 
-function composer(reducer, store) {
-  const Store = (props) => {
+function composer(reducer : any, store : any) : any {
+  const Store = (props : any) : any => {
     const { children } = props;
 
-    const [state, dispatcher] = useReducer(
+    const [state, dispatcher] : [any, any] = useReducer(
       reducer,
       store,
     );
 
-    const combinedReducers = {
+    const combinedReducers : any = {
       store: {
         ...state,
       },
-      dispatch: (action) => dispatcher(action),
+      dispatch: (action : any) => dispatcher(action),
     };
 
     return (

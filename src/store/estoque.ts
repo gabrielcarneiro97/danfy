@@ -7,7 +7,7 @@ export const estoqueStore : EstoqueStore = {
     numeroSistema: '',
     nome: '',
     cnpj: '',
-    diaMesAno: '',
+    diaMesAno: null,
   },
   estoque: {},
   estoqueArray: [],
@@ -32,7 +32,7 @@ export type Action = {
 export type EstoqueHandler = StoreHandler<EstoqueStore, Action>;
 
 function estoqueToArray(state : EstoqueStore) : ProdutoEstoqueLite[] {
-  return Object.values(state.estoque).sort((a, b) => a.id - b.id);
+  return Object.values(state.estoque).sort((a, b) => (a.id || 0) - (b.id || 0));
 }
 
 function arrayToEstoque(state : EstoqueStore) : EstoqueObject {
@@ -40,7 +40,7 @@ function arrayToEstoque(state : EstoqueStore) : EstoqueObject {
   const { estoqueArray } = state;
 
   estoqueArray.forEach((produtoEstoque) => {
-    estoque[produtoEstoque.id] = produtoEstoque;
+    estoque[produtoEstoque.id || 0] = produtoEstoque;
   });
 
   return estoque;
@@ -66,7 +66,7 @@ const adicionaUm : EstoqueHandler = (state, action) => {
 
   const newState = { ...state };
 
-  newState.estoque[id] = produtoEstoque;
+  newState.estoque[id || 0] = produtoEstoque;
   newState.estoqueArray = estoqueToArray(newState);
 
   return newState;
@@ -81,11 +81,11 @@ const mudaUm : EstoqueHandler = (state, action) => {
 
   const newState = { ...state };
 
-  newState.estoque[id] = {
-    ...newState.estoque[id],
+  newState.estoque[id || 0] = {
+    ...newState.estoque[id || 0],
     ...produtoEstoque,
   };
-  newState.modificadosId.push(id);
+  newState.modificadosId.push(id || 0);
   newState.estoqueArray = estoqueToArray(newState);
 
   return newState;
@@ -116,7 +116,7 @@ const removeUm : EstoqueHandler = (state, action) => {
 
   const newState = { ...state };
 
-  delete newState.estoque[id];
+  delete newState.estoque[id || 0];
   newState.estoqueArray = estoqueToArray(newState);
 
   return newState;
@@ -131,7 +131,7 @@ const novoEstoque : EstoqueHandler = (state, action) => {
     newState.estoque = estoque;
     newState.estoqueArray = estoqueToArray(newState);
   } else if (estoqueArray) {
-    newState.estoqueArray = estoqueArray.sort((a, b) => a.id - b.id);
+    newState.estoqueArray = estoqueArray.sort((a, b) => (a.id || 0) - (b.id || 0));
     newState.estoque = arrayToEstoque(newState);
   }
 

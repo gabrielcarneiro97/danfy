@@ -14,7 +14,7 @@ import { auth, pegarDominioId, calcularMovimentos } from '../services/api.servic
 import { addNota, carregarMovimentos } from '../store/importacao';
 import Connect from '../store/Connect';
 import {
-  Nota, NotaPool, MovimentoPool, MovimentoPoolWithIndex, ImportacaoStore, FileZ,
+  Nota, NotaPool, MovimentoPool, MovimentoPoolWithIndex, ImportacaoStore, FileZ, MovWithIndexAndKey,
 } from '../types';
 
 function eSaida(nota : Nota) : boolean {
@@ -123,8 +123,8 @@ function ConciliarMovimentos(props : propTypes) : JSX.Element {
 
       notasIniciais.forEach((np : NotaPool) => dispatch(addNota(np)));
 
-      const movsWithId : MovimentoPoolWithIndex[] = movimentos.map(
-        (el : MovimentoPool, index : number) : MovimentoPoolWithIndex => ({ ...el, index }),
+      const movsWithId : MovWithIndexAndKey[] = movimentos.map(
+        (el : MovimentoPool, index : number) : MovWithIndexAndKey => ({ ...el, index }),
       );
 
       dispatch(carregarMovimentos(movsWithId));
@@ -155,7 +155,7 @@ function ConciliarMovimentos(props : propTypes) : JSX.Element {
 
   const dataSource = movimentosWithIndex.map((movimentoPoolWithIndex) => {
     const { movimento } = movimentoPoolWithIndex;
-    const notaFinalPool = getNota(movimento.notaFinalChave);
+    const notaFinalPool = getNota(movimento.notaFinalChave || '');
 
     if (!notaFinalPool) return undefined;
 
@@ -168,7 +168,7 @@ function ConciliarMovimentos(props : propTypes) : JSX.Element {
 
     return {
       key: `${movimentoPoolWithIndex.index}-${notaFinal.numero}`,
-      numero: movimentoPoolWithIndex.index + 1,
+      numero: (movimentoPoolWithIndex?.index || 0 + 1) || 0,
       notaInicial: <NotaInicial
         movimentoPoolWithIndex={movimentoPoolWithIndex}
         notaFinal={notaFinal}

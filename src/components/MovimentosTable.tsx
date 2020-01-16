@@ -172,7 +172,7 @@ function MovimentosTable(props : propTypes) : JSX.Element {
   const {
     trimestreData,
     simplesData,
-    notasPool,
+    notas,
     competencia,
     empresa,
   } = store;
@@ -199,7 +199,7 @@ function MovimentosTable(props : propTypes) : JSX.Element {
   ) : void => {
     const movimentoPoolNovo = {
       ...movimentoPoolWithKey,
-      ...movimentosAlterados[movimentoPoolWithKey.key],
+      ...movimentosAlterados[movimentoPoolWithKey?.key || ''],
     };
 
     const { movimento, impostoPool } = movimentoPoolNovo;
@@ -227,7 +227,7 @@ function MovimentosTable(props : propTypes) : JSX.Element {
 
     setMovimentosAlterados({
       ...movimentosAlterados,
-      [movimentoPoolNovo.key]: {
+      [movimentoPoolNovo.key || '']: {
         ...movimentoPoolNovo,
       },
     });
@@ -258,15 +258,15 @@ function MovimentosTable(props : propTypes) : JSX.Element {
     const { movimento, impostoPool } = movimentoPool;
     const { imposto, icms } = impostoPool;
     const key = movimento.id;
-    const notaFinal = notasPool.find((nP) => nP.nota.chave === movimento.notaFinalChave);
-    const notaInicial = notasPool.find((nP) => nP.nota.chave === movimento.notaInicialChave);
+    const notaFinal = notas.find((n) => n.chave === movimento.notaFinalChave);
+    const notaInicial = notas.find((n) => n.chave === movimento.notaInicialChave);
     const valores : any = {
       key,
-      numero: notaFinal?.nota.numero,
-      num: notaFinal?.nota.numero,
-      valorInicial: R$(notaInicial?.nota.valor || 0),
-      valorFinal: R$(notaFinal?.nota.valor || 0),
-      tipoMovimento: retornarTipo(notaFinal?.nota.cfop || ''),
+      numero: notaFinal?.numero,
+      num: notaFinal?.numero,
+      valorInicial: R$(notaInicial?.valor || 0),
+      valorFinal: R$(notaFinal?.valor || 0),
+      tipoMovimento: retornarTipo(notaFinal?.cfop || ''),
       lucro: R$(movimento.lucro),
       baseIcms: R$(icms.baseCalculo),
       icms: R$(icms.proprio),
@@ -326,7 +326,7 @@ function MovimentosTable(props : propTypes) : JSX.Element {
       numero: {
         key,
         numero: valores.numero,
-        emitente: notaFinal?.nota.emitenteCpfcnpj,
+        emitente: notaFinal?.emitenteCpfcnpj,
         cancelarMovimento: cancelarMov,
       },
       valorInicial: valores.valorInicial,

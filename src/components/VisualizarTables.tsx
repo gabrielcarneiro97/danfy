@@ -10,13 +10,18 @@ import GuiasTable from './GuiasTable';
 import SimplesTable from './SimplesTable';
 import GruposTable from './GruposTable';
 
-import { eDoMes, temTabelaCotas } from '../services';
+import { eDoMes, temTabelaCotas } from '../services/calculador.service';
 
 import Connect from '../store/Connect';
 
 import './VisualizarTables.css';
+import { MovimentoStore } from '../types';
 
-function VisualizarTables(props) {
+type propTypes = {
+  store : MovimentoStore;
+}
+
+function VisualizarTables(props : propTypes) : JSX.Element {
   const { store } = props;
   const {
     trimestreData,
@@ -26,13 +31,13 @@ function VisualizarTables(props) {
     grupos,
   } = store;
 
-  const { movimentosPool, servicosPool } = empresa.simples ? simplesData : trimestreData;
+  const { movimentosPool, servicosPool } = empresa?.simples ? simplesData : trimestreData;
 
   const movimentosPoolMes = movimentosPool.filter((mP) => eDoMes(mP, competencia));
   const servicosPoolMes = servicosPool.filter((sP) => eDoMes(sP, competencia));
 
-  const temMovimento = movimentosPoolMes.length > 0 && empresa.cnpj;
-  const temServico = servicosPoolMes.length > 0 && empresa.cnpj;
+  const temMovimento = movimentosPoolMes.length > 0 && empresa?.cnpj;
+  const temServico = servicosPoolMes.length > 0 && empresa?.cnpj;
 
   return (
     <>
@@ -86,7 +91,7 @@ function VisualizarTables(props) {
           )
         }
         {
-          empresa.simples && simplesData.simples.id
+          empresa?.simples && simplesData.simples.id
           && (
             <>
               <Divider orientation="left">Receitas (Simples)</Divider>
@@ -98,27 +103,5 @@ function VisualizarTables(props) {
     </>
   );
 }
-
-VisualizarTables.propTypes = {
-  store: PropTypes.shape({
-    dominio: PropTypes.array,
-    trimestreData: PropTypes.object,
-    simplesData: PropTypes.object,
-    grupos: PropTypes.array,
-    notasPool: PropTypes.array,
-    notasServicoPool: PropTypes.array,
-    empresa: PropTypes.shape({
-      numeroSistema: PropTypes.string,
-      nome: PropTypes.string,
-      formaPagamento: PropTypes.string,
-      cnpj: PropTypes.string,
-      simples: PropTypes.bool,
-    }),
-    competencia: PropTypes.shape({
-      mes: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-      ano: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-    }),
-  }).isRequired,
-};
 
 export default Connect(VisualizarTables);

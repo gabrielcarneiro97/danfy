@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import {
   Row, Col, Table, Input,
 } from 'antd';
@@ -7,16 +6,25 @@ import {
 import { carregarSimples } from '../store/movimento';
 
 import TableToPrint from './TableToPrint';
-import { R$ } from '../services';
+import { R$ } from '../services/calculador.service';
 
 import Connect from '../store/Connect';
+import { MovimentoStore } from '../types';
 
-function SimplesTable(props) {
-  const { store, printable, dispatch } = props;
+type propTypes = {
+  store : MovimentoStore;
+  dispatch : Function;
+  printable? : boolean;
+}
+
+function SimplesTable(props : propTypes) : JSX.Element {
+  const { store, dispatch, printable = false } = props;
   const { simplesData } = store;
   const { simples } = simplesData;
 
-  const handleSimplesChange = (fieldName) => (e) => {
+  const handleSimplesChange = (
+    fieldName : string,
+  ) => (e : React.ChangeEvent<HTMLInputElement>) : void => {
     simples[fieldName] = e.target.value;
     dispatch(carregarSimples(simples));
   };
@@ -26,7 +34,7 @@ function SimplesTable(props) {
       title: 'Receitas',
       dataIndex: 'receitaNome',
       key: 'receitaNome',
-      render: (a) => (
+      render: (a : any) : JSX.Element => (
         <div style={{ width: '100%' }}>
           <strong>{a}</strong>
         </div>
@@ -111,7 +119,7 @@ function SimplesTable(props) {
           size="small"
           columns={columns}
           dataSource={dataSource}
-          pagination={{ position: 'none' }}
+          pagination={{ position: undefined as undefined }}
           style={{
             marginBottom: '20px',
           }}
@@ -120,17 +128,5 @@ function SimplesTable(props) {
     </Row>
   );
 }
-
-SimplesTable.propTypes = {
-  printable: PropTypes.bool,
-  dispatch: PropTypes.func.isRequired,
-  store: PropTypes.shape({
-    simplesData: PropTypes.object,
-  }).isRequired,
-};
-
-SimplesTable.defaultProps = {
-  printable: false,
-};
 
 export default Connect(SimplesTable);

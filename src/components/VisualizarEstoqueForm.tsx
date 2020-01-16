@@ -8,6 +8,8 @@ import {
   DatePicker,
 } from 'antd';
 
+import moment from 'moment';
+
 import PrintEstoque from './PrintEstoque';
 
 import {
@@ -23,8 +25,14 @@ import Connect from '../store/Connect';
 import { carregarEstoque, carregarInfosGerais } from '../store/estoque';
 
 import './VisualizarForm.css';
+import { EstoqueStore, Dominio } from '../types';
 
-function VisualizarEstoqueForm(props) {
+type propTypes = {
+  store : EstoqueStore;
+  dispatch : Function;
+}
+
+function VisualizarEstoqueForm(props : propTypes) : JSX.Element {
   const { dispatch, store } = props;
   const { estoqueInfosGerais } = store;
   const { diaMesAno, cnpj, nome } = estoqueInfosGerais;
@@ -33,7 +41,7 @@ function VisualizarEstoqueForm(props) {
   const [submitLoading, setSubmitLoading] = useState(false);
   const [updateLoading, setUpdateLoading] = useState(false);
   const [disableNum, setDisableNum] = useState(true);
-  const [dominio, setDominio] = useState([]);
+  const [dominio, setDominio] = useState(new Array<Dominio>());
 
   useEffect(() => {
     pegarDominio().then((dom) => {
@@ -43,7 +51,7 @@ function VisualizarEstoqueForm(props) {
   }, []);
 
 
-  const pegarEstoque = async () => {
+  const pegarEstoque = async () : Promise<boolean> => {
     setSubmitLoading(true);
     const estoque = await getEstoque(estoqueInfosGerais);
 
@@ -53,7 +61,7 @@ function VisualizarEstoqueForm(props) {
     return true;
   };
 
-  const atualizar = async () => {
+  const atualizar = async () : Promise<boolean> => {
     setUpdateLoading(true);
     const data = await atualizarEstoque(estoqueInfosGerais);
 
@@ -63,11 +71,11 @@ function VisualizarEstoqueForm(props) {
     return true;
   };
 
-  const handleData = (data) => {
+  const handleData = (data : moment.Moment | null) : void => {
     dispatch(carregarInfosGerais({ diaMesAno: data }));
   };
 
-  const handleNum = async (e) => {
+  const handleNum = async (e : React.ChangeEvent<HTMLInputElement>) : Promise<void> => {
     const inputNum = e.target.value;
     setNum(inputNum);
     const empresa = dominio.find((o) => o.numero === inputNum);
@@ -124,7 +132,7 @@ function VisualizarEstoqueForm(props) {
           <Input addonBefore="Nome" value={nome} disabled />
         </Col>
         <Col span={6} className="form-input">
-          <Input addonBefore="CNPJ" value={cnpjMask(cnpj)} disabled />
+          <Input addonBefore="CNPJ" value={cnpjMask(cnpj || '')} disabled />
         </Col>
       </Row>
       <Row
@@ -170,12 +178,5 @@ function VisualizarEstoqueForm(props) {
     </>
   );
 }
-
-VisualizarEstoqueForm.propTypes = {
-  store: PropTypes.shape({
-    estoqueInfosGerais: PropTypes.object,
-  }).isRequired,
-  dispatch: PropTypes.func.isRequired,
-};
 
 export default Connect(VisualizarEstoqueForm);

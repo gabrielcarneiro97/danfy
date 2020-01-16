@@ -21,7 +21,7 @@ function EstoqueTabelaButtonUpload(props : propTypes) : JSX.Element {
   const onClick = async () : Promise<void> => {
     const produtoEstoque = estoque[id];
     disabled = true;
-    await editarEstoqueProduto(id, produtoEstoque);
+    await editarEstoqueProduto(id.toString(), produtoEstoque);
 
     dispatch(atualizacaoPersistida(produtoEstoque));
   };

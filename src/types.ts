@@ -186,6 +186,7 @@ export type NotaServico = {
 }
 
 export type Simples = {
+  [key : string] : any;
   id? : pgNum;
   donoCpfcnpj? : pgStr;
   dataHora? : pgDate;
@@ -227,18 +228,19 @@ export type ProdutoEstoque = {
 }
 
 export type ProdutoEstoqueLite = {
-  id : number;
+  id? : number;
   nfEntradaNum? : number | string;
   dataEntradaFormatada? : string;
   produtoCodigo? : string;
   notaInicialChave? : string;
   notaFinalChave? : string;
   valorEntrada? : number | string;
-  dataEntrada? : Date | string;
-  dataSaida? : Date | string;
+  dataEntrada? : Date | string | null;
+  dataSaida? : Date | string | null;
   donoCpfcnpj? : string;
   descricao? : string;
   ativo? : boolean;
+  codigoProduto? : string;
 }
 
 export type ImpostoPool = {
@@ -328,10 +330,10 @@ export type SimplesData = {
 }
 
 export type EstoqueInformacoesGerais = {
-  numeroSistema: string;
-  nome: string;
-  cnpj: string;
-  diaMesAno: moment.Moment;
+  numeroSistema?: string;
+  nome?: string;
+  cnpj?: string;
+  diaMesAno?: moment.Moment | null;
 }
 
 export type StoreHandler<S, A> = (state : S, action : A) => S;
@@ -339,8 +341,8 @@ export type StoreHandler<S, A> = (state : S, action : A) => S;
 export type MovimentoStore = {
   competencia? : Competencia;
   empresa? : Empresa;
-  notasPool : NotaPool[];
-  notasServicoPool : NotaServicoPool[];
+  notas : Nota[];
+  notasServico : NotaServico[];
   trimestreData : TrimestreData;
   simplesData: SimplesData;
   dominio? : Dominio[];
@@ -363,8 +365,11 @@ export type FileZ = {
 
 export type FileList = UploadFile<FileZ>[];
 
+export type MovWithIndexAndKey = MovimentoPoolWithIndex & { key? : number | string };
+
+
 export type ImportacaoStore = {
-  movimentosWithIndex: MovimentoPoolWithIndex[];
+  movimentosWithIndex: MovWithIndexAndKey[];
   servicosWithIndex: ServicoPoolWithIndex[];
   notasPool: NotaPool[];
   notasPoolImportadas: NotaPool[];
@@ -410,5 +415,3 @@ export type Aliquotas = {
   irpj : number;
   iss : number;
 }
-
-export type MovWithIndexAndKey = MovimentoPoolWithIndex & { key : number | string };

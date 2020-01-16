@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import moment from 'moment';
 import {
   Table,
@@ -196,11 +195,13 @@ function ServicosTable(props : propTypes) : JSX.Element {
   const {
     simplesData,
     trimestreData,
-    notasServicoPool,
+    notasServico,
     competencia,
     empresa,
     grupos,
   } = store;
+
+  console.log(store);
 
   const { simples } = empresa || { simples: false };
 
@@ -244,7 +245,7 @@ function ServicosTable(props : propTypes) : JSX.Element {
     const { servico, imposto, retencao } = servicoPool;
 
     const numero = parseInt(servico.notaChave.substring(18), 10);
-    const nota = notasServicoPool.find((nP) => nP.notaServico.chave === servico.notaChave);
+    const nota = notasServico.find((n) => n.chave === servico.notaChave);
 
     const grupo = grupos.find((g) => g.id === servico.grupoId);
 
@@ -254,15 +255,15 @@ function ServicosTable(props : propTypes) : JSX.Element {
       numero,
       grupoId: printable ? (grupo && grupo.nome) || '' : servico.grupoId,
       nota: numero,
-      status: nota?.notaServico.status,
+      status: nota?.status,
       data: moment(servico.dataHora).format('DD[/]MMM'),
       valorServico: R$(servico.valor),
-      issRetido: eCancelada(nota?.notaServico) ? R$(0) : R$(retencao.iss || 0),
-      pisRetido: eCancelada(nota?.notaServico) ? R$(0) : R$(retencao.pis || 0),
-      cofinsRetido: eCancelada(nota?.notaServico) ? R$(0) : R$(retencao.cofins || 0),
-      csllRetido: eCancelada(nota?.notaServico) ? R$(0) : R$(retencao.csll || 0),
-      irpjRetido: eCancelada(nota?.notaServico) ? R$(0) : R$(retencao.irpj || 0),
-      totalRetido: eCancelada(nota?.notaServico) ? R$(0) : R$(retencao.total || 0),
+      issRetido: eCancelada(nota) ? R$(0) : R$(retencao.iss || 0),
+      pisRetido: eCancelada(nota) ? R$(0) : R$(retencao.pis || 0),
+      cofinsRetido: eCancelada(nota) ? R$(0) : R$(retencao.cofins || 0),
+      csllRetido: eCancelada(nota) ? R$(0) : R$(retencao.csll || 0),
+      irpjRetido: eCancelada(nota) ? R$(0) : R$(retencao.irpj || 0),
+      totalRetido: eCancelada(nota) ? R$(0) : R$(retencao.total || 0),
       iss: R$(imposto.iss),
       pis: R$(imposto.pis),
       cofins: R$(imposto.cofins),
@@ -314,33 +315,5 @@ function ServicosTable(props : propTypes) : JSX.Element {
     </Row>
   );
 }
-
-ServicosTable.propTypes = {
-  printable: PropTypes.bool,
-  store: PropTypes.shape({
-    dominio: PropTypes.array,
-    grupos: PropTypes.array,
-    trimestreData: PropTypes.object,
-    simplesData: PropTypes.object,
-    notasPool: PropTypes.array,
-    notasServicoPool: PropTypes.array,
-    empresa: PropTypes.shape({
-      numeroSistema: PropTypes.string,
-      nome: PropTypes.string,
-      formaPagamento: PropTypes.string,
-      cnpj: PropTypes.string,
-      simples: PropTypes.bool,
-    }),
-    competencia: PropTypes.shape({
-      mes: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-      ano: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-    }),
-  }).isRequired,
-  dispatch: PropTypes.func.isRequired,
-};
-
-ServicosTable.defaultProps = {
-  printable: false,
-};
 
 export default Connect(ServicosTable);

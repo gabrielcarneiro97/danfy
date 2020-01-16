@@ -1,9 +1,12 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { Row, Col } from 'antd';
 
-function ShowColor(props) {
-  const { hex } = props;
+type propTypes = {
+  hex? : string;
+}
+
+function ShowColor(props : propTypes) : JSX.Element {
+  const { hex = '#000000' } = props;
 
   return (
     <Row>
@@ -25,13 +28,5 @@ function ShowColor(props) {
     </Row>
   );
 }
-
-ShowColor.propTypes = {
-  hex: PropTypes.string,
-};
-
-ShowColor.defaultProps = {
-  hex: '#000000',
-};
 
 export default ShowColor;

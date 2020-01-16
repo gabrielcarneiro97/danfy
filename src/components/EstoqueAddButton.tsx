@@ -14,7 +14,7 @@ import { getEstoque, criarEstoqueProduto } from '../services/api.service';
 import { carregarEstoque } from '../store/estoque';
 import Connect from '../store/Connect';
 import { floating } from '../services/calculador.service';
-import { EstoqueStore } from '../types';
+import { EstoqueStore, ProdutoEstoqueLite } from '../types';
 
 type propTypes = {
   dispatch : Function;
@@ -46,15 +46,7 @@ function EstoqueAddButton(props : propTypes) : JSX.Element {
     setModalLoading(false);
   };
 
-  const produto = () : {
-    dataEntrada: null;
-    dataSaida: null;
-    valorEntrada: number;
-    codigoProduto: string;
-    descricao: string;
-    donoCpfcnpj: string;
-    ativo: boolean;
-  } => ({
+  const produto = () : ProdutoEstoqueLite => ({
     dataEntrada,
     dataSaida,
     valorEntrada: floating(valorEntrada),
@@ -76,7 +68,7 @@ function EstoqueAddButton(props : propTypes) : JSX.Element {
     const prod = produto();
 
     try {
-      await criarEstoqueProduto(cnpj, prod);
+      await criarEstoqueProduto(cnpj || '', prod);
       const estoque = await getEstoque(estoqueInfosGerais);
 
       dispatch(carregarEstoque(estoque));

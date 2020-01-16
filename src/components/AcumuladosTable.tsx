@@ -42,8 +42,8 @@ function AcumuladosTable(props : propTypes) : JSX.Element {
       dataSource.push({
         key: `acumulado-${key}`,
         mes,
-        csll: key === 'trim' ? stg(R$(imposto.csll - retencao.csll)) : R$(imposto.csll - retencao.csll),
-        irpj: key === 'trim' ? stg(R$(imposto.irpj - retencao.irpj)) : R$(imposto.irpj - retencao.irpj),
+        csll: key === 'trim' ? stg(R$(imposto.csll - (retencao.csll || 0))) : R$(imposto.csll - (retencao.csll || 0)),
+        irpj: key === 'trim' ? stg(R$(imposto.irpj - (retencao.irpj || 0))) : R$(imposto.irpj - (retencao.irpj || 0)),
         faturamento: key === 'trim' ? stg(R$(totalSoma.valorMovimento + totalSoma.valorServico)) : R$(totalSoma.valorMovimento + totalSoma.valorServico),
       });
     }
