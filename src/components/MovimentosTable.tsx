@@ -172,7 +172,7 @@ function MovimentosTable(props : propTypes) : JSX.Element {
   const {
     trimestreData,
     simplesData,
-    notas,
+    notasPool,
     competencia,
     empresa,
   } = store;
@@ -258,8 +258,8 @@ function MovimentosTable(props : propTypes) : JSX.Element {
     const { movimento, impostoPool } = movimentoPool;
     const { imposto, icms } = impostoPool;
     const key = movimento.id;
-    const notaFinal = notas.find((n) => n.chave === movimento.notaFinalChave);
-    const notaInicial = notas.find((n) => n.chave === movimento.notaInicialChave);
+    const notaFinal = notasPool.find((n) => n.chave === movimento.notaFinalChave);
+    const notaInicial = notasPool.find((n) => n.chave === movimento.notaInicialChave);
     const valores : any = {
       key,
       numero: notaFinal?.numero,

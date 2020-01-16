@@ -14,8 +14,8 @@ export const movimentoStore : MovimentoStore = {
     formaPagamento: '',
     simples: false,
   },
-  notas: [],
-  notasServico: [],
+  notasPool: [],
+  notasServicoPool: [],
   trimestreData: {
     movimentosPool: [],
     servicosPool: [],
@@ -38,8 +38,8 @@ export const movimentoStore : MovimentoStore = {
 };
 
 export const dadosVazio : MovimentoStore = {
-  notas: [],
-  notasServico: [],
+  notasPool: [],
+  notasServicoPool: [],
   grupos: [],
   trimestreData: {
     movimentosPool: [],
