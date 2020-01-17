@@ -1,18 +1,29 @@
 import React, { useReducer } from 'react';
-import PropTypes from 'prop-types';
 
 import Context from './config';
 import estoqueReducer, { estoqueStore } from './estoque';
 import movimentoReducer, { movimentoStore } from './movimento';
 import importacaoReducer, { importacaoStore } from './importacao';
 import clientesReducer, { clientesStore } from './clientes';
+import {
+  Reducer,
+  Stores,
+  EstoqueStore as TEstoqueStore,
+  MovimentoStore as TMovimentoStore,
+  ImportacaoStore as TImportacaoStore,
+  ClientesStore as TClientesStore,
+  GenericAction,
+} from '../types';
 
 
-function composer(reducer : any, store : any) : any {
-  const Store = (props : any) : any => {
+function composer<T extends Stores>(
+  reducer : Reducer<T>,
+  store : T,
+) : (props : any) => JSX.Element {
+  const Store = (props : any) : JSX.Element => {
     const { children } = props;
 
-    const [state, dispatcher] : [any, any] = useReducer(
+    const [state, dispatcher] : [T, Function] = useReducer(
       reducer,
       store,
     );
@@ -21,7 +32,7 @@ function composer(reducer : any, store : any) : any {
       store: {
         ...state,
       },
-      dispatch: (action : any) => dispatcher(action),
+      dispatch: (action : GenericAction) => dispatcher(action),
     };
 
     return (
@@ -31,25 +42,13 @@ function composer(reducer : any, store : any) : any {
     );
   };
 
-  Store.propTypes = {
-    children: PropTypes.oneOfType([
-      PropTypes.string,
-      PropTypes.object,
-      PropTypes.array,
-    ]),
-  };
-
-  Store.defaultProps = {
-    children: '',
-  };
-
   return Store;
 }
 
-export const EstoqueStore = composer(estoqueReducer, estoqueStore);
+export const EstoqueStore = composer<TEstoqueStore>(estoqueReducer, estoqueStore);
 
-export const MovimentoStore = composer(movimentoReducer, movimentoStore);
+export const MovimentoStore = composer<TMovimentoStore>(movimentoReducer, movimentoStore);
 
-export const ImportacaoStore = composer(importacaoReducer, importacaoStore);
+export const ImportacaoStore = composer<TImportacaoStore>(importacaoReducer, importacaoStore);
 
-export const ClientesStore = composer(clientesReducer, clientesStore);
+export const ClientesStore = composer<TClientesStore>(clientesReducer, clientesStore);

@@ -191,7 +191,7 @@ function limpar() : ImportacaoStore {
   return importacaoStore;
 }
 
-export default function importacaoReducer(state = importacaoStore,
+export default function importacaoReducer(state : ImportacaoStore = importacaoStore,
   action : Action) : ImportacaoStore {
   if (!action) return state;
   switch (action.type) {

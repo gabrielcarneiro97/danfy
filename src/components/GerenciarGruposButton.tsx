@@ -5,19 +5,19 @@ import {
 
 import EditarGrupoModal from './EditarGrupoModal';
 
-import Connect from '../store/Connect';
+import { useStore } from '../store/Connect';
 import { ClientesStore, GrupoLite } from '../types';
 
 type propTypes = {
-  store : ClientesStore;
   defaultData?: GrupoLite;
-  buttonType : 'link' | 'default' | 'ghost' | 'primary' | 'dashed' | 'danger' | undefined;
-  buttonText : string;
+  buttonType? : 'link' | 'default' | 'ghost' | 'primary' | 'dashed' | 'danger' | undefined;
+  buttonText? : string;
 }
 
 function GerenciarGruposButton(props : propTypes) : JSX.Element {
+  const store = useStore<ClientesStore>();
+
   const {
-    store,
     buttonType = 'default' as 'default',
     buttonText = 'Button',
     defaultData,
@@ -53,4 +53,4 @@ function GerenciarGruposButton(props : propTypes) : JSX.Element {
   );
 }
 
-export default Connect(GerenciarGruposButton);
+export default GerenciarGruposButton;

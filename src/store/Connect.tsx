@@ -1,6 +1,6 @@
 import React from 'react';
 import Context from './config';
-import { Stores } from '../types';
+import { Stores, Dispatch } from '../types';
 
 
 const Connect = (Component : (props : any) => JSX.Element) => (props : any) : JSX.Element => (
@@ -12,7 +12,9 @@ const Connect = (Component : (props : any) => JSX.Element) => (props : any) : JS
   </Context.Consumer>
 );
 
-export function useConnect(context = Context) : { store : any; dispatch : Function } {
+export function useConnect(
+  context = Context,
+) : { store : any; dispatch : Dispatch } {
   const contextValue = React.useContext(context);
 
   if (process.env.NODE_ENV !== 'production' && !contextValue) {
@@ -30,7 +32,7 @@ export function useStore<T extends Stores>() : T {
   return store;
 }
 
-export function useDispatch() : Function {
+export function useDispatch() : Dispatch {
   const { dispatch } = useConnect();
 
   return dispatch;

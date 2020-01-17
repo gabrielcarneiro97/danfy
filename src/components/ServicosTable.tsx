@@ -23,7 +23,7 @@ import {
 
 import GrupoSelect from './GrupoSelect';
 
-import Connect from '../store/Connect';
+import { useStore, useDispatch } from '../store/Connect';
 import { carregarMovimento } from '../store/movimento';
 
 import '../assets/colors.css';
@@ -181,15 +181,14 @@ const simplesColumns = [
 ];
 
 type propTypes = {
-  store : MovimentoStore;
-  dispatch : Function;
   printable? : boolean;
 }
 
 function ServicosTable(props : propTypes) : JSX.Element {
+  const store = useStore<MovimentoStore>();
+  const dispatch = useDispatch();
+
   const {
-    dispatch,
-    store,
     printable = false,
   } = props;
   const {
@@ -316,4 +315,4 @@ function ServicosTable(props : propTypes) : JSX.Element {
   );
 }
 
-export default Connect(ServicosTable);
+export default ServicosTable;

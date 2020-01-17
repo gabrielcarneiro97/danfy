@@ -15,7 +15,7 @@ import {
   pegarPessoaId,
 } from '../services/api.service';
 
-import Connect from '../store/Connect';
+import { useStore, useDispatch } from '../store/Connect';
 import {
   carregarDominio,
   carregarEmpresa,
@@ -24,15 +24,14 @@ import {
 import { ImportacaoStore } from '../types';
 
 type propTypes = {
-  store : ImportacaoStore;
-  dispatch : Function;
-  onSubmit : Function;
+  onSubmit? : Function;
 }
 
 function ImportarForm(props : propTypes) : JSX.Element {
+  const store = useStore<ImportacaoStore>();
+  const dispatch = useDispatch();
+
   const {
-    store,
-    dispatch,
     onSubmit = () : boolean => true,
   } = props;
   const {
@@ -137,4 +136,4 @@ function ImportarForm(props : propTypes) : JSX.Element {
   );
 }
 
-export default Connect(ImportarForm);
+export default ImportarForm;

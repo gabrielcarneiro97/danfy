@@ -4,16 +4,17 @@ import { Row, Col, Table } from 'antd';
 import TableToPrint from './TableToPrint';
 import { R$ } from '../services/calculador.service';
 
-import Connect from '../store/Connect';
+import { useStore } from '../store/Connect';
 import { MovimentoStore, MesesNum } from '../types';
 
 type propTypes = {
-  printable : boolean;
-  store : MovimentoStore;
+  printable? : boolean;
 }
 
 function GuiasTable(props : propTypes) : JSX.Element {
-  const { store, printable = false } = props;
+  const store = useStore<MovimentoStore>();
+
+  const { printable = false } = props;
   const { trimestreData, competencia, empresa } = store;
   const { movimentosPool, servicosPool } = trimestreData;
   const { mes } = competencia || { mes: '' };
@@ -154,4 +155,4 @@ function GuiasTable(props : propTypes) : JSX.Element {
   );
 }
 
-export default Connect(GuiasTable);
+export default GuiasTable;

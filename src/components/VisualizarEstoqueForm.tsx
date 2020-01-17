@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
 import {
   Input,
   Button,
@@ -21,19 +20,16 @@ import {
 
 import { cnpjMask } from '../services/calculador.service';
 
-import Connect from '../store/Connect';
+import { useStore, useDispatch } from '../store/Connect';
 import { carregarEstoque, carregarInfosGerais } from '../store/estoque';
 
 import './VisualizarForm.css';
 import { EstoqueStore, Dominio } from '../types';
 
-type propTypes = {
-  store : EstoqueStore;
-  dispatch : Function;
-}
+function VisualizarEstoqueForm() : JSX.Element {
+  const store = useStore<EstoqueStore>();
+  const dispatch = useDispatch();
 
-function VisualizarEstoqueForm(props : propTypes) : JSX.Element {
-  const { dispatch, store } = props;
   const { estoqueInfosGerais } = store;
   const { diaMesAno, cnpj, nome } = estoqueInfosGerais;
 
@@ -179,4 +175,4 @@ function VisualizarEstoqueForm(props : propTypes) : JSX.Element {
   );
 }
 
-export default Connect(VisualizarEstoqueForm);
+export default VisualizarEstoqueForm;

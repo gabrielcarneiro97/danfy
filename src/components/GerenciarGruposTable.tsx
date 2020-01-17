@@ -2,18 +2,16 @@ import React from 'react';
 
 import { Table } from 'antd';
 
-import Connect from '../store/Connect';
+import { useStore } from '../store/Connect';
 
 import GerenciarGruposButton from './GerenciarGruposButton';
 import ShowColor from './ShowColor';
 import { ClientesStore, GrupoLite } from '../types';
 
-type propTypes = {
-  store : ClientesStore;
-}
 
-function GerenciarGruposTable(props : propTypes) : JSX.Element {
-  const { store } = props;
+function GerenciarGruposTable() : JSX.Element {
+  const store = useStore<ClientesStore>();
+
   const { grupos } = store;
 
   const columns = [
@@ -65,4 +63,4 @@ function GerenciarGruposTable(props : propTypes) : JSX.Element {
   );
 }
 
-export default Connect(GerenciarGruposTable);
+export default GerenciarGruposTable;

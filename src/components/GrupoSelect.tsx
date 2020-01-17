@@ -2,21 +2,21 @@ import React, { useState } from 'react';
 
 import { Select } from 'antd';
 
-import Connect from '../store/Connect';
+import { useStore } from '../store/Connect';
 import { ClientesStore } from '../types';
 
 const { Option } = Select;
 
 type propTypes = {
-  store : ClientesStore;
   onChange? : Function;
   disabled? : boolean;
   initialValue? : string | number;
 }
 
 function GrupoSelect(props : propTypes) : JSX.Element {
+  const store = useStore<ClientesStore>();
+
   const {
-    store,
     onChange = () : boolean => true,
     disabled = false,
     initialValue = '',
@@ -46,4 +46,4 @@ function GrupoSelect(props : propTypes) : JSX.Element {
   );
 }
 
-export default Connect(GrupoSelect);
+export default GrupoSelect;

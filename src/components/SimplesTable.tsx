@@ -8,17 +8,18 @@ import { carregarSimples } from '../store/movimento';
 import TableToPrint from './TableToPrint';
 import { R$ } from '../services/calculador.service';
 
-import Connect from '../store/Connect';
+import { useStore, useDispatch } from '../store/Connect';
 import { MovimentoStore } from '../types';
 
 type propTypes = {
-  store : MovimentoStore;
-  dispatch : Function;
   printable? : boolean;
 }
 
 function SimplesTable(props : propTypes) : JSX.Element {
-  const { store, dispatch, printable = false } = props;
+  const store = useStore<MovimentoStore>();
+  const dispatch = useDispatch();
+
+  const { printable = false } = props;
   const { simplesData } = store;
   const { simples } = simplesData;
 
@@ -129,4 +130,4 @@ function SimplesTable(props : propTypes) : JSX.Element {
   );
 }
 
-export default Connect(SimplesTable);
+export default SimplesTable;

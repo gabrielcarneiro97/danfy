@@ -417,3 +417,12 @@ export type Aliquotas = {
   irpj : number;
   iss : number;
 }
+
+export type GenericAction = {
+  type : symbol;
+  [key : string] : any;
+}
+
+export type Reducer<T extends Stores> = (state : T, action : GenericAction) => T;
+
+export type Dispatch = (action : GenericAction) => void;

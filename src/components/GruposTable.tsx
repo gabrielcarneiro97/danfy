@@ -3,7 +3,7 @@ import { Row, Col, Table } from 'antd';
 
 import TableToPrint from './TableToPrint';
 
-import Connect from '../store/Connect';
+import { useStore } from '../store/Connect';
 
 import { R$, pegaMes, dateToComp } from '../services/calculador.service';
 import {
@@ -12,11 +12,12 @@ import {
 
 type propTypes = {
   printable? : boolean;
-  store : MovimentoStore;
 }
 
 function GruposTable(props : propTypes) : JSX.Element {
-  const { store, printable } = props;
+  const store = useStore<MovimentoStore>();
+
+  const { printable } = props;
   const {
     empresa,
     simplesData,
@@ -260,4 +261,4 @@ function GruposTable(props : propTypes) : JSX.Element {
   );
 }
 
-export default Connect(GruposTable);
+export default GruposTable;

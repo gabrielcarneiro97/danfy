@@ -12,20 +12,20 @@ import {
 
 import { getGrupos, pegarPessoaId } from '../services/api.service';
 
-import Connect from '../store/Connect';
+import { useStore, useDispatch } from '../store/Connect';
 import {
   carregarEmpresa, carregarGrupos,
 } from '../store/clientes';
 import { ClientesStore } from '../types';
 
 type propTypes = {
-  store : ClientesStore;
-  dispatch : Function;
   onSubmit? : Function;
 }
 
 function GerenciarGruposForm(props : propTypes) : JSX.Element {
-  const { store, dispatch, onSubmit } = props;
+  const store = useStore<ClientesStore>();
+  const dispatch = useDispatch();
+  const { onSubmit = () : boolean => false } = props;
   const {
     dominio,
   } = store;
@@ -136,4 +136,4 @@ function GerenciarGruposForm(props : propTypes) : JSX.Element {
   );
 }
 
-export default Connect(GerenciarGruposForm);
+export default GerenciarGruposForm;

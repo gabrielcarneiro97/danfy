@@ -1,6 +1,5 @@
 import React from 'react';
 import { Redirect, Route } from 'react-router-dom';
-import PropTypes from 'prop-types';
 
 import { auth } from '../services/api.service';
 
@@ -26,10 +25,5 @@ function PrivateRoute(props : propTypes) : JSX.Element {
 
   return <Route {...rest} render={toRender} />; // eslint-disable-line
 }
-
-PrivateRoute.propTypes = {
-  component: PropTypes.func.isRequired,
-  path: PropTypes.string.isRequired,
-};
 
 export default PrivateRoute;

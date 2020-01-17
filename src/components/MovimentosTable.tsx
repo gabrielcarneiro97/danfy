@@ -168,6 +168,7 @@ const columns : any = [
 function MovimentosTable(props : propTypes) : JSX.Element {
   const store = useStore<MovimentoStore>();
   const dispatch = useDispatch();
+
   const { printable = false } = props;
   const {
     trimestreData,
@@ -176,8 +177,6 @@ function MovimentosTable(props : propTypes) : JSX.Element {
     competencia,
     empresa,
   } = store;
-
-  console.log(store);
 
   const { simples } = empresa || { simples: false };
 

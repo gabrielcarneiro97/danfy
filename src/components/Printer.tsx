@@ -24,16 +24,12 @@ import {
 
 import './Printer.css';
 
-import Connect from '../store/Connect';
+import { useStore } from '../store/Connect';
 import { MovimentoStore, MesesNum } from '../types';
 
-type propTypes = {
-  store : MovimentoStore;
-}
+function Printer() : JSX.Element {
+  const store = useStore<MovimentoStore>();
 
-
-function Printer(props : propTypes) : JSX.Element {
-  const { store } = props;
   const {
     trimestreData,
     simplesData,
@@ -179,4 +175,4 @@ function Printer(props : propTypes) : JSX.Element {
   );
 }
 
-export default Connect(Printer);
+export default Printer;

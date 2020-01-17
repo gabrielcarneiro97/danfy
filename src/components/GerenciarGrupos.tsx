@@ -3,15 +3,13 @@ import React from 'react';
 import GerenciarGruposForm from './GerenciarGruposForm';
 import GerenciarGruposTable from './GerenciarGruposTable';
 
-import Connect from '../store/Connect';
+import { useStore } from '../store/Connect';
 import { ClientesStore } from '../types';
 
-type propTypes = {
-  store : ClientesStore;
-}
 
-function GerenciarGrupos(props : propTypes) : JSX.Element {
-  const { store } = props;
+function GerenciarGrupos() : JSX.Element {
+  const store = useStore<ClientesStore>();
+
   const { empresa } = store;
 
   return (
@@ -27,4 +25,4 @@ function GerenciarGrupos(props : propTypes) : JSX.Element {
   );
 }
 
-export default Connect(GerenciarGrupos);
+export default GerenciarGrupos;

@@ -11,15 +11,12 @@ import {
 import TableToPrint from './TableToPrint';
 import { R$, cnpjMask } from '../services/calculador.service';
 
-import Connect from '../store/Connect';
+import { useStore } from '../store/Connect';
 import { EstoqueStore, ProdutoEstoqueLite } from '../types';
 
-type propTypes = {
-  store : EstoqueStore;
-}
 
-function PrintEstoque(props : propTypes) : JSX.Element {
-  const { store } = props;
+function PrintEstoque() : JSX.Element {
+  const store = useStore<EstoqueStore>();
 
   const { estoqueArray, estoqueInfosGerais } = store;
 
@@ -103,4 +100,4 @@ function PrintEstoque(props : propTypes) : JSX.Element {
   );
 }
 
-export default Connect(PrintEstoque);
+export default PrintEstoque;
