@@ -19,7 +19,7 @@ import {
 
 import { cnpjMask } from '../services/calculador.service';
 
-import Connect from '../store/Connect';
+import { useStore, useDispatch } from '../store/Connect';
 
 import { carregarDominio } from '../store/clientes';
 import { Dominio, ClientesStore, Aliquotas } from '../types';
@@ -47,8 +47,6 @@ const aliquotasLiminar : Aliquotas = {
 };
 
 type propTypes = {
-  store : ClientesStore;
-  dispatch : Function;
   onEnd? : Function;
   empresaDados? : {
     cpfcnpj: string;
@@ -57,14 +55,14 @@ type propTypes = {
 }
 
 function AdicionarClienteForm(props : propTypes) : JSX.Element {
+  const store = useStore<ClientesStore>();
+  const dispatch = useDispatch();
   const {
     empresaDados = {
       cpfcnpj: '',
       nome: '',
     },
-    store,
     onEnd = () : boolean => true,
-    dispatch,
   } = props;
   const { cpfcnpj, nome } = empresaDados;
   const { dominio } = store;
@@ -247,4 +245,4 @@ function AdicionarClienteForm(props : propTypes) : JSX.Element {
   );
 }
 
-export default Connect(AdicionarClienteForm);
+export default AdicionarClienteForm;

@@ -166,7 +166,7 @@ const columns : any = [
 ];
 
 function MovimentosTable(props : propTypes) : JSX.Element {
-  const store : MovimentoStore = useStore();
+  const store = useStore<MovimentoStore>();
   const dispatch = useDispatch();
   const { printable = false } = props;
   const {

@@ -12,7 +12,7 @@ import NotaInicial from './NotaInicial';
 import { auth, pegarDominioId, calcularMovimentos } from '../services/api.service';
 
 import { addNota, carregarMovimentos } from '../store/importacao';
-import Connect from '../store/Connect';
+import { useStore, useDispatch } from '../store/Connect';
 import {
   Nota, NotaPool, MovimentoPool, MovimentoPoolWithIndex, ImportacaoStore, FileZ, MovWithIndexAndKey,
 } from '../types';
@@ -25,11 +25,6 @@ function interestadual(notaPool : NotaPool) : string {
   return notaPool.nota.estadoDestinoId === notaPool.nota.estadoGeradorId
     ? 'DENTRO DO ESTADO'
     : `INTERESTADUAL ${notaPool.nota.estadoGeradorId} -> ${notaPool.nota.estadoDestinoId}`;
-}
-
-type propTypes = {
-  store : ImportacaoStore;
-  dispatch : Function;
 }
 
 const columns = [
@@ -69,8 +64,11 @@ const columns = [
   },
 ];
 
-function ConciliarMovimentos(props : propTypes) : JSX.Element {
-  const { store, dispatch } = props;
+
+function ConciliarMovimentos() : JSX.Element {
+  const store = useStore<ImportacaoStore>();
+  const dispatch = useDispatch();
+
   const {
     movimentosWithIndex,
     empresa,
@@ -208,4 +206,4 @@ function ConciliarMovimentos(props : propTypes) : JSX.Element {
   );
 }
 
-export default Connect(ConciliarMovimentos);
+export default ConciliarMovimentos;

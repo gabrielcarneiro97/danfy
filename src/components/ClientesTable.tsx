@@ -1,9 +1,4 @@
 import React from 'react';
-import { Table } from 'antd';
-
-
-import Connect from '../store/Connect';
-
 
 function ClientesTable() : JSX.Element {
   return (
@@ -13,4 +8,4 @@ function ClientesTable() : JSX.Element {
   );
 }
 
-export default Connect(ClientesTable);
+export default ClientesTable;

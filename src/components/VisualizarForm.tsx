@@ -44,7 +44,7 @@ import { MovimentoStore } from '../types';
 const { MonthPicker } = DatePicker;
 
 function VisualizarForm() : JSX.Element {
-  const store : MovimentoStore = useStore();
+  const store = useStore<MovimentoStore>();
   const dispatch = useDispatch();
   const {
     dominio,

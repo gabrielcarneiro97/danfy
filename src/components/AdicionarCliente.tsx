@@ -6,17 +6,14 @@ import AdicionarClienteForm from './AdicionarClienteForm';
 
 import { pegarDominio } from '../services/api.service';
 
-import Connect from '../store/Connect';
+import { useDispatch } from '../store/Connect';
 
 import { carregarDominio } from '../store/clientes';
 import { PessoaPool, NotaPool, NotaServicoPool } from '../types';
 
-type propTypes = {
-  dispatch : Function;
-}
 
-function AdicionarCliente(props : propTypes) : JSX.Element {
-  const { dispatch } = props;
+function AdicionarCliente() : JSX.Element {
+  const dispatch = useDispatch();
 
   const [empresaDados, setEmpresaDados] = useState({
     cpfcnpj: '',
@@ -74,4 +71,4 @@ function AdicionarCliente(props : propTypes) : JSX.Element {
   );
 }
 
-export default Connect(AdicionarCliente);
+export default AdicionarCliente;

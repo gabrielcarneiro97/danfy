@@ -19,7 +19,7 @@ import { MovimentoStore } from '../types';
 
 
 function VisualizarTables() : JSX.Element {
-  const store : MovimentoStore = useStore();
+  const store = useStore<MovimentoStore>();
   const {
     trimestreData,
     simplesData,

@@ -12,13 +12,8 @@ import { R$ } from '../services/calculador.service';
 import { calcularServico } from '../services/api.service';
 
 import { carregarServicos } from '../store/importacao';
-import Connect from '../store/Connect';
+import { useStore, useDispatch } from '../store/Connect';
 import { NotaServicoPool, ImportacaoStore, ServicoPoolWithIndex } from '../types';
-
-type propTypes = {
-  store : ImportacaoStore;
-  dispatch : Function;
-}
 
 const columns = [
   {
@@ -46,8 +41,10 @@ const columns = [
 ];
 
 
-function ConciliarServicos(props : propTypes) : JSX.Element {
-  const { store, dispatch } = props;
+function ConciliarServicos() : JSX.Element {
+  const store = useStore<ImportacaoStore>();
+  const dispatch = useDispatch();
+
   const { notasServicoPool, servicosWithIndex } = store;
 
   const [dataLoading, setDataLoading] = useState(true);
@@ -132,4 +129,4 @@ function ConciliarServicos(props : propTypes) : JSX.Element {
   );
 }
 
-export default Connect(ConciliarServicos);
+export default ConciliarServicos;

@@ -1,5 +1,7 @@
 import React from 'react';
 import Context from './config';
+import { Stores } from '../types';
+
 
 const Connect = (Component : (props : any) => JSX.Element) => (props : any) : JSX.Element => (
   <Context.Consumer>
@@ -22,7 +24,7 @@ export function useConnect(context = Context) : { store : any; dispatch : Functi
   return contextValue;
 }
 
-export function useStore() : any {
+export function useStore<T extends Stores>() : T {
   const { store } = useConnect();
 
   return store;

@@ -389,6 +389,8 @@ export type EstoqueStore = {
   modificadosId: pgNum[];
 }
 
+export type Stores = EstoqueStore | MovimentoStore | ImportacaoStore | ClientesStore;
+
 export type MesesNum = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
 
 export type Cota = { valor : number; numero : number }
