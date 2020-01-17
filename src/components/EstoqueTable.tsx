@@ -120,7 +120,7 @@ function EstoqueTable(props : propTypes) : JSX.Element {
       ),
     },
     {
-      title: 'NF Entrada',
+      title: 'NF Entrada Chave',
       dataIndex: 'notaInicialChave',
       key: 'notaInicialChave',
       render: (v : string, e : ProdutoEstoqueLite) : JSX.Element => (
@@ -132,7 +132,7 @@ function EstoqueTable(props : propTypes) : JSX.Element {
       ),
     },
     {
-      title: 'NF Saída',
+      title: 'NF Saída Chave',
       dataIndex: 'notaFinalChave',
       key: 'notaFinalChave',
       render: (v : string, e : ProdutoEstoqueLite) : JSX.Element => (

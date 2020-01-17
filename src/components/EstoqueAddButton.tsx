@@ -78,7 +78,6 @@ function EstoqueAddButton(props : propTypes) : JSX.Element {
       console.error(err);
       message.error(`Falha ao adicionar o produto: ${codigoProduto}`);
     }
-    message.success('TOP');
   };
 
   const onChangeDatePicker = (setState : Function) => (
