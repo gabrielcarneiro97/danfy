@@ -77,10 +77,6 @@ function AcumuladosTable(props : propTypes) : JSX.Element {
   );
 }
 
-AcumuladosTable.defaultProps = {
-  printable: false,
-};
-
 AcumuladosTable.columns = [
   {
     title: 'Mês',

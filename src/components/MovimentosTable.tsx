@@ -383,8 +383,4 @@ function MovimentosTable(props : propTypes) : JSX.Element {
   );
 }
 
-MovimentosTable.defaultProps = {
-  printable: false,
-};
-
 export default MovimentosTable;
