@@ -341,8 +341,8 @@ export type StoreHandler<S, A> = (state : S, action : A) => S;
 export type MovimentoStore = {
   competencia? : Competencia;
   empresa? : Empresa;
-  notasPool : Nota[];
-  notasServicoPool : NotaServico[];
+  notas : Nota[];
+  notasServico : NotaServico[];
   trimestreData : TrimestreData;
   simplesData: SimplesData;
   dominio? : Dominio[];

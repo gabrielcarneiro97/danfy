@@ -195,7 +195,7 @@ function ServicosTable(props : propTypes) : JSX.Element {
   const {
     simplesData,
     trimestreData,
-    notasServicoPool,
+    notasServico,
     competencia,
     empresa,
     grupos,
@@ -245,7 +245,7 @@ function ServicosTable(props : propTypes) : JSX.Element {
     const { servico, imposto, retencao } = servicoPool;
 
     const numero = parseInt(servico.notaChave.substring(18), 10);
-    const nota = notasServicoPool.find((n) => n.chave === servico.notaChave);
+    const nota = notasServico.find((n) => n.chave === servico.notaChave);
 
     const grupo = grupos.find((g) => g.id === servico.grupoId);
 
