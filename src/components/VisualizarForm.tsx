@@ -28,7 +28,7 @@ import {
   cnpjMask,
 } from '../services/calculador.service';
 
-import Connect from '../store/Connect';
+import { useStore, useDispatch } from '../store/Connect';
 import {
   carregarDominio,
   carregarMovimento,
@@ -43,13 +43,9 @@ import { MovimentoStore } from '../types';
 
 const { MonthPicker } = DatePicker;
 
-type propTypes = {
-  store : MovimentoStore;
-  dispatch : Function;
-}
-
-function VisualizarForm(props : propTypes) : JSX.Element {
-  const { store, dispatch } = props;
+function VisualizarForm() : JSX.Element {
+  const store : MovimentoStore = useStore();
+  const dispatch = useDispatch();
   const {
     dominio,
     empresa,
@@ -65,8 +61,6 @@ function VisualizarForm(props : propTypes) : JSX.Element {
   const monthPicker = useRef<any>(null);
 
   const { movimentosPool, servicosPool } = empresa?.simples ? simplesData : trimestreData;
-
-  console.log(trimestreData);
 
   const [num, setNum] = useState('');
   const [submit, setSubmit] = useState(false);
@@ -272,4 +266,4 @@ function VisualizarForm(props : propTypes) : JSX.Element {
   );
 }
 
-export default Connect(VisualizarForm);
+export default VisualizarForm;

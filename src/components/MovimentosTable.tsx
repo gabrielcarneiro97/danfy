@@ -22,7 +22,7 @@ import {
   auth,
 } from '../services/api.service';
 
-import Connect from '../store/Connect';
+import { useStore, useDispatch } from '../store/Connect';
 import { carregarMovimento } from '../store/movimento';
 import {
   MovimentoStore, MovWithIndexAndKey, Icms, Imposto, Movimento,
@@ -57,8 +57,6 @@ function sorter(a : { num : string }, b : { num : string }) : number {
 }
 
 type propTypes = {
-  store : MovimentoStore;
-  dispatch : Function;
   printable? : boolean;
 }
 
@@ -168,7 +166,9 @@ const columns : any = [
 ];
 
 function MovimentosTable(props : propTypes) : JSX.Element {
-  const { store, dispatch, printable = false } = props;
+  const store : MovimentoStore = useStore();
+  const dispatch = useDispatch();
+  const { printable = false } = props;
   const {
     trimestreData,
     simplesData,
@@ -176,6 +176,8 @@ function MovimentosTable(props : propTypes) : JSX.Element {
     competencia,
     empresa,
   } = store;
+
+  console.log(store);
 
   const { simples } = empresa || { simples: false };
 
@@ -386,4 +388,4 @@ MovimentosTable.defaultProps = {
   printable: false,
 };
 
-export default Connect(MovimentosTable);
+export default MovimentosTable;

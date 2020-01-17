@@ -12,17 +12,14 @@ import GruposTable from './GruposTable';
 
 import { eDoMes, temTabelaCotas } from '../services/calculador.service';
 
-import Connect from '../store/Connect';
+import { useStore } from '../store/Connect';
 
 import './VisualizarTables.css';
 import { MovimentoStore } from '../types';
 
-type propTypes = {
-  store : MovimentoStore;
-}
 
-function VisualizarTables(props : propTypes) : JSX.Element {
-  const { store } = props;
+function VisualizarTables() : JSX.Element {
+  const store : MovimentoStore = useStore();
   const {
     trimestreData,
     simplesData,
@@ -104,4 +101,4 @@ function VisualizarTables(props : propTypes) : JSX.Element {
   );
 }
 
-export default Connect(VisualizarTables);
+export default VisualizarTables;
