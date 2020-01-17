@@ -13,7 +13,7 @@ import { UploadChangeParam } from 'antd/lib/upload';
 import { UploadFile } from 'antd/lib/upload/interface';
 import { api } from '../services/publics';
 
-import Connect from '../store/Connect';
+import { useStore, useDispatch } from '../store/Connect';
 import {
   addNota,
   addNotaServico,
@@ -27,13 +27,15 @@ import {
 } from '../types';
 
 type propTypes = {
-  store : ImportacaoStore;
-  dispatch : Function;
   onEnd : Function;
 }
 
 function EnviarArquivos(props : propTypes) : JSX.Element {
-  const { store, dispatch, onEnd } = props;
+  const store = useStore<ImportacaoStore>();
+  const dispatch = useDispatch();
+
+  const { onEnd } = props;
+
   const [ended, setEnded] = useState(0);
   const { fileList } = store;
 
@@ -125,4 +127,4 @@ function EnviarArquivos(props : propTypes) : JSX.Element {
   );
 }
 
-export default Connect(EnviarArquivos);
+export default EnviarArquivos;

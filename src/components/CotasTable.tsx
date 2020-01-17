@@ -4,12 +4,11 @@ import { Table, Col, Row } from 'antd';
 import TableToPrint from './TableToPrint';
 import { R$, calcularCotas, temTabelaCotas } from '../services/calculador.service';
 
-import Connect from '../store/Connect';
+import { useStore } from '../store/Connect';
 import { MovimentoStore } from '../types';
 
 type propTypes = {
-  printable: boolean;
-  store: MovimentoStore;
+  printable : boolean;
 }
 
 const columns = [{
@@ -27,7 +26,8 @@ const columns = [{
 }];
 
 function CotasTable(props : propTypes) : JSX.Element {
-  const { store, printable = false } = props;
+  const store = useStore<MovimentoStore>();
+  const { printable = false } = props;
   const { competencia, empresa, trimestreData } = store;
   const { cotaCsll, cotaIr } = calcularCotas(trimestreData);
 
@@ -83,4 +83,4 @@ function CotasTable(props : propTypes) : JSX.Element {
   );
 }
 
-export default Connect(CotasTable);
+export default CotasTable;

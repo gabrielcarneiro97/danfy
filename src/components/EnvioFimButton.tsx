@@ -11,16 +11,17 @@ import {
 
 import { gravarMovimentos, gravarServicos } from '../services/api.service';
 
-import Connect from '../store/Connect';
+import { useStore } from '../store/Connect';
 import { ImportacaoStore } from '../types';
 
 type propTypes = {
   disabled? : boolean;
-  store : ImportacaoStore;
 }
 
 function EnvioFimButton(props : propTypes) : JSX.Element {
-  const { disabled = false, store } = props;
+  const store = useStore<ImportacaoStore>();
+
+  const { disabled = false } = props;
   const { movimentosWithIndex, servicosWithIndex, empresa } = store;
   const { numeroSistema, cnpj } = empresa;
 
@@ -83,4 +84,4 @@ function EnvioFimButton(props : propTypes) : JSX.Element {
   );
 }
 
-export default Connect(EnvioFimButton);
+export default EnvioFimButton;

@@ -15,12 +15,10 @@ import { getGrupos, editarGrupo, criarGrupo } from '../services/api.service';
 
 import { carregarGrupos } from '../store/clientes';
 
-import Connect from '../store/Connect';
+import { useStore, useDispatch } from '../store/Connect';
 import { ClientesStore, GrupoLite } from '../types';
 
 type propTypes = {
-  store : ClientesStore;
-  dispatch : Function;
   onClose? : (e?: React.MouseEvent<HTMLElement, MouseEvent>) => void;
   visible? : boolean;
   title? : string;
@@ -30,9 +28,10 @@ type propTypes = {
 
 
 function EditarGrupoModal(props : propTypes) : JSX.Element {
+  const store = useStore<ClientesStore>();
+  const dispatch = useDispatch();
+
   const {
-    dispatch,
-    store,
     onClose,
     visible = false,
     title = 'Modal',
@@ -158,4 +157,4 @@ function EditarGrupoModal(props : propTypes) : JSX.Element {
   );
 }
 
-export default Connect(EditarGrupoModal);
+export default EditarGrupoModal;
