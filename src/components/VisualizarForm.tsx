@@ -152,8 +152,6 @@ function VisualizarForm() : JSX.Element {
       dispatch(carregarMovimento(dados));
     }
 
-    console.log(dados);
-
     setDisableRecalc(false);
     setSubmit(true);
     setLoading(false);

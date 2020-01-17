@@ -200,8 +200,6 @@ function ServicosTable(props : propTypes) : JSX.Element {
     grupos,
   } = store;
 
-  console.log(store);
-
   const { simples } = empresa || { simples: false };
 
   const { servicosPool } = simples ? simplesData : trimestreData;

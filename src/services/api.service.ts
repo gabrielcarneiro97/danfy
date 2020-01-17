@@ -111,7 +111,7 @@ export async function gravarMovimentos(movimentos : MovimentoPool[], cnpj : stri
 
     return true;
   } catch (err) {
-    console.log(err);
+    console.error(err);
     throw err;
   }
 }
@@ -151,7 +151,7 @@ export async function gravarServicos(servicos : ServicoPool[], cnpj : string) : 
 
     return true;
   } catch (err) {
-    console.log(err);
+    console.error(err);
     throw err;
   }
 }
@@ -161,7 +161,7 @@ export async function pegarPessoaId(pessoaId : string | number) : Promise<Pessoa
     const { data } = await axios.get(`${api}/pessoas/${pessoaId}`);
     return data;
   } catch (err) {
-    console.log(err);
+    console.error(err);
     throw err;
   }
 }
