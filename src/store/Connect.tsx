@@ -25,7 +25,7 @@ export function useConnect(context = Context) : { store : any; dispatch : Functi
 }
 
 export function useStore<T extends Stores>() : T {
-  const { store } = useConnect();
+  const { store } : { store : T } = useConnect();
 
   return store;
 }

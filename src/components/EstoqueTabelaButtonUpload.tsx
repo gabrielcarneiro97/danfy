@@ -2,18 +2,19 @@ import React from 'react';
 import { Button } from 'antd';
 
 import { editarEstoqueProduto } from '../services/api.service';
-import Connect from '../store/Connect';
+import { useStore, useDispatch } from '../store/Connect';
 import { atualizacaoPersistida } from '../store/estoque';
 import { EstoqueStore } from '../types';
 
 type propTypes = {
   id : number | string;
-  dispatch : Function;
-  store : EstoqueStore;
 }
 
 function EstoqueTabelaButtonUpload(props : propTypes) : JSX.Element {
-  const { id, dispatch, store } = props;
+  const store = useStore<EstoqueStore>();
+  const dispatch = useDispatch();
+
+  const { id } = props;
   const { modificadosId, estoque } = store;
 
   let disabled = !modificadosId.includes(parseInt(id.toString(), 10));
@@ -29,4 +30,4 @@ function EstoqueTabelaButtonUpload(props : propTypes) : JSX.Element {
   return <Button icon="edit" onClick={onClick} disabled={disabled} />;
 }
 
-export default Connect(EstoqueTabelaButtonUpload);
+export default EstoqueTabelaButtonUpload;

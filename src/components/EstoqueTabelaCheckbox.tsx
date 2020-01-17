@@ -3,23 +3,22 @@ import { Checkbox } from 'antd';
 import { CheckboxChangeEvent } from 'antd/lib/checkbox';
 
 import { editarEstoqueProduto } from '../services/api.service';
-import Connect from '../store/Connect';
+import { useStore, useDispatch } from '../store/Connect';
 import { atualizacaoPersistida, atualizarProduto } from '../store/estoque';
 import { EstoqueStore } from '../types';
 
 type propTypes = {
-  ativo : boolean;
-  id : number | string;
-  dispatch : Function;
-  store : EstoqueStore;
+  ativo? : boolean;
+  id? : number | string;
 }
 
 function EstoqueTabelaCheckbox(props : propTypes) : JSX.Element {
+  const store = useStore<EstoqueStore>();
+  const dispatch = useDispatch();
+
   const {
-    ativo,
-    id,
-    store,
-    dispatch,
+    ativo = false,
+    id = 0,
   } = props;
   const { estoque } = store;
   const [disabled, setDisabled] = useState(false);
@@ -40,4 +39,4 @@ function EstoqueTabelaCheckbox(props : propTypes) : JSX.Element {
   return <Checkbox onChange={onChange} checked={ativo} disabled={disabled}>{id}</Checkbox>;
 }
 
-export default Connect(EstoqueTabelaCheckbox);
+export default EstoqueTabelaCheckbox;

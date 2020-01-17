@@ -7,10 +7,6 @@ import { R$, calcularCotas, temTabelaCotas } from '../services/calculador.servic
 import { useStore } from '../store/Connect';
 import { MovimentoStore } from '../types';
 
-type propTypes = {
-  printable : boolean;
-}
-
 const columns = [{
   title: 'Nº',
   dataIndex: 'numero',
@@ -24,6 +20,10 @@ const columns = [{
   dataIndex: 'irpj',
   key: 'irpj',
 }];
+
+type propTypes = {
+  printable? : boolean;
+}
 
 function CotasTable(props : propTypes) : JSX.Element {
   const store = useStore<MovimentoStore>();

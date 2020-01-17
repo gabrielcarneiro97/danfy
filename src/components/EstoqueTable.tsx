@@ -11,15 +11,13 @@ import EstoqueTabelaButtonUpload from './EstoqueTabelaButtonUpload';
 import EstoqueTabelaCheckbox from './EstoqueTabelaCheckbox';
 import EstoqueAddButton from './EstoqueAddButton';
 
-import Connect from '../store/Connect';
+import { useStore } from '../store/Connect';
 import { ProdutoEstoqueLite, EstoqueStore } from '../types';
 
-type propTypes = {
-  store : EstoqueStore;
-}
 
-function EstoqueTable(props : propTypes) : JSX.Element {
-  const { store } = props;
+function EstoqueTable() : JSX.Element {
+  const store = useStore<EstoqueStore>();
+
   const { estoqueArray, modificadosId } = store;
 
   const [filtros, setFiltros] = useState({ ativo: [true], dataSaida: ['null'] });
@@ -151,7 +149,7 @@ function EstoqueTable(props : propTypes) : JSX.Element {
       filteredValue: filtros.ativo || null,
       onFilter: (value : string,
         record : ProdutoEstoqueLite) : boolean => record.ativo?.toString() === value,
-      render: (v : string, e : ProdutoEstoqueLite) : JSX.Element => (
+      render: (v : boolean, e : ProdutoEstoqueLite) : JSX.Element => (
         <EstoqueTabelaCheckbox
           ativo={v}
           id={e.id}
@@ -185,4 +183,4 @@ function EstoqueTable(props : propTypes) : JSX.Element {
   );
 }
 
-export default Connect(EstoqueTable);
+export default EstoqueTable;

@@ -12,17 +12,14 @@ import moment from 'moment';
 
 import { getEstoque, criarEstoqueProduto } from '../services/api.service';
 import { carregarEstoque } from '../store/estoque';
-import Connect from '../store/Connect';
+import { useStore, useDispatch } from '../store/Connect';
 import { floating } from '../services/calculador.service';
 import { EstoqueStore, ProdutoEstoqueLite } from '../types';
 
-type propTypes = {
-  dispatch : Function;
-  store : EstoqueStore;
-}
+function EstoqueAddButton() : JSX.Element {
+  const store = useStore<EstoqueStore>();
+  const dispatch = useDispatch();
 
-function EstoqueAddButton(props : propTypes) : JSX.Element {
-  const { store, dispatch } = props;
   const { estoqueInfosGerais } = store;
   const { cnpj, diaMesAno } = estoqueInfosGerais;
 
@@ -164,4 +161,4 @@ function EstoqueAddButton(props : propTypes) : JSX.Element {
   );
 }
 
-export default Connect(EstoqueAddButton);
+export default EstoqueAddButton;
