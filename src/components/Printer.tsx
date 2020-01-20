@@ -72,6 +72,7 @@ function Printer() : JSX.Element {
         pageStyle={printStyle}
       />
       <div style={{ display: 'none' }}>
+        {/* <div> */}
         <div
           ref={printRef}
         >

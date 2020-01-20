@@ -232,7 +232,7 @@ function ServicosTable(props : propTypes) : JSX.Element {
     servicoPool, novoGrupoId,
   ).then(update);
 
-  let totais : any[] = [];
+  let totais : any = null;
 
   const servicosPoolMes = simples ? servicosPool : servicosPool.filter(
     (sP) => eDoMes(sP, competencia),
@@ -276,7 +276,7 @@ function ServicosTable(props : propTypes) : JSX.Element {
     return valores;
   });
 
-  if (totais.length > 0) {
+  if (totais) {
     dataSource.push(totais);
   }
 

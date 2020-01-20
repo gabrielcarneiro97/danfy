@@ -8,12 +8,12 @@ import { useStore } from '../store/Connect';
 import { MovimentoStore, TrimestreData } from '../types';
 
 type propTypes = {
-  printable : boolean;
+  printable? : boolean;
 };
 
 function AcumuladosTable(props : propTypes) : JSX.Element {
   const store = useStore<MovimentoStore>();
-  const { printable } = props;
+  const { printable = false } = props;
   const { trimestreData } = store;
 
   const stg = (str : string) : JSX.Element => <strong>{str}</strong>;

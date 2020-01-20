@@ -9,7 +9,7 @@ type propTypes = {
 }
 
 function TableToPrint(props : propTypes) : JSX.Element {
-  const { columns, dataSource, showHead = false } = props;
+  const { columns, dataSource, showHead = true } = props;
 
   if (dataSource.length === 0) {
     return <div />;
@@ -43,6 +43,8 @@ function TableToPrint(props : propTypes) : JSX.Element {
       });
     }
   });
+
+  console.log(headRows);
 
   dataSource.forEach((element, num) => {
     dataRows[num] = [];
