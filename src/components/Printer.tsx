@@ -50,7 +50,6 @@ function Printer() : JSX.Element {
   const temMovimento = movimentosPoolMes.length > 0 && empresa.cnpj;
   const temServico = servicosPoolMes.length > 0 && empresa.cnpj;
 
-
   const printStyle = `
     @page { size: auto; margin: 10mm; margin-bottom: 10mm; margin-top: 12mm; }
     @media print { body { -webkit-print-color-adjust: exact; } }
@@ -66,7 +65,7 @@ function Printer() : JSX.Element {
               Imprimir
           </Button>
         )}
-        onBeforePrint={() : void => { document.title = `${empresa.numeroSistema} PLANILHA ${competencia.mes}-${competencia.ano}`; }}
+        onBeforePrint={() : void => { document.title = `${empresa.numeroSistema} PLANILHA ${String(competencia.mes).padStart(2, '0')}-${competencia.ano}`; }}
         onAfterPrint={() : void => { document.title = 'DANFY'; }}
         content={() : any => printRef.current}
         pageStyle={printStyle}
@@ -80,6 +79,8 @@ function Printer() : JSX.Element {
             {`${cnpjMask(empresa.cnpj)}`}
             <br />
             {`${pegaMes(parseInt(competencia.mes, 10) as MesesNum)}/${competencia.ano}`}
+            <br />
+            PLANILHA
           </div>
           <h2
             style={{

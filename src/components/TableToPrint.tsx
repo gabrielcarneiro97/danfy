@@ -44,8 +44,6 @@ function TableToPrint(props : propTypes) : JSX.Element {
     }
   });
 
-  console.log(headRows);
-
   dataSource.forEach((element, num) => {
     dataRows[num] = [];
     if (element) {

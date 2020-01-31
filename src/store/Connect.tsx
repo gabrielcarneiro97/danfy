@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import Context from './config';
 import { Stores, Dispatch } from '../types';
 
@@ -15,7 +15,7 @@ const Connect = (Component : (props : any) => JSX.Element) => (props : any) : JS
 export function useConnect(
   context = Context,
 ) : { store : any; dispatch : Dispatch } {
-  const contextValue = React.useContext(context);
+  const contextValue = useContext(context);
 
   if (process.env.NODE_ENV !== 'production' && !contextValue) {
     throw new Error(

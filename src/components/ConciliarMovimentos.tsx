@@ -69,6 +69,8 @@ function ConciliarMovimentos() : JSX.Element {
   const store = useStore<ImportacaoStore>();
   const dispatch = useDispatch();
 
+  // console.log(store);
+
   const {
     movimentosWithIndex,
     empresa,
@@ -80,7 +82,7 @@ function ConciliarMovimentos() : JSX.Element {
 
   useEffect(() => {
     const notasFinaisChave = fileList.reduce(
-      (acc : FileZ[], crr : UploadFile<FileZ>) => (crr.response ? acc.concat([crr.response]) : acc),
+      (acc : FileZ[], crr : UploadFile<FileZ>) => (crr.response ? acc.concat(crr.response) : acc),
       [],
     ).filter(
       ({ tipo, notaPool }) => {
@@ -99,6 +101,8 @@ function ConciliarMovimentos() : JSX.Element {
       if (!nota) return '';
       return nota.chave;
     });
+
+    // console.log(notasFinaisChave);
 
     if (notasFinaisChave.length === 0) {
       setDataLoading(false);
