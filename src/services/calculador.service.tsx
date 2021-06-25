@@ -105,6 +105,7 @@ export function somaTotalMovimento(movimento : any, total : any) : any {
       icms: 0,
       difalOrigem: 0,
       difalDestino: 0,
+      basePisCofins: 0,
       pis: 0,
       cofins: 0,
       csll: 0,

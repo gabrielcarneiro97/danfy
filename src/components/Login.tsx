@@ -9,7 +9,7 @@ import LoginForm from './LoginForm';
 const { Content } = Layout;
 
 function Login() : JSX.Element {
-  const location = useLocation();
+  const location: any = useLocation();
   const { from } = location.state || { from: { pathname: '/app' } };
 
   if (auth.currentUser !== null) {
