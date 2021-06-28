@@ -105,6 +105,7 @@ export function somaTotalMovimento(movimento : any, total : any) : any {
       icms: 0,
       difalOrigem: 0,
       difalDestino: 0,
+      basePisCofins: 0,
       pis: 0,
       cofins: 0,
       csll: 0,
@@ -117,9 +118,10 @@ export function somaTotalMovimento(movimento : any, total : any) : any {
       && key !== 'numero'
       && key !== 'key'
       && key !== 'tipoMovimento'
+      && key !== 'valorInicial'
       && key !== 'valorFinal') {
       retorno[key] = R$(floating(retorno[key]) + floating(movimento[key]));
-    } else if (key === 'valorFinal' && movimento.tipoMovimento !== 'DEVOLUÇÃO DE VENDA') {
+    } else if ((key === 'valorInicial' || key === 'valorFinal') && movimento.tipoMovimento !== 'DEVOLUÇÃO DE VENDA') {
       retorno[key] = R$(floating(retorno[key]) + floating(movimento[key]));
     }
   });

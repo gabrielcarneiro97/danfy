@@ -173,10 +173,10 @@ function VisualizarForm() : JSX.Element {
 
   useEffect(() => {
     if (numParam && compParam && (dominio?.length || 0) > 0) {
-      monthPicker.current.picker.handleChange(moment(compParam, 'MM-YYYY'));
+      monthPicker.current.picker.handleChange(moment(compParam as string, 'MM-YYYY'));
       (async () => {
         await handleNum({ target: { value: numParam } });
-        await handleDate(null, compParam);
+        await handleDate(null, compParam as string);
         setGetFromParams(true);
       })();
     }

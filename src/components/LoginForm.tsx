@@ -9,7 +9,7 @@ import './LoginForm.css';
 const FormItem = Form.Item;
 
 function LoginForm() : JSX.Element {
-  const history = useHistory();
+  const history: any = useHistory();
 
   const handleBtnGoogle = () : void => {
     const { from } = history.location.state || { from: { pathname: '/app' } };

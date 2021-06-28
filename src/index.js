@@ -5,7 +5,6 @@ import firebase from 'firebase';
 
 import './index.css';
 import App from './App';
-import registerServiceWorker from './registerServiceWorker';
 import { auth } from './services/api.service';
 
 auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).then(() => {
@@ -14,5 +13,3 @@ auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).then(() => {
     stop();
   });
 });
-
-registerServiceWorker();

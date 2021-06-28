@@ -125,18 +125,15 @@ const columns : any = [
     key: 'icms',
     width: '6.67%',
   }, {
-    title: 'DIFAL',
-    children: [{
-      title: 'Originário',
-      dataIndex: 'difalOrigem',
-      key: 'difalOrigem',
-      width: '6.67%',
-    }, {
-      title: 'Destinatário (GNRE)',
-      dataIndex: 'difalDestino',
-      key: 'difalDestino',
-      width: '6.67%',
-    }],
+    title: 'DIFAL Destinatário (GNRE)',
+    dataIndex: 'difalDestino',
+    key: 'difalDestino',
+    width: '6.67%',
+  }, {
+    title: 'Base PIS/COFINS',
+    dataIndex: 'basePisCofins',
+    key: 'basePisCofins',
+    width: '6.67%',
   }, {
     title: 'PIS',
     dataIndex: 'pis',
@@ -273,6 +270,7 @@ function MovimentosTable(props : propTypes) : JSX.Element {
       icms: R$(icms.proprio),
       difalOrigem: icms.difalOrigem ? R$(icms.difalOrigem) : '0,00',
       difalDestino: icms.difalDestino ? R$(icms.difalDestino) : '0,00',
+      basePisCofins: R$(movimento.lucro - icms.proprio),
       pis: R$(imposto.pis),
       cofins: R$(imposto.cofins),
       csll: R$(imposto.csll),
@@ -338,6 +336,7 @@ function MovimentosTable(props : propTypes) : JSX.Element {
       icms: defineMovimentoValorInput('icms'),
       difalOrigem: defineMovimentoValorInput('difalOrigem'),
       difalDestino: defineMovimentoValorInput('difalDestino'),
+      basePisCofins: defineMovimentoValorInput('basePisCofins'),
       pis: defineMovimentoValorInput('pis'),
       cofins: defineMovimentoValorInput('cofins'),
       csll: defineMovimentoValorInput('csll'),
