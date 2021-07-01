@@ -134,6 +134,7 @@ export const cfopDevolucao = ['1202', '2202'];
 export const cfopDevolucaoCompra = ['5202', '5413', '6202'];
 export const cfopVenda = ['5102', '6102', '6108'];
 export const cfopConsignacao = ['1917', '2917'];
+export const cfopRemessa = ['5917'];
 export const cfopCompraConsignacao = ['1113'];
 export const cfopVendaConsignacao = ['5115', '6115', '5114'];
 export const cfopDevolucaoConsignacao = ['5918', '6918'];
@@ -151,6 +152,8 @@ export function retornarTipo(cfop : string | number) : string {
     return 'VENDA';
   } if (cfopConsignacao.includes(cfopStr)) {
     return 'CONSIGNAÇÃO';
+  } if (cfopRemessa.includes(cfopStr)) {
+    return 'REMESSA';
   } if (cfopCompraConsignacao.includes(cfopStr)) {
     return 'COMPRA DEFINITIVA';
   } if (cfopDevolucaoConsignacao.includes(cfopStr)) {
