@@ -336,7 +336,7 @@ function MovimentosTable(props : propTypes) : JSX.Element {
       icms: defineMovimentoValorInput('icms'),
       difalOrigem: defineMovimentoValorInput('difalOrigem'),
       difalDestino: defineMovimentoValorInput('difalDestino'),
-      basePisCofins: defineMovimentoValorInput('basePisCofins'),
+      basePisCofins: valores.basePisCofins,
       pis: defineMovimentoValorInput('pis'),
       cofins: defineMovimentoValorInput('cofins'),
       csll: defineMovimentoValorInput('csll'),
