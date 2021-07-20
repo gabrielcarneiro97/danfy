@@ -246,6 +246,13 @@ function ServicosTable(props : propTypes) : JSX.Element {
 
     const grupo = grupos.find((g) => g.id === servico.grupoId);
 
+    let issRetido = eCancelada(nota) ? 0 : retencao.iss || 0;
+    let pisRetido = eCancelada(nota) ? 0 : retencao.pis || 0;
+    let cofinsRetido = eCancelada(nota) ? 0 : retencao.cofins || 0;
+    let csllRetido = eCancelada(nota) ? 0 : retencao.csll || 0;
+    let irpjRetido = eCancelada(nota) ? 0 : retencao.irpj || 0;
+    let totalRetido = eCancelada(nota) ? 0 : retencao.total || 0;
+
     const valores = {
       cor: grupo && grupo.cor,
       key: servico.notaChave,
@@ -255,18 +262,18 @@ function ServicosTable(props : propTypes) : JSX.Element {
       status: nota?.status,
       data: moment(servico.dataHora).format('DD[/]MMM'),
       valorServico: R$(servico.valor),
-      issRetido: eCancelada(nota) ? R$(0) : R$(retencao.iss || 0),
-      pisRetido: eCancelada(nota) ? R$(0) : R$(retencao.pis || 0),
-      cofinsRetido: eCancelada(nota) ? R$(0) : R$(retencao.cofins || 0),
-      csllRetido: eCancelada(nota) ? R$(0) : R$(retencao.csll || 0),
-      irpjRetido: eCancelada(nota) ? R$(0) : R$(retencao.irpj || 0),
-      totalRetido: eCancelada(nota) ? R$(0) : R$(retencao.total || 0),
-      iss: R$(imposto.iss),
-      pis: R$(imposto.pis),
-      cofins: R$(imposto.cofins),
-      csll: R$(imposto.csll),
-      irpj: R$(imposto.irpj),
-      total: R$(imposto.total),
+      issRetido: R$(issRetido),
+      pisRetido: R$(pisRetido),
+      cofinsRetido: R$(cofinsRetido),
+      csllRetido: R$(csllRetido),
+      irpjRetido: R$(irpjRetido),
+      totalRetido: R$(totalRetido),
+      iss: R$(imposto.iss - issRetido),
+      pis: R$(imposto.pis - pisRetido),
+      cofins: R$(imposto.cofins - cofinsRetido),
+      csll: R$(imposto.csll - csllRetido),
+      irpj: R$(imposto.irpj - irpjRetido),
+      total: R$(imposto.total - totalRetido),
       excluir: apagaServico(servicoPool),
       mudarGrupo: mudarGrupo(servicoPool),
     };
