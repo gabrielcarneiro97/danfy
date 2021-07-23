@@ -258,7 +258,7 @@ function ServicosTable(props : propTypes) : JSX.Element {
     const valorCofins = imposto.cofins - cofinsRetido;
     const valorCsll = imposto.csll - csllRetido;
     const valorIrpj = imposto.irpj - irpjRetido;
-    const total = valorIss + valorPis + valorCofins + valorCsll + valorIrpj;
+    const valorTotal = valorIss + valorPis + valorCofins + valorCsll + valorIrpj;
     
     const valores = {
       cor: grupo && grupo.cor,
@@ -280,7 +280,7 @@ function ServicosTable(props : propTypes) : JSX.Element {
       cofins: R$(valorCofins),
       csll: R$(valorCsll),
       irpj: R$(valorIrpj),
-      total: R$(total),
+      total: R$(valorTotal),
       excluir: apagaServico(servicoPool),
       mudarGrupo: mudarGrupo(servicoPool),
     };
