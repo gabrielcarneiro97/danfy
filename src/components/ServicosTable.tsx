@@ -246,13 +246,20 @@ function ServicosTable(props : propTypes) : JSX.Element {
 
     const grupo = grupos.find((g) => g.id === servico.grupoId);
 
-    let issRetido = eCancelada(nota) ? 0 : retencao.iss || 0;
-    let pisRetido = eCancelada(nota) ? 0 : retencao.pis || 0;
-    let cofinsRetido = eCancelada(nota) ? 0 : retencao.cofins || 0;
-    let csllRetido = eCancelada(nota) ? 0 : retencao.csll || 0;
-    let irpjRetido = eCancelada(nota) ? 0 : retencao.irpj || 0;
-    let totalRetido = eCancelada(nota) ? 0 : retencao.total || 0;
+    const issRetido = eCancelada(nota) ? 0 : retencao.iss || 0;
+    const pisRetido = eCancelada(nota) ? 0 : retencao.pis || 0;
+    const cofinsRetido = eCancelada(nota) ? 0 : retencao.cofins || 0;
+    const csllRetido = eCancelada(nota) ? 0 : retencao.csll || 0;
+    const irpjRetido = eCancelada(nota) ? 0 : retencao.irpj || 0;
+    const totalRetido = eCancelada(nota) ? 0 : retencao.total || 0;
 
+    const valorIss = imposto.iss - issRetido;
+    const valorPis = imposto.pis - pisRetido;
+    const valorCofins = imposto.cofins - cofinsRetido;
+    const valorCsll = imposto.csll - csllRetido;
+    const valorIrpj = imposto.irpj - irpjRetido;
+    const valorTotal = valorIss + valorPis + valorCofins + valorCsll + valorIrpj;
+    
     const valores = {
       cor: grupo && grupo.cor,
       key: servico.notaChave,
@@ -268,12 +275,12 @@ function ServicosTable(props : propTypes) : JSX.Element {
       csllRetido: R$(csllRetido),
       irpjRetido: R$(irpjRetido),
       totalRetido: R$(totalRetido),
-      iss: R$(imposto.iss - issRetido),
-      pis: R$(imposto.pis - pisRetido),
-      cofins: R$(imposto.cofins - cofinsRetido),
-      csll: R$(imposto.csll - csllRetido),
-      irpj: R$(imposto.irpj - irpjRetido),
-      total: R$(imposto.total - totalRetido),
+      iss: R$(valorIss),
+      pis: R$(valorPis),
+      cofins: R$(valorCofins),
+      csll: R$(valorCsll),
+      irpj: R$(valorIrpj),
+      total: R$(valorTotal),
       excluir: apagaServico(servicoPool),
       mudarGrupo: mudarGrupo(servicoPool),
     };
