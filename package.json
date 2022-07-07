@@ -14,7 +14,7 @@
     "axios": "^0.18.0",
     "babel-eslint": "^10.0.3",
     "body-parser": "^1.18.3",
-    "moment": "^2.22.2",
+    "moment": "^2.29.4",
     "moment-timezone": "^0.5.27",
     "qs": "^6.9.1",
     "react": "^16.8.0",
