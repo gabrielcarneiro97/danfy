@@ -15,6 +15,7 @@ import { useStore } from '../store/Connect';
 
 import './VisualizarTables.css';
 import { MovimentoStore } from '../types';
+import InvestimentosTable from './InvestimentosTable';
 
 
 function VisualizarTables() : JSX.Element {
@@ -25,6 +26,7 @@ function VisualizarTables() : JSX.Element {
     competencia,
     empresa,
     grupos,
+    investimentos,
   } = store;
 
   const { movimentosPool, servicosPool } = empresa?.simples ? simplesData : trimestreData;
@@ -34,6 +36,7 @@ function VisualizarTables() : JSX.Element {
 
   const temMovimento = movimentosPoolMes.length > 0 && empresa?.cnpj;
   const temServico = servicosPoolMes.length > 0 && empresa?.cnpj;
+  const ehFimTrimestre = parseInt(competencia?.mes || "-1") % 3 == 0;
 
   return (
     <>
@@ -92,6 +95,15 @@ function VisualizarTables() : JSX.Element {
             <>
               <Divider orientation="left">Receitas (Simples)</Divider>
               <SimplesTable />
+            </>
+          )
+        }
+        {
+          ehFimTrimestre && !empresa?.simples && investimentos
+          && (
+            <>
+              <Divider orientation="left">Aplicações</Divider>
+              <InvestimentosTable />
             </>
           )
         }

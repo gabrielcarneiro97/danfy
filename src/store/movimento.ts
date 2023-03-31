@@ -1,5 +1,5 @@
 import {
-  MovimentoStore, TrimestreData, Dominio, Empresa, Competencia, Grupo, Simples, StoreHandler,
+  MovimentoStore, TrimestreData, Dominio, Empresa, Competencia, Grupo, Simples, StoreHandler, Investimentos,
 } from '../types';
 
 export const movimentoStore : MovimentoStore = {
@@ -67,6 +67,7 @@ export const CARREGAR_EMPRESA = Symbol('CARREGAR_EMPRESA');
 export const CARREGAR_COMPETENCIA = Symbol('CARREGAR_COMPETENCIA');
 export const CARREGAR_SIMPLES = Symbol('CARREGAR_SIMPLES');
 export const CARREGAR_GRUPOS = Symbol('CARREGAR_GRUPOS');
+export const CARREGAR_INVESTIMENTOS = Symbol('CARREGAR_INVESTIMENTOS');
 
 export type Action = {
   type : symbol;
@@ -77,6 +78,7 @@ export type Action = {
   competencia? : Competencia;
   simples? : Simples;
   grupos? : Grupo[];
+  investimentos? : Investimentos;
 }
 
 export type MovimentoHandler = StoreHandler<MovimentoStore, Action>;
@@ -105,6 +107,15 @@ const setDominio : MovimentoHandler = (state, action) => {
   const newState : MovimentoStore = {
     ...state,
     dominio: action.dominio,
+  };
+
+  return newState;
+};
+
+const setInvestimentos : MovimentoHandler = (state, action) => {
+  const newState : MovimentoStore = {
+    ...state,
+    investimentos: action.investimentos,
   };
 
   return newState;
@@ -176,6 +187,8 @@ export default function movimentoReducer(state = movimentoStore, action : Action
       return setSimples(state, action);
     case CARREGAR_GRUPOS:
       return setGrupos(state, action);
+    case CARREGAR_INVESTIMENTOS:
+      return setInvestimentos(state, action);
     default:
       break;
   }
@@ -194,6 +207,13 @@ export function carregarMovimento(dados : MovimentoStore) : Action {
   return {
     type: CARREGAR_DADOS,
     dados,
+  };
+}
+
+export function carregarInvestimentos(investimentos : Investimentos) : Action {
+  return {
+    type: CARREGAR_INVESTIMENTOS,
+    investimentos,
   };
 }
 
@@ -235,6 +255,13 @@ export function carregarGrupos(grupos : Grupo[]) : Action {
 export function limparDados() : Action {
   return {
     type: CARREGAR_DADOS,
+    dados: dadosVazio,
+  };
+}
+
+export function limparInvestimentos() : Action {
+  return {
+    type: CARREGAR_INVESTIMENTOS,
     dados: dadosVazio,
   };
 }
