@@ -10,7 +10,7 @@ import {
 
 import TableToPrint from './TableToPrint';
 import {
-  R$,
+  R$, floating,
 } from '../services/calculador.service';
 
 import { useStore } from '../store/Connect';
@@ -101,7 +101,10 @@ function InvestimentosTable(props : propTypes) : JSX.Element {
     ganhoCapital: R$(investimentos?.capital_gain || 0),
   }
 
-  var valorTotal = R$((investimentos?.income || 0) + (investimentos?.fees_discounts || 0) + (investimentos?.capital_gain || 0));
+  const [
+    valorTotal, 
+    setValorTotal
+  ] = useState(R$((investimentos?.income || 0) + (investimentos?.fees_discounts || 0) + (investimentos?.capital_gain || 0)));
 
   const [
     investimentosAlterados,
@@ -112,9 +115,16 @@ function InvestimentosTable(props : propTypes) : JSX.Element {
     valor : string,
     nome : string,
   ) : void => {
+    const valorInicial = valores[nome];
+    const novoValorTotal = investimentosAlterados[nome] == null
+      ? floating(valorTotal) - floating(valorInicial) + floating(valor)
+      : floating(valorTotal) - investimentosAlterados[nome] + floating(valor);
+
+    setValorTotal(R$(novoValorTotal));
+    
     setInvestimentosAlterados({
       ...investimentosAlterados,
-      [nome]: valor
+      [nome]: floating(valor)
     });
   };
 
