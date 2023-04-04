@@ -36,22 +36,27 @@ const columns : any = [
     title: 'Tipo',
     dataIndex: 'tipo',
     key: 'tipo',
-    width: '25%',
+    width: '20%',
   }, {
     title: 'Valor',
     dataIndex: 'valor',
     key: 'valor',
-    width: '25%',
+    width: '20%',
   }, {
     title: 'CSLL',
     dataIndex: 'csll',
     key: 'csll',
-    width: '25%',
+    width: '20%',
   }, {
     title: 'IRPJ',
     dataIndex: 'irpj',
     key: 'irpj',
-    width: '25%',
+    width: '20%',
+  }, {
+    title: 'Retenção',
+    dataIndex: 'retencao',
+    key: 'retencao',
+    width: '20%',
   },
 ];
 
@@ -104,6 +109,7 @@ function InvestimentosTable(props : propTypes) : JSX.Element {
     rendimentos: R$(investimentos?.income || 0),
     jurosDescontos: R$(investimentos?.fees_discounts || 0),
     ganhoCapital: R$(investimentos?.capital_gain || 0),
+    retencao: R$(investimentos?.retention || 0),
   }
 
   const [
@@ -142,6 +148,8 @@ function InvestimentosTable(props : propTypes) : JSX.Element {
       ? floating(valores['jurosDescontos']) : investimentosAlterados['jurosDescontos'];
     const ganhoCapital = investimentosAlterados['ganhoCapital'] == null
       ? floating(valores['ganhoCapital']) : investimentosAlterados['ganhoCapital'];
+    const retencao = investimentosAlterados['retencao'] == null
+      ? floating(valores['retencao']) : investimentosAlterados['retencao'];
 
     var investimentos: Investimentos = {
       owner: empresa?.cnpj || '',
@@ -150,7 +158,7 @@ function InvestimentosTable(props : propTypes) : JSX.Element {
       income: rendimentos,
       fees_discounts: jurosDescontos,
       capital_gain: ganhoCapital,
-      retention: 0, // TODO
+      retention: retencao,
     }
 
     enviarInvestimentos(investimentos).then(update);
@@ -187,6 +195,7 @@ function InvestimentosTable(props : propTypes) : JSX.Element {
     valor: defineInvestimentoValorInput('rendimentos'),
     csll: R$(0), // TODO calcular
     irpj: R$(0), // TODO calcular
+    retencao: defineInvestimentoValorInput('retencao'),
   }, { 
     key: 2,
     editar: undefined,
