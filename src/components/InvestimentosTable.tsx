@@ -13,10 +13,14 @@ import {
   R$, floating,
 } from '../services/calculador.service';
 
-import { useStore } from '../store/Connect';
+import { useStore, useDispatch } from '../store/Connect';
 import {
+  Investimentos,
   MovimentoStore,
 } from '../types';
+
+import { carregarInvestimentos } from '../store/movimento';
+import { enviarInvestimentos } from '../services/api.service';
 
 type propTypes = {
   printable? : boolean;
@@ -87,6 +91,7 @@ function InvestimentoValorInput(props : inputPropTypes) : JSX.Element {
 
 function InvestimentosTable(props : propTypes) : JSX.Element {
   const store = useStore<MovimentoStore>();
+  const dispatch = useDispatch();
 
   const { printable = false } = props; // TODO fazer o print no PDF
   const {
@@ -128,12 +133,35 @@ function InvestimentosTable(props : propTypes) : JSX.Element {
     });
   };
 
+  const update = (dados : Investimentos) : void => dispatch(carregarInvestimentos(dados));
+
+  const editarInvestimentos = () : void => {
+    const rendimentos = investimentosAlterados['rendimentos'] == null
+      ? floating(valores['rendimentos']) : investimentosAlterados['rendimentos'];
+    const jurosDescontos = investimentosAlterados['jurosDescontos'] == null
+      ? floating(valores['jurosDescontos']) : investimentosAlterados['jurosDescontos'];
+    const ganhoCapital = investimentosAlterados['ganhoCapital'] == null
+      ? floating(valores['ganhoCapital']) : investimentosAlterados['ganhoCapital'];
+
+    var investimentos: Investimentos = {
+      owner: empresa?.cnpj || '',
+      year: Number(competencia?.ano) || 0,
+      month: Number(competencia?.mes) || 0,
+      income: rendimentos,
+      fees_discounts: jurosDescontos,
+      capital_gain: ganhoCapital,
+      retention: 0, // TODO
+    }
+
+    enviarInvestimentos(investimentos).then(update);
+  };
+
   const editar = (
     <Popconfirm
       title="Realmente deseja editar investimentos?"
       okText="Sim"
       cancelText="Não"
-      onConfirm={() : void => {}} // TODO fazer a função de confirmar
+      onConfirm={() : void => editarInvestimentos()}
     >
       <Button
         type="ghost"

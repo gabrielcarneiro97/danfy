@@ -267,6 +267,19 @@ export async function pegarInvestimentos(
   return data;
 }
 
+export async function enviarInvestimentos(investimentos : Investimentos) : Promise<Investimentos> {
+  const headers = {
+    "Authorization": "Bearer ZDU1NWFhYWUtNTg2NC00MzFhLWJlMmEtYzQxMzk3ZWU0ZWNm"
+  }
+
+  const { data } = await axios.post(`${apiv2}/api/v1/investments`, investimentos, { headers }).catch(e => {
+    console.log(`ERROR!!! ${e}`);
+    return { data: investimentos };
+  });
+
+  return data;
+}
+
 export async function criarEstoqueProduto(
   cnpj : string,
   produto : ProdutoEstoqueLite,
