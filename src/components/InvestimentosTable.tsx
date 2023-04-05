@@ -98,7 +98,7 @@ function InvestimentosTable(props : propTypes) : JSX.Element {
   const store = useStore<MovimentoStore>();
   const dispatch = useDispatch();
 
-  const { printable = false } = props; // TODO fazer o print no PDF
+  const { printable = false } = props;
   const {
     competencia,
     empresa,
@@ -220,9 +220,49 @@ function InvestimentosTable(props : propTypes) : JSX.Element {
   }];
 
   if (printable) {
+    const rendimentos = investimentosAlterados['rendimentos'] == null
+      ? floating(valores['rendimentos']) : investimentosAlterados['rendimentos'];
+    const jurosDescontos = investimentosAlterados['jurosDescontos'] == null
+      ? floating(valores['jurosDescontos']) : investimentosAlterados['jurosDescontos'];
+    const ganhoCapital = investimentosAlterados['ganhoCapital'] == null
+      ? floating(valores['ganhoCapital']) : investimentosAlterados['ganhoCapital'];
+    const retencao = investimentosAlterados['retencao'] == null
+      ? floating(valores['retencao']) : investimentosAlterados['retencao'];
+
+    const printableDataSource = [{
+      key: 1,
+      editar: undefined,
+      tipo: stg('Rendimentos'),
+      valor: R$(rendimentos),
+      csll: R$(0), // TODO calcular
+      irpj: R$(0), // TODO calcular
+      retencao: R$(retencao),
+    }, {
+      key: 2,
+      editar: undefined,
+      tipo: stg('Juros / Descontos'),
+      valor: R$(jurosDescontos),
+      csll: R$(0), // TODO calcular
+      irpj: R$(0), // TODO calcular
+    }, {
+      key: 3,
+      editar: undefined,
+      tipo: stg('Ganho de Capital'),
+      valor: R$(ganhoCapital),
+      csll: R$(0), // TODO calcular
+      irpj: R$(0), // TODO calcular
+    }, {
+      key: 4,
+      editar,
+      tipo: stg('Totais'),
+      valor: valorTotal,
+      csll: R$(0), // TODO calcular
+      irpj: R$(0), // TODO calcular
+    }];
+    
     return (
       <TableToPrint
-        dataSource={dataSource}
+        dataSource={printableDataSource}
         columns={columns}
       />
     );

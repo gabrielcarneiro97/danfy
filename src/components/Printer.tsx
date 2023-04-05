@@ -14,6 +14,7 @@ import CotasTable from './CotasTable';
 import GuiasTable from './GuiasTable';
 import SimplesTable from './SimplesTable';
 import GruposTable from './GruposTable';
+import InvestimentosTable from './InvestimentosTable';
 
 import {
   pegaMes,
@@ -36,6 +37,7 @@ function Printer() : JSX.Element {
     competencia,
     empresa,
     grupos,
+    investimentos,
   } = store;
 
   const printRef = useRef<HTMLDivElement>(null);
@@ -49,6 +51,8 @@ function Printer() : JSX.Element {
 
   const temMovimento = movimentosPoolMes.length > 0 && empresa.cnpj;
   const temServico = servicosPoolMes.length > 0 && empresa.cnpj;
+
+  const ehFimTrimestre = parseInt(competencia?.mes || "-1") % 3 == 0;
 
   const printStyle = `
     @page { size: auto; margin: 10mm; margin-bottom: 10mm; margin-top: 12mm; }
@@ -167,6 +171,15 @@ function Printer() : JSX.Element {
                 <>
                   <Divider orientation="left">Receitas (Simples)</Divider>
                   <SimplesTable printable />
+                </>
+              )
+            }
+            {
+              ehFimTrimestre && !empresa?.simples && investimentos
+              && (
+                <>
+                  <Divider orientation="left">Aplicações</Divider>
+                  <InvestimentosTable printable />
                 </>
               )
             }
