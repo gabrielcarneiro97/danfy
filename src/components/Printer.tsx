@@ -143,7 +143,9 @@ function Printer() : JSX.Element {
               && (
                 <>
                   <Divider orientation="left">Relatório de Aplicações, Ganhos e Juros</Divider>
-                  <InvestimentosTable printable />
+                  <Col span={24} className="tables">
+                    <InvestimentosTable printable />
+                  </Col>
                 </>
               )
             }
