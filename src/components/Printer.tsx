@@ -139,6 +139,15 @@ function Printer() : JSX.Element {
               )
             }
             {
+              ehFimTrimestre && !empresa?.simples && investimentos
+              && (
+                <>
+                  <Divider orientation="left">Relatório de Aplicações, Ganhos e Juros</Divider>
+                  <InvestimentosTable printable />
+                </>
+              )
+            }
+            {
               trimestreData.trim
               && (
                 <>
@@ -171,15 +180,6 @@ function Printer() : JSX.Element {
                 <>
                   <Divider orientation="left">Receitas (Simples)</Divider>
                   <SimplesTable printable />
-                </>
-              )
-            }
-            {
-              ehFimTrimestre && !empresa?.simples && investimentos
-              && (
-                <>
-                  <Divider orientation="left">Relatório de Aplicações, Ganhos e Juros</Divider>
-                  <InvestimentosTable printable />
                 </>
               )
             }

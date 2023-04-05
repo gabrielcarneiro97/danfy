@@ -69,6 +69,15 @@ function VisualizarTables() : JSX.Element {
           )
         }
         {
+          ehFimTrimestre && !empresa?.simples && investimentos
+          && (
+            <>
+              <Divider orientation="left">Aplicações</Divider>
+              <InvestimentosTable />
+            </>
+          )
+        }
+        {
           trimestreData.trim
           && (
             <>
@@ -95,15 +104,6 @@ function VisualizarTables() : JSX.Element {
             <>
               <Divider orientation="left">Receitas (Simples)</Divider>
               <SimplesTable />
-            </>
-          )
-        }
-        {
-          ehFimTrimestre && !empresa?.simples && investimentos
-          && (
-            <>
-              <Divider orientation="left">Aplicações</Divider>
-              <InvestimentosTable />
             </>
           )
         }
