@@ -178,7 +178,7 @@ function Printer() : JSX.Element {
               ehFimTrimestre && !empresa?.simples && investimentos
               && (
                 <>
-                  <Divider orientation="left">Aplicações</Divider>
+                  <Divider orientation="left">Relatório de Aplicações, Ganhos e Juros</Divider>
                   <InvestimentosTable printable />
                 </>
               )
