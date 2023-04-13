@@ -94,6 +94,63 @@ function InvestimentoValorInput(props : inputPropTypes) : JSX.Element {
   );
 }
 
+type ValorTributavel = {
+  valor: string;
+  irpj: string;
+  csll: string;
+}
+
+type InvestimentosTableModel = {
+  rendimentos: ValorTributavel;
+  jurosDescontos: ValorTributavel;
+  ganhoCapital: ValorTributavel;
+  retencao: string;
+  valorTotal: string;
+  irpjTotal: string;
+  csllTotal: string;
+}
+
+function calcularImposto(valor: number, retencao: number) : ValorTributavel {
+  return {
+    valor: R$(valor),
+    irpj: R$((valor * 0.15) - retencao),
+    csll: R$(valor * 0.08),
+  }
+}
+
+function initModel(investimentos?: Investimentos) : InvestimentosTableModel {
+  const retencao = investimentos?.retention || 0;
+  const rendimentos = calcularImposto(investimentos?.income || 0, retencao);
+  const jurosDescontos = calcularImposto(investimentos?.fees_discounts || 0, retencao);
+  const ganhoCapital = calcularImposto(investimentos?.capital_gain || 0, retencao);
+  return buildModel(rendimentos, jurosDescontos, ganhoCapital, retencao);
+}
+
+function recalcularModel(model: InvestimentosTableModel) : InvestimentosTableModel {
+  const retencao = floating(model.retencao);
+  const rendimentos = calcularImposto(floating(model.rendimentos.valor), retencao);
+  const jurosDescontos = calcularImposto(floating(model.jurosDescontos.valor), retencao);
+  const ganhoCapital = calcularImposto(floating(model.ganhoCapital.valor), retencao);
+  return buildModel(rendimentos, jurosDescontos, ganhoCapital, retencao);
+}
+
+function buildModel(
+  rendimentos: ValorTributavel,
+  jurosDescontos: ValorTributavel,
+  ganhoCapital: ValorTributavel,
+  retencao: number
+) : InvestimentosTableModel {
+  return {
+    rendimentos,
+    jurosDescontos,
+    ganhoCapital,
+    retencao: R$(retencao),
+    valorTotal: R$(floating(rendimentos.valor) + floating(jurosDescontos.valor) + floating(ganhoCapital.valor)),
+    irpjTotal: R$(floating(rendimentos.irpj) + floating(jurosDescontos.irpj) + floating(ganhoCapital.irpj)),
+    csllTotal: R$(floating(rendimentos.csll) + floating(jurosDescontos.csll) + floating(ganhoCapital.csll)),
+  }
+}
+
 function InvestimentosTable(props : propTypes) : JSX.Element {
   const store = useStore<MovimentoStore>();
   const dispatch = useDispatch();
@@ -105,63 +162,42 @@ function InvestimentosTable(props : propTypes) : JSX.Element {
     investimentos,
   } = store;
 
-  const valores : any = {
-    rendimentos: R$(investimentos?.income || 0),
-    jurosDescontos: R$(investimentos?.fees_discounts || 0),
-    ganhoCapital: R$(investimentos?.capital_gain || 0),
-    retencao: R$(investimentos?.retention || 0),
+  const [editDisabled, setEditDisabled] = useState(true);
+  const [model, setModel] : [InvestimentosTableModel, Function] = useState(initModel(investimentos));
+  const mapaValores : any = {
+    'rendimentos': model.rendimentos,
+    'jurosDescontos': model.jurosDescontos,
+    'ganhoCapital': model.ganhoCapital
   }
-
-  const [
-    valorTotal, 
-    setValorTotal
-  ] = useState(R$((investimentos?.income || 0) + (investimentos?.fees_discounts || 0) + (investimentos?.capital_gain || 0)));
-
-  const [
-    investimentosAlterados,
-    setInvestimentosAlterados,
-  ] : [{ [key : string] : number }, Function] = useState({});
 
   const handleChange = (
     valor : string,
     nome : string,
   ) : void => {
-    const valorInicial = valores[nome];
-    const novoValorTotal = investimentosAlterados[nome] == null
-      ? floating(valorTotal) - floating(valorInicial) + floating(valor)
-      : floating(valorTotal) - investimentosAlterados[nome] + floating(valor);
-
-    setValorTotal(R$(novoValorTotal));
-    
-    setInvestimentosAlterados({
-      ...investimentosAlterados,
-      [nome]: floating(valor)
-    });
+    if (nome === 'retencao') {
+      model[nome] = R$(valor);
+    } else {
+      mapaValores[nome].valor = R$(valor);
+    }
+    setModel(recalcularModel(model));
+    setEditDisabled(false);
   };
 
   const update = (dados : Investimentos) : void => dispatch(carregarInvestimentos(dados));
 
   const editarInvestimentos = () : void => {
-    const rendimentos = investimentosAlterados['rendimentos'] == null
-      ? floating(valores['rendimentos']) : investimentosAlterados['rendimentos'];
-    const jurosDescontos = investimentosAlterados['jurosDescontos'] == null
-      ? floating(valores['jurosDescontos']) : investimentosAlterados['jurosDescontos'];
-    const ganhoCapital = investimentosAlterados['ganhoCapital'] == null
-      ? floating(valores['ganhoCapital']) : investimentosAlterados['ganhoCapital'];
-    const retencao = investimentosAlterados['retencao'] == null
-      ? floating(valores['retencao']) : investimentosAlterados['retencao'];
-
     var investimentos: Investimentos = {
       owner: empresa?.cnpj || '',
       year: Number(competencia?.ano) || 0,
       month: Number(competencia?.mes) || 0,
-      income: rendimentos,
-      fees_discounts: jurosDescontos,
-      capital_gain: ganhoCapital,
-      retention: retencao,
+      income: floating(model.rendimentos.valor),
+      fees_discounts: floating(model.jurosDescontos.valor),
+      capital_gain: floating(model.ganhoCapital.valor),
+      retention: floating(model.retencao),
     }
 
     enviarInvestimentos(investimentos).then(update);
+    setEditDisabled(true);
   };
 
   const editar = (
@@ -173,6 +209,7 @@ function InvestimentosTable(props : propTypes) : JSX.Element {
     >
       <Button
         type="ghost"
+        disabled={editDisabled}
         icon="edit"
       />
     </Popconfirm>
@@ -181,7 +218,7 @@ function InvestimentosTable(props : propTypes) : JSX.Element {
   const defineInvestimentoValorInput = (nome : string) : JSX.Element => (
     <InvestimentoValorInput
       onChange={handleChange}
-      value={valores[nome]}
+      value={nome === 'retencao' ? model.retencao : mapaValores[nome].valor}
       name={nome}
     />
   );
@@ -193,71 +230,62 @@ function InvestimentosTable(props : propTypes) : JSX.Element {
     editar: undefined,
     tipo: stg('Rendimentos'),
     valor: defineInvestimentoValorInput('rendimentos'),
-    csll: R$(0), // TODO calcular
-    irpj: R$(0), // TODO calcular
+    csll: model.rendimentos.csll,
+    irpj: model.rendimentos.irpj,
     retencao: defineInvestimentoValorInput('retencao'),
   }, { 
     key: 2,
     editar: undefined,
     tipo: stg('Juros / Descontos'),
     valor: defineInvestimentoValorInput('jurosDescontos'),
-    csll: R$(0), // TODO calcular
-    irpj: R$(0), // TODO calcular
+    csll: model.jurosDescontos.csll,
+    irpj: model.jurosDescontos.irpj,
   }, { 
     key: 3,
     editar: undefined,
     tipo: stg('Ganho de Capital'),
     valor: defineInvestimentoValorInput('ganhoCapital'),
-    csll: R$(0), // TODO calcular
-    irpj: R$(0), // TODO calcular
+    csll: model.ganhoCapital.csll,
+    irpj: model.ganhoCapital.irpj,
   }, { 
     key: 4,
     editar,
     tipo: stg('Totais'),
-    valor: valorTotal,
-    csll: R$(0), // TODO calcular
-    irpj: R$(0), // TODO calcular
+    valor: model.valorTotal,
+    csll: model.csllTotal,
+    irpj: model.irpjTotal,
   }];
 
   if (printable) {
-    const rendimentos = investimentosAlterados['rendimentos'] == null
-      ? floating(valores['rendimentos']) : investimentosAlterados['rendimentos'];
-    const jurosDescontos = investimentosAlterados['jurosDescontos'] == null
-      ? floating(valores['jurosDescontos']) : investimentosAlterados['jurosDescontos'];
-    const ganhoCapital = investimentosAlterados['ganhoCapital'] == null
-      ? floating(valores['ganhoCapital']) : investimentosAlterados['ganhoCapital'];
-    const retencao = investimentosAlterados['retencao'] == null
-      ? floating(valores['retencao']) : investimentosAlterados['retencao'];
-
     const printableDataSource = [{
       key: 1,
       editar: undefined,
       tipo: stg('Rendimentos'),
-      valor: R$(rendimentos),
-      csll: R$(0), // TODO calcular
-      irpj: R$(0), // TODO calcular
-      retencao: R$(retencao),
+      valor: model.rendimentos.valor,
+      csll: model.rendimentos.csll,
+      irpj: model.rendimentos.irpj,
+      retencao: model.retencao,
     }, {
       key: 2,
       editar: undefined,
       tipo: stg('Juros / Descontos'),
-      valor: R$(jurosDescontos),
-      csll: R$(0), // TODO calcular
-      irpj: R$(0), // TODO calcular
+      valor: model.jurosDescontos.valor,
+      csll: model.jurosDescontos.csll,
+      irpj: model.jurosDescontos.irpj,
     }, {
       key: 3,
       editar: undefined,
       tipo: stg('Ganho de Capital'),
-      valor: R$(ganhoCapital),
-      csll: R$(0), // TODO calcular
-      irpj: R$(0), // TODO calcular
+      valor: model.ganhoCapital.valor,
+      csll: model.ganhoCapital.csll,
+      irpj: model.ganhoCapital.irpj,
     }, {
       key: 4,
       editar,
       tipo: stg('Totais'),
-      valor: valorTotal,
-      csll: R$(0), // TODO calcular
-      irpj: R$(0), // TODO calcular
+      valor: model.valorTotal,
+      csll: model.csllTotal,
+      irpj: model.irpjTotal,
     }];
     
     return (

@@ -36,7 +36,7 @@ function VisualizarTables() : JSX.Element {
 
   const temMovimento = movimentosPoolMes.length > 0 && empresa?.cnpj;
   const temServico = servicosPoolMes.length > 0 && empresa?.cnpj;
-  const ehFimTrimestre = parseInt(competencia?.mes || "-1") % 3 == 0;
+  const ehFimTrimestre = parseInt(competencia?.mes || "-1") % 3 === 0;
 
   return (
     <>
