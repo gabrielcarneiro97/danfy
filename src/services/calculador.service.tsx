@@ -2,7 +2,7 @@ import React from 'react';
 import moment from 'moment';
 import 'moment-timezone';
 import {
-  Empresa, Competencia, MesesNum, TrimestreData, Cota, MovimentoPool, ServicoPool,
+  Empresa, Competencia, MesesNum, TrimestreData, Cota, MovimentoPool, ServicoPool, ValorTributavel, Investimentos,
 } from '../types';
 
 
@@ -281,4 +281,28 @@ export function dateToComp(date : Date) : Competencia {
 
 export function compToDate(comp : Competencia) : Date {
   return new Date(parseInt(comp.ano, 10), parseInt(comp.mes, 10) - 1);
+}
+
+export function calcularImposto(valor: number, retencao: number) : ValorTributavel {
+  return {
+    valor: R$(valor),
+    irpj: R$((valor * 0.15) - retencao),
+    csll: R$(valor * 0.08),
+  }
+}
+
+export function calcularImpostosInvestimentos(investimentos: Investimentos) : any {
+  const retencao = investimentos?.retention || 0;
+  const rendimentos = calcularImposto(investimentos?.income || 0, retencao);
+  const jurosDescontos = calcularImposto(investimentos?.fees_discounts || 0, retencao);
+  const ganhoCapital = calcularImposto(investimentos?.capital_gain || 0, retencao);
+  return {
+    rendimentos,
+    jurosDescontos,
+    ganhoCapital,
+    retencao: R$(retencao),
+    valorTotal: R$(floating(rendimentos.valor) + floating(jurosDescontos.valor) + floating(ganhoCapital.valor)),
+    irpjTotal: R$(floating(rendimentos.irpj) + floating(jurosDescontos.irpj) + floating(ganhoCapital.irpj)),
+    csllTotal: R$(floating(rendimentos.csll) + floating(jurosDescontos.csll) + floating(ganhoCapital.csll)),
+  }
 }

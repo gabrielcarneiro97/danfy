@@ -10,13 +10,14 @@ import {
 
 import TableToPrint from './TableToPrint';
 import {
-  R$, floating,
+  R$, floating, calcularImposto,
 } from '../services/calculador.service';
 
 import { useStore, useDispatch } from '../store/Connect';
 import {
   Investimentos,
   MovimentoStore,
+  ValorTributavel,
 } from '../types';
 
 import { carregarInvestimentos } from '../store/movimento';
@@ -94,12 +95,6 @@ function InvestimentoValorInput(props : inputPropTypes) : JSX.Element {
   );
 }
 
-type ValorTributavel = {
-  valor: string;
-  irpj: string;
-  csll: string;
-}
-
 type InvestimentosTableModel = {
   rendimentos: ValorTributavel;
   jurosDescontos: ValorTributavel;
@@ -108,14 +103,6 @@ type InvestimentosTableModel = {
   valorTotal: string;
   irpjTotal: string;
   csllTotal: string;
-}
-
-function calcularImposto(valor: number, retencao: number) : ValorTributavel {
-  return {
-    valor: R$(valor),
-    irpj: R$((valor * 0.15) - retencao),
-    csll: R$(valor * 0.08),
-  }
 }
 
 function initModel(investimentos?: Investimentos) : InvestimentosTableModel {

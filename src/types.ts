@@ -429,6 +429,12 @@ export type Aliquotas = {
   iss : number;
 }
 
+export type ValorTributavel = {
+  valor: string;
+  irpj: string;
+  csll: string;
+}
+
 export type GenericAction = {
   type : symbol;
   [key : string] : any;
