@@ -34,6 +34,7 @@ import {
   carregarDominio,
   carregarMovimento,
   carregarInvestimentos,
+  carregarAliquotas,
   carregarCompetencia,
   carregarEmpresa,
   carregarGrupos,
@@ -158,6 +159,11 @@ function VisualizarForm() : JSX.Element {
     const investimentos = await pegarInvestimentos(empresa?.cnpj || '', competencia);
     if (investimentos.owner) {
       dispatch(carregarInvestimentos(investimentos));
+    }
+
+    const aliquotas = await pegarEmpresaImpostos(empresa?.cnpj || '');
+    if (aliquotas.donoCpfcnpj) {
+      dispatch(carregarAliquotas(aliquotas));
     }
 
     setDisableRecalc(false);

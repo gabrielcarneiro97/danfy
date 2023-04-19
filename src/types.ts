@@ -348,6 +348,7 @@ export type MovimentoStore = {
   dominio? : Dominio[];
   grupos : Grupo[];
   investimentos? : Investimentos;
+  aliquotas? : Aliquotas;
 }
 
 export type Investimentos = {

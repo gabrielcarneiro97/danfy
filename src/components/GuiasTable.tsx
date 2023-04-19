@@ -15,9 +15,13 @@ function GuiasTable(props : propTypes) : JSX.Element {
   const store = useStore<MovimentoStore>();
 
   const { printable = false } = props;
-  const { trimestreData, competencia, empresa, investimentos } = store;
+  const { trimestreData, competencia, empresa, investimentos, aliquotas } = store;
   const { movimentosPool, servicosPool } = trimestreData;
   const { mes } = competencia || { mes: '' };
+  var aliquotaIr = 0;
+  if (aliquotas) {
+    aliquotaIr = aliquotas.irpj;
+  }
 
   const temMovimentos = movimentosPool.length > 0;
   const temServicos = servicosPool.length > 0;
@@ -84,12 +88,20 @@ function GuiasTable(props : propTypes) : JSX.Element {
 
     if (parseInt(mes, 10) % 3 === 0
     && empresa.formaPagamento !== 'LUCRO PRESUMIDO - PAGAMENTO ANTECIPADO') {
+      var adicionalIr = trimestre.impostoPool.imposto.adicionalIr;
       var csll = trimestre.impostoPool.imposto.csll - (trimestre.retencao.csll || 0);
-      var irpj = (trimestre.impostoPool.imposto.irpj - (trimestre.retencao.irpj || 0)) + trimestre.impostoPool.imposto.adicionalIr;
+      var irpj = (trimestre.impostoPool.imposto.irpj - (trimestre.retencao.irpj || 0));
       
       if (empresa.formaPagamento !== 'SIMPLES') {
         csll += floating(impostosInvestimentos.csllTotal);
         irpj += floating(impostosInvestimentos.irpjTotal);
+        if (floating(impostosInvestimentos.valorTotal) > 0) {
+          const baseMovimento = aliquotaIr === 0.012 ? 0.08 : 0.32;
+          const montante = trimestre.totalSoma.valorMovimento * baseMovimento + trimestre.totalSoma.valorServico * 0.32 + floating(impostosInvestimentos.valorTotal);
+          if (montante > 60000) {
+            adicionalIr = (montante - 60000) * 0.1;
+          }
+        }
       }
 
       columns.push({
@@ -104,7 +116,7 @@ function GuiasTable(props : propTypes) : JSX.Element {
         dataIndex: 'irpj',
         key: 'irpj',
       });
-      data.irpj = R$(irpj);
+      data.irpj = R$(irpj + adicionalIr);
     } else if (parseInt(mes, 10) % 3 !== 0
       && empresa.formaPagamento === 'LUCRO PRESUMIDO - PAGAMENTO ANTECIPADO') {
       columns.push({
@@ -130,13 +142,21 @@ function GuiasTable(props : propTypes) : JSX.Element {
       });
       data.csll = R$(imposto.csll - (retencao.csll || 0) + floating(impostosInvestimentos.csllTotal));
 
+      var adicionalIr = trimestre.impostoPool.imposto.adicionalIr;
+      if (impostosInvestimentos.valorTotal > 0) {
+        const baseMovimento = aliquotaIr === 0.012 ? 0.08 : 0.32;
+        const montante = trimestre.totalSoma.valorMovimento * baseMovimento + trimestre.totalSoma.valorServico * 0.32 + floating(impostosInvestimentos.valorTotal);
+        if (montante > 60000) {
+          adicionalIr = (montante - 60000) * 0.1;
+        }
+      }
+
       columns.push({
         title: 'IRPJ + ADICIONAL',
         dataIndex: 'irpj',
         key: 'irpj',
       });
-      data.irpj = R$((imposto.irpj - (retencao.irpj || 0) + floating(impostosInvestimentos.irpjTotal))
-      + trimestre.impostoPool.imposto.adicionalIr);
+      data.irpj = R$((imposto.irpj - (retencao.irpj || 0) + floating(impostosInvestimentos.irpjTotal)) + adicionalIr);
     }
 
     data.key = 'guias';

@@ -1,5 +1,5 @@
 import {
-  MovimentoStore, TrimestreData, Dominio, Empresa, Competencia, Grupo, Simples, StoreHandler, Investimentos,
+  MovimentoStore, TrimestreData, Dominio, Empresa, Competencia, Grupo, Simples, StoreHandler, Investimentos, Aliquotas,
 } from '../types';
 
 export const movimentoStore : MovimentoStore = {
@@ -68,6 +68,7 @@ export const CARREGAR_COMPETENCIA = Symbol('CARREGAR_COMPETENCIA');
 export const CARREGAR_SIMPLES = Symbol('CARREGAR_SIMPLES');
 export const CARREGAR_GRUPOS = Symbol('CARREGAR_GRUPOS');
 export const CARREGAR_INVESTIMENTOS = Symbol('CARREGAR_INVESTIMENTOS');
+export const CARREGAR_ALIQUOTAS = Symbol('CARREGAR_ALIQUOTAS');
 
 export type Action = {
   type : symbol;
@@ -79,6 +80,7 @@ export type Action = {
   simples? : Simples;
   grupos? : Grupo[];
   investimentos? : Investimentos;
+  aliquotas? : Aliquotas;
 }
 
 export type MovimentoHandler = StoreHandler<MovimentoStore, Action>;
@@ -116,6 +118,15 @@ const setInvestimentos : MovimentoHandler = (state, action) => {
   const newState : MovimentoStore = {
     ...state,
     investimentos: action.investimentos,
+  };
+
+  return newState;
+};
+
+const setAliquotas : MovimentoHandler = (state, action) => {
+  const newState : MovimentoStore = {
+    ...state,
+    aliquotas: action.aliquotas,
   };
 
   return newState;
@@ -189,6 +200,8 @@ export default function movimentoReducer(state = movimentoStore, action : Action
       return setGrupos(state, action);
     case CARREGAR_INVESTIMENTOS:
       return setInvestimentos(state, action);
+    case CARREGAR_ALIQUOTAS:
+      return setAliquotas(state, action);
     default:
       break;
   }
@@ -214,6 +227,13 @@ export function carregarInvestimentos(investimentos : Investimentos) : Action {
   return {
     type: CARREGAR_INVESTIMENTOS,
     investimentos,
+  };
+}
+
+export function carregarAliquotas(aliquotas : Aliquotas) : Action {
+  return {
+    type: CARREGAR_ALIQUOTAS,
+    aliquotas,
   };
 }
 
