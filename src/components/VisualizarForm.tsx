@@ -40,6 +40,7 @@ import {
   carregarGrupos,
   limparDados,
   limparInvestimentos,
+  limparAliquotas,
 } from '../store/movimento';
 
 import './VisualizarForm.css';
@@ -206,6 +207,7 @@ function VisualizarForm() : JSX.Element {
     } else if ((movimentosPool.length >= 0 || servicosPool.length >= 0)) {
       dispatch(limparDados());
       dispatch(limparInvestimentos());
+      dispatch(limparAliquotas());
     }
   }, [num, competencia, acheiEmpresa]);
 
@@ -214,6 +216,7 @@ function VisualizarForm() : JSX.Element {
       setDisableRecalc(true);
       dispatch(limparDados());
       dispatch(limparInvestimentos());
+      dispatch(limparAliquotas());
     }
   }, [competencia, num]);
 

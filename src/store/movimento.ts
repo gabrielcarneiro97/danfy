@@ -285,3 +285,10 @@ export function limparInvestimentos() : Action {
     dados: dadosVazio,
   };
 }
+
+export function limparAliquotas() : Action {
+  return {
+    type: CARREGAR_ALIQUOTAS,
+    dados: dadosVazio,
+  };
+}
