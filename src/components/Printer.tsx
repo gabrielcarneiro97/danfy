@@ -86,6 +86,7 @@ function Printer() : JSX.Element {
             <br />
             PLANILHA
           </div>
+          <h3 style={{textAlign: 'center'}}>ANDREA ARANTES CONTABILIDADE - CNPJ: 11.009.961/0001-83</h3>
           <h2
             style={{
               width: '100%',
