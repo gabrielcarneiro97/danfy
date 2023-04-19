@@ -17,6 +17,7 @@ import Printer from './Printer';
 import {
   pegarSimples,
   pegarTrimestre,
+  pegarInvestimentos,
   pegarDominio,
   pegarPessoaId,
   pegarEmpresaImpostos,
@@ -32,10 +33,14 @@ import { useStore, useDispatch } from '../store/Connect';
 import {
   carregarDominio,
   carregarMovimento,
+  carregarInvestimentos,
+  carregarAliquotas,
   carregarCompetencia,
   carregarEmpresa,
   carregarGrupos,
   limparDados,
+  limparInvestimentos,
+  limparAliquotas,
 } from '../store/movimento';
 
 import './VisualizarForm.css';
@@ -152,6 +157,16 @@ function VisualizarForm() : JSX.Element {
       dispatch(carregarMovimento(dados));
     }
 
+    const investimentos = await pegarInvestimentos(empresa?.cnpj || '', competencia);
+    if (investimentos.owner) {
+      dispatch(carregarInvestimentos(investimentos));
+    }
+
+    const aliquotas = await pegarEmpresaImpostos(empresa?.cnpj || '');
+    if (aliquotas.donoCpfcnpj) {
+      dispatch(carregarAliquotas(aliquotas));
+    }
+
     setDisableRecalc(false);
     setSubmit(true);
     setLoading(false);
@@ -191,6 +206,8 @@ function VisualizarForm() : JSX.Element {
       setSubmit(true);
     } else if ((movimentosPool.length >= 0 || servicosPool.length >= 0)) {
       dispatch(limparDados());
+      dispatch(limparInvestimentos());
+      dispatch(limparAliquotas());
     }
   }, [num, competencia, acheiEmpresa]);
 
@@ -198,6 +215,8 @@ function VisualizarForm() : JSX.Element {
     if (empresa?.cnpj) {
       setDisableRecalc(true);
       dispatch(limparDados());
+      dispatch(limparInvestimentos());
+      dispatch(limparAliquotas());
     }
   }, [competencia, num]);
 

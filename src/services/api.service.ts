@@ -1,13 +1,14 @@
 import firebase from 'firebase';
 import axios from 'axios';
 
-import { api } from './publics';
+import { api, apiv2 } from './publics';
 import { firebaseConfig } from './private';
 import {
   EstoqueInformacoesGerais,
   ProdutoEstoqueLite,
   Dominio,
   MovimentoPool, NotaServico,
+  Investimentos,
   ServicoPool, MovimentoStore,
   Grupo, Competencia,
   NotaPool, Movimento,
@@ -236,6 +237,45 @@ export async function pegarTrimestre(
 ) : Promise<MovimentoStore> {
   const { mes, ano } = competencia || { mes: '', ano: '' };
   const { data } = await axios.get(`${api}/trimestre/${cnpj}/${mes}/${ano}`);
+
+  return data;
+}
+
+export async function pegarInvestimentos(
+  cnpj : string,
+  competencia? : Competencia,
+) : Promise<Investimentos> {
+  const headers = {
+    "Authorization": "Bearer ZDU1NWFhYWUtNTg2NC00MzFhLWJlMmEtYzQxMzk3ZWU0ZWNm"
+  }
+  const { mes, ano } = competencia || { mes: '', ano: '' };
+  const { data } = await axios.get(`${apiv2}/api/v1/people/${cnpj}/investments/year/${ano}/month/${mes}`, { headers })
+    .catch(e => {
+      console.log(`ERROR!!! ${e}`);
+      const investimentosVazio = {
+        owner: cnpj,
+        year: ano,
+        month: mes,
+        income: 0,
+        fees_discounts: 0,
+        capital_gain: 0,
+        retention: 0,
+      }
+      return { data: investimentosVazio };
+    });
+
+  return data;
+}
+
+export async function enviarInvestimentos(investimentos : Investimentos) : Promise<Investimentos> {
+  const headers = {
+    "Authorization": "Bearer ZDU1NWFhYWUtNTg2NC00MzFhLWJlMmEtYzQxMzk3ZWU0ZWNm"
+  }
+
+  const { data } = await axios.post(`${apiv2}/api/v1/investments`, investimentos, { headers }).catch(e => {
+    console.log(`ERROR!!! ${e}`);
+    return { data: investimentos };
+  });
 
   return data;
 }

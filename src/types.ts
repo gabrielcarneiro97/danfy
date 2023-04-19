@@ -347,6 +347,18 @@ export type MovimentoStore = {
   simplesData: SimplesData;
   dominio? : Dominio[];
   grupos : Grupo[];
+  investimentos? : Investimentos;
+  aliquotas? : Aliquotas;
+}
+
+export type Investimentos = {
+  owner: string;
+  year: number;
+  month: number;
+  income: number;
+  fees_discounts: number;
+  capital_gain: number;
+  retention: number;
 }
 
 export type ClientesStore = {
@@ -416,6 +428,12 @@ export type Aliquotas = {
   csll : number;
   irpj : number;
   iss : number;
+}
+
+export type ValorTributavel = {
+  valor: string;
+  irpj: string;
+  csll: string;
 }
 
 export type GenericAction = {
