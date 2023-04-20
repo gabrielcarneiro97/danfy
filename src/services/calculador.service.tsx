@@ -287,7 +287,7 @@ export function calcularImposto(valor: number, retencao: number) : ValorTributav
   return {
     valor: R$(valor),
     irpj: R$((valor * 0.15) - retencao),
-    csll: R$(valor * 0.08),
+    csll: R$(valor * 0.09),
   }
 }
 
