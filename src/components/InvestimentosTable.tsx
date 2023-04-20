@@ -108,16 +108,16 @@ type InvestimentosTableModel = {
 function initModel(investimentos?: Investimentos) : InvestimentosTableModel {
   const retencao = investimentos?.retention || 0;
   const rendimentos = calcularImposto(investimentos?.income || 0, retencao);
-  const jurosDescontos = calcularImposto(investimentos?.fees_discounts || 0, retencao);
-  const ganhoCapital = calcularImposto(investimentos?.capital_gain || 0, retencao);
+  const jurosDescontos = calcularImposto(investimentos?.fees_discounts || 0, 0);
+  const ganhoCapital = calcularImposto(investimentos?.capital_gain || 0, 0);
   return buildModel(rendimentos, jurosDescontos, ganhoCapital, retencao);
 }
 
 function recalcularModel(model: InvestimentosTableModel) : InvestimentosTableModel {
   const retencao = floating(model.retencao);
   const rendimentos = calcularImposto(floating(model.rendimentos.valor), retencao);
-  const jurosDescontos = calcularImposto(floating(model.jurosDescontos.valor), retencao);
-  const ganhoCapital = calcularImposto(floating(model.ganhoCapital.valor), retencao);
+  const jurosDescontos = calcularImposto(floating(model.jurosDescontos.valor), 0);
+  const ganhoCapital = calcularImposto(floating(model.ganhoCapital.valor), 0);
   return buildModel(rendimentos, jurosDescontos, ganhoCapital, retencao);
 }
 

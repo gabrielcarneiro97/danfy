@@ -294,8 +294,8 @@ export function calcularImposto(valor: number, retencao: number) : ValorTributav
 export function calcularImpostosInvestimentos(investimentos: Investimentos) : any {
   const retencao = investimentos?.retention || 0;
   const rendimentos = calcularImposto(investimentos?.income || 0, retencao);
-  const jurosDescontos = calcularImposto(investimentos?.fees_discounts || 0, retencao);
-  const ganhoCapital = calcularImposto(investimentos?.capital_gain || 0, retencao);
+  const jurosDescontos = calcularImposto(investimentos?.fees_discounts || 0, 0);
+  const ganhoCapital = calcularImposto(investimentos?.capital_gain || 0, 0);
   return {
     rendimentos,
     jurosDescontos,
