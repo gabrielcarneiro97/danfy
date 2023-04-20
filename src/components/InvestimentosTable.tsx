@@ -244,35 +244,36 @@ function InvestimentosTable(props : propTypes) : JSX.Element {
   }];
 
   if (printable) {
+    const printModel = initModel(investimentos);
     const printableDataSource = [{
       key: 1,
       editar: undefined,
       tipo: stg('Rendimentos'),
-      valor: model.rendimentos.valor,
-      csll: model.rendimentos.csll,
-      irpj: model.rendimentos.irpj,
-      retencao: model.retencao,
+      valor: printModel.rendimentos.valor,
+      csll: printModel.rendimentos.csll,
+      irpj: printModel.rendimentos.irpj,
+      retencao: printModel.retencao,
     }, {
       key: 2,
       editar: undefined,
       tipo: stg('Juros / Descontos'),
-      valor: model.jurosDescontos.valor,
-      csll: model.jurosDescontos.csll,
-      irpj: model.jurosDescontos.irpj,
+      valor: printModel.jurosDescontos.valor,
+      csll: printModel.jurosDescontos.csll,
+      irpj: printModel.jurosDescontos.irpj,
     }, {
       key: 3,
       editar: undefined,
       tipo: stg('Ganho de Capital'),
-      valor: model.ganhoCapital.valor,
-      csll: model.ganhoCapital.csll,
-      irpj: model.ganhoCapital.irpj,
+      valor: printModel.ganhoCapital.valor,
+      csll: printModel.ganhoCapital.csll,
+      irpj: printModel.ganhoCapital.irpj,
     }, {
       key: 4,
-      editar,
+      editar: undefined,
       tipo: stg('Totais'),
-      valor: model.valorTotal,
-      csll: model.csllTotal,
-      irpj: model.irpjTotal,
+      valor: printModel.valorTotal,
+      csll: printModel.csllTotal,
+      irpj: printModel.irpjTotal,
     }];
     
     return (
