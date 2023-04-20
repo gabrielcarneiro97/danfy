@@ -2,10 +2,10 @@ import React from 'react';
 import { Row, Col, Table } from 'antd';
 
 import TableToPrint from './TableToPrint';
-import { R$, floating, calcularImpostosInvestimentos } from '../services/calculador.service';
+import { R$, floating, calcularImpostosInvestimentos, calcularAdicionalIr } from '../services/calculador.service';
 
 import { useStore } from '../store/Connect';
-import { MovimentoStore, MesesNum, Investimentos } from '../types';
+import { MovimentoStore, MesesNum } from '../types';
 
 type propTypes = {
   printable? : boolean;
@@ -26,16 +26,7 @@ function GuiasTable(props : propTypes) : JSX.Element {
   const temMovimentos = movimentosPool.length > 0;
   const temServicos = servicosPool.length > 0;
 
-  const investimentosVazios: Investimentos = {
-    owner: '',
-    year: 0,
-    month: 0,
-    income: 0,
-    fees_discounts: 0,
-    capital_gain: 0,
-    retention: 0,
-  }
-  const impostosInvestimentos = calcularImpostosInvestimentos(investimentos || investimentosVazios);
+  const impostosInvestimentos = calcularImpostosInvestimentos(investimentos);
 
   const columns : any = [];
   const dataSource : any = [];
@@ -95,13 +86,7 @@ function GuiasTable(props : propTypes) : JSX.Element {
       if (empresa.formaPagamento !== 'SIMPLES') {
         csll += floating(impostosInvestimentos.csllTotal);
         irpj += floating(impostosInvestimentos.irpjTotal);
-        if (floating(impostosInvestimentos.valorTotal) > 0) {
-          const baseMovimento = aliquotaIr === 0.012 ? 0.08 : 0.32;
-          const montante = trimestre.totalSoma.valorMovimento * baseMovimento + trimestre.totalSoma.valorServico * 0.32 + floating(impostosInvestimentos.valorTotal);
-          if (montante > 60000) {
-            adicionalIr = (montante - 60000) * 0.1;
-          }
-        }
+        adicionalIr = calcularAdicionalIr(adicionalIr, impostosInvestimentos, aliquotaIr, trimestre);
       }
 
       columns.push({
@@ -142,14 +127,7 @@ function GuiasTable(props : propTypes) : JSX.Element {
       });
       data.csll = R$(imposto.csll - (retencao.csll || 0) + floating(impostosInvestimentos.csllTotal));
 
-      var adicionalIr = trimestre.impostoPool.imposto.adicionalIr;
-      if (impostosInvestimentos.valorTotal > 0) {
-        const baseMovimento = aliquotaIr === 0.012 ? 0.08 : 0.32;
-        const montante = trimestre.totalSoma.valorMovimento * baseMovimento + trimestre.totalSoma.valorServico * 0.32 + floating(impostosInvestimentos.valorTotal);
-        if (montante > 60000) {
-          adicionalIr = (montante - 60000) * 0.1;
-        }
-      }
+      var adicionalIr = calcularAdicionalIr(trimestre.impostoPool.imposto.adicionalIr, impostosInvestimentos, aliquotaIr, trimestre);
 
       columns.push({
         title: 'IRPJ + ADICIONAL',

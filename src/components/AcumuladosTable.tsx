@@ -44,16 +44,7 @@ function AcumuladosTable(props : propTypes) : JSX.Element {
 
       var csll = imposto.csll - (retencao.csll || 0);
       var irpj = imposto.irpj - (retencao.irpj || 0);
-      const investimentosVazios: Investimentos = {
-        owner: '',
-        year: 0,
-        month: 0,
-        income: 0,
-        fees_discounts: 0,
-        capital_gain: 0,
-        retention: 0,
-      }
-      const impostosInvestimentos = calcularImpostosInvestimentos(investimentos || investimentosVazios);
+      const impostosInvestimentos = calcularImpostosInvestimentos(investimentos);
 
       if ((key !== 'trim' && key % 3 === 0) || key === 'trim') {
         csll += floating(impostosInvestimentos.csllTotal);

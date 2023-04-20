@@ -28,8 +28,8 @@ type propTypes = {
 function CotasTable(props : propTypes) : JSX.Element {
   const store = useStore<MovimentoStore>();
   const { printable = false } = props;
-  const { competencia, empresa, trimestreData } = store;
-  const { cotaCsll, cotaIr } = calcularCotas(trimestreData);
+  const { competencia, empresa, trimestreData, investimentos, aliquotas } = store;
+  const { cotaCsll, cotaIr } = calcularCotas(trimestreData, investimentos, aliquotas);
 
   const dataSource = [];
   if (temTabelaCotas(empresa, competencia)) {

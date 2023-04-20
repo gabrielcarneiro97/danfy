@@ -2,7 +2,7 @@ import React from 'react';
 import moment from 'moment';
 import 'moment-timezone';
 import {
-  Empresa, Competencia, MesesNum, TrimestreData, Cota, MovimentoPool, ServicoPool, ValorTributavel, Investimentos,
+  Empresa, Competencia, MesesNum, TrimestreData, Cota, MovimentoPool, ServicoPool, ValorTributavel, Investimentos, ImpostosInvestimentos, TotalSomaPool, Aliquotas,
 } from '../types';
 
 
@@ -231,18 +231,41 @@ export function eDoMes(movOuServPool : MovimentoPool | ServicoPool,
   return parseInt(mes, 10) === dataMes && parseInt(ano, 10) === dataAno;
 }
 
+export function calcularAdicionalIr(
+  adicionalIrDefault: number,
+  impostosInvestimentos: ImpostosInvestimentos,
+  aliquotaIr: number,
+  trimestre: TotalSomaPool
+): number {
+  var adicionalIr = adicionalIrDefault;
+  if (floating(impostosInvestimentos.valorTotal) > 0) {
+    const baseMovimento = aliquotaIr === 0.012 ? 0.08 : 0.32;
+    const montante = trimestre.totalSoma.valorMovimento * baseMovimento + trimestre.totalSoma.valorServico * 0.32 + floating(impostosInvestimentos.valorTotal);
+    if (montante > 60000) {
+      adicionalIr = (montante - 60000) * 0.1;
+    }
+  }
+  return adicionalIr;
+}
+
 export function calcularCotas(
-  trimestreData : TrimestreData,
+  trimestreData : TrimestreData, investimentos? : Investimentos, aliquotas? : Aliquotas
 ) : { cotaCsll : Cota; cotaIr : Cota } {
   if (!trimestreData.trim) {
     return { cotaCsll: { valor: 0, numero: 0 }, cotaIr: { valor: 0, numero: 0 } };
   }
 
-  const trimestre = trimestreData.trim.totalSomaPool;
+  var aliquotaIr = 0;
+  if (aliquotas) {
+    aliquotaIr = aliquotas.irpj;
+  }
 
-  const valorIr = (trimestre.impostoPool.imposto.irpj - (trimestre.retencao.irpj || 0))
-    + trimestre.impostoPool.imposto.adicionalIr;
-  const valorCsll = trimestre.impostoPool.imposto.csll - (trimestre.retencao.csll || 0);
+  const impostosInvestimentos = calcularImpostosInvestimentos(investimentos);
+  const trimestre = trimestreData.trim.totalSomaPool;
+  var adicionalIr = calcularAdicionalIr(trimestre.impostoPool.imposto.adicionalIr, impostosInvestimentos, aliquotaIr, trimestre);
+
+  const valorIr = (trimestre.impostoPool.imposto.irpj - (trimestre.retencao.irpj || 0)) + floating(impostosInvestimentos.irpjTotal) + adicionalIr;
+  const valorCsll = trimestre.impostoPool.imposto.csll - (trimestre.retencao.csll || 0) + floating(impostosInvestimentos.csllTotal);
 
   let cotaIr = { valor: 0, numero: 0 };
   let cotaCsll = { valor: 0, numero: 0 };
@@ -291,7 +314,18 @@ export function calcularImposto(valor: number, retencao: number) : ValorTributav
   }
 }
 
-export function calcularImpostosInvestimentos(investimentos: Investimentos) : any {
+export function calcularImpostosInvestimentos(investimentos?: Investimentos) : ImpostosInvestimentos {
+  if (!investimentos) {
+    investimentos = {
+      owner: '',
+      year: 0,
+      month: 0,
+      income: 0,
+      fees_discounts: 0,
+      capital_gain: 0,
+      retention: 0,
+    }
+  }
   const retencao = investimentos?.retention || 0;
   const rendimentos = calcularImposto(investimentos?.income || 0, retencao);
   const jurosDescontos = calcularImposto(investimentos?.fees_discounts || 0, 0);

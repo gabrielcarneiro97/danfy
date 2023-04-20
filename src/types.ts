@@ -436,6 +436,16 @@ export type ValorTributavel = {
   csll: string;
 }
 
+export type ImpostosInvestimentos = {
+  rendimentos: ValorTributavel;
+  jurosDescontos: ValorTributavel;
+  ganhoCapital: ValorTributavel;
+  retencao: string;
+  valorTotal: string;
+  irpjTotal: string;
+  csllTotal: string;
+}
+
 export type GenericAction = {
   type : symbol;
   [key : string] : any;
